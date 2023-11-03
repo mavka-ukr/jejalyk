@@ -1,0 +1,2 @@
+wasiar qc libmavka_parser.a CMakeFiles/mavka_parser.dir/MavkaLexer.cpp.obj CMakeFiles/mavka_parser.dir/MavkaParser.cpp.obj CMakeFiles/mavka_parser.dir/MavkaParserBaseListener.cpp.obj CMakeFiles/mavka_parser.dir/MavkaParserListener.cpp.obj
+wasiranlib libmavka_parser.a
