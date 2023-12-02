@@ -1,8 +1,5 @@
-const jejalyk = require("./build/jejalyk.js")
+import Module from "./build/jejalyk_node.js";
 
-jejalyk.onRuntimeInitialized = () => {
-    const compile = jejalyk.cwrap("compile", "string", ["string"]);
-    const code = "test";
-    const result = JSON.parse(compile(code));
-    console.log(result);
-}
+Module().then(async (jejalyk) => {
+    console.log(await jejalyk.compile('друк("привіт!")'));
+});

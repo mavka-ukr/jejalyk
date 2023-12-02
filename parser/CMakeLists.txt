@@ -2,6 +2,7 @@
 
 set(MAVKA_PARSER mavka_parser CACHE INTERNAL "")
 set(MAVKA_PARSER_SRC
+        ast.cpp
         MavkaLexer.cpp
         MavkaLexer.h
         MavkaParser.cpp

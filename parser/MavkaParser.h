@@ -14,44 +14,50 @@ public:
   enum {
     END = 1, DIIA = 2, STRUCTURE = 3, FOR = 4, EQ = 5, NOT_EQ = 6, GREATER_EQ = 7, 
     SMALLER_EQ = 8, GREATER = 9, SMALLER = 10, IF = 11, WAIT = 12, TAKE = 13, 
-    TAKE_PAK = 14, TAKE_FILE = 15, GIVE = 16, AS = 17, IS = 18, RETURN = 19, 
-    ASYNC = 20, AND = 21, OR = 22, TRY = 23, CATCH = 24, ELSE = 25, THROW = 26, 
-    WHILE = 27, MODULE = 28, TERNARY = 29, EQ_WORD = 30, GR_WORD = 31, SM_WORD = 32, 
-    NOT_GR_WORD = 33, NOT_SM_WORD = 34, NOT_EQ_WORD = 35, NOT_IS_WORD = 36, 
-    HAS_IS_WORD = 37, NOT_HAS_IS_WORD = 38, STAR_ALL = 39, MOCKUP = 40, 
-    IMPLEMENTS = 41, IMPLEMENT = 42, EVAL = 43, WHEN = 44, TA = 45, SPREAD = 46, 
-    FROMTO = 47, SKIP_SPACES = 48, NL = 49, DECREMENT = 50, INCREMENT = 51, 
-    OPEN_PAREN = 52, CLOSE_PAREN = 53, OPEN_ARRAY = 54, CLOSE_ARRAY = 55, 
-    COMMA = 56, ASSIGN = 57, ASSIGN_PARENT = 58, ASSIGN_ADD = 59, ASSIGN_SUB = 60, 
-    ASSIGN_MUL = 61, ASSIGN_DIV = 62, ASSIGN_DIVDIV = 63, ASSIGN_MOD = 64, 
-    ASSIGN_BW_OR = 65, ASSIGN_BW_AND = 66, ASSIGN_BW_SHIFT_LEFT = 67, ASSIGN_BW_SHIFT_RIGHT = 68, 
-    ASSIGN_XOR = 69, ASSIGN_POW = 70, ASSIGN_OR = 71, ASSIGN_AND = 72, ASSIGN_IF = 73, 
-    PLUS = 74, MINUS = 75, MUL = 76, DIV = 77, COLON = 78, DOT = 79, NOT = 80, 
-    TILDA = 81, PERCENT = 82, DIVDIV = 83, POW = 84, XOR = 85, OR_SYM = 86, 
-    AND_SYM = 87, OR_BW = 88, AND_BW = 89, BW_SHIFT_LEFT = 90, BW_SHIFT_RIGHT = 91, 
-    HEX_START = 92, ID = 93, NUMBER = 94, INTEGER = 95, FLOAT = 96, HEX = 97, 
-    HEXUKR = 98, BINNUM = 99, BINNUMUKR = 100, STRING = 101, COMMENT = 102, 
-    LINE_COMMENT = 103, OLD_COMMENT = 104
+    TAKE_PAK = 14, TAKE_FILE = 15, GIVE = 16, AS = 17, TA = 18, IS = 19, 
+    RETURN = 20, ASYNC = 21, SUBJECT = 22, AND = 23, OR = 24, TRY = 25, 
+    CATCH = 26, ELSE = 27, THROW = 28, WHILE = 29, MODULE = 30, TERNARY = 31, 
+    EQ_WORD = 32, GR_WORD = 33, SM_WORD = 34, NOT_GR_WORD = 35, NOT_SM_WORD = 36, 
+    NOT_EQ_WORD = 37, NOT_IS_WORD = 38, HAS_IS_WORD = 39, NOT_HAS_IS_WORD = 40, 
+    STAR_ALL = 41, MOCKUP = 42, IMPLEMENTS = 43, IMPLEMENT = 44, EVAL = 45, 
+    WHEN = 46, ALSO = 47, TSE = 48, TEST = 49, IY = 50, SPREAD = 51, FROMTO = 52, 
+    FARROW = 53, SKIP_SPACES = 54, NL = 55, DECREMENT = 56, INCREMENT = 57, 
+    OPEN_PAREN = 58, CLOSE_PAREN = 59, OPEN_ARRAY = 60, CLOSE_ARRAY = 61, 
+    COMMA = 62, ASSIGN = 63, ASSIGN_PARENT = 64, ASSIGN_ADD = 65, ASSIGN_SUB = 66, 
+    ASSIGN_MUL = 67, ASSIGN_DIV = 68, ASSIGN_DIVDIV = 69, ASSIGN_MOD = 70, 
+    ASSIGN_BW_OR = 71, ASSIGN_BW_AND = 72, ASSIGN_BW_SHIFT_LEFT = 73, ASSIGN_BW_SHIFT_RIGHT = 74, 
+    ASSIGN_XOR = 75, ASSIGN_POW = 76, ASSIGN_OR = 77, ASSIGN_AND = 78, ASSIGN_IF = 79, 
+    PLUS = 80, MINUS = 81, MUL = 82, DIV = 83, COLON = 84, DOT = 85, NOT = 86, 
+    TILDA = 87, PERCENT = 88, DIVDIV = 89, POW = 90, XOR = 91, OR_SYM = 92, 
+    AND_SYM = 93, OR_BW = 94, AND_BW = 95, BW_SHIFT_LEFT = 96, BW_SHIFT_RIGHT = 97, 
+    HEX_START = 98, ID = 99, NUMBER = 100, INTEGER = 101, FLOAT = 102, HEX = 103, 
+    HEXUKR = 104, BINNUM = 105, BINNUMUKR = 106, TRIPPLE_QUOTE = 107, STRING_MULTILINE = 108, 
+    STRING = 109, COMMENT = 110, LINE_COMMENT = 111, OLD_COMMENT = 112
   };
 
   enum {
     RuleFile = 0, RuleProgram = 1, RuleProgram_element = 2, RuleModule = 3, 
-    RuleModule_body = 4, RuleModule_body_element = 5, RuleStructure = 6, 
-    RuleStructure_elements = 7, RuleStructure_element = 8, RuleDiia = 9, 
-    RuleIf = 10, RuleEach = 11, RuleFromto = 12, RuleFromto_value = 13, 
-    RuleFromto_middle = 14, RuleFromto_symbol = 15, RuleWhile = 16, RuleTry = 17, 
-    RuleTake = 18, RuleGive = 19, RuleGive_element = 20, RuleValue = 21, 
-    RuleArray_elements = 22, RuleArray_element = 23, RuleDictionary_args = 24, 
-    RuleDictionary_arg = 25, RuleExpr = 26, RuleThrow = 27, RuleArray_destruction = 28, 
-    RuleArray_destruction_el = 29, RuleObject_destruction = 30, RuleObject_destruction_el = 31, 
-    RuleAssign = 32, RuleAssign_value = 33, RuleAssign_symbol = 34, RuleWait_assign = 35, 
-    RuleIdentifier = 36, RuleExtended_identifier = 37, RuleIdentifiers_chain = 38, 
-    RuleType_value = 39, RuleType_value_array = 40, RuleArgs = 41, RuleArg = 42, 
-    RuleNamed_args = 43, RuleNamed_arg = 44, RuleParams = 45, RuleParam = 46, 
-    RuleParam_value = 47, RuleBody = 48, RuleBody_element_or_return = 49, 
-    RuleBody_element = 50, RuleReturn_body_line = 51, RuleArithmetic_op_mul = 52, 
-    RuleArithmetic_op_add = 53, RuleBitwise_op = 54, RuleTest_op = 55, RuleComparison_op = 56, 
-    RuleNl = 57, RuleNls = 58
+    RuleModule_body = 4, RuleModule_body_element = 5, RuleMethod_declaration = 6, 
+    RuleStructure = 7, RuleStructure_elements = 8, RuleStructure_element = 9, 
+    RuleStructure_param = 10, RuleMockup = 11, RuleMockup_object = 12, RuleMockup_structure = 13, 
+    RuleMockup_module = 14, RuleMockup_diia = 15, RuleMockup_body = 16, 
+    RuleMockup_body_element = 17, RuleDiia = 18, RuleIf = 19, RuleEach = 20, 
+    RuleFromto = 21, RuleFromto_simple = 22, RuleFromto_complex = 23, RuleFromto_value = 24, 
+    RuleFromto_middle_symbol = 25, RuleFromto_to_symbol = 26, RuleWhile = 27, 
+    RuleEval = 28, RuleTry = 29, RuleTake = 30, RuleGive = 31, RuleGive_element = 32, 
+    RuleString = 33, RuleValue = 34, RuleArray_elements = 35, RuleArray_element = 36, 
+    RuleDictionary_args = 37, RuleDictionary_arg = 38, RuleExpr = 39, RuleThrow = 40, 
+    RuleArray_destruction = 41, RuleArray_destruction_el = 42, RuleObject_destruction = 43, 
+    RuleObject_destruction_el = 44, RuleAssign = 45, RuleAssign_simple = 46, 
+    RuleAssign_define = 47, RuleAssign_complex = 48, RuleAssign_complex_left = 49, 
+    RuleAssign_complex_right = 50, RuleAssign_array_destruction = 51, RuleAssign_object_destruction = 52, 
+    RuleAssign_symbol = 53, RuleWait_assign = 54, RuleIdentifier = 55, RuleExtended_identifier = 56, 
+    RuleIdentifiers_chain = 57, RuleType_value = 58, RuleType_value_array = 59, 
+    RuleArgs = 60, RuleArg = 61, RuleNamed_args = 62, RuleNamed_arg = 63, 
+    RuleParams = 64, RuleParam = 65, RuleParam_value = 66, RuleBody = 67, 
+    RuleBody_element_or_return = 68, RuleBody_element = 69, RuleReturn_body_line = 70, 
+    RuleArithmetic_op_mul = 71, RuleArithmetic_op_add = 72, RuleBitwise_op = 73, 
+    RuleTest_op = 74, RuleComparison_op = 75, RuleNl = 76, RuleNls = 77
   };
 
   explicit MavkaParser(antlr4::TokenStream *input);
@@ -77,21 +83,34 @@ public:
   class ModuleContext;
   class Module_bodyContext;
   class Module_body_elementContext;
+  class Method_declarationContext;
   class StructureContext;
   class Structure_elementsContext;
   class Structure_elementContext;
+  class Structure_paramContext;
+  class MockupContext;
+  class Mockup_objectContext;
+  class Mockup_structureContext;
+  class Mockup_moduleContext;
+  class Mockup_diiaContext;
+  class Mockup_bodyContext;
+  class Mockup_body_elementContext;
   class DiiaContext;
   class IfContext;
   class EachContext;
   class FromtoContext;
+  class Fromto_simpleContext;
+  class Fromto_complexContext;
   class Fromto_valueContext;
-  class Fromto_middleContext;
-  class Fromto_symbolContext;
+  class Fromto_middle_symbolContext;
+  class Fromto_to_symbolContext;
   class WhileContext;
+  class EvalContext;
   class TryContext;
   class TakeContext;
   class GiveContext;
   class Give_elementContext;
+  class StringContext;
   class ValueContext;
   class Array_elementsContext;
   class Array_elementContext;
@@ -104,7 +123,13 @@ public:
   class Object_destructionContext;
   class Object_destruction_elContext;
   class AssignContext;
-  class Assign_valueContext;
+  class Assign_simpleContext;
+  class Assign_defineContext;
+  class Assign_complexContext;
+  class Assign_complex_leftContext;
+  class Assign_complex_rightContext;
+  class Assign_array_destructionContext;
+  class Assign_object_destructionContext;
   class Assign_symbolContext;
   class Wait_assignContext;
   class IdentifierContext;
@@ -172,6 +197,7 @@ public:
     virtual size_t getRuleIndex() const override;
     ModuleContext *module();
     StructureContext *structure();
+    MockupContext *mockup();
     DiiaContext *diia();
     IfContext *if_();
     EachContext *each();
@@ -179,6 +205,7 @@ public:
     TryContext *try_();
     ExprContext *expr();
     ThrowContext *throw_();
+    EvalContext *eval();
     Wait_assignContext *wait_assign();
     AssignContext *assign();
     NlsContext *nls();
@@ -241,6 +268,7 @@ public:
     virtual size_t getRuleIndex() const override;
     ModuleContext *module();
     StructureContext *structure();
+    MockupContext *mockup();
     DiiaContext *diia();
     IfContext *if_();
     EachContext *each();
@@ -262,9 +290,34 @@ public:
 
   Module_body_elementContext* module_body_element();
 
+  class  Method_declarationContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *md_name = nullptr;
+    MavkaParser::ParamsContext *md_params = nullptr;
+    MavkaParser::Type_valueContext *md_type = nullptr;
+    Method_declarationContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *OPEN_PAREN();
+    antlr4::tree::TerminalNode *CLOSE_PAREN();
+    IdentifierContext *identifier();
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
+    Type_valueContext *type_value();
+    ParamsContext *params();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Method_declarationContext* method_declaration();
+
   class  StructureContext : public antlr4::ParserRuleContext {
   public:
     MavkaParser::IdentifierContext *s_name = nullptr;
+    MavkaParser::Identifiers_chainContext *s_parent = nullptr;
     MavkaParser::Structure_elementsContext *s_elements = nullptr;
     StructureContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -274,6 +327,8 @@ public:
     NlsContext *nls();
     antlr4::tree::TerminalNode *END();
     IdentifierContext *identifier();
+    antlr4::tree::TerminalNode *IS();
+    Identifiers_chainContext *identifiers_chain();
     Structure_elementsContext *structure_elements();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -307,7 +362,7 @@ public:
   public:
     Structure_elementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    ParamContext *param();
+    Structure_paramContext *structure_param();
     NlsContext *nls();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -318,6 +373,184 @@ public:
   };
 
   Structure_elementContext* structure_element();
+
+  class  Structure_paramContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *sp_name = nullptr;
+    MavkaParser::Type_valueContext *sp_type = nullptr;
+    MavkaParser::Param_valueContext *sp_value = nullptr;
+    Structure_paramContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IdentifierContext *identifier();
+    antlr4::tree::TerminalNode *ASSIGN();
+    Type_valueContext *type_value();
+    Param_valueContext *param_value();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Structure_paramContext* structure_param();
+
+  class  MockupContext : public antlr4::ParserRuleContext {
+  public:
+    MockupContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    Mockup_objectContext *mockup_object();
+    Mockup_structureContext *mockup_structure();
+    Mockup_moduleContext *mockup_module();
+    Mockup_diiaContext *mockup_diia();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  MockupContext* mockup();
+
+  class  Mockup_objectContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *mo_name = nullptr;
+    MavkaParser::Type_valueContext *mo_type = nullptr;
+    MavkaParser::Mockup_bodyContext *mo_elements = nullptr;
+    Mockup_objectContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *MOCKUP();
+    IdentifierContext *identifier();
+    Type_valueContext *type_value();
+    std::vector<NlContext *> nl();
+    NlContext* nl(size_t i);
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *END();
+    Mockup_bodyContext *mockup_body();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_objectContext* mockup_object();
+
+  class  Mockup_structureContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *ms_name = nullptr;
+    MavkaParser::Mockup_bodyContext *ms_elements = nullptr;
+    Mockup_structureContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *MOCKUP();
+    antlr4::tree::TerminalNode *STRUCTURE();
+    std::vector<NlContext *> nl();
+    NlContext* nl(size_t i);
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *END();
+    IdentifierContext *identifier();
+    Mockup_bodyContext *mockup_body();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_structureContext* mockup_structure();
+
+  class  Mockup_moduleContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *mm_name = nullptr;
+    MavkaParser::Mockup_bodyContext *mm_elements = nullptr;
+    Mockup_moduleContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *MOCKUP();
+    antlr4::tree::TerminalNode *MODULE();
+    std::vector<NlContext *> nl();
+    NlContext* nl(size_t i);
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *END();
+    IdentifierContext *identifier();
+    Mockup_bodyContext *mockup_body();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_moduleContext* mockup_module();
+
+  class  Mockup_diiaContext : public antlr4::ParserRuleContext {
+  public:
+    antlr4::Token *md_async = nullptr;
+    MavkaParser::IdentifierContext *md_name = nullptr;
+    MavkaParser::ParamsContext *md_params = nullptr;
+    MavkaParser::Type_valueContext *md_type = nullptr;
+    Mockup_diiaContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *MOCKUP();
+    antlr4::tree::TerminalNode *DIIA();
+    antlr4::tree::TerminalNode *OPEN_PAREN();
+    antlr4::tree::TerminalNode *CLOSE_PAREN();
+    IdentifierContext *identifier();
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *ASYNC();
+    Type_valueContext *type_value();
+    ParamsContext *params();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_diiaContext* mockup_diia();
+
+  class  Mockup_bodyContext : public antlr4::ParserRuleContext {
+  public:
+    Mockup_bodyContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<Mockup_body_elementContext *> mockup_body_element();
+    Mockup_body_elementContext* mockup_body_element(size_t i);
+    std::vector<NlContext *> nl();
+    NlContext* nl(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_bodyContext* mockup_body();
+
+  class  Mockup_body_elementContext : public antlr4::ParserRuleContext {
+  public:
+    Mockup_body_elementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    Structure_paramContext *structure_param();
+    Method_declarationContext *method_declaration();
+    NlsContext *nls();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_body_elementContext* mockup_body_element();
 
   class  DiiaContext : public antlr4::ParserRuleContext {
   public:
@@ -391,16 +624,16 @@ public:
     EachContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *FOR();
+    antlr4::tree::TerminalNode *AS();
     std::vector<NlContext *> nl();
     NlContext* nl(size_t i);
     antlr4::tree::TerminalNode *END();
     ExprContext *expr();
     FromtoContext *fromto();
-    antlr4::tree::TerminalNode *AS();
+    antlr4::tree::TerminalNode *COMMA();
     std::vector<IdentifierContext *> identifier();
     IdentifierContext* identifier(size_t i);
     BodyContext *body();
-    antlr4::tree::TerminalNode *COMMA();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -413,18 +646,10 @@ public:
 
   class  FromtoContext : public antlr4::ParserRuleContext {
   public:
-    MavkaParser::Fromto_valueContext *f_from = nullptr;
-    MavkaParser::Fromto_symbolContext *f_symbol = nullptr;
-    MavkaParser::Fromto_valueContext *f_to = nullptr;
-    MavkaParser::Fromto_middleContext *f_middle = nullptr;
     FromtoContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<antlr4::tree::TerminalNode *> FROMTO();
-    antlr4::tree::TerminalNode* FROMTO(size_t i);
-    std::vector<Fromto_valueContext *> fromto_value();
-    Fromto_valueContext* fromto_value(size_t i);
-    Fromto_symbolContext *fromto_symbol();
-    Fromto_middleContext *fromto_middle();
+    Fromto_simpleContext *fromto_simple();
+    Fromto_complexContext *fromto_complex();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -434,6 +659,52 @@ public:
   };
 
   FromtoContext* fromto();
+
+  class  Fromto_simpleContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::Fromto_valueContext *fs_from = nullptr;
+    MavkaParser::Fromto_to_symbolContext *fs_to_symbol = nullptr;
+    MavkaParser::Fromto_valueContext *fs_to = nullptr;
+    Fromto_simpleContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *FROMTO();
+    std::vector<Fromto_valueContext *> fromto_value();
+    Fromto_valueContext* fromto_value(size_t i);
+    Fromto_to_symbolContext *fromto_to_symbol();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Fromto_simpleContext* fromto_simple();
+
+  class  Fromto_complexContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::Fromto_valueContext *fc_from = nullptr;
+    MavkaParser::Fromto_middle_symbolContext *fc_middle_symbol = nullptr;
+    MavkaParser::Fromto_valueContext *fc_middle = nullptr;
+    MavkaParser::Fromto_to_symbolContext *fc_to_symbol = nullptr;
+    MavkaParser::Fromto_valueContext *fc_to = nullptr;
+    Fromto_complexContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<antlr4::tree::TerminalNode *> FROMTO();
+    antlr4::tree::TerminalNode* FROMTO(size_t i);
+    std::vector<Fromto_valueContext *> fromto_value();
+    Fromto_valueContext* fromto_value(size_t i);
+    Fromto_middle_symbolContext *fromto_middle_symbol();
+    Fromto_to_symbolContext *fromto_to_symbol();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Fromto_complexContext* fromto_complex();
 
   class  Fromto_valueContext : public antlr4::ParserRuleContext {
   public:
@@ -497,14 +768,17 @@ public:
 
   Fromto_valueContext* fromto_value();
 
-  class  Fromto_middleContext : public antlr4::ParserRuleContext {
+  class  Fromto_middle_symbolContext : public antlr4::ParserRuleContext {
   public:
-    MavkaParser::ValueContext *fi_value = nullptr;
-    Fromto_middleContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    Fromto_middle_symbolContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *OPEN_PAREN();
-    antlr4::tree::TerminalNode *CLOSE_PAREN();
-    ValueContext *value();
+    antlr4::tree::TerminalNode *PLUS();
+    antlr4::tree::TerminalNode *MINUS();
+    antlr4::tree::TerminalNode *MUL();
+    antlr4::tree::TerminalNode *DIV();
+    antlr4::tree::TerminalNode *PERCENT();
+    antlr4::tree::TerminalNode *DIVDIV();
+    antlr4::tree::TerminalNode *POW();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -513,11 +787,11 @@ public:
    
   };
 
-  Fromto_middleContext* fromto_middle();
+  Fromto_middle_symbolContext* fromto_middle_symbol();
 
-  class  Fromto_symbolContext : public antlr4::ParserRuleContext {
+  class  Fromto_to_symbolContext : public antlr4::ParserRuleContext {
   public:
-    Fromto_symbolContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    Fromto_to_symbolContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *NOT_EQ();
     antlr4::tree::TerminalNode *EQ();
@@ -533,7 +807,7 @@ public:
    
   };
 
-  Fromto_symbolContext* fromto_symbol();
+  Fromto_to_symbolContext* fromto_to_symbol();
 
   class  WhileContext : public antlr4::ParserRuleContext {
   public:
@@ -556,6 +830,23 @@ public:
   };
 
   WhileContext* while_();
+
+  class  EvalContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::ValueContext *e_value = nullptr;
+    EvalContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *EVAL();
+    ValueContext *value();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  EvalContext* eval();
 
   class  TryContext : public antlr4::ParserRuleContext {
   public:
@@ -599,7 +890,7 @@ public:
   public:
     Take_moduleContext(TakeContext *ctx);
 
-    antlr4::Token *tm_absolute = nullptr;
+    antlr4::Token *tm_relative = nullptr;
     MavkaParser::Identifiers_chainContext *tm_elements_chain = nullptr;
     antlr4::Token *tm_star = nullptr;
     MavkaParser::IdentifierContext *tm_as = nullptr;
@@ -687,6 +978,22 @@ public:
 
   Give_elementContext* give_element();
 
+  class  StringContext : public antlr4::ParserRuleContext {
+  public:
+    StringContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *STRING();
+    antlr4::tree::TerminalNode *STRING_MULTILINE();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  StringContext* string();
+
   class  ValueContext : public antlr4::ParserRuleContext {
   public:
     ValueContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -698,6 +1005,153 @@ public:
     virtual size_t getRuleIndex() const override;
 
    
+  };
+
+  class  Pre_incrementContext : public ValueContext {
+  public:
+    Pre_incrementContext(ValueContext *ctx);
+
+    MavkaParser::ValueContext *pi_value = nullptr;
+    antlr4::tree::TerminalNode *INCREMENT();
+    ValueContext *value();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  Arithmetic_addContext : public ValueContext {
+  public:
+    Arithmetic_addContext(ValueContext *ctx);
+
+    MavkaParser::ValueContext *a_left = nullptr;
+    MavkaParser::Arithmetic_op_addContext *a_operation = nullptr;
+    MavkaParser::ValueContext *a_right = nullptr;
+    std::vector<ValueContext *> value();
+    ValueContext* value(size_t i);
+    Arithmetic_op_addContext *arithmetic_op_add();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  Bitwise_notContext : public ValueContext {
+  public:
+    Bitwise_notContext(ValueContext *ctx);
+
+    MavkaParser::ValueContext *bn_value = nullptr;
+    antlr4::tree::TerminalNode *TILDA();
+    ValueContext *value();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  NestedContext : public ValueContext {
+  public:
+    NestedContext(ValueContext *ctx);
+
+    MavkaParser::ExprContext *n_value = nullptr;
+    antlr4::tree::TerminalNode *OPEN_PAREN();
+    antlr4::tree::TerminalNode *CLOSE_PAREN();
+    ExprContext *expr();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  NumberContext : public ValueContext {
+  public:
+    NumberContext(ValueContext *ctx);
+
+    antlr4::tree::TerminalNode *NUMBER();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  NegativeContext : public ValueContext {
+  public:
+    NegativeContext(ValueContext *ctx);
+
+    MavkaParser::ValueContext *n_value = nullptr;
+    antlr4::tree::TerminalNode *MINUS();
+    ValueContext *value();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  NotContext : public ValueContext {
+  public:
+    NotContext(ValueContext *ctx);
+
+    MavkaParser::ValueContext *n_value = nullptr;
+    antlr4::tree::TerminalNode *NOT();
+    ValueContext *value();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  ArrayContext : public ValueContext {
+  public:
+    ArrayContext(ValueContext *ctx);
+
+    MavkaParser::Array_elementsContext *a_elements = nullptr;
+    antlr4::tree::TerminalNode *OPEN_ARRAY();
+    antlr4::tree::TerminalNode *CLOSE_ARRAY();
+    Array_elementsContext *array_elements();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  BitwiseContext : public ValueContext {
+  public:
+    BitwiseContext(ValueContext *ctx);
+
+    MavkaParser::ValueContext *b_left = nullptr;
+    MavkaParser::Bitwise_opContext *b_operation = nullptr;
+    MavkaParser::ValueContext *b_right = nullptr;
+    std::vector<ValueContext *> value();
+    ValueContext* value(size_t i);
+    Bitwise_opContext *bitwise_op();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  Post_decrementContext : public ValueContext {
+  public:
+    Post_decrementContext(ValueContext *ctx);
+
+    MavkaParser::ValueContext *pd_value = nullptr;
+    antlr4::tree::TerminalNode *DECREMENT();
+    ValueContext *value();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  IdContext : public ValueContext {
+  public:
+    IdContext(ValueContext *ctx);
+
+    IdentifierContext *identifier();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
   class  Arithmetic_mulContext : public ValueContext {
@@ -749,29 +1203,11 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  Pre_incrementContext : public ValueContext {
+  class  String_valueContext : public ValueContext {
   public:
-    Pre_incrementContext(ValueContext *ctx);
+    String_valueContext(ValueContext *ctx);
 
-    MavkaParser::ValueContext *pi_value = nullptr;
-    antlr4::tree::TerminalNode *INCREMENT();
-    ValueContext *value();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  Arithmetic_addContext : public ValueContext {
-  public:
-    Arithmetic_addContext(ValueContext *ctx);
-
-    MavkaParser::ValueContext *a_left = nullptr;
-    MavkaParser::Arithmetic_op_addContext *a_operation = nullptr;
-    MavkaParser::ValueContext *a_right = nullptr;
-    std::vector<ValueContext *> value();
-    ValueContext* value(size_t i);
-    Arithmetic_op_addContext *arithmetic_op_add();
+    StringContext *string();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -788,30 +1224,6 @@ public:
     std::vector<ValueContext *> value();
     ValueContext* value(size_t i);
     Comparison_opContext *comparison_op();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  StringContext : public ValueContext {
-  public:
-    StringContext(ValueContext *ctx);
-
-    antlr4::tree::TerminalNode *STRING();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  Bitwise_notContext : public ValueContext {
-  public:
-    Bitwise_notContext(ValueContext *ctx);
-
-    MavkaParser::ValueContext *bn_value = nullptr;
-    antlr4::tree::TerminalNode *TILDA();
-    ValueContext *value();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -867,20 +1279,6 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  NestedContext : public ValueContext {
-  public:
-    NestedContext(ValueContext *ctx);
-
-    MavkaParser::ExprContext *n_value = nullptr;
-    antlr4::tree::TerminalNode *OPEN_PAREN();
-    antlr4::tree::TerminalNode *CLOSE_PAREN();
-    ExprContext *expr();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
   class  CallContext : public ValueContext {
   public:
     CallContext(ValueContext *ctx);
@@ -899,37 +1297,15 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  NumberContext : public ValueContext {
+  class  AsContext : public ValueContext {
   public:
-    NumberContext(ValueContext *ctx);
+    AsContext(ValueContext *ctx);
 
-    antlr4::tree::TerminalNode *NUMBER();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  NegativeContext : public ValueContext {
-  public:
-    NegativeContext(ValueContext *ctx);
-
-    MavkaParser::ValueContext *n_value = nullptr;
-    antlr4::tree::TerminalNode *MINUS();
-    ValueContext *value();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  NotContext : public ValueContext {
-  public:
-    NotContext(ValueContext *ctx);
-
-    MavkaParser::ValueContext *n_value = nullptr;
-    antlr4::tree::TerminalNode *NOT();
-    ValueContext *value();
+    MavkaParser::ValueContext *a_left = nullptr;
+    MavkaParser::ValueContext *a_right = nullptr;
+    antlr4::tree::TerminalNode *AS();
+    std::vector<ValueContext *> value();
+    ValueContext* value(size_t i);
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -950,20 +1326,6 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
-  class  ArrayContext : public ValueContext {
-  public:
-    ArrayContext(ValueContext *ctx);
-
-    MavkaParser::Array_elementsContext *a_elements = nullptr;
-    antlr4::tree::TerminalNode *OPEN_ARRAY();
-    antlr4::tree::TerminalNode *CLOSE_ARRAY();
-    Array_elementsContext *array_elements();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
   class  Pre_decrementContext : public ValueContext {
   public:
     Pre_decrementContext(ValueContext *ctx);
@@ -971,46 +1333,6 @@ public:
     MavkaParser::ValueContext *pd_value = nullptr;
     antlr4::tree::TerminalNode *DECREMENT();
     ValueContext *value();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  BitwiseContext : public ValueContext {
-  public:
-    BitwiseContext(ValueContext *ctx);
-
-    MavkaParser::ValueContext *b_left = nullptr;
-    MavkaParser::Bitwise_opContext *b_operation = nullptr;
-    MavkaParser::ValueContext *b_right = nullptr;
-    std::vector<ValueContext *> value();
-    ValueContext* value(size_t i);
-    Bitwise_opContext *bitwise_op();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  Post_decrementContext : public ValueContext {
-  public:
-    Post_decrementContext(ValueContext *ctx);
-
-    MavkaParser::ValueContext *pd_value = nullptr;
-    antlr4::tree::TerminalNode *DECREMENT();
-    ValueContext *value();
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-  };
-
-  class  IdContext : public ValueContext {
-  public:
-    IdContext(ValueContext *ctx);
-
-    IdentifierContext *identifier();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1044,6 +1366,20 @@ public:
     ValueContext *value();
     std::vector<ExprContext *> expr();
     ExprContext* expr(size_t i);
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  GodContext : public ValueContext {
+  public:
+    GodContext(ValueContext *ctx);
+
+    std::vector<ValueContext *> value();
+    ValueContext* value(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> TA();
+    antlr4::tree::TerminalNode* TA(size_t i);
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1185,6 +1521,7 @@ public:
   public:
     FunctionContext(ExprContext *ctx);
 
+    antlr4::Token *f_async = nullptr;
     MavkaParser::ParamsContext *f_params = nullptr;
     MavkaParser::Type_valueContext *f_type = nullptr;
     MavkaParser::ExprContext *f_body = nullptr;
@@ -1192,6 +1529,7 @@ public:
     antlr4::tree::TerminalNode *CLOSE_PAREN();
     antlr4::tree::TerminalNode *COLON();
     ExprContext *expr();
+    antlr4::tree::TerminalNode *ASYNC();
     ParamsContext *params();
     Type_valueContext *type_value();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1308,23 +1646,118 @@ public:
 
   class  AssignContext : public antlr4::ParserRuleContext {
   public:
-    MavkaParser::Identifiers_chainContext *a_identifiers_chain = nullptr;
-    MavkaParser::ExprContext *a_set_element = nullptr;
-    MavkaParser::IdentifierContext *a_identifier = nullptr;
-    MavkaParser::Type_valueContext *a_type = nullptr;
-    MavkaParser::Array_destructionContext *a_array_destruction = nullptr;
-    MavkaParser::Object_destructionContext *a_object_destruction = nullptr;
-    MavkaParser::Assign_symbolContext *a_symbol = nullptr;
-    MavkaParser::Assign_valueContext *a_value = nullptr;
     AssignContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    Assign_symbolContext *assign_symbol();
-    Assign_valueContext *assign_value();
+    Assign_simpleContext *assign_simple();
+    Assign_defineContext *assign_define();
+    Assign_complexContext *assign_complex();
+    Assign_array_destructionContext *assign_array_destruction();
+    Assign_object_destructionContext *assign_object_destruction();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  AssignContext* assign();
+
+  class  Assign_simpleContext : public antlr4::ParserRuleContext {
+  public:
+    antlr4::Token *as_subject = nullptr;
+    MavkaParser::IdentifierContext *as_identifier = nullptr;
+    MavkaParser::Type_valueContext *as_type = nullptr;
+    MavkaParser::Assign_symbolContext *as_symbol = nullptr;
+    MavkaParser::ExprContext *as_value = nullptr;
+    Assign_simpleContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
     IdentifierContext *identifier();
-    Array_destructionContext *array_destruction();
-    Object_destructionContext *object_destruction();
-    Identifiers_chainContext *identifiers_chain();
+    Assign_symbolContext *assign_symbol();
+    ExprContext *expr();
+    antlr4::tree::TerminalNode *SUBJECT();
     Type_valueContext *type_value();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Assign_simpleContext* assign_simple();
+
+  class  Assign_defineContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *as_identifier = nullptr;
+    MavkaParser::Type_valueContext *as_type = nullptr;
+    Assign_defineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *SUBJECT();
+    IdentifierContext *identifier();
+    Type_valueContext *type_value();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Assign_defineContext* assign_define();
+
+  class  Assign_complexContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::Assign_complex_leftContext *ac_left = nullptr;
+    MavkaParser::Assign_complex_rightContext *ac_right = nullptr;
+    MavkaParser::Assign_symbolContext *ac_symbol = nullptr;
+    MavkaParser::ExprContext *ac_value = nullptr;
+    Assign_complexContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    Assign_complex_leftContext *assign_complex_left();
+    Assign_complex_rightContext *assign_complex_right();
+    Assign_symbolContext *assign_symbol();
+    ExprContext *expr();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Assign_complexContext* assign_complex();
+
+  class  Assign_complex_leftContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::Assign_complex_leftContext *acl_left = nullptr;
+    MavkaParser::Identifiers_chainContext *acl_chain = nullptr;
+    MavkaParser::ExprContext *acl_element = nullptr;
+    Assign_complex_leftContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    Identifiers_chainContext *identifiers_chain();
+    antlr4::tree::TerminalNode *OPEN_ARRAY();
+    antlr4::tree::TerminalNode *CLOSE_ARRAY();
+    Assign_complex_leftContext *assign_complex_left();
+    ExprContext *expr();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Assign_complex_leftContext* assign_complex_left();
+  Assign_complex_leftContext* assign_complex_left(int precedence);
+  class  Assign_complex_rightContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *acr_identifier = nullptr;
+    MavkaParser::ExprContext *acr_element = nullptr;
+    Assign_complex_rightContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *DOT();
+    IdentifierContext *identifier();
     antlr4::tree::TerminalNode *OPEN_ARRAY();
     antlr4::tree::TerminalNode *CLOSE_ARRAY();
     ExprContext *expr();
@@ -1336,12 +1769,16 @@ public:
    
   };
 
-  AssignContext* assign();
+  Assign_complex_rightContext* assign_complex_right();
 
-  class  Assign_valueContext : public antlr4::ParserRuleContext {
+  class  Assign_array_destructionContext : public antlr4::ParserRuleContext {
   public:
-    Assign_valueContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    MavkaParser::Array_destructionContext *aad_array_destruction = nullptr;
+    MavkaParser::ExprContext *aad_value = nullptr;
+    Assign_array_destructionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *ASSIGN();
+    Array_destructionContext *array_destruction();
     ExprContext *expr();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1351,12 +1788,32 @@ public:
    
   };
 
-  Assign_valueContext* assign_value();
+  Assign_array_destructionContext* assign_array_destruction();
+
+  class  Assign_object_destructionContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::Object_destructionContext *aod_object_destruction = nullptr;
+    MavkaParser::ExprContext *aod_value = nullptr;
+    Assign_object_destructionContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *ASSIGN();
+    Object_destructionContext *object_destruction();
+    ExprContext *expr();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Assign_object_destructionContext* assign_object_destruction();
 
   class  Assign_symbolContext : public antlr4::ParserRuleContext {
   public:
     Assign_symbolContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *TSE();
     antlr4::tree::TerminalNode *ASSIGN();
     antlr4::tree::TerminalNode *ASSIGN_PARENT();
     antlr4::tree::TerminalNode *ASSIGN_ADD();
@@ -1657,11 +2114,35 @@ public:
    
   };
 
+  class  Param_value_empty_listContext : public Param_valueContext {
+  public:
+    Param_value_empty_listContext(Param_valueContext *ctx);
+
+    antlr4::tree::TerminalNode *OPEN_ARRAY();
+    antlr4::tree::TerminalNode *CLOSE_ARRAY();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  Param_value_identifierContext : public Param_valueContext {
   public:
     Param_value_identifierContext(Param_valueContext *ctx);
 
     IdentifierContext *identifier();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  Param_value_empty_dictionaryContext : public Param_valueContext {
+  public:
+    Param_value_empty_dictionaryContext(Param_valueContext *ctx);
+
+    antlr4::tree::TerminalNode *OPEN_PAREN();
+    antlr4::tree::TerminalNode *CLOSE_PAREN();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1684,6 +2165,7 @@ public:
     Param_value_stringContext(Param_valueContext *ctx);
 
     antlr4::tree::TerminalNode *STRING();
+    antlr4::tree::TerminalNode *STRING_MULTILINE();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1730,8 +2212,6 @@ public:
   public:
     Body_elementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    StructureContext *structure();
-    DiiaContext *diia();
     IfContext *if_();
     EachContext *each();
     WhileContext *while_();
@@ -1905,6 +2385,7 @@ public:
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
 
   bool valueSempred(ValueContext *_localctx, size_t predicateIndex);
+  bool assign_complex_leftSempred(Assign_complex_leftContext *_localctx, size_t predicateIndex);
   bool identifiers_chainSempred(Identifiers_chainContext *_localctx, size_t predicateIndex);
   bool type_valueSempred(Type_valueContext *_localctx, size_t predicateIndex);
 

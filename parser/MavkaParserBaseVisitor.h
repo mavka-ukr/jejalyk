@@ -39,6 +39,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitMethod_declaration(MavkaParser::Method_declarationContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitStructure(MavkaParser::StructureContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -48,6 +52,38 @@ public:
   }
 
   virtual std::any visitStructure_element(MavkaParser::Structure_elementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitStructure_param(MavkaParser::Structure_paramContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup(MavkaParser::MockupContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_object(MavkaParser::Mockup_objectContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_structure(MavkaParser::Mockup_structureContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_module(MavkaParser::Mockup_moduleContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_diia(MavkaParser::Mockup_diiaContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_body(MavkaParser::Mockup_bodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_body_element(MavkaParser::Mockup_body_elementContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -67,6 +103,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitFromto_simple(MavkaParser::Fromto_simpleContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitFromto_complex(MavkaParser::Fromto_complexContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitFromto_number(MavkaParser::Fromto_numberContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -83,15 +127,19 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitFromto_middle(MavkaParser::Fromto_middleContext *ctx) override {
+  virtual std::any visitFromto_middle_symbol(MavkaParser::Fromto_middle_symbolContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitFromto_symbol(MavkaParser::Fromto_symbolContext *ctx) override {
+  virtual std::any visitFromto_to_symbol(MavkaParser::Fromto_to_symbolContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual std::any visitWhile(MavkaParser::WhileContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitEval(MavkaParser::EvalContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -119,15 +167,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitArithmetic_mul(MavkaParser::Arithmetic_mulContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitGet_element(MavkaParser::Get_elementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitChain(MavkaParser::ChainContext *ctx) override {
+  virtual std::any visitString(MavkaParser::StringContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -139,35 +179,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitComparison(MavkaParser::ComparisonContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitString(MavkaParser::StringContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitBitwise_not(MavkaParser::Bitwise_notContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitTest(MavkaParser::TestContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitCall_expr(MavkaParser::Call_exprContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitPositive(MavkaParser::PositiveContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitNested(MavkaParser::NestedContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitCall(MavkaParser::CallContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -183,15 +199,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitDictionary(MavkaParser::DictionaryContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitArray(MavkaParser::ArrayContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitPre_decrement(MavkaParser::Pre_decrementContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -207,11 +215,63 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitArithmetic_mul(MavkaParser::Arithmetic_mulContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitGet_element(MavkaParser::Get_elementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitChain(MavkaParser::ChainContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitString_value(MavkaParser::String_valueContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitComparison(MavkaParser::ComparisonContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTest(MavkaParser::TestContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitCall_expr(MavkaParser::Call_exprContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPositive(MavkaParser::PositiveContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitCall(MavkaParser::CallContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitAs(MavkaParser::AsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitDictionary(MavkaParser::DictionaryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPre_decrement(MavkaParser::Pre_decrementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitPost_increment(MavkaParser::Post_incrementContext *ctx) override {
     return visitChildren(ctx);
   }
 
   virtual std::any visitTernary(MavkaParser::TernaryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitGod(MavkaParser::GodContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -271,7 +331,31 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitAssign_value(MavkaParser::Assign_valueContext *ctx) override {
+  virtual std::any visitAssign_simple(MavkaParser::Assign_simpleContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitAssign_define(MavkaParser::Assign_defineContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitAssign_complex(MavkaParser::Assign_complexContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitAssign_complex_left(MavkaParser::Assign_complex_leftContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitAssign_complex_right(MavkaParser::Assign_complex_rightContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitAssign_array_destruction(MavkaParser::Assign_array_destructionContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitAssign_object_destruction(MavkaParser::Assign_object_destructionContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -336,6 +420,14 @@ public:
   }
 
   virtual std::any visitParam_value_identifier(MavkaParser::Param_value_identifierContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitParam_value_empty_dictionary(MavkaParser::Param_value_empty_dictionaryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitParam_value_empty_list(MavkaParser::Param_value_empty_listContext *ctx) override {
     return visitChildren(ctx);
   }
 

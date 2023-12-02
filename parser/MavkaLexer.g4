@@ -17,9 +17,11 @@ TAKE_PAK: 'взяти пак';
 TAKE_FILE: 'взяти файл';
 GIVE: 'дати';
 AS: 'як';
+TA: 'та';
 IS: 'є';
 RETURN: 'вернути';
 ASYNC: 'тривала';
+SUBJECT: 'субʼєкт';
 AND: 'і';
 OR: 'або';
 TRY: 'спробувати';
@@ -44,7 +46,10 @@ IMPLEMENTS: 'втілює';
 IMPLEMENT: 'втілити';
 EVAL: 'js';
 WHEN: 'коли';
-TA: 'та';
+ALSO: 'також';
+TSE: 'це';
+TEST: 'тест';
+IY: 'й';
 SPREAD: '...';
 FROMTO: '..';
 
@@ -101,7 +106,9 @@ HEX: '0x' (DIGIT | 'A'..'F' | 'a'..'f')+;
 HEXUKR: '0ш' (DIGIT | 'А' | 'а' | 'Б' | 'б' | 'В' | 'в' | 'Г' | 'г' | 'Ґ' | 'ґ' | 'Д' | 'д')+;
 BINNUM: '0b' ('0' | '1')+;
 BINNUMUKR: '0д' ('0' | '1')+;
-STRING: '"' ( ~[\\"] | ESCAPE_CHAR )* '"';
+TRIPPLE_QUOTE: '"""';
+STRING_MULTILINE: '"""' TRIPPLE_QUOTED_STRING_PART*? '"""';
+STRING: '"' ( ~["\n\r] )* '"';
 COMMENT: ';;;' (COMMENT | .)*? ';;;' -> skip;
 LINE_COMMENT: ';;' (LINE_COMMENT | ~[\r\n])* -> skip;
 OLD_COMMENT: ';--' (OLD_COMMENT | .)*? '--;' -> skip;
@@ -124,6 +131,5 @@ fragment ID_CONTINUE
     | ID_START
     ;
 
-fragment ESCAPE_CHAR
-    : '\\' [0btnfr"'\\]
-    ;
+fragment TRIPPLE_QUOTED_STRING_PART : (ESCAPED_TRIPPLE_QUOTE | .)+?;
+fragment ESCAPED_TRIPPLE_QUOTE : '\\"';

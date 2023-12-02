@@ -1,0 +1,12 @@
+{
+  "name": "jejalyk",
+  "version": "0.0.1",
+  "description": "Mavka Compiler",
+  "type": "module",
+  "main": "test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
