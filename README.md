@@ -1,7 +1,8 @@
+![logo](./assets/logo.png)
+
 # Джеджалик
 
 Швидкий компілятор Мавки для вебу.
-
 
 ```c++
 #include "jejalyk.cpp"
