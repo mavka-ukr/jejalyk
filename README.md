@@ -7,10 +7,10 @@
 ## Вимоги
 
 - C++20
-- Emscripten
 - CMake
 - Make
 - Node.js
+- Emscripten
 
 ## Будування
 
