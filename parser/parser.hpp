@@ -28,6 +28,24 @@ namespace mavka {
                 error->message = msg;
                 this->error = error;
             }
+
+            void reportAmbiguity(antlr4::Parser* recognizer, const antlr4::dfa::DFA& dfa, size_t startIndex,
+                                 size_t stopIndex, bool exact, const antlrcpp::BitSet& ambigAlts,
+                                 antlr4::atn::ATNConfigSet* configs) override {
+                std::cout << "lol";
+            }
+
+            void reportContextSensitivity(antlr4::Parser* recognizer, const antlr4::dfa::DFA& dfa, size_t startIndex,
+                                          size_t stopIndex, size_t prediction,
+                                          antlr4::atn::ATNConfigSet* configs) override {
+                std::cout << "lol";
+            }
+
+            void reportAttemptingFullContext(antlr4::Parser* recognizer, const antlr4::dfa::DFA& dfa, size_t startIndex,
+                                             size_t stopIndex, const antlrcpp::BitSet& conflictingAlts,
+                                             antlr4::atn::ATNConfigSet* configs) override {
+                std::cout << "lol";
+            }
         };
 
         class MavkaParserResult {
@@ -38,16 +56,21 @@ namespace mavka {
 
         MavkaParserResult* parse(std::string code) {
             antlr4::ANTLRInputStream input(code);
+
+            const auto lexer_error_listener = new MavkaParserErrorListener();
             MavkaLexer lexer(&input);
             lexer.removeErrorListeners();
-            const auto lexer_error_listener = new MavkaParserErrorListener();
             lexer.addErrorListener(lexer_error_listener);
+
             antlr4::CommonTokenStream tokens(&lexer);
+
+            const auto parser_error_listener = new MavkaParserErrorListener();
             MavkaParser parser(&tokens);
             parser.removeErrorListeners();
-            const auto parser_error_listener = new MavkaParserErrorListener();
             parser.addErrorListener(parser_error_listener);
+
             MavkaParser::FileContext* tree = parser.file();
+
             if (lexer_error_listener->error) {
                 const auto parser_result = new MavkaParserResult();
                 parser_result->error = lexer_error_listener->error;
@@ -58,6 +81,7 @@ namespace mavka {
                 parser_result->error = parser_error_listener->error;
                 return parser_result;
             }
+
             mavka::ast::MavkaASTVisitor visitor;
 
             const auto ast_result = mavka::ast::any_to_ast_result(visitor.visitFile(tree));
