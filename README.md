@@ -4,6 +4,34 @@
 
 Швидкий компілятор Мавки для вебу.
 
+## Вимоги
+
+- C++20
+- Emscripten
+- CMake
+- Make
+- Node.js
+
+## Будування
+
+```shell
+./build.sh node # node wasm
+```
+
+```shell
+./build.sh web # web wasm
+```
+
+```shell
+./build.sh Onode # optimized node wasm
+```
+
+```shell
+./build.sh Oweb # optimized web wasm
+```
+
+## Використання
+
 ```c++
 #include <string>
 #include "jejalyk.cpp"

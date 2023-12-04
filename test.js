@@ -1,4 +1,4 @@
-import Module from "./build/jejalyk_wasm.js";
+import Module from "./build/jejalyk_node.js";
 
 global.mavka_compilation_options = {
     root_module_path: "./",
