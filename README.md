@@ -15,7 +15,7 @@
 ## Будування
 
 ```shell
-./build.sh antl4 # antlr4 grammar
+./build.sh antlr4 # antlr4 grammar
 ```
 
 ```shell
