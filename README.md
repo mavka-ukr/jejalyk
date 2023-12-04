@@ -1,4 +1,4 @@
-<img src="./assets/logo.png" width="50" height="50" /> 
+<img src="./assets/logo.png" width="75" height="75" /> 
 
 # Джеджалик
 
