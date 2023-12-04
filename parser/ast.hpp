@@ -824,7 +824,13 @@ namespace mavka {
                 return create_ast_result(try_node);
             }
 
-            // todo: expr
+            std::any visitExpr(MavkaParser::ExprContext* context) {
+                //
+            }
+
+            std::any visitValue(MavkaParser::ValueContext* context) {
+                //
+            }
 
             std::any visitThrow(MavkaParser::ThrowContext* context) override {
                 const auto throw_node = new ThrowNode();
