@@ -1,3 +1,0 @@
-#ifndef JEJALYK_JEJALYK_H
-#define JEJALYK_JEJALYK_H
-#endif //JEJALYK_JEJALYK_H
