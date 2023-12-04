@@ -1,4 +1,4 @@
-#include <emscripten/bind.h>
+// #include <emscripten/bind.h>
 
 #include <string>
 #include "nlohmann/json.hpp"
@@ -8,11 +8,6 @@
 #include "ast.cpp"
 
 using json = nlohmann::json;
-
-template<typename Base, typename T>
-inline bool instanceof(const T* ptr) {
-    return dynamic_cast<const Base *>(ptr) != nullptr;
-}
 
 std::string implode(const std::vector<std::string>& strs, const std::string& delim) {
     if (strs.size() == 0) {
@@ -477,7 +472,6 @@ std::string implode(const std::vector<std::string>& strs, const std::string& del
 std::string compile(std::string code) {
     json result;
     result["result"] = "";
-    result["error"] = "";
 
     antlr4::ANTLRInputStream input(code);
     MavkaLexer lexer(&input);
@@ -486,22 +480,14 @@ std::string compile(std::string code) {
 
     MavkaParser::FileContext* tree = parser.file();
     MavkaASTVisitor visitor;
-    std::any visitor_result = visitor.visitFile(tree);
-    ProgramNode* program_node = std::any_cast<ProgramNode>(&visitor_result);
+    auto ast_result = any_to_ast_result(visitor.visitFile(tree));
+    auto program_node = dynamic_cast<ProgramNode *>(ast_result->node);
+    result["result"] = program_node->toJson();
+    return result.dump(2);
+}
 
-    std::vector<ASTNode *> nodes;
-    nodes.push_back(new ProgramNode());
-    auto el = nodes[0];
-    std::cout << instanceof<ProgramNode>(el) << std::endl;
-
-    if (instanceof<ASTNode>(program_node)) {
-        result["result"] = "program";
-    } else {
-        result["error"] = "Unknown error";
-    }
-
-    // result["result"] = mp;
-    return result.dump();
+int main() {
+    std::cout << compile("модуль А\nкінець") << std::endl;
 }
 
 // std::string fetch_call() {
@@ -512,6 +498,6 @@ std::string compile(std::string code) {
 //     return answer;
 // }
 
-EMSCRIPTEN_BINDINGS (jejalyk) {
-    emscripten::function("compile", &compile);
-}
+// EMSCRIPTEN_BINDINGS (jejalyk) {
+//     emscripten::function("compile", &compile);
+// }
