@@ -7,6 +7,7 @@
 Швидкий компілятор Мавки для вебу.
 
 ```c++
+#include <string>
 #include "jejalyk.cpp"
 
 std::string root_module_path = "./";
