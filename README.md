@@ -9,7 +9,7 @@
 ```c++
 #include "jejalyk.cpp"
 
-std::string get_module_name(bool relative, std::string module, jejalyk::JejalykCompilationOptions options) {
+std::string get_module_name(bool relative, std::string module, jejalyk::CompilationOptions options) {
     // ...
 }
 

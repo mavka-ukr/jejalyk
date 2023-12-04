@@ -5,7 +5,9 @@
 #include "jejalyk.cpp"
 
 std::string compile_wasm(std::string code) {
-    return compile(code);
+    const auto options = new jejalyk::CompilationOptions();
+    const auto result = jejalyk::compile(code, options);
+    return result->result;
 }
 
 std::string fetch_call() {

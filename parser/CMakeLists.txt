@@ -2,7 +2,7 @@
 
 set(MAVKA_PARSER mavka_parser CACHE INTERNAL "")
 set(MAVKA_PARSER_SRC
-        ast.cpp
+        ast.hpp
         MavkaLexer.cpp
         MavkaLexer.h
         MavkaParser.cpp
@@ -11,7 +11,7 @@ set(MAVKA_PARSER_SRC
         MavkaParserBaseListener.h
         MavkaParserListener.cpp
         MavkaParserListener.h
-        parser.cpp
+        parser.hpp
 )
 
 add_subdirectory(antlr4-cpp-runtime)
