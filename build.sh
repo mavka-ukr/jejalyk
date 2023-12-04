@@ -3,19 +3,13 @@ set -e
 TARGET=$1
 
 if [ "$TARGET" = "" ]; then
-    echo "Usage: build.sh <main|wasm>"
+    echo "Usage: build.sh <antlr4|wasm>"
     exit 1
 fi
 
-#cd parser
-#java -jar antlr-4.13.0-complete.jar -Dlanguage=Cpp *.g4 -visitor
-#cd ..
-
-if [ "$TARGET" = "main" ]; then
-    mkdir -p build
-    cd build
-    cmake ..
-    make -j4 main
+if [ "$TARGET" = "antlr4" ]; then
+    cd parser
+    java -jar antlr-4.13.0-complete.jar -Dlanguage=Cpp *.g4 -visitor
     cd ..
 fi
 
