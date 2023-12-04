@@ -17,12 +17,6 @@ namespace mavka {
             std::string TYPE = "ASTNode";
 
             virtual ~ASTNode() = default;
-
-            virtual json toJson() {
-                return json::object({
-                    "type", TYPE
-                });
-            }
         };
 
         // program
@@ -31,18 +25,6 @@ namespace mavka {
             std::string TYPE = "ProgramNode";
 
             std::vector<ASTNode *> body;
-
-            json toJson() override {
-                json result;
-                result["type"] = TYPE;
-                result["body"] = json::array();
-                for (const auto item: body) {
-                    if (item) {
-                        result["body"].push_back(item->toJson());
-                    }
-                }
-                return result;
-            }
         };
 
         // module
@@ -52,19 +34,6 @@ namespace mavka {
 
             std::string name;
             std::vector<ASTNode *> body;
-
-            json toJson() override {
-                json result;
-                result["type"] = TYPE;
-                result["name"] = name;
-                result["body"] = json::array();
-                for (const auto item: body) {
-                    if (item) {
-                        result["body"].push_back(item->toJson());
-                    }
-                }
-                return result;
-            }
         };
 
         // structure

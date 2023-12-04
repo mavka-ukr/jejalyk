@@ -123,8 +123,7 @@ global.mavka_compilation_options = {
 };
 
 Module().then(async (jejalyk) => {
-    const resultJson = await jejalyk.compile(`друк("Привіт від Івана!")`);
-    const result = JSON.parse(resultJson);
+    const result = await jejalyk.compile(`друк("Привіт від Івана!")`);
     console.log(result);
 });
 ```

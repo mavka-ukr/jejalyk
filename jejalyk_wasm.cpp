@@ -69,7 +69,7 @@ std::string get_remote_module_code(std::string module, jejalyk::CompilationOptio
     return answer.as<std::string>();
 }
 
-std::string compile(std::string code) {
+val compile(std::string code) {
     const auto mco = val::global("mavka_compilation_options");
     const auto options = new jejalyk::CompilationOptions();
     options->root_module_path = mco["root_module_path"].as<std::string>();
@@ -82,14 +82,14 @@ std::string compile(std::string code) {
     options->get_remote_module_pak_path = &get_remote_module_pak_path;
     options->get_remote_module_path = &get_remote_module_path;
     options->get_remote_module_code = &get_remote_module_code;
-    nlohmann::json result;
+    val result = val::object();
     const auto compilation_result = jejalyk::compile(code, options);
     if (compilation_result->parser_error) {
-        result["error"] = compilation_result->parser_error->message;
+        result.set(std::string("error"), std::string(compilation_result->parser_error->message));
     } else {
-        result["result"] = compilation_result->result;
+        result.set(std::string("result"), std::string(compilation_result->result));
     }
-    return result.dump();
+    return result;
 }
 
 EMSCRIPTEN_BINDINGS (jejalyk_wasm) {
