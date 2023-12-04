@@ -20,11 +20,12 @@ structure_elements: structure_element (nl structure_element)*;
 structure_element: structure_param | nls;
 structure_param: sp_name=identifier sp_type=type_value? ('=' sp_value=param_value)?;
 
-mockup: mockup_object | mockup_structure | mockup_module | mockup_diia;
-mockup_object: 'макет' mo_name=identifier (mo_type=type_value | (nl nls (mo_elements=mockup_body nl)? nls 'кінець'));
-mockup_structure: 'макет' 'структура' ms_name=identifier nl nls (ms_elements=mockup_body nl)? nls 'кінець';
+mockup: mockup_module | mockup_structure | mockup_diia | mockup_subject | mockup_object;
 mockup_module: 'макет' 'модуль' mm_name=identifier nl nls (mm_elements=mockup_body nl)? nls 'кінець';
+mockup_structure: 'макет' 'структура' ms_name=identifier nl nls (ms_elements=mockup_body nl)? nls 'кінець';
 mockup_diia: 'макет' (md_async='тривала')? 'дія' md_name=identifier '(' ( nls md_params=params? nls ) ')' (md_type=type_value)?;
+mockup_subject: 'макет' ms_name=identifier ms_type=type_value;
+mockup_object: 'макет' mo_name=identifier nl nls (mo_elements=mockup_body nl)? nls 'кінець';
 mockup_body: mockup_body_element (nl mockup_body_element)*;
 mockup_body_element: structure_param | method_declaration | nls;
 
@@ -46,11 +47,11 @@ fromto_to_symbol: '!=' | '==' | '>' | '<' | '>=' | '<=';
 
 while: 'поки' w_value=expr nl (w_body=body nl)? 'кінець';
 
-eval: 'js' e_value=value;
-
 try: 'спробувати' nl t_body=body nl 'зловити' tc_name=identifier? (tc_body=body nl)? 'кінець';
 
-take: 'взяти' (tm_relative='.')? tm_elements_chain=identifiers_chain (tm_star='.*')? ('як' tm_as=identifier)? #take_module
+eval: 'js' e_value=value;
+
+take: 'взяти' (tm_relative='.')? tm_elements_chain=identifiers_chain ('як' tm_as=identifier)? #take_module
     | 'взяти файл' tf_name=STRING 'як' tf_as=identifier #take_file
     | 'взяти' tr_url=STRING ('як' tr_as=identifier)? #take_remote;
 
@@ -107,9 +108,8 @@ array_destruction_el: ade_id=identifier;
 object_destruction: '(' object_destruction_el (',' object_destruction_el)* ')';
 object_destruction_el: nls ode_id=identifier nls;
 
-assign: assign_simple | assign_define | assign_complex | assign_array_destruction | assign_object_destruction;
+assign: assign_simple | assign_complex | assign_array_destruction | assign_object_destruction;
 assign_simple: (as_subject='субʼєкт')? as_identifier=identifier (as_type=type_value)? as_symbol=assign_symbol as_value=expr;
-assign_define: 'субʼєкт' as_identifier=identifier (as_type=type_value)?;
 assign_complex: ac_left=assign_complex_left ac_right=assign_complex_right ac_symbol=assign_symbol ac_value=expr;
 assign_complex_left: acl_chain=identifiers_chain | acl_left=assign_complex_left '[' acl_element=expr ']';
 assign_complex_right: ('.' acr_identifier=identifier) | ('[' acr_element=expr ']');

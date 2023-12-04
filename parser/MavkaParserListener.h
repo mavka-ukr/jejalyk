@@ -50,17 +50,20 @@ public:
   virtual void enterMockup(MavkaParser::MockupContext *ctx) = 0;
   virtual void exitMockup(MavkaParser::MockupContext *ctx) = 0;
 
-  virtual void enterMockup_object(MavkaParser::Mockup_objectContext *ctx) = 0;
-  virtual void exitMockup_object(MavkaParser::Mockup_objectContext *ctx) = 0;
+  virtual void enterMockup_module(MavkaParser::Mockup_moduleContext *ctx) = 0;
+  virtual void exitMockup_module(MavkaParser::Mockup_moduleContext *ctx) = 0;
 
   virtual void enterMockup_structure(MavkaParser::Mockup_structureContext *ctx) = 0;
   virtual void exitMockup_structure(MavkaParser::Mockup_structureContext *ctx) = 0;
 
-  virtual void enterMockup_module(MavkaParser::Mockup_moduleContext *ctx) = 0;
-  virtual void exitMockup_module(MavkaParser::Mockup_moduleContext *ctx) = 0;
-
   virtual void enterMockup_diia(MavkaParser::Mockup_diiaContext *ctx) = 0;
   virtual void exitMockup_diia(MavkaParser::Mockup_diiaContext *ctx) = 0;
+
+  virtual void enterMockup_subject(MavkaParser::Mockup_subjectContext *ctx) = 0;
+  virtual void exitMockup_subject(MavkaParser::Mockup_subjectContext *ctx) = 0;
+
+  virtual void enterMockup_object(MavkaParser::Mockup_objectContext *ctx) = 0;
+  virtual void exitMockup_object(MavkaParser::Mockup_objectContext *ctx) = 0;
 
   virtual void enterMockup_body(MavkaParser::Mockup_bodyContext *ctx) = 0;
   virtual void exitMockup_body(MavkaParser::Mockup_bodyContext *ctx) = 0;
@@ -107,11 +110,11 @@ public:
   virtual void enterWhile(MavkaParser::WhileContext *ctx) = 0;
   virtual void exitWhile(MavkaParser::WhileContext *ctx) = 0;
 
-  virtual void enterEval(MavkaParser::EvalContext *ctx) = 0;
-  virtual void exitEval(MavkaParser::EvalContext *ctx) = 0;
-
   virtual void enterTry(MavkaParser::TryContext *ctx) = 0;
   virtual void exitTry(MavkaParser::TryContext *ctx) = 0;
+
+  virtual void enterEval(MavkaParser::EvalContext *ctx) = 0;
+  virtual void exitEval(MavkaParser::EvalContext *ctx) = 0;
 
   virtual void enterTake_module(MavkaParser::Take_moduleContext *ctx) = 0;
   virtual void exitTake_module(MavkaParser::Take_moduleContext *ctx) = 0;
@@ -253,9 +256,6 @@ public:
 
   virtual void enterAssign_simple(MavkaParser::Assign_simpleContext *ctx) = 0;
   virtual void exitAssign_simple(MavkaParser::Assign_simpleContext *ctx) = 0;
-
-  virtual void enterAssign_define(MavkaParser::Assign_defineContext *ctx) = 0;
-  virtual void exitAssign_define(MavkaParser::Assign_defineContext *ctx) = 0;
 
   virtual void enterAssign_complex(MavkaParser::Assign_complexContext *ctx) = 0;
   virtual void exitAssign_complex(MavkaParser::Assign_complexContext *ctx) = 0;

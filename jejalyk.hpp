@@ -37,11 +37,11 @@ namespace jejalyk {
     };
 
     CompilationResult* compile(std::string code, CompilationOptions* options) {
-        const auto parse_result = mavka::parser::parse(code);
+        const auto parser_result = mavka::parser::parse(code);
         const auto compilation_result = new CompilationResult();
 
-        if (parse_result->error) {
-            compilation_result->parser_error = parse_result->error;
+        if (parser_result->error) {
+            compilation_result->parser_error = parser_result->error;
         } else {
             // todo: compile
 

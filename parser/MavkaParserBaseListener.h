@@ -52,17 +52,20 @@ public:
   virtual void enterMockup(MavkaParser::MockupContext * /*ctx*/) override { }
   virtual void exitMockup(MavkaParser::MockupContext * /*ctx*/) override { }
 
-  virtual void enterMockup_object(MavkaParser::Mockup_objectContext * /*ctx*/) override { }
-  virtual void exitMockup_object(MavkaParser::Mockup_objectContext * /*ctx*/) override { }
+  virtual void enterMockup_module(MavkaParser::Mockup_moduleContext * /*ctx*/) override { }
+  virtual void exitMockup_module(MavkaParser::Mockup_moduleContext * /*ctx*/) override { }
 
   virtual void enterMockup_structure(MavkaParser::Mockup_structureContext * /*ctx*/) override { }
   virtual void exitMockup_structure(MavkaParser::Mockup_structureContext * /*ctx*/) override { }
 
-  virtual void enterMockup_module(MavkaParser::Mockup_moduleContext * /*ctx*/) override { }
-  virtual void exitMockup_module(MavkaParser::Mockup_moduleContext * /*ctx*/) override { }
-
   virtual void enterMockup_diia(MavkaParser::Mockup_diiaContext * /*ctx*/) override { }
   virtual void exitMockup_diia(MavkaParser::Mockup_diiaContext * /*ctx*/) override { }
+
+  virtual void enterMockup_subject(MavkaParser::Mockup_subjectContext * /*ctx*/) override { }
+  virtual void exitMockup_subject(MavkaParser::Mockup_subjectContext * /*ctx*/) override { }
+
+  virtual void enterMockup_object(MavkaParser::Mockup_objectContext * /*ctx*/) override { }
+  virtual void exitMockup_object(MavkaParser::Mockup_objectContext * /*ctx*/) override { }
 
   virtual void enterMockup_body(MavkaParser::Mockup_bodyContext * /*ctx*/) override { }
   virtual void exitMockup_body(MavkaParser::Mockup_bodyContext * /*ctx*/) override { }
@@ -109,11 +112,11 @@ public:
   virtual void enterWhile(MavkaParser::WhileContext * /*ctx*/) override { }
   virtual void exitWhile(MavkaParser::WhileContext * /*ctx*/) override { }
 
-  virtual void enterEval(MavkaParser::EvalContext * /*ctx*/) override { }
-  virtual void exitEval(MavkaParser::EvalContext * /*ctx*/) override { }
-
   virtual void enterTry(MavkaParser::TryContext * /*ctx*/) override { }
   virtual void exitTry(MavkaParser::TryContext * /*ctx*/) override { }
+
+  virtual void enterEval(MavkaParser::EvalContext * /*ctx*/) override { }
+  virtual void exitEval(MavkaParser::EvalContext * /*ctx*/) override { }
 
   virtual void enterTake_module(MavkaParser::Take_moduleContext * /*ctx*/) override { }
   virtual void exitTake_module(MavkaParser::Take_moduleContext * /*ctx*/) override { }
@@ -255,9 +258,6 @@ public:
 
   virtual void enterAssign_simple(MavkaParser::Assign_simpleContext * /*ctx*/) override { }
   virtual void exitAssign_simple(MavkaParser::Assign_simpleContext * /*ctx*/) override { }
-
-  virtual void enterAssign_define(MavkaParser::Assign_defineContext * /*ctx*/) override { }
-  virtual void exitAssign_define(MavkaParser::Assign_defineContext * /*ctx*/) override { }
 
   virtual void enterAssign_complex(MavkaParser::Assign_complexContext * /*ctx*/) override { }
   virtual void exitAssign_complex(MavkaParser::Assign_complexContext * /*ctx*/) override { }

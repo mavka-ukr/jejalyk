@@ -43,13 +43,15 @@ public:
 
     virtual std::any visitMockup(MavkaParser::MockupContext *context) = 0;
 
-    virtual std::any visitMockup_object(MavkaParser::Mockup_objectContext *context) = 0;
+    virtual std::any visitMockup_module(MavkaParser::Mockup_moduleContext *context) = 0;
 
     virtual std::any visitMockup_structure(MavkaParser::Mockup_structureContext *context) = 0;
 
-    virtual std::any visitMockup_module(MavkaParser::Mockup_moduleContext *context) = 0;
-
     virtual std::any visitMockup_diia(MavkaParser::Mockup_diiaContext *context) = 0;
+
+    virtual std::any visitMockup_subject(MavkaParser::Mockup_subjectContext *context) = 0;
+
+    virtual std::any visitMockup_object(MavkaParser::Mockup_objectContext *context) = 0;
 
     virtual std::any visitMockup_body(MavkaParser::Mockup_bodyContext *context) = 0;
 
@@ -81,9 +83,9 @@ public:
 
     virtual std::any visitWhile(MavkaParser::WhileContext *context) = 0;
 
-    virtual std::any visitEval(MavkaParser::EvalContext *context) = 0;
-
     virtual std::any visitTry(MavkaParser::TryContext *context) = 0;
+
+    virtual std::any visitEval(MavkaParser::EvalContext *context) = 0;
 
     virtual std::any visitTake_module(MavkaParser::Take_moduleContext *context) = 0;
 
@@ -178,8 +180,6 @@ public:
     virtual std::any visitAssign(MavkaParser::AssignContext *context) = 0;
 
     virtual std::any visitAssign_simple(MavkaParser::Assign_simpleContext *context) = 0;
-
-    virtual std::any visitAssign_define(MavkaParser::Assign_defineContext *context) = 0;
 
     virtual std::any visitAssign_complex(MavkaParser::Assign_complexContext *context) = 0;
 

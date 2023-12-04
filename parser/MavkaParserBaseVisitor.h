@@ -63,7 +63,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitMockup_object(MavkaParser::Mockup_objectContext *ctx) override {
+  virtual std::any visitMockup_module(MavkaParser::Mockup_moduleContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -71,11 +71,15 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitMockup_module(MavkaParser::Mockup_moduleContext *ctx) override {
+  virtual std::any visitMockup_diia(MavkaParser::Mockup_diiaContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitMockup_diia(MavkaParser::Mockup_diiaContext *ctx) override {
+  virtual std::any visitMockup_subject(MavkaParser::Mockup_subjectContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_object(MavkaParser::Mockup_objectContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -139,11 +143,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitEval(MavkaParser::EvalContext *ctx) override {
+  virtual std::any visitTry(MavkaParser::TryContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitTry(MavkaParser::TryContext *ctx) override {
+  virtual std::any visitEval(MavkaParser::EvalContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -332,10 +336,6 @@ public:
   }
 
   virtual std::any visitAssign_simple(MavkaParser::Assign_simpleContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitAssign_define(MavkaParser::Assign_defineContext *ctx) override {
     return visitChildren(ctx);
   }
 
