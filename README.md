@@ -44,8 +44,8 @@ std::string get_remote_module_code(std::string module, jejalyk::CompilationOptio
 
 int main() {
     const auto options = new jejalyk::CompilationOptions();
-    options->root_module_path = "./";
-    options->current_module_path = "./";
+    options->root_module_path = "запуск.м";
+    options->current_module_path = "запуск.м";
     options->get_module_name = &get_module_name;
     options->get_module_path = &get_module_path;
     options->get_module_code = &get_module_code;
