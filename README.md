@@ -9,6 +9,9 @@
 ```c++
 #include "jejalyk.cpp"
 
+std::string root_module_path = "./";
+std::string current_module_path = "./";
+
 std::string get_module_name(bool relative, std::string module, jejalyk::CompilationOptions options) {
     // ...
 }
@@ -43,6 +46,8 @@ std::string get_remote_module_code(std::string module, jejalyk::CompilationOptio
 
 int main() {
     const auto options = new jejalyk::CompilationOptions();
+    options->root_module_path = root_module_path;
+    options->current_module_path = current_module_path;
     options->get_module_name = &get_module_name;
     options->get_module_path = &get_module_path;
     options->get_module_code = &get_module_code;
