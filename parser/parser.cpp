@@ -58,9 +58,9 @@ MavkaParserResult* parse_mavka(std::string code) {
     }
     MavkaASTVisitor visitor;
 
-    auto ast_result = any_to_ast_result(visitor.visitFile(tree));
-    auto program_node = dynamic_cast<ProgramNode *>(ast_result->node);
-    auto parse_result = new MavkaParserResult();
+    const auto ast_result = any_to_ast_result(visitor.visitFile(tree));
+    const auto program_node = dynamic_cast<ProgramNode *>(ast_result->node);
+    const auto parse_result = new MavkaParserResult();
     parse_result->node = program_node;
     return parse_result;
 }

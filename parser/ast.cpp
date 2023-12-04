@@ -17,7 +17,9 @@ public:
     virtual ~ASTNode() = default;
 
     virtual json toJson() {
-        return json::object();
+        return json::object({
+            "type", TYPE
+        });
     }
 };
 
@@ -30,9 +32,9 @@ public:
 
     json toJson() override {
         json result;
-        result["type"] = "ProgramBody";
+        result["type"] = TYPE;
         result["body"] = json::array();
-        for (auto& item: body) {
+        for (const auto item: body) {
             if (item) {
                 result["body"].push_back(item->toJson());
             }
@@ -51,10 +53,10 @@ public:
 
     json toJson() override {
         json result;
-        result["type"] = "ModuleNode";
+        result["type"] = TYPE;
         result["name"] = name;
         result["body"] = json::array();
-        for (auto& item: body) {
+        for (const auto item: body) {
             if (item) {
                 result["body"].push_back(item->toJson());
             }
