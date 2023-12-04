@@ -1,6 +1,4 @@
-<p align="center">
 <img src="./assets/logo.png" width="75" height="75" /> 
-</p>
 
 # Джеджалик
 
