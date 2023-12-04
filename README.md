@@ -13,35 +13,35 @@
 std::string root_module_path = "./";
 std::string current_module_path = "./";
 
-std::string get_module_name(bool relative, std::string module, jejalyk::CompilationOptions options) {
+std::string get_module_name(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_module_path(bool relative, std::string module, jejalyk::CompilationOptions options) {
+std::string get_module_path(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_module_code(bool relative, std::string module, jejalyk::CompilationOptions options) {
+std::string get_module_code(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_butintin_module_code(std::string module, jejalyk::CompilationOptions options) {
+std::string get_butintin_module_code(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_remote_module_name(std::string module, jejalyk::CompilationOptions options) {
+std::string get_remote_module_name(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_remote_module_pak_path(std::string module, jejalyk::CompilationOptions options) {
+std::string get_remote_module_pak_path(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_remote_module_path(std::string module, jejalyk::CompilationOptions options) {
+std::string get_remote_module_path(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_remote_module_code(std::string module, jejalyk::CompilationOptions options) {
+std::string get_remote_module_code(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
