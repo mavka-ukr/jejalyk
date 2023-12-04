@@ -32,6 +32,8 @@
 
 ## Використання
 
+### C++
+
 ```c++
 #include <string>
 #include "jejalyk.cpp"
@@ -92,4 +94,25 @@ int main() {
 
     return 0;
 }
+```
+
+### JavaScript
+
+```javascript
+import Module from "./build/jejalyk_node.js";
+
+global.mavka_compilation_options = {
+    root_module_path: "./",
+    current_module_path: "./",
+    get_module_name: async (relative, module, options) => {
+        return "";
+    },
+    // ...
+};
+
+Module().then(async (jejalyk) => {
+    const resultJson = await jejalyk.compile(`друк("Привіт від Івана!")`);
+    const result = JSON.parse(resultJson);
+    console.log(result);
+});
 ```
