@@ -3,7 +3,7 @@ set -e
 TARGET=$1
 
 if [ "$TARGET" = "" ]; then
-    echo "Usage: build.sh <antlr4|node|web|Onode|Oweb>"
+    echo "Usage: build.sh <antlr4|node|web|all|Onode|Oweb|Oall>"
     exit 1
 fi
 
@@ -13,7 +13,7 @@ if [ "$TARGET" = "antlr4" ]; then
     cd ..
 fi
 
-if [ "$TARGET" = "node" ]; then
+if [ "$TARGET" = "node" ] || [ "$TARGET" = "all" ]; then
     mkdir -p build
     cd build
     emcmake cmake ..
@@ -21,7 +21,7 @@ if [ "$TARGET" = "node" ]; then
     cd ..
 fi
 
-if [ "$TARGET" = "web" ]; then
+if [ "$TARGET" = "web" ] || [ "$TARGET" = "all" ]; then
     mkdir -p build
     cd build
     emcmake cmake ..
@@ -29,7 +29,7 @@ if [ "$TARGET" = "web" ]; then
     cd ..
 fi
 
-if [ "$TARGET" = "Onode" ]; then
+if [ "$TARGET" = "Onode" ] || [ "$TARGET" = "Oall" ]; then
     mkdir -p build
     cd build
     emcmake cmake ..
@@ -37,7 +37,7 @@ if [ "$TARGET" = "Onode" ]; then
     cd ..
 fi
 
-if [ "$TARGET" = "Oweb" ]; then
+if [ "$TARGET" = "Oweb" ] || [ "$TARGET" = "Oall" ]; then
     mkdir -p build
     cd build
     emcmake cmake ..

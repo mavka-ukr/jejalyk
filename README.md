@@ -15,6 +15,10 @@
 ## Будування
 
 ```shell
+./build.sh antl4 # antlr4 grammar
+```
+
+```shell
 ./build.sh node # node wasm
 ```
 
@@ -23,11 +27,19 @@
 ```
 
 ```shell
+./build.sh all # web and node wasm
+```
+
+```shell
 ./build.sh Onode # optimized node wasm
 ```
 
 ```shell
 ./build.sh Oweb # optimized web wasm
+```
+
+```shell
+./build.sh Oall # optimized web and optimized node wasm
 ```
 
 ## Використання
