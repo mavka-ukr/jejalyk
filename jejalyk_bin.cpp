@@ -1,12 +1,26 @@
+#include <iostream>
+#include <fstream>
 #include <string>
 #include "jejalyk.hpp"
 
 int main(int argc, char** argv) {
+    if (argc < 2) {
+        std::cout << "Використання: джеджалик <вхід.м> [вихід.js]" << std::endl;
+        return 1;
+    }
+
+    std::ifstream file(argv[1]);
+    std::string code((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+
     const auto options = new jejalyk::CompilationOptions();
 
-    const auto result = jejalyk::compile(R"(друк("один", "два", 3))", options);
+    const auto result = jejalyk::compile(code, options);
+
     if (result->parser_error) {
         std::cout << result->parser_error->message << std::endl;
+    } else if (argc > 2) {
+        std::ofstream out(argv[2]);
+        out << result->result;
     } else {
         std::cout << result->result << std::endl;
     }

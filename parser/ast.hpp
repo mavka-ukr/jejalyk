@@ -15,6 +15,10 @@ namespace mavka {
         class ASTNode {
         public:
             std::string TYPE = "ASTNode";
+            int start_line = 0;
+            int start_column = 0;
+            int end_line = 0;
+            int end_column = 0;
 
             virtual ~ASTNode() = default;
         };
