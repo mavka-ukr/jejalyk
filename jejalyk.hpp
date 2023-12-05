@@ -16,12 +16,18 @@ namespace jejalyk {
     const std::string MAVKA_OR = "мАб"; // мАб(а, б)
     const std::string MAVKA_XOR = "мХр"; // мХр(а, б)
     const std::string MAVKA_NOT = "мНі"; // мНі(а)
-    const std::string MAVKA_BIT_AND = "мДІ"; // мБІ(а, б)
+    const std::string MAVKA_BIT_AND = "мДІ"; // мДІ(а, б)
     const std::string MAVKA_BIT_OR = "мДА"; // мДА(а, б)
     const std::string MAVKA_BIT_XOR = "мДХ"; // мДХ(а, б)
     const std::string MAVKA_BIT_NOT = "мДН"; // мДН(а)
     const std::string MAVKA_BIT_LSHIFT = "мЗС"; // мЗС(а, б)
     const std::string MAVKA_BIT_RSHIFT = "мЗП"; // мЗП(а, б)
+    const std::string MAVKA_AS = "мЯк"; // мЯк(а, б)
+    const std::string MAVKA_EQ = "мРі"; // мРі(а, б)
+    const std::string MAVKA_LT = "мМе"; // мМе(а, б)
+    const std::string MAVKA_LE = "мМр"; // мМр(а, б)
+    const std::string MAVKA_GT = "мБі"; // мБі(а, б)
+    const std::string MAVKA_GE = "мБр"; // мБр(а, б)
 
     std::string varname(std::string name) {
         return "м_" + name;
@@ -157,36 +163,109 @@ namespace jejalyk {
                 return node_compilation_result;
             }
             if (arithmetic_node->op == "+") {
-                node_compilation_result->result = MAVKA_ADD + "(" + compiled_left->result + "," + compiled_right->result + ")";
-            }
-            if (arithmetic_node->op == "-") {
-                node_compilation_result->result = MAVKA_SUB + "(" + compiled_left->result + "," + compiled_right->result + ")";
-            }
-            if (arithmetic_node->op == "*") {
-                node_compilation_result->result = MAVKA_MUL + "(" + compiled_left->result + "," + compiled_right->result + ")";
-            }
-            if (arithmetic_node->op == "/") {
-                node_compilation_result->result = MAVKA_DIV + "(" + compiled_left->result + "," + compiled_right->result + ")";
+                node_compilation_result->result =
+                        MAVKA_ADD + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (arithmetic_node->op == "-") {
+                node_compilation_result->result =
+                        MAVKA_SUB + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (arithmetic_node->op == "*") {
+                node_compilation_result->result =
+                        MAVKA_MUL + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (arithmetic_node->op == "/") {
+                node_compilation_result->result =
+                        MAVKA_DIV + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else {
+                node_compilation_result->error = new CompilationError();
+                node_compilation_result->error->result = "unsupported arithmetic operation: " + arithmetic_node->op;
             }
             return node_compilation_result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::ArrayNode>(node)) {
+            const auto array_node = dynamic_cast<mavka::ast::ArrayNode *>(node);
+            std::vector<std::string> compiled_elements;
+            for (const auto& element: array_node->elements) {
+                const auto element_compilation_result = compile_node(element, scope, options);
+                if (element_compilation_result->error) {
+                    node_compilation_result->error = element_compilation_result->error;
+                    return node_compilation_result;
+                }
+                compiled_elements.push_back(element_compilation_result->result);
+            }
+            node_compilation_result->result = "[" + implode(compiled_elements, ",") + "]";
+            return node_compilation_result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::AsNode>(node)) {
+            const auto as_node = dynamic_cast<mavka::ast::AsNode *>(node);
+            const auto left = compile_node(as_node->left, scope, options);
+            if (left->error) {
+                node_compilation_result->error = left->error;
+                return node_compilation_result;
+            }
+            const auto right = compile_node(as_node->right, scope, options);
+            if (right->error) {
+                node_compilation_result->error = right->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_AS + "(" + left->result + "," + right->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::AssignComplexNode>(node)) {
         }
 
         if (mavka::ast::instanceof<mavka::ast::AssignSimpleNode>(node)) {
+            const auto assign_simple_node = dynamic_cast<mavka::ast::AssignSimpleNode *>(node);
+            const auto name = assign_simple_node->name;
+            const auto value = compile_node(assign_simple_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = varname(name) + "=" + value->result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::BitwiseNode>(node)) {
+            const auto bitwise_node = dynamic_cast<mavka::ast::BitwiseNode *>(node);
+            const auto compiled_left = compile_node(bitwise_node->left, scope, options);
+            if (compiled_left->error) {
+                node_compilation_result->error = compiled_left->error;
+                return node_compilation_result;
+            }
+            const auto compiled_right = compile_node(bitwise_node->right, scope, options);
+            if (compiled_right->error) {
+                node_compilation_result->error = compiled_right->error;
+                return node_compilation_result;
+            }
+            if (bitwise_node->op == "&") {
+                node_compilation_result->result =
+                        MAVKA_BIT_AND + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (bitwise_node->op == "|") {
+                node_compilation_result->result =
+                        MAVKA_BIT_OR + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (bitwise_node->op == "^") {
+                node_compilation_result->result =
+                        MAVKA_BIT_XOR + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (bitwise_node->op == "<<") {
+                node_compilation_result->result =
+                        MAVKA_BIT_LSHIFT + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (bitwise_node->op == ">>") {
+                node_compilation_result->result =
+                        MAVKA_BIT_RSHIFT + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else {
+                node_compilation_result->error = new CompilationError();
+                node_compilation_result->error->result = "unsupported bitwise operation: " + bitwise_node->op;
+            }
         }
 
         if (mavka::ast::instanceof<mavka::ast::BitwiseNotNode>(node)) {
+            const auto bitwise_not_node = dynamic_cast<mavka::ast::BitwiseNotNode *>(node);
+            const auto compiled_value = compile_node(bitwise_not_node->value, scope, options);
+            if (compiled_value->error) {
+                node_compilation_result->error = compiled_value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_BIT_NOT + "(" + compiled_value->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::CallNode>(node)) {
@@ -247,12 +326,59 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::ComparisonNode>(node)) {
+            const auto comparison_node = dynamic_cast<mavka::ast::ComparisonNode *>(node);
+            const auto compiled_left = compile_node(comparison_node->left, scope, options);
+            if (compiled_left->error) {
+                node_compilation_result->error = compiled_left->error;
+                return node_compilation_result;
+            }
+            const auto compiled_right = compile_node(comparison_node->right, scope, options);
+            if (compiled_right->error) {
+                node_compilation_result->error = compiled_right->error;
+                return node_compilation_result;
+            }
+            if (comparison_node->op == "==") {
+                node_compilation_result->result =
+                        MAVKA_EQ + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == "!=") {
+                node_compilation_result->result =
+                        "!" + MAVKA_EQ + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == "<") {
+                node_compilation_result->result =
+                        MAVKA_LT + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == "<=") {
+                node_compilation_result->result =
+                        MAVKA_LE + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == ">") {
+                node_compilation_result->result =
+                        MAVKA_GT + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == ">=") {
+                node_compilation_result->result =
+                        MAVKA_GE + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else {
+                node_compilation_result->error = new CompilationError();
+                node_compilation_result->error->result = "unsupported comparison operation: " + comparison_node->op;
+            }
         }
 
         if (mavka::ast::instanceof<mavka::ast::ContinueNode>(node)) {
+            node_compilation_result->result = "continue";
         }
 
         if (mavka::ast::instanceof<mavka::ast::DiiaNode>(node)) {
+            const auto diia_node = dynamic_cast<mavka::ast::DiiaNode *>(node);
+
+            const auto params_compilation_result = compile_params(diia_node->params, scope, options);
+            if (params_compilation_result->error) {
+                node_compilation_result->error = params_compilation_result->error;
+                return node_compilation_result;
+            }
+            const auto compiled_params = params_compilation_result->result;
+
+            node_compilation_result->result = varname(diia_node->name) + "=" + MAVKA_DIIA + "(" + "\"" + diia_node->name
+                                              + "\"" + "," +
+                                              compiled_params + ")";
+            return node_compilation_result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::EachNode>(node)) {

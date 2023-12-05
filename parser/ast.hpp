@@ -801,7 +801,7 @@ namespace mavka {
             std::any visitDiia(MavkaParser::DiiaContext* context) override {
                 const auto diia_node = new DiiaNode();
                 diia_node->async = context->d_async != nullptr;
-                diia_node->structure = context->d_structure->getText();
+                diia_node->structure = context->d_structure ? context->d_structure->getText() : "";
                 diia_node->name = context->d_name->getText();
                 if (context->d_params) {
                     diia_node->params = std::any_cast<std::vector<ParamNode *>>(
@@ -1036,6 +1036,13 @@ namespace mavka {
                 return visitExpr(context->n_value);
             }
 
+            std::any visitAs(MavkaParser::AsContext* context) override {
+                const auto as_node = new AsNode();
+                as_node->left = any_to_ast_result(visitValue(context->a_left))->node;
+                as_node->right = any_to_ast_result(visitValue(context->a_right))->node;
+                return create_ast_result(as_node);
+            }
+
             std::any visitArithmetic_mul(MavkaParser::Arithmetic_mulContext* context) override {
                 const auto arithmetic_node = new ArithmeticNode();
                 arithmetic_node->left = any_to_ast_result(visitValue(context->a_left))->node;
@@ -1050,6 +1057,45 @@ namespace mavka {
                 arithmetic_node->right = any_to_ast_result(visitValue(context->a_right))->node;
                 arithmetic_node->op = context->a_operation->getText();
                 return create_ast_result(arithmetic_node);
+            }
+
+            std::any visitComparison(MavkaParser::ComparisonContext* context) override {
+                const auto comparison_node = new ComparisonNode();
+                comparison_node->left = any_to_ast_result(visitValue(context->c_left))->node;
+                comparison_node->right = any_to_ast_result(visitValue(context->c_right))->node;
+                comparison_node->op = context->c_operation->getText();
+                return create_ast_result(comparison_node);
+            }
+
+            std::any visitTest(MavkaParser::TestContext* context) override {
+                const auto test_node = new TestNode();
+                test_node->left = any_to_ast_result(visitValue(context->t_left))->node;
+                test_node->right = any_to_ast_result(visitValue(context->t_right))->node;
+                test_node->op = context->t_operation->getText();
+                return create_ast_result(test_node);
+            }
+
+            std::any visitArray(MavkaParser::ArrayContext* context) override {
+                const auto array_node = new ArrayNode();
+                if (context->a_elements) {
+                    array_node->elements = std::any_cast<std::vector<ASTNode *>>(
+                        visitArray_elements(context->a_elements)
+                    );
+                }
+                return create_ast_result(array_node);
+            }
+
+            std::any visitArray_elements(MavkaParser::Array_elementsContext* context) override {
+                std::vector<ASTNode *> elements;
+                for (const auto array_element: context->array_element()) {
+                    const auto ast_result = any_to_ast_result(visitArray_element(array_element));
+                    elements.push_back(ast_result->node);
+                }
+                return elements;
+            }
+
+            std::any visitArray_element(MavkaParser::Array_elementContext* context) override {
+                return visitExpr(context->ae_value);
             }
 
             std::any visitWait(MavkaParser::WaitContext* context) override {
