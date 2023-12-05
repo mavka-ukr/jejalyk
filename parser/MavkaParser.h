@@ -2227,11 +2227,11 @@ public:
 
   class  Return_body_lineContext : public antlr4::ParserRuleContext {
   public:
-    MavkaParser::Body_elementContext *rbl = nullptr;
+    MavkaParser::ExprContext *rbl_value = nullptr;
     Return_body_lineContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *RETURN();
-    Body_elementContext *body_element();
+    ExprContext *expr();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

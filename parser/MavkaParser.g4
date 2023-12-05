@@ -142,7 +142,7 @@ param_value: NUMBER #param_value_number
 body: body_element_or_return (nl body_element_or_return)*;
 body_element_or_return: body_element | return_body_line;
 body_element: if | each | while | try | expr | throw | wait_assign | assign | nls;
-return_body_line: 'вернути' rbl=body_element;
+return_body_line: 'вернути' rbl_value=expr;
 
 arithmetic_op_mul: '*' | '/' | PERCENT | DIVDIV | POW;
 arithmetic_op_add: '+' | '-';

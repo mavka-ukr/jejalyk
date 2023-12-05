@@ -441,7 +441,7 @@ void mavkaparserParserInitialize() {
   	54,0,914,917,3,92,46,0,915,917,3,154,77,0,916,907,1,0,0,0,916,908,1,0,
   	0,0,916,909,1,0,0,0,916,910,1,0,0,0,916,911,1,0,0,0,916,912,1,0,0,0,916,
   	913,1,0,0,0,916,914,1,0,0,0,916,915,1,0,0,0,917,139,1,0,0,0,918,919,5,
-  	20,0,0,919,920,3,138,69,0,920,141,1,0,0,0,921,922,7,5,0,0,922,143,1,0,
+  	20,0,0,919,920,3,80,40,0,920,141,1,0,0,0,921,922,7,5,0,0,922,143,1,0,
   	0,0,923,924,7,6,0,0,924,145,1,0,0,0,925,926,7,7,0,0,926,147,1,0,0,0,927,
   	928,7,8,0,0,928,149,1,0,0,0,929,930,7,9,0,0,930,151,1,0,0,0,931,932,5,
   	54,0,0,932,153,1,0,0,0,933,935,3,152,76,0,934,933,1,0,0,0,935,938,1,0,
@@ -9607,8 +9607,8 @@ tree::TerminalNode* MavkaParser::Return_body_lineContext::RETURN() {
   return getToken(MavkaParser::RETURN, 0);
 }
 
-MavkaParser::Body_elementContext* MavkaParser::Return_body_lineContext::body_element() {
-  return getRuleContext<MavkaParser::Body_elementContext>(0);
+MavkaParser::ExprContext* MavkaParser::Return_body_lineContext::expr() {
+  return getRuleContext<MavkaParser::ExprContext>(0);
 }
 
 
@@ -9652,7 +9652,7 @@ MavkaParser::Return_body_lineContext* MavkaParser::return_body_line() {
     setState(918);
     match(MavkaParser::RETURN);
     setState(919);
-    antlrcpp::downCast<Return_body_lineContext *>(_localctx)->rbl = body_element();
+    antlrcpp::downCast<Return_body_lineContext *>(_localctx)->rbl_value = expr();
    
   }
   catch (RecognitionException &e) {

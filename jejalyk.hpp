@@ -382,6 +382,22 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::EachNode>(node)) {
+            const auto each_node = dynamic_cast<mavka::ast::EachNode *>(node);
+            const auto value = compile_node(each_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            if (each_node->keyName.empty()) {
+                node_compilation_result->result =
+                        "for (" + varname(each_node->name) + " of mavka_values(" + value->result
+                        + ")) {}";
+            } else {
+                node_compilation_result->result =
+                        "for ([" + varname(each_node->keyName) + "," + varname(each_node->keyName) +
+                        "] of mavka_entries(" + value->result
+                        + ")) {}";
+            }
         }
 
         if (mavka::ast::instanceof<mavka::ast::EvalNode>(node)) {

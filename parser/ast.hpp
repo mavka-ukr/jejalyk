@@ -841,11 +841,13 @@ namespace mavka {
                 if (context->e_fromto) {
                     each_node->value = any_to_ast_result(visitFromto(context->e_fromto))->node;
                 }
-                each_node->keyName = context->e_key_name->getText();
+                each_node->keyName = context->e_key_name ? context->e_key_name->getText() : "";
                 each_node->name = context->e_name->getText();
-                each_node->body = std::any_cast<std::vector<ASTNode *>>(
-                    visitBody(context->e_body)
-                );
+                if (context->e_body) {
+                    each_node->body = std::any_cast<std::vector<ASTNode *>>(
+                        visitBody(context->e_body)
+                    );
+                }
                 return create_ast_result(each_node);
             }
 
@@ -1317,6 +1319,59 @@ namespace mavka {
                 arg_node->name = context->na_name->getText();
                 arg_node->value = any_to_ast_result(visitExpr(context->na_value))->node;
                 return create_ast_result(arg_node);
+            }
+
+            std::any visitBody(MavkaParser::BodyContext* context) override {
+                std::vector<ASTNode *> body;
+                for (const auto body_element: context->body_element_or_return()) {
+                    const auto ast_result = any_to_ast_result(visitBody_element_or_return(body_element));
+                    body.push_back(ast_result->node);
+                }
+                return body;
+            }
+
+            std::any visitBody_element_or_return(MavkaParser::Body_element_or_returnContext* context) override {
+                if (context->body_element()) {
+                    return visitBody_element(context->body_element());
+                }
+                if (context->return_body_line()) {
+                    return visitReturn_body_line(context->return_body_line());
+                }
+                return create_ast_result(new ASTNode());
+            }
+
+            std::any visitBody_element(MavkaParser::Body_elementContext* context) override {
+                if (context->if_()) {
+                    return visitIf(context->if_());
+                }
+                if (context->each()) {
+                    return visitEach(context->each());
+                }
+                if (context->while_()) {
+                    return visitWhile(context->while_());
+                }
+                if (context->try_()) {
+                    return visitTry(context->try_());
+                }
+                if (context->expr()) {
+                    return visitExpr(context->expr());
+                }
+                if (context->throw_()) {
+                    return visitThrow(context->throw_());
+                }
+                if (context->wait_assign()) {
+                    return visitWait_assign(context->wait_assign());
+                }
+                if (context->assign()) {
+                    return visitAssign(context->assign());
+                }
+                return create_ast_result(new ASTNode());
+            }
+
+            std::any visitReturn_body_line(MavkaParser::Return_body_lineContext* context) override {
+                const auto return_node = new ReturnNode();
+                return_node->value = any_to_ast_result(visitExpr(context->rbl_value))->node;
+                return create_ast_result(return_node);
             }
         };
     }
