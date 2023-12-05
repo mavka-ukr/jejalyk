@@ -949,6 +949,24 @@ namespace mavka {
                 return create_ast_result(identifier_node);
             }
 
+            // todo: visit chain
+
+            std::any visitCall(MavkaParser::CallContext* context) override {
+                const auto call_node = new CallNode();
+                call_node->value = any_to_ast_result(visitValue(context->c_value))->node;
+                if (context->c_args) {
+                    call_node->args = std::any_cast<std::vector<ArgNode *>>(
+                        visitArgs(context->c_args)
+                    );
+                }
+                if (context->c_named_args) {
+                    call_node->args = std::any_cast<std::vector<ArgNode *>>(
+                        visitNamed_args(context->c_named_args)
+                    );
+                }
+                return create_ast_result(call_node);
+            }
+
             std::any visitWait(MavkaParser::WaitContext* context) override {
                 const auto wait_node = new WaitNode();
                 wait_node->value = any_to_ast_result(visitValue(context->w_value))->node;
@@ -1109,8 +1127,47 @@ namespace mavka {
                 return create_ast_result(new ASTNode());
             }
 
+            std::any visitParams(MavkaParser::ParamsContext* context) override {
+                return create_ast_result(new ASTNode());
+            }
+
             std::any visitParam_value(MavkaParser::Param_valueContext* context) {
                 return create_ast_result(new ASTNode());
+            }
+
+            std::any visitArgs(MavkaParser::ArgsContext* context) override {
+                std::vector<ArgNode *> args;
+                for (int i = 0; i < context->arg().size(); ++i) {
+                    const auto arg = context->arg()[i];
+                    const auto ast_result = any_to_ast_result(visitArg(arg, i));
+                    args.push_back(dynamic_cast<ArgNode *>(ast_result->node));
+                }
+                return args;
+            }
+
+            std::any visitArg(MavkaParser::ArgContext* context, int index) {
+                const auto arg_node = new ArgNode();
+                arg_node->index = index;
+                arg_node->value = any_to_ast_result(visitExpr(context->a_value))->node;
+                return create_ast_result(arg_node);
+            }
+
+            std::any visitNamed_args(MavkaParser::Named_argsContext* context) override {
+                std::vector<ArgNode *> args;
+                for (int i = 0; i < context->named_arg().size(); ++i) {
+                    const auto arg = context->named_arg()[i];
+                    const auto ast_result = any_to_ast_result(visitNamed_arg(arg, i));
+                    args.push_back(dynamic_cast<ArgNode *>(ast_result->node));
+                }
+                return args;
+            }
+
+            std::any visitNamed_arg(MavkaParser::Named_argContext* context, int index) {
+                const auto arg_node = new ArgNode();
+                arg_node->index = index;
+                arg_node->name = context->na_name->getText();
+                arg_node->value = any_to_ast_result(visitExpr(context->na_value))->node;
+                return create_ast_result(arg_node);
             }
         };
     }
