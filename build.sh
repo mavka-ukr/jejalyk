@@ -3,13 +3,21 @@ set -e
 TARGET=$1
 
 if [ "$TARGET" = "" ]; then
-    echo "Usage: build.sh <antlr4|node|web|all|Onode|Oweb|Oall>"
+    echo "Usage: build.sh <antlr4|bin|node|web|all|Obin|Onode|Oweb|Oall>"
     exit 1
 fi
 
 if [ "$TARGET" = "antlr4" ]; then
     cd parser
     java -jar antlr-4.13.0-complete.jar -Dlanguage=Cpp *.g4 -visitor
+    cd ..
+fi
+
+if [ "$TARGET" = "bin" ] || [ "$TARGET" = "all" ]; then
+    mkdir -p build
+    cd build
+    cmake ..
+    make -j4 jejalyk
     cd ..
 fi
 

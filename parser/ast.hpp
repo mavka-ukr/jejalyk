@@ -825,11 +825,80 @@ namespace mavka {
             }
 
             std::any visitExpr(MavkaParser::ExprContext* context) {
-                //
+                if (instanceof<MavkaParser::SimpleContext>(context)) {
+                    const auto simple_context = dynamic_cast<MavkaParser::SimpleContext *>(context);
+                    return visitValue(simple_context->value());
+                }
+                if (instanceof<MavkaParser::WaitContext>(context)) {
+                    const auto wait_context = dynamic_cast<MavkaParser::WaitContext *>(context);
+                    return visitWait(wait_context);
+                }
+                if (instanceof<MavkaParser::FunctionContext>(context)) {
+                    const auto function_context = dynamic_cast<MavkaParser::FunctionContext *>(context);
+                    return visitFunction(function_context);
+                }
+                if (instanceof<MavkaParser::Anonymous_diiaContext>(context)) {
+                    const auto anonymous_diia_context = dynamic_cast<MavkaParser::Anonymous_diiaContext *>(context);
+                    return visitAnonymous_diia(anonymous_diia_context);
+                }
+                return create_ast_result(new ASTNode());
             }
 
             std::any visitValue(MavkaParser::ValueContext* context) {
-                //
+                if (instanceof<MavkaParser::NumberContext>(context)) {
+                    return visitNumber(dynamic_cast<MavkaParser::NumberContext *>(context));
+                }
+            }
+
+            std::any visitNumber(MavkaParser::NumberContext* context) override {
+                const auto number_node = new NumberNode();
+                number_node->value = context->getText();
+                return create_ast_result(number_node);
+            }
+
+            std::any visitWait(MavkaParser::WaitContext* context) override {
+                const auto wait_node = new WaitNode();
+                wait_node->value = any_to_ast_result(visitValue(context->w_value))->node;
+                return create_ast_result(wait_node);
+            }
+
+            std::any visitFunction(MavkaParser::FunctionContext* context) override {
+                const auto function_node = new FunctionNode();
+                function_node->async = context->f_async != nullptr;
+                if (context->f_params) {
+                    function_node->params = std::any_cast<std::vector<ParamNode *>>(
+                        visitParams(context->f_params)
+                    );
+                }
+                if (context->f_type) {
+                    function_node->type = any_to_ast_result(visitType_value(context->f_type))->node;
+                }
+                if (context->f_body) {
+                    const auto function_node_body = std::any_cast<ASTNode *>(
+                        visitExpr(context->f_body)
+                    );
+                    function_node->body.push_back(function_node_body);
+                }
+                return create_ast_result(function_node);
+            }
+
+            std::any visitAnonymous_diia(MavkaParser::Anonymous_diiaContext* context) override {
+                const auto function_node = new FunctionNode();
+                function_node->async = context->d_async != nullptr;
+                if (context->d_params) {
+                    function_node->params = std::any_cast<std::vector<ParamNode *>>(
+                        visitParams(context->d_params)
+                    );
+                }
+                if (context->d_type) {
+                    function_node->type = any_to_ast_result(visitType_value(context->d_type))->node;
+                }
+                if (context->d_body) {
+                    function_node->body = std::any_cast<std::vector<ASTNode *>>(
+                        visitBody(context->d_body)
+                    );
+                }
+                return create_ast_result(function_node);
             }
 
             std::any visitThrow(MavkaParser::ThrowContext* context) override {
@@ -944,6 +1013,10 @@ namespace mavka {
 
             std::any visitGive_element(MavkaParser::Give_elementContext* context) override {
                 // todo
+                return create_ast_result(new ASTNode());
+            }
+
+            std::any visitParam_value(MavkaParser::Param_valueContext* context) {
                 return create_ast_result(new ASTNode());
             }
         };

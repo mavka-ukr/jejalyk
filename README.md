@@ -19,6 +19,10 @@
 ```
 
 ```shell
+./build.sh bin # executable
+```
+
+```shell
 ./build.sh node # node wasm
 ```
 
@@ -27,7 +31,11 @@
 ```
 
 ```shell
-./build.sh all # web and node wasm
+./build.sh all # executable and node wasm and web wasm
+```
+
+```shell
+./build.sh Obin # optimized executable
 ```
 
 ```shell
@@ -39,7 +47,7 @@
 ```
 
 ```shell
-./build.sh Oall # optimized web and optimized node wasm
+./build.sh Oall # optimized executable and optimized node wasm and optimized web wasm
 ```
 
 ## Використання
@@ -48,7 +56,7 @@
 
 ```c++
 #include <string>
-#include "jejalyk.cpp"
+#include "jejalyk.hpp"
 
 std::string get_module_name(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     // ...
