@@ -37,6 +37,14 @@ if [ "$TARGET" = "web" ] || [ "$TARGET" = "all" ]; then
     cd ..
 fi
 
+if [ "$TARGET" = "Obin" ] || [ "$TARGET" = "Oall" ]; then
+    mkdir -p build
+    cd build
+    cmake ..
+    make -j4 optimized_jejalyk
+    cd ..
+fi
+
 if [ "$TARGET" = "Onode" ] || [ "$TARGET" = "Oall" ]; then
     mkdir -p build
     cd build
