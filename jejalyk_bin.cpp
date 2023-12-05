@@ -1,7 +1,7 @@
 #include <string>
 #include "jejalyk.hpp"
 
-int main() {
+int main(int argc, char** argv) {
     const auto options = new jejalyk::CompilationOptions();
 
     const auto result = jejalyk::compile("1", options);

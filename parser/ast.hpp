@@ -848,12 +848,105 @@ namespace mavka {
                 if (instanceof<MavkaParser::NumberContext>(context)) {
                     return visitNumber(dynamic_cast<MavkaParser::NumberContext *>(context));
                 }
+                if (instanceof<MavkaParser::String_valueContext>(context)) {
+                    return visitString_value(dynamic_cast<MavkaParser::String_valueContext *>(context));
+                }
+                if (instanceof<MavkaParser::IdContext>(context)) {
+                    return visitId(dynamic_cast<MavkaParser::IdContext *>(context));
+                }
+                if (instanceof<MavkaParser::ChainContext>(context)) {
+                    return visitChain(dynamic_cast<MavkaParser::ChainContext *>(context));
+                }
+                if (instanceof<MavkaParser::CallContext>(context)) {
+                    return visitCall(dynamic_cast<MavkaParser::CallContext *>(context));
+                }
+                if (instanceof<MavkaParser::Get_elementContext>(context)) {
+                    return visitGet_element(dynamic_cast<MavkaParser::Get_elementContext *>(context));
+                }
+                if (instanceof<MavkaParser::PositiveContext>(context)) {
+                    return visitPositive(dynamic_cast<MavkaParser::PositiveContext *>(context));
+                }
+                if (instanceof<MavkaParser::NegativeContext>(context)) {
+                    return visitNegative(dynamic_cast<MavkaParser::NegativeContext *>(context));
+                }
+                if (instanceof<MavkaParser::Pre_decrementContext>(context)) {
+                    return visitPre_decrement(dynamic_cast<MavkaParser::Pre_decrementContext *>(context));
+                }
+                if (instanceof<MavkaParser::Pre_incrementContext>(context)) {
+                    return visitPre_increment(dynamic_cast<MavkaParser::Pre_incrementContext *>(context));
+                }
+                if (instanceof<MavkaParser::Post_decrementContext>(context)) {
+                    return visitPost_decrement(dynamic_cast<MavkaParser::Post_decrementContext *>(context));
+                }
+                if (instanceof<MavkaParser::Post_incrementContext>(context)) {
+                    return visitPost_increment(dynamic_cast<MavkaParser::Post_incrementContext *>(context));
+                }
+                if (instanceof<MavkaParser::NotContext>(context)) {
+                    return visitNot(dynamic_cast<MavkaParser::NotContext *>(context));
+                }
+                if (instanceof<MavkaParser::Bitwise_notContext>(context)) {
+                    return visitBitwise_not(dynamic_cast<MavkaParser::Bitwise_notContext *>(context));
+                }
+                if (instanceof<MavkaParser::NestedContext>(context)) {
+                    return visitNested(dynamic_cast<MavkaParser::NestedContext *>(context));
+                }
+                if (instanceof<MavkaParser::Call_exprContext>(context)) {
+                    return visitCall_expr(dynamic_cast<MavkaParser::Call_exprContext *>(context));
+                }
+                if (instanceof<MavkaParser::AsContext>(context)) {
+                    return visitAs(dynamic_cast<MavkaParser::AsContext *>(context));
+                }
+                if (instanceof<MavkaParser::Arithmetic_mulContext>(context)) {
+                    return visitArithmetic_mul(dynamic_cast<MavkaParser::Arithmetic_mulContext *>(context));
+                }
+                if (instanceof<MavkaParser::Arithmetic_addContext>(context)) {
+                    return visitArithmetic_add(dynamic_cast<MavkaParser::Arithmetic_addContext *>(context));
+                }
+                if (instanceof<MavkaParser::BitwiseContext>(context)) {
+                    return visitBitwise(dynamic_cast<MavkaParser::BitwiseContext *>(context));
+                }
+                if (instanceof<MavkaParser::ComparisonContext>(context)) {
+                    return visitComparison(dynamic_cast<MavkaParser::ComparisonContext *>(context));
+                }
+                if (instanceof<MavkaParser::TestContext>(context)) {
+                    return visitTest(dynamic_cast<MavkaParser::TestContext *>(context));
+                }
+                if (instanceof<MavkaParser::TernaryContext>(context)) {
+                    return visitTernary(dynamic_cast<MavkaParser::TernaryContext *>(context));
+                }
+                if (instanceof<MavkaParser::ArrayContext>(context)) {
+                    return visitArray(dynamic_cast<MavkaParser::ArrayContext *>(context));
+                }
+                if (instanceof<MavkaParser::DictionaryContext>(context)) {
+                    return visitDictionary(dynamic_cast<MavkaParser::DictionaryContext *>(context));
+                }
+                if (instanceof<MavkaParser::GodContext>(context)) {
+                    return visitGod(dynamic_cast<MavkaParser::GodContext *>(context));
+                }
+                return create_ast_result(new ASTNode());
             }
 
             std::any visitNumber(MavkaParser::NumberContext* context) override {
                 const auto number_node = new NumberNode();
                 number_node->value = context->getText();
                 return create_ast_result(number_node);
+            }
+
+            std::any visitString_value(MavkaParser::String_valueContext* context) override {
+                const auto string_node = new StringNode();
+                string_node->value = context->getText();
+                if (string_node->value.starts_with(R"(""")")) {
+                    string_node->value = string_node->value.substr(3, string_node->value.length() - 6);
+                } else {
+                    string_node->value = string_node->value.substr(1, string_node->value.length() - 2);
+                }
+                return create_ast_result(string_node);
+            }
+
+            std::any visitId(MavkaParser::IdContext* context) override {
+                const auto identifier_node = new IdentifierNode();
+                identifier_node->name = context->getText();
+                return create_ast_result(identifier_node);
             }
 
             std::any visitWait(MavkaParser::WaitContext* context) override {
