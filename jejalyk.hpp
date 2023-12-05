@@ -2,8 +2,26 @@
 #include "parser.hpp"
 
 namespace jejalyk {
-    const std::string MAVKA_CALL = "мВ"; // мВ(значення, аргументи)
-    const std::string MAVKA_GET = "мО"; // мО(значення, властивість)
+    const std::string MAVKA_CALL = "мВк"; // мВк(значення, аргументи)
+    const std::string MAVKA_GET = "мОт"; // мО(значення, властивість)
+    const std::string MAVKA_DIIA = "мДі"; // мД(назва, параметри, функція)
+    const std::string MAVKA_PARAM = "мПр"; // мП(назва, тип, значення)
+    const std::string MAVKA_ADD = "мДо"; // мДо(а, б)
+    const std::string MAVKA_SUB = "мВі"; // мВі(а, б)
+    const std::string MAVKA_MUL = "мМн"; // мМн(а, б)
+    const std::string MAVKA_DIV = "мДл"; // мДл(а, б)
+    const std::string MAVKA_MOD = "мОс"; // мОс(а, б)
+    const std::string MAVKA_POW = "мСт"; // мСт(а, б)
+    const std::string MAVKA_AND = "мІ"; // мІ(а, б)
+    const std::string MAVKA_OR = "мАб"; // мАб(а, б)
+    const std::string MAVKA_XOR = "мХр"; // мХр(а, б)
+    const std::string MAVKA_NOT = "мНі"; // мНі(а)
+    const std::string MAVKA_BIT_AND = "мДІ"; // мБІ(а, б)
+    const std::string MAVKA_BIT_OR = "мДА"; // мДА(а, б)
+    const std::string MAVKA_BIT_XOR = "мДХ"; // мДХ(а, б)
+    const std::string MAVKA_BIT_NOT = "мДН"; // мДН(а)
+    const std::string MAVKA_BIT_LSHIFT = "мЗС"; // мЗС(а, б)
+    const std::string MAVKA_BIT_RSHIFT = "мЗП"; // мЗП(а, б)
 
     std::string varname(std::string name) {
         return "м_" + name;
@@ -74,15 +92,83 @@ namespace jejalyk {
 
     NodeCompilationResult* compile_node(mavka::ast::ASTNode* node,
                                         CompilationScope* scope,
+                                        CompilationOptions* options);
+
+    NodeCompilationResult* compile_params(std::vector<mavka::ast::ParamNode *> params,
+                                          CompilationScope* scope,
+                                          CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        std::vector<std::string> compiled_params;
+        for (int i = 0; i < params.size(); ++i) {
+            const auto param = params[i];
+            const auto param_name = param->name;
+            std::string compiled_param_type = "undefined";
+            std::string compiled_param_value = "undefined";
+            if (param->type) {
+                const auto param_type_compilation_result = compile_node(param->type, scope, options);
+                if (param_type_compilation_result->error) {
+                    node_compilation_result->error = param_type_compilation_result->error;
+                    return node_compilation_result;
+                }
+                const auto param_type_result = param_type_compilation_result->result;
+            }
+            std::string param_string = MAVKA_PARAM + "(" + "\"" + param_name + "\"";
+            if (compiled_param_type != "undefined") {
+                param_string += "," + compiled_param_type;
+            }
+            if (compiled_param_value != "undefined") {
+                param_string += "," + compiled_param_value;
+            }
+            compiled_params.push_back(param_string + ")");
+        }
+        node_compilation_result->result = "[" + implode(compiled_params, ",") + "]";
+        return node_compilation_result;
+    }
+
+    NodeCompilationResult* compile_node(mavka::ast::ASTNode* node,
+                                        CompilationScope* scope,
                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
 
         if (mavka::ast::instanceof<mavka::ast::AnonDiiaNode>(node)) {
             const auto anon_diia_node = dynamic_cast<mavka::ast::AnonDiiaNode *>(node);
+
+            const auto params_compilation_result = compile_params(anon_diia_node->params, scope, options);
+            if (params_compilation_result->error) {
+                node_compilation_result->error = params_compilation_result->error;
+                return node_compilation_result;
+            }
+            const auto compiled_params = params_compilation_result->result;
+
+            node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ")";
+            return node_compilation_result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::ArithmeticNode>(node)) {
             const auto arithmetic_node = dynamic_cast<mavka::ast::ArithmeticNode *>(node);
+            const auto compiled_left = compile_node(arithmetic_node->left, scope, options);
+            if (compiled_left->error) {
+                node_compilation_result->error = compiled_left->error;
+                return node_compilation_result;
+            }
+            const auto compiled_right = compile_node(arithmetic_node->right, scope, options);
+            if (compiled_right->error) {
+                node_compilation_result->error = compiled_right->error;
+                return node_compilation_result;
+            }
+            if (arithmetic_node->op == "+") {
+                node_compilation_result->result = MAVKA_ADD + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            }
+            if (arithmetic_node->op == "-") {
+                node_compilation_result->result = MAVKA_SUB + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            }
+            if (arithmetic_node->op == "*") {
+                node_compilation_result->result = MAVKA_MUL + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            }
+            if (arithmetic_node->op == "/") {
+                node_compilation_result->result = MAVKA_DIV + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            }
+            return node_compilation_result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::ArrayNode>(node)) {

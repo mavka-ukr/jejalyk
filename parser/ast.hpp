@@ -1032,6 +1032,26 @@ namespace mavka {
                 return create_ast_result(call_node);
             }
 
+            std::any visitNested(MavkaParser::NestedContext* context) override {
+                return visitExpr(context->n_value);
+            }
+
+            std::any visitArithmetic_mul(MavkaParser::Arithmetic_mulContext* context) override {
+                const auto arithmetic_node = new ArithmeticNode();
+                arithmetic_node->left = any_to_ast_result(visitValue(context->a_left))->node;
+                arithmetic_node->right = any_to_ast_result(visitValue(context->a_right))->node;
+                arithmetic_node->op = context->a_operation->getText();
+                return create_ast_result(arithmetic_node);
+            }
+
+            std::any visitArithmetic_add(MavkaParser::Arithmetic_addContext* context) override {
+                const auto arithmetic_node = new ArithmeticNode();
+                arithmetic_node->left = any_to_ast_result(visitValue(context->a_left))->node;
+                arithmetic_node->right = any_to_ast_result(visitValue(context->a_right))->node;
+                arithmetic_node->op = context->a_operation->getText();
+                return create_ast_result(arithmetic_node);
+            }
+
             std::any visitWait(MavkaParser::WaitContext* context) override {
                 const auto wait_node = new WaitNode();
                 wait_node->value = any_to_ast_result(visitValue(context->w_value))->node;
@@ -1059,7 +1079,7 @@ namespace mavka {
             }
 
             std::any visitAnonymous_diia(MavkaParser::Anonymous_diiaContext* context) override {
-                const auto function_node = new FunctionNode();
+                const auto function_node = new AnonDiiaNode();
                 function_node->async = context->d_async != nullptr;
                 if (context->d_params) {
                     function_node->params = std::any_cast<std::vector<ParamNode *>>(
@@ -1193,7 +1213,25 @@ namespace mavka {
             }
 
             std::any visitParams(MavkaParser::ParamsContext* context) override {
-                return create_ast_result(new ASTNode());
+                std::vector<ParamNode *> params;
+                for (int i = 0; i < context->param().size(); ++i) {
+                    const auto param = context->param()[i];
+                    const auto ast_result = any_to_ast_result(visitParam(param));
+                    params.push_back(dynamic_cast<ParamNode *>(ast_result->node));
+                }
+                return params;
+            }
+
+            std::any visitParam(MavkaParser::ParamContext* context) override {
+                const auto param_node = new ParamNode();
+                param_node->name = context->p_name->getText();
+                if (context->p_type) {
+                    param_node->type = any_to_ast_result(visitType_value(context->p_type))->node;
+                }
+                if (context->p_value) {
+                    param_node->value = any_to_ast_result(visitParam_value(context->p_value))->node;
+                }
+                return create_ast_result(param_node);
             }
 
             std::any visitParam_value(MavkaParser::Param_valueContext* context) {
