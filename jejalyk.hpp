@@ -2,6 +2,9 @@
 #include "parser.hpp"
 
 namespace jejalyk {
+    const std::string MAVKA_CALL = "мВ"; // мВ(значення, аргументи)
+    const std::string MAVKA_GET = "мО"; // мО(значення, властивість)
+
     std::string varname(std::string name) {
         return "м_" + name;
     }
@@ -74,14 +77,30 @@ namespace jejalyk {
                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
 
-        if (mavka::ast::instanceof<mavka::ast::NumberNode>(node)) {
-            const auto number_node = dynamic_cast<mavka::ast::NumberNode *>(node);
-            node_compilation_result->result = number_node->value;
+        if (mavka::ast::instanceof<mavka::ast::AnonDiiaNode>(node)) {
+            const auto anon_diia_node = dynamic_cast<mavka::ast::AnonDiiaNode *>(node);
         }
 
-        if (mavka::ast::instanceof<mavka::ast::StringNode>(node)) {
-            const auto string_node = dynamic_cast<mavka::ast::StringNode *>(node);
-            node_compilation_result->result = "\"" + string_node->value + "\"";
+        if (mavka::ast::instanceof<mavka::ast::ArithmeticNode>(node)) {
+            const auto arithmetic_node = dynamic_cast<mavka::ast::ArithmeticNode *>(node);
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::ArrayNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::AsNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::AssignComplexNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::AssignSimpleNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::BitwiseNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::BitwiseNotNode>(node)) {
         }
 
         if (mavka::ast::instanceof<mavka::ast::CallNode>(node)) {
@@ -101,7 +120,7 @@ namespace jejalyk {
                 args->push_back(arg_compilation_result->result);
             }
             const auto args_string = implode(*args, ",");
-            node_compilation_result->result = "mavka_call(" + value->result + ",{" + args_string + "})";
+            node_compilation_result->result = MAVKA_CALL + "(" + value->result + ",{" + args_string + "})";
         }
 
         if (mavka::ast::instanceof<mavka::ast::ArgNode>(node)) {
@@ -121,9 +140,132 @@ namespace jejalyk {
             return node_compilation_result;
         }
 
+        if (mavka::ast::instanceof<mavka::ast::ChainNode>(node)) {
+            const auto chain_node = dynamic_cast<mavka::ast::ChainNode *>(node);
+            const auto left = compile_node(chain_node->left, scope, options);
+            if (left->error) {
+                node_compilation_result->error = left->error;
+                return node_compilation_result;
+            }
+            if (mavka::ast::instanceof<mavka::ast::IdentifierNode>(chain_node->right)) {
+                const auto right = dynamic_cast<mavka::ast::IdentifierNode *>(chain_node->right)->name;
+                node_compilation_result->result = MAVKA_GET + "(" + left->result + ",\"" + right + "\")";
+            } else {
+                const auto right = compile_node(chain_node->right, scope, options);
+                if (right->error) {
+                    node_compilation_result->error = right->error;
+                    return node_compilation_result;
+                }
+                node_compilation_result->result = MAVKA_GET + "(" + left->result + "," + right->result + ")";
+            }
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::ComparisonNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::ContinueNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::DiiaNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::EachNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::EvalNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::FunctionNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::GetElementNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::GiveNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::GodNode>(node)) {
+        }
+
         if (mavka::ast::instanceof<mavka::ast::IdentifierNode>(node)) {
             const auto identifier_node = dynamic_cast<mavka::ast::IdentifierNode *>(node);
             node_compilation_result->result = varname(identifier_node->name);
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::IfNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::ModuleNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::NegativeNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::NotNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::NumberNode>(node)) {
+            const auto number_node = dynamic_cast<mavka::ast::NumberNode *>(node);
+            node_compilation_result->result = number_node->value;
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::PositiveNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::PostDecrementNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::PostIncrementNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::PreDecrementNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::PreInrementNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::DictionaryNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::ReturnNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::StringNode>(node)) {
+            const auto string_node = dynamic_cast<mavka::ast::StringNode *>(node);
+            node_compilation_result->result = "\"" + string_node->value + "\"";
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::StructureNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::TakeModuleNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::TakePakNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::TernaryNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::TestNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::ThrowNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::TryNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::TypeValueNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::TypeValueSingleNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::WaitNode>(node)) {
+        }
+
+        if (mavka::ast::instanceof<mavka::ast::WhileNode>(node)) {
         }
 
         return node_compilation_result;

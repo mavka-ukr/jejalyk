@@ -953,7 +953,25 @@ namespace mavka {
                 return create_ast_result(identifier_node);
             }
 
-            // todo: visit chain
+            std::any visitIdentifier(MavkaParser::IdentifierContext* context) override {
+                const auto identifier_node = new IdentifierNode();
+                identifier_node->name = context->getText();
+                return create_ast_result(identifier_node);
+            }
+
+            std::any visitExtended_identifier(MavkaParser::Extended_identifierContext* context) override {
+                const auto identifier_node = new IdentifierNode();
+                identifier_node->name = context->getText();
+                return create_ast_result(identifier_node);
+            }
+
+            std::any visitChain(MavkaParser::ChainContext* context) override {
+                const auto chain_node = new ChainNode();
+                chain_node->left = any_to_ast_result(visitValue(context->c_left))->node;
+                chain_node->right = any_to_ast_result(visitExtended_identifier(context->c_right))->node;
+                std::cout << "lol" << std::endl;
+                return create_ast_result(chain_node);
+            }
 
             std::any visitCall(MavkaParser::CallContext* context) override {
                 const auto call_node = new CallNode();
