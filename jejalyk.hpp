@@ -35,6 +35,8 @@ namespace jejalyk {
     const std::string MAVKA_POST_INCREMENT = "мПоі"; // мПоі(значення)
     const std::string MAVKA_PRE_DECREMENT = "мПрд"; // мПрд(значення)
     const std::string MAVKA_PRE_INCREMENT = "мПрі"; // мПрі(значення)
+    const std::string MAVKA_GIVE = "мДт"; // мДт(модуль, назва, значення)
+    const std::string MAVKA_STRUCTURE = "мСтр"; // мСтр(назва, параметри)
 
     std::string varname(std::string name) {
         return "м_" + name;
@@ -138,6 +140,37 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
+    NodeCompilationResult* compile_structure_params(std::vector<mavka::ast::StructureParamNode *> params,
+                                                    CompilationScope* scope,
+                                                    CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        std::vector<std::string> compiled_params;
+        for (int i = 0; i < params.size(); ++i) {
+            const auto param = params[i];
+            const auto param_name = param->name;
+            std::string compiled_param_type = "undefined";
+            std::string compiled_param_value = "undefined";
+            if (param->type) {
+                const auto param_type_compilation_result = compile_node(param->type, scope, options);
+                if (param_type_compilation_result->error) {
+                    node_compilation_result->error = param_type_compilation_result->error;
+                    return node_compilation_result;
+                }
+                const auto param_type_result = param_type_compilation_result->result;
+            }
+            std::string param_string = MAVKA_PARAM + "(" + "\"" + param_name + "\"";
+            if (compiled_param_type != "undefined") {
+                param_string += "," + compiled_param_type;
+            }
+            if (compiled_param_value != "undefined") {
+                param_string += "," + compiled_param_value;
+            }
+            compiled_params.push_back(param_string + ")");
+        }
+        node_compilation_result->result = "[" + implode(compiled_params, ",") + "]";
+        return node_compilation_result;
+    }
+
     NodeCompilationResult* compile_body(std::vector<mavka::ast::ASTNode *> body,
                                         CompilationScope* scope,
                                         CompilationOptions* options) {
@@ -170,9 +203,10 @@ namespace jejalyk {
             }
             const auto compiled_params = params_compilation_result->result;
 
-            // todo: body
+            const auto body = compile_body(anon_diia_node->body, scope, options);
 
-            node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ")";
+            node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ",function() {\n" + body->result
+                                              + "\n})";
             return node_compilation_result;
         }
 
@@ -401,11 +435,11 @@ namespace jejalyk {
             }
             const auto compiled_params = params_compilation_result->result;
 
-            // todo: body
+            const auto body = compile_body(diia_node->body, scope, options);
 
             node_compilation_result->result = varname(diia_node->name) + "=" + MAVKA_DIIA + "(" + "\"" + diia_node->name
                                               + "\"" + "," +
-                                              compiled_params + ")";
+                                              compiled_params + ",function() {\n" + body->result + "\n})";
             return node_compilation_result;
         }
 
@@ -441,9 +475,10 @@ namespace jejalyk {
             }
             const auto compiled_params = params_compilation_result->result;
 
-            // todo: body
+            const auto body = compile_body(function_node->body, scope, options);
 
-            node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ")";
+            node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + "function() {\n" + body->result
+                                              + "\n})";
             return node_compilation_result;
         }
 
@@ -463,6 +498,18 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::GiveNode>(node)) {
+            const auto give_node = dynamic_cast<mavka::ast::GiveNode *>(node);
+            const auto elements = new std::vector<std::string>();
+            for (const auto& element: give_node->elements) {
+                if (!element->as.empty()) {
+                    elements->push_back(
+                        MAVKA_GIVE + "(module,\"" + element->as + "\"," + varname(element->name) + ")");
+                } else {
+                    elements->push_back(
+                        MAVKA_GIVE + "(module,\"" + element->name + "\"," + varname(element->name) + ")");
+                }
+            }
+            node_compilation_result->result = implode(*elements, ";\n");
         }
 
         if (mavka::ast::instanceof<mavka::ast::GodNode>(node)) {
@@ -497,7 +544,7 @@ namespace jejalyk {
             }
             node_compilation_result->result = varname(module_node->name) + "=" + MAVKA_MODULE + "(" + "\"" + module_node
                                               ->name + "\"" +
-                                              ",function(moduleValue){\n"
+                                              ",function(module){\n"
                                               + body->result + "\n})";
         }
 
@@ -595,6 +642,15 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::StructureNode>(node)) {
+            const auto structure_node = dynamic_cast<mavka::ast::StructureNode *>(node);
+            const auto compiled_params = compile_structure_params(structure_node->params, scope, options);
+            if (compiled_params->error) {
+                node_compilation_result->error = compiled_params->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = varname(structure_node->name) + "=" + MAVKA_STRUCTURE + "(" + "\""
+                                              + structure_node->name + "\"" + "," +
+                                              compiled_params->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::TakeModuleNode>(node)) {
@@ -604,12 +660,49 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::TernaryNode>(node)) {
+            const auto ternary_node = dynamic_cast<mavka::ast::TernaryNode *>(node);
+            const auto condition = compile_node(ternary_node->condition, scope, options);
+            if (condition->error) {
+                node_compilation_result->error = condition->error;
+                return node_compilation_result;
+            }
+            const auto true_value = compile_body(ternary_node->body, scope, options);
+            if (true_value->error) {
+                node_compilation_result->error = true_value->error;
+                return node_compilation_result;
+            }
+            const auto else_body = compile_body(ternary_node->else_body, scope, options);
+            if (else_body->error) {
+                node_compilation_result->error = else_body->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = "(" + condition->result + ")?" + true_value->result + ":" + else_body
+                                              ->result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::TestNode>(node)) {
+            const auto test_node = dynamic_cast<mavka::ast::TestNode *>(node);
+            const auto left = compile_node(test_node->left, scope, options);
+            if (left->error) {
+                node_compilation_result->error = left->error;
+                return node_compilation_result;
+            }
+            const auto right = compile_node(test_node->right, scope, options);
+            if (right->error) {
+                node_compilation_result->error = right->error;
+                return node_compilation_result;
+            }
+            // todo: complete
         }
 
         if (mavka::ast::instanceof<mavka::ast::ThrowNode>(node)) {
+            const auto throw_node = dynamic_cast<mavka::ast::ThrowNode *>(node);
+            const auto value = compile_node(throw_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = "throw " + value->result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::TryNode>(node)) {

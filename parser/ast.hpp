@@ -540,7 +540,9 @@ namespace mavka {
                     }
                 }
 
-                result.push_back(item);
+                if (item) {
+                    result.push_back(item);
+                }
             }
             return result;
         }
@@ -606,7 +608,7 @@ namespace mavka {
                 if (context->give()) {
                     return visitGive(context->give());
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitModule(MavkaParser::ModuleContext* context) override {
@@ -672,7 +674,7 @@ namespace mavka {
                 if (context->give()) {
                     return visitGive(context->give());
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitStructure(MavkaParser::StructureContext* context) override {
@@ -1268,13 +1270,22 @@ namespace mavka {
             }
 
             std::any visitGive(MavkaParser::GiveContext* context) override {
-                // todo
-                return create_ast_result(new ASTNode());
+                const auto give_node = new GiveNode();
+                for (const auto give_element: context->give_element()) {
+                    const auto ast_result = any_to_ast_result(visitGive_element(give_element));
+                    const auto give_element_node = dynamic_cast<GiveElementNode *>(ast_result->node);
+                    give_node->elements.push_back(give_element_node);
+                }
+                return create_ast_result(give_node);
             }
 
             std::any visitGive_element(MavkaParser::Give_elementContext* context) override {
-                // todo
-                return create_ast_result(new ASTNode());
+                const auto give_element_node = new GiveElementNode();
+                give_element_node->name = context->ge_name->getText();
+                if (context->ge_as) {
+                    give_element_node->as = context->ge_as->getText();
+                }
+                return create_ast_result(give_element_node);
             }
 
             std::any visitParams(MavkaParser::ParamsContext* context) override {
@@ -1354,7 +1365,7 @@ namespace mavka {
                 if (context->return_body_line()) {
                     return visitReturn_body_line(context->return_body_line());
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitBody_element(MavkaParser::Body_elementContext* context) override {
@@ -1382,7 +1393,7 @@ namespace mavka {
                 if (context->assign()) {
                     return visitAssign(context->assign());
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitReturn_body_line(MavkaParser::Return_body_lineContext* context) override {
