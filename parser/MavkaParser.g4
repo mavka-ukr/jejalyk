@@ -65,7 +65,7 @@ value: NUMBER #number
      | identifier #id
      | c_left=value nls '.' nls c_right=extended_identifier #chain
      | c_value=value '(' (c_args=args | c_named_args=named_args)? ')' #call
-     | a_left=value '[' a_element=expr ']' #get_element
+     | ge_left=value '[' ge_element=expr ']' #get_element
      | '+' p_value=value  #positive
      | '-' n_value=value  #negative
      | DECREMENT pd_value=value  #pre_decrement

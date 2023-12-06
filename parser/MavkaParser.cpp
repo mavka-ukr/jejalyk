@@ -5815,7 +5815,7 @@ MavkaParser::ValueContext* MavkaParser::value(int precedence) {
         case 9: {
           auto newContext = _tracker.createInstance<Get_elementContext>(_tracker.createInstance<ValueContext>(parentContext, parentState));
           _localctx = newContext;
-          newContext->a_left = previousContext;
+          newContext->ge_left = previousContext;
           pushNewRecursionContext(newContext, startState, RuleValue);
           setState(599);
 
@@ -5823,7 +5823,7 @@ MavkaParser::ValueContext* MavkaParser::value(int precedence) {
           setState(600);
           match(MavkaParser::OPEN_ARRAY);
           setState(601);
-          antlrcpp::downCast<Get_elementContext *>(_localctx)->a_element = expr();
+          antlrcpp::downCast<Get_elementContext *>(_localctx)->ge_element = expr();
           setState(602);
           match(MavkaParser::CLOSE_ARRAY);
           break;

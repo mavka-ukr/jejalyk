@@ -1034,6 +1034,25 @@ namespace mavka {
                 return create_ast_result(call_node);
             }
 
+            std::any visitGet_element(MavkaParser::Get_elementContext* context) override {
+                const auto get_element_node = new GetElementNode();
+                get_element_node->value = any_to_ast_result(visitValue(context->ge_left))->node;
+                get_element_node->index = any_to_ast_result(visitExpr(context->ge_element))->node;
+                return create_ast_result(get_element_node);
+            }
+
+            std::any visitPositive(MavkaParser::PositiveContext* context) override {
+                const auto positive_node = new PositiveNode();
+                positive_node->value = any_to_ast_result(visitValue(context->p_value))->node;
+                return create_ast_result(positive_node);
+            }
+
+            std::any visitNegative(MavkaParser::NegativeContext* context) override {
+                const auto negative_node = new NegativeNode();
+                negative_node->value = any_to_ast_result(visitValue(context->n_value))->node;
+                return create_ast_result(negative_node);
+            }
+
             std::any visitNested(MavkaParser::NestedContext* context) override {
                 return visitExpr(context->n_value);
             }
@@ -1118,9 +1137,7 @@ namespace mavka {
                     function_node->type = any_to_ast_result(visitType_value(context->f_type))->node;
                 }
                 if (context->f_body) {
-                    const auto function_node_body = std::any_cast<ASTNode *>(
-                        visitExpr(context->f_body)
-                    );
+                    const auto function_node_body = any_to_ast_result(visitExpr(context->f_body))->node;
                     function_node->body.push_back(function_node_body);
                 }
                 return create_ast_result(function_node);

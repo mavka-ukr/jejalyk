@@ -28,6 +28,13 @@ namespace jejalyk {
     const std::string MAVKA_LE = "мМр"; // мМр(а, б)
     const std::string MAVKA_GT = "мБі"; // мБі(а, б)
     const std::string MAVKA_GE = "мБр"; // мБр(а, б)
+    const std::string MAVKA_MODULE = "мМо"; // мМо(назва, функція)
+    const std::string MAVKA_NEGATIVE = "мНг"; // мНг(значення)
+    const std::string MAVKA_POSITIVE = "мПз"; // мПз(значення)
+    const std::string MAVKA_POST_DECREMENT = "мПод"; // мПод(значення)
+    const std::string MAVKA_POST_INCREMENT = "мПоі"; // мПоі(значення)
+    const std::string MAVKA_PRE_DECREMENT = "мПрд"; // мПрд(значення)
+    const std::string MAVKA_PRE_INCREMENT = "мПрі"; // мПрі(значення)
 
     std::string varname(std::string name) {
         return "м_" + name;
@@ -131,6 +138,23 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
+    NodeCompilationResult* compile_body(std::vector<mavka::ast::ASTNode *> body,
+                                        CompilationScope* scope,
+                                        CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        std::vector<std::string> compiled_body;
+        for (const auto node: body) {
+            const auto item_node_compilation_result = compile_node(node, scope, options);
+            if (item_node_compilation_result->error) {
+                item_node_compilation_result->error = item_node_compilation_result->error;
+                return item_node_compilation_result;
+            }
+            compiled_body.push_back(item_node_compilation_result->result);
+        }
+        node_compilation_result->result = implode(compiled_body, ";\n");
+        return node_compilation_result;
+    }
+
     NodeCompilationResult* compile_node(mavka::ast::ASTNode* node,
                                         CompilationScope* scope,
                                         CompilationOptions* options) {
@@ -145,6 +169,8 @@ namespace jejalyk {
                 return node_compilation_result;
             }
             const auto compiled_params = params_compilation_result->result;
+
+            // todo: body
 
             node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ")";
             return node_compilation_result;
@@ -375,6 +401,8 @@ namespace jejalyk {
             }
             const auto compiled_params = params_compilation_result->result;
 
+            // todo: body
+
             node_compilation_result->result = varname(diia_node->name) + "=" + MAVKA_DIIA + "(" + "\"" + diia_node->name
                                               + "\"" + "," +
                                               compiled_params + ")";
@@ -404,9 +432,34 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::FunctionNode>(node)) {
+            const auto function_node = dynamic_cast<mavka::ast::FunctionNode *>(node);
+
+            const auto params_compilation_result = compile_params(function_node->params, scope, options);
+            if (params_compilation_result->error) {
+                node_compilation_result->error = params_compilation_result->error;
+                return node_compilation_result;
+            }
+            const auto compiled_params = params_compilation_result->result;
+
+            // todo: body
+
+            node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ")";
+            return node_compilation_result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::GetElementNode>(node)) {
+            const auto get_element_node = dynamic_cast<mavka::ast::GetElementNode *>(node);
+            const auto value = compile_node(get_element_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            const auto index = compile_node(get_element_node->index, scope, options);
+            if (index->error) {
+                node_compilation_result->error = index->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_GET + "(" + value->result + "," + index->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::GiveNode>(node)) {
@@ -421,15 +474,51 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::IfNode>(node)) {
+            const auto if_node = dynamic_cast<mavka::ast::IfNode *>(node);
+            const auto condition = compile_node(if_node->condition, scope, options);
+            if (condition->error) {
+                node_compilation_result->error = condition->error;
+                return node_compilation_result;
+            }
+            const auto body = compile_body(if_node->body, scope, options);
+            if (body->error) {
+                node_compilation_result->error = body->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = "if(" + condition->result + "){\n" + body->result + "\n}";
         }
 
         if (mavka::ast::instanceof<mavka::ast::ModuleNode>(node)) {
+            const auto module_node = dynamic_cast<mavka::ast::ModuleNode *>(node);
+            const auto body = compile_body(module_node->body, scope, options);
+            if (body->error) {
+                node_compilation_result->error = body->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = varname(module_node->name) + "=" + MAVKA_MODULE + "(" + "\"" + module_node
+                                              ->name + "\"" +
+                                              ",function(moduleValue){\n"
+                                              + body->result + "\n})";
         }
 
         if (mavka::ast::instanceof<mavka::ast::NegativeNode>(node)) {
+            const auto negative_node = dynamic_cast<mavka::ast::NegativeNode *>(node);
+            const auto value = compile_node(negative_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_NEGATIVE + "(" + value->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::NotNode>(node)) {
+            const auto not_node = dynamic_cast<mavka::ast::NotNode *>(node);
+            const auto value = compile_node(not_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_NOT + "(" + value->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::NumberNode>(node)) {
@@ -438,24 +527,66 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::PositiveNode>(node)) {
+            const auto positive_node = dynamic_cast<mavka::ast::PositiveNode *>(node);
+            const auto value = compile_node(positive_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_POSITIVE + "(" + value->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::PostDecrementNode>(node)) {
+            const auto post_decrement_node = dynamic_cast<mavka::ast::PostDecrementNode *>(node);
+            const auto value = compile_node(post_decrement_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_POST_DECREMENT + "(" + value->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::PostIncrementNode>(node)) {
+            const auto post_increment_node = dynamic_cast<mavka::ast::PostIncrementNode *>(node);
+            const auto value = compile_node(post_increment_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_POST_INCREMENT + "(" + value->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::PreDecrementNode>(node)) {
+            const auto pre_decrement_node = dynamic_cast<mavka::ast::PreDecrementNode *>(node);
+            const auto value = compile_node(pre_decrement_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_PRE_DECREMENT + "(" + value->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::PreInrementNode>(node)) {
+            const auto pre_increment_node = dynamic_cast<mavka::ast::PreInrementNode *>(node);
+            const auto value = compile_node(pre_increment_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_PRE_INCREMENT + "(" + value->result + ")";
         }
 
         if (mavka::ast::instanceof<mavka::ast::DictionaryNode>(node)) {
         }
 
         if (mavka::ast::instanceof<mavka::ast::ReturnNode>(node)) {
+            const auto return_node = dynamic_cast<mavka::ast::ReturnNode *>(node);
+            const auto value = compile_node(return_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = "return " + value->result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::StringNode>(node)) {

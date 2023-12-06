@@ -1188,8 +1188,8 @@ public:
   public:
     Get_elementContext(ValueContext *ctx);
 
-    MavkaParser::ValueContext *a_left = nullptr;
-    MavkaParser::ExprContext *a_element = nullptr;
+    MavkaParser::ValueContext *ge_left = nullptr;
+    MavkaParser::ExprContext *ge_element = nullptr;
     antlr4::tree::TerminalNode *OPEN_ARRAY();
     antlr4::tree::TerminalNode *CLOSE_ARRAY();
     ValueContext *value();
