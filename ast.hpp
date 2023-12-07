@@ -257,7 +257,7 @@ namespace mavka::ast {
     public:
         bool async;
         std::string name;
-        std::vector<ASTNode *> params;
+        std::vector<ParamNode *> params;
         ASTNode* result;
     };
 

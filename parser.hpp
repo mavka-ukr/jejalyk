@@ -270,7 +270,7 @@ namespace mavka::parser {
             mockup_diia_node->async = context->md_async != nullptr;
             mockup_diia_node->name = context->md_name->getText();
             if (context->md_params) {
-                mockup_diia_node->params = std::any_cast<std::vector<ast::ASTNode *>>(
+                mockup_diia_node->params = std::any_cast<std::vector<ast::ParamNode *>>(
                     visitParams(context->md_params)
                 );
             }

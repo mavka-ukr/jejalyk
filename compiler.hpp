@@ -304,6 +304,26 @@ namespace jejalyk {
                                                CompilationScope* scope,
                                                CompilationOptions* options);
 
+    NodeCompilationResult* compile_mockup_diia_node(const mavka::ast::MockupDiiaNode* mockup_diia_node,
+                                                    CompilationScope* scope,
+                                                    CompilationOptions* options);
+
+    NodeCompilationResult* compile_mockup_module_node(const mavka::ast::MockupModuleNode* mockup_module_node,
+                                                      CompilationScope* scope,
+                                                      CompilationOptions* options);
+
+    NodeCompilationResult* compile_mockup_object_node(const mavka::ast::MockupObjectNode* mockup_object_node,
+                                                      CompilationScope* scope,
+                                                      CompilationOptions* options);
+
+    NodeCompilationResult* compile_mockup_structure_node(const mavka::ast::MockupStructureNode* mockup_structure,
+                                                         CompilationScope* scope,
+                                                         CompilationOptions* options);
+
+    NodeCompilationResult* compile_mockup_subject_node(const mavka::ast::MockupSubjectNode* mockup_subject_node,
+                                                       CompilationScope* scope,
+                                                       CompilationOptions* options);
+
     NodeCompilationResult* compile_negative_node(mavka::ast::NegativeNode* node,
                                                  CompilationScope* scope,
                                                  CompilationOptions* options);
@@ -914,6 +934,78 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
+
+    inline NodeCompilationResult* compile_mockup_diia_node(const mavka::ast::MockupDiiaNode* mockup_diia_node,
+                                                           CompilationScope* scope,
+                                                           CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        const auto name = mockup_diia_node->name;
+        if (!scope->has(name)) {
+            if (const auto set_result = scope->set(name, scope->root()->get("Дія"))) {
+                node_compilation_result->error = set_result;
+                return node_compilation_result;
+            }
+        }
+        return node_compilation_result;
+    }
+
+    inline NodeCompilationResult* compile_mockup_module_node(const mavka::ast::MockupModuleNode* mockup_module_node,
+                                                             CompilationScope* scope,
+                                                             CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        const auto name = mockup_module_node->name;
+        if (!scope->has(name)) {
+            if (const auto set_result = scope->set(name, scope->root()->get("Модуль"))) {
+                node_compilation_result->error = set_result;
+                return node_compilation_result;
+            }
+        }
+        return node_compilation_result;
+    }
+
+    inline NodeCompilationResult* compile_mockup_object_node(const mavka::ast::MockupObjectNode* mockup_object_node,
+                                                             CompilationScope* scope,
+                                                             CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        const auto name = mockup_object_node->name;
+        if (!scope->has(name)) {
+            if (const auto set_result = scope->set(name, scope->root()->get("Модуль"))) {
+                node_compilation_result->error = set_result;
+                return node_compilation_result;
+            }
+        }
+        return node_compilation_result;
+    }
+
+    inline NodeCompilationResult* compile_mockup_structure_node(const mavka::ast::MockupStructureNode* mockup_structure,
+                                                                CompilationScope* scope,
+                                                                CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        const auto name = mockup_structure->name;
+        if (!scope->has(name)) {
+            if (const auto set_result = scope->set(name, scope->root()->get("Структура"))) {
+                node_compilation_result->error = set_result;
+                return node_compilation_result;
+            }
+        }
+        return node_compilation_result;
+    }
+
+    inline NodeCompilationResult* compile_mockup_subject_node(const mavka::ast::MockupSubjectNode* mockup_subject_node,
+                                                              CompilationScope* scope,
+                                                              CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        const auto name = mockup_subject_node->name;
+        const auto type = compile_node(mockup_subject_node->type, scope, options)->type;
+        if (!scope->has(name)) {
+            if (const auto set_result = scope->set(name, type)) {
+                node_compilation_result->error = set_result;
+                return node_compilation_result;
+            }
+        }
+        return node_compilation_result;
+    }
+
     inline NodeCompilationResult* compile_negative_node(mavka::ast::NegativeNode* negative_node,
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
@@ -1314,7 +1406,25 @@ namespace jejalyk {
             return compile_module_node(dynamic_cast<mavka::ast::ModuleNode *>(node), scope, options);
         }
 
-        // todo mockup
+        if (jejalyk::tools::instanceof<mavka::ast::MockupDiiaNode>(node)) {
+            return compile_mockup_diia_node(dynamic_cast<mavka::ast::MockupDiiaNode *>(node), scope, options);
+        }
+
+        if (jejalyk::tools::instanceof<mavka::ast::MockupModuleNode>(node)) {
+            return compile_mockup_module_node(dynamic_cast<mavka::ast::MockupModuleNode *>(node), scope, options);
+        }
+
+        if (jejalyk::tools::instanceof<mavka::ast::MockupObjectNode>(node)) {
+            return compile_mockup_object_node(dynamic_cast<mavka::ast::MockupObjectNode *>(node), scope, options);
+        }
+
+        if (jejalyk::tools::instanceof<mavka::ast::MockupStructureNode>(node)) {
+            return compile_mockup_structure_node(dynamic_cast<mavka::ast::MockupStructureNode *>(node), scope, options);
+        }
+
+        if (jejalyk::tools::instanceof<mavka::ast::MockupSubjectNode>(node)) {
+            return compile_mockup_subject_node(dynamic_cast<mavka::ast::MockupSubjectNode *>(node), scope, options);
+        }
 
         if (jejalyk::tools::instanceof<mavka::ast::NegativeNode>(node)) {
             return compile_negative_node(dynamic_cast<mavka::ast::NegativeNode *>(node), scope, options);

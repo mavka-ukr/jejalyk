@@ -15,8 +15,16 @@ namespace jejalyk {
 макет структура логічне
 кінець
 
+макет структура Дія
+кінець
+
+макет структура Модуль
+кінець
+
 макет субʼєкт так логічне
 макет субʼєкт ні логічне
+
+макет дія друк(...значення) ніщо
 )";
 
     inline CompilationResult* compile(const std::string& code, CompilationOptions* options) {
@@ -26,11 +34,13 @@ namespace jejalyk {
             compilation_result->error = new CompilationError();
             compilation_result->error->line = head_parser_result->error->line;
             compilation_result->error->column = head_parser_result->error->column;
-            compilation_result->error->message = "[ВАДА В ГОЛОВІ] " + head_parser_result->error->message;
+            compilation_result->error->message = "[ВАДА В ГОЛОВІ :(] " + head_parser_result->error->message;
             return compilation_result;
         }
         const auto head_compilation_result = new CompilationResult();
         const auto root_scope = new CompilationScope();
+        root_scope->subjects["Структура"] = new CompilationType();
+        root_scope->subjects["Структура"]->type = CompilationType::STRUCTURE;
         const auto head_body_compilation_result = jejalyk::compile_body(
             head_parser_result->program_node->body,
             root_scope,
@@ -38,7 +48,7 @@ namespace jejalyk {
         );
         if (head_body_compilation_result->error) {
             head_body_compilation_result->error->message =
-                    "[ВАДА В ГОЛОВІ] " + head_body_compilation_result->error->message;
+                    "[ВАДА В ГОЛОВІ :(] " + head_body_compilation_result->error->message;
             head_compilation_result->error = head_body_compilation_result->error;
             return head_compilation_result;
         }
