@@ -26,7 +26,7 @@ namespace jejalyk {
             compilation_result->error = new CompilationError();
             compilation_result->error->line = head_parser_result->error->line;
             compilation_result->error->column = head_parser_result->error->column;
-            compilation_result->error->message = "[BUG IN HEAD] " + head_parser_result->error->message;
+            compilation_result->error->message = "[ВАДА В ГОЛОВІ] " + head_parser_result->error->message;
             return compilation_result;
         }
         const auto head_compilation_result = new CompilationResult();
@@ -38,7 +38,7 @@ namespace jejalyk {
         );
         if (head_body_compilation_result->error) {
             head_body_compilation_result->error->message =
-                    "[BUG IN HEAD] " + head_body_compilation_result->error->message;
+                    "[ВАДА В ГОЛОВІ] " + head_body_compilation_result->error->message;
             head_compilation_result->error = head_body_compilation_result->error;
             return head_compilation_result;
         }
