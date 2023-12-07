@@ -677,7 +677,7 @@ namespace mavka::parser {
         std::any visitDictionary(MavkaParser::DictionaryContext* context) override {
             const auto dictionary_node = new ast::DictionaryNode();
             if (context->d_args) {
-                dictionary_node->elements = std::any_cast<std::map<std::string, ast::ASTNode *>>(
+                dictionary_node->elements = std::any_cast<std::unordered_map<std::string, ast::ASTNode *>>(
                     visitDictionary_args(context->d_args)
                 );
             }
@@ -685,7 +685,7 @@ namespace mavka::parser {
         }
 
         std::any visitDictionary_args(MavkaParser::Dictionary_argsContext* context) override {
-            std::map<std::string, ast::ASTNode *> elements;
+            std::unordered_map<std::string, ast::ASTNode *> elements;
             for (const auto dictionary_arg: context->dictionary_arg()) {
                 const auto value = any_to_ast_result(visitExpr(dictionary_arg->da_value))->node;
                 if (dictionary_arg->da_name_id) {

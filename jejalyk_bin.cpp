@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    std::map<std::string, std::string> x;
+    std::unordered_map<std::string, std::string> x;
 
     std::ifstream file(argv[1]);
     std::string code((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());

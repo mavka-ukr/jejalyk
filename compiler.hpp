@@ -62,38 +62,49 @@ namespace jejalyk {
         inline static int OBJECT = 2;
 
         int type = 0;
-        CompilationType* constructor = nullptr;
-        std::map<std::string, CompilationType *> properties;
+        CompilationType* structure = nullptr;
+        std::unordered_map<std::string, CompilationType *> properties;
+        CompilationType* or_type = nullptr;
+        bool can_redefine = true;
 
         bool can_set(CompilationType* type) const {
-            return is(type->constructor);
+            if (is(type->structure)) {
+                return true;
+            }
+            if (or_type) {
+                return or_type->can_set(type);
+            }
+            return can_redefine;
         }
 
         bool is(CompilationType* type) const {
             if (type) {
-                if (type->type == STRUCTURE) {
-                    if (constructor) {
-                        return constructor->is_as_structure(type);
-                    }
+                if (structure) {
+                    return structure->is_as_structure(type);
                 }
             }
             return false;
         }
 
-        bool is_as_structure(CompilationType* type) {
+        bool is_as_structure(CompilationType* type) const {
             if (this == type) {
                 return true;
             }
-            if (const auto parent = properties["предок"]) {
-                return parent->is_as_structure(type);
-            }
+            // todo: check parent
             return false;
         }
 
         CompilationType* create_object() {
             const auto object = new CompilationType();
             object->type = OBJECT;
-            object->constructor = this;
+            object->structure = this;
+            return object;
+        }
+
+        CompilationType* create_structure_object() {
+            const auto object = new CompilationType();
+            object->type = STRUCTURE;
+            object->structure = this;
             return object;
         }
     };
@@ -103,26 +114,31 @@ namespace jejalyk {
         virtual ~CompilationScope() = default;
 
         CompilationScope* parent = nullptr;
-        std::map<std::string, CompilationType *> subjects;
+        std::unordered_map<std::string, CompilationType *> subjects;
 
         virtual CompilationError* set(const std::string& name, CompilationType* type) {
-            const auto subject_it = subjects.find(name);
-            if (subject_it != subjects.end()) {
-                const auto subject = subject_it->second;
-                if (subject != nullptr && !subject->can_set(type)) {
+            if (const auto subject = get_local(name)) {
+                if (!subject->can_set(type)) {
                     const auto error = new CompilationError();
                     error->message = "Неможливо перевизначити \"" + name + "\".";
                     return error;
                 }
             }
-            subjects[name] = type;
+            subjects.insert(std::pair(name, type));
+            return nullptr;
+        }
+
+        CompilationType* get_local(const std::string& name) {
+            const auto subject_it = subjects.find(name);
+            if (subject_it != subjects.end()) {
+                return subject_it->second;
+            }
             return nullptr;
         }
 
         CompilationType* get(const std::string& name) {
-            const auto subject_it = subjects.find(name);
-            if (subject_it != subjects.end()) {
-                return subject_it->second;
+            if (const auto subject = get_local(name)) {
+                return subject;
             }
             if (parent) {
                 return parent->get(name);
@@ -522,11 +538,8 @@ namespace jejalyk {
             node_compilation_result->error = value->error;
             return node_compilation_result;
         }
-        if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->get("пусто"))) {
-                node_compilation_result->error = set_result;
-                return node_compilation_result;
-            }
+        if (assign_simple_node->type) {
+            value->type->can_redefine = false;
         }
         if (const auto set_result = scope->set(name, value->type)) {
             node_compilation_result->error = set_result;
@@ -941,7 +954,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_diia_node->name;
         if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->root()->get("Дія"))) {
+            if (const auto set_result = scope->set(name, scope->root()->get("Дія")->create_structure_object())) {
                 node_compilation_result->error = set_result;
                 return node_compilation_result;
             }
@@ -955,7 +968,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_module_node->name;
         if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->root()->get("Модуль"))) {
+            if (const auto set_result = scope->set(name, scope->root()->get("Модуль")->create_structure_object())) {
                 node_compilation_result->error = set_result;
                 return node_compilation_result;
             }
@@ -969,7 +982,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_object_node->name;
         if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->root()->get("Модуль"))) {
+            if (const auto set_result = scope->set(name, scope->root()->get("обʼєкт")->create_structure_object())) {
                 node_compilation_result->error = set_result;
                 return node_compilation_result;
             }
@@ -983,7 +996,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_structure->name;
         if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->root()->get("Структура"))) {
+            if (const auto set_result = scope->set(name, scope->root()->get("Структура")->create_structure_object())) {
                 node_compilation_result->error = set_result;
                 return node_compilation_result;
             }
