@@ -39,8 +39,8 @@ namespace jejalyk {
         }
         const auto head_compilation_result = new CompilationResult();
         const auto root_scope = new CompilationScope();
-        root_scope->subjects["Структура"] = new CompilationType();
-        root_scope->subjects["Структура"]->type = CompilationType::STRUCTURE;
+        const auto structureObject = new CompilationType();
+        root_scope->assign("Структура", {structureObject}, structureObject);
         const auto head_body_compilation_result = jejalyk::compile_body(
             head_parser_result->program_node->body,
             root_scope,

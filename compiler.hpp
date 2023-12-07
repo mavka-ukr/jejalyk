@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 #include "tools.hpp"
 
 namespace jejalyk {
@@ -58,54 +59,35 @@ namespace jejalyk {
 
     class CompilationType {
     public:
-        inline static int STRUCTURE = 1;
-        inline static int OBJECT = 2;
-
-        int type = 0;
-        CompilationType* structure = nullptr;
+        CompilationType* parent = nullptr;
         std::unordered_map<std::string, CompilationType *> properties;
-        CompilationType* or_type = nullptr;
-        bool can_redefine = true;
 
-        bool can_set(CompilationType* type) const {
-            if (is(type->structure)) {
-                return true;
-            }
-            if (or_type) {
-                return or_type->can_set(type);
-            }
-            return can_redefine;
-        }
-
-        bool is(CompilationType* type) const {
-            if (type) {
-                if (structure) {
-                    return structure->is_as_structure(type);
-                }
-            }
-            return false;
-        }
-
-        bool is_as_structure(CompilationType* type) const {
+        bool is(const CompilationType* type) const {
             if (this == type) {
                 return true;
             }
-            // todo: check parent
+            if (parent) {
+                return parent->is(type);
+            }
             return false;
         }
+    };
 
-        CompilationType* create_object() {
-            const auto object = new CompilationType();
-            object->type = OBJECT;
-            object->structure = this;
-            return object;
-        }
+    class CompilationSubject {
+    public:
+        bool can_redefine = true;
+        std::vector<CompilationType *> types;
 
-        CompilationType* create_structure_object() {
-            const auto object = new CompilationType();
-            object->type = STRUCTURE;
-            object->structure = this;
-            return object;
+        bool can_set(const CompilationType* type) const {
+            if (types.empty()) {
+                return true;
+            }
+            for (const auto& t: types) {
+                if (t->is(type)) {
+                    return true;
+                }
+            }
+            return false;
         }
     };
 
@@ -114,21 +96,51 @@ namespace jejalyk {
         virtual ~CompilationScope() = default;
 
         CompilationScope* parent = nullptr;
-        std::unordered_map<std::string, CompilationType *> subjects;
+        std::unordered_map<std::string, CompilationSubject *> subjects;
 
-        virtual CompilationError* set(const std::string& name, CompilationType* type) {
-            if (const auto subject = get_local(name)) {
-                if (!subject->can_set(type)) {
+        virtual CompilationError* define(const std::string& name, std::vector<CompilationType *> types) {
+            if (has_local(name)) {
+                if (!types.empty()) {
                     const auto error = new CompilationError();
                     error->message = "Неможливо перевизначити \"" + name + "\".";
                     return error;
                 }
+            } else {
+                const auto subject = new CompilationSubject();
+                subject->types = std::move(types);
+                subject->can_redefine = types.empty();
+                subjects.insert(std::pair(name, subject));
             }
-            subjects.insert(std::pair(name, type));
             return nullptr;
         }
 
-        CompilationType* get_local(const std::string& name) {
+        virtual CompilationError* assign(const std::string& name,
+                                         std::vector<CompilationType *> types,
+                                         CompilationType* value_type) {
+            if (has_local(name)) {
+                if (!types.empty()) {
+                    const auto error = new CompilationError();
+                    error->message = "Неможливо перевизначити \"" + name + "\".";
+                    return error;
+                }
+
+                if (const auto subject = get_local(name)) {
+                    if (!subject->can_set(value_type)) {
+                        const auto error = new CompilationError();
+                        error->message = "Неможливо перевизначити \"" + name + "\".";
+                        return error;
+                    }
+                }
+            } else {
+                const auto subject = new CompilationSubject();
+                subject->types = std::move(types);
+                subject->can_redefine = types.empty();
+                subjects.insert(std::pair(name, subject));
+            }
+            return nullptr;
+        }
+
+        CompilationSubject* get_local(const std::string& name) {
             const auto subject_it = subjects.find(name);
             if (subject_it != subjects.end()) {
                 return subject_it->second;
@@ -136,7 +148,15 @@ namespace jejalyk {
             return nullptr;
         }
 
-        CompilationType* get(const std::string& name) {
+        bool has_local(const std::string& name) {
+            const auto subject_it = subjects.find(name);
+            if (subject_it != subjects.end()) {
+                return true;
+            }
+            return false;
+        }
+
+        CompilationSubject* get(const std::string& name) {
             if (const auto subject = get_local(name)) {
                 return subject;
             }
@@ -147,8 +167,7 @@ namespace jejalyk {
         }
 
         bool has(const std::string& name) {
-            const auto subject_it = subjects.find(name);
-            if (subject_it != subjects.end()) {
+            if (has_local(name)) {
                 return true;
             }
             if (parent) {
@@ -165,16 +184,17 @@ namespace jejalyk {
         }
     };
 
-    class CompilationMicroScope final : public CompilationScope {
-        CompilationError* set(const std::string& name, CompilationType* type) override {
-            return parent->set(name, type);
-        }
-    };
-
     class NodeCompilationResult {
     public:
         CompilationError* error = nullptr;
         CompilationType* type = nullptr;
+        std::string result;
+    };
+
+    class TypesCompilationResult {
+    public:
+        CompilationError* error = nullptr;
+        std::vector<CompilationType *> types;
         std::string result;
     };
 
@@ -219,6 +239,10 @@ namespace jejalyk {
     NodeCompilationResult* compile_structure_params(std::vector<mavka::ast::StructureParamNode *> params,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options);
+
+    TypesCompilationResult* compile_types(std::vector<mavka::ast::ASTNode *> types,
+                                          CompilationScope* scope,
+                                          CompilationOptions* options);
 
     NodeCompilationResult* compile_anon_diia_node(mavka::ast::AnonDiiaNode* node,
                                                   CompilationScope* scope,
@@ -532,20 +556,26 @@ namespace jejalyk {
                                                              CompilationScope* scope,
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-        const auto name = assign_simple_node->name;
-        const auto value = compile_node(assign_simple_node->value, scope, options);
-        if (value->error) {
-            node_compilation_result->error = value->error;
+        const auto assign_name = assign_simple_node->name;
+        const auto compiled_assign_value = compile_node(assign_simple_node->value, scope, options);
+        if (compiled_assign_value->error) {
+            node_compilation_result->error = compiled_assign_value->error;
             return node_compilation_result;
         }
-        if (assign_simple_node->type) {
-            value->type->can_redefine = false;
-        }
-        if (const auto set_result = scope->set(name, value->type)) {
-            node_compilation_result->error = set_result;
+        const auto compiled_assign_types = compile_types(assign_simple_node->types, scope, options);
+        if (compiled_assign_types->error) {
+            node_compilation_result->error = compiled_assign_types->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = varname(name) + "=" + value->result;
+        if (const auto assign_error = scope->assign(
+            assign_name,
+            compiled_assign_types->types,
+            compiled_assign_value->type
+        )) {
+            node_compilation_result->error = assign_error;
+            return node_compilation_result;
+        }
+        node_compilation_result->result = varname(assign_name) + "=" + compiled_assign_value->result;
         return node_compilation_result;
     }
 
@@ -899,7 +929,10 @@ namespace jejalyk {
             return node_compilation_result;
         }
         node_compilation_result->result = varname(identifier_node->name);
-        node_compilation_result->type = scope->get(identifier_node->name);
+        const auto subject = scope->get(identifier_node->name);
+        if (subject->types.size() == 1) {
+            node_compilation_result->type = subject->types[0];
+        }
         return node_compilation_result;
     }
 
@@ -953,11 +986,11 @@ namespace jejalyk {
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_diia_node->name;
-        if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->root()->get("Дія")->create_structure_object())) {
-                node_compilation_result->error = set_result;
-                return node_compilation_result;
-            }
+        const auto value_type = new CompilationType();
+        value_type->parent = scope->root()->get("Дія")->types[0];
+        if (const auto assign_error = scope->assign(name, {value_type}, value_type)) {
+            node_compilation_result->error = assign_error;
+            return node_compilation_result;
         }
         return node_compilation_result;
     }
@@ -967,11 +1000,11 @@ namespace jejalyk {
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_module_node->name;
-        if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->root()->get("Модуль")->create_structure_object())) {
-                node_compilation_result->error = set_result;
-                return node_compilation_result;
-            }
+        const auto value_type = new CompilationType();
+        value_type->parent = scope->root()->get("Модуль")->types[0];
+        if (const auto assign_error = scope->assign(name, {value_type}, value_type)) {
+            node_compilation_result->error = assign_error;
+            return node_compilation_result;
         }
         return node_compilation_result;
     }
@@ -981,11 +1014,11 @@ namespace jejalyk {
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_object_node->name;
-        if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->root()->get("обʼєкт")->create_structure_object())) {
-                node_compilation_result->error = set_result;
-                return node_compilation_result;
-            }
+        const auto value_type = new CompilationType();
+        value_type->parent = scope->root()->get("обʼєкт")->types[0];
+        if (const auto assign_error = scope->assign(name, {value_type}, value_type)) {
+            node_compilation_result->error = assign_error;
+            return node_compilation_result;
         }
         return node_compilation_result;
     }
@@ -995,12 +1028,13 @@ namespace jejalyk {
                                                                 CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_structure->name;
-        if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, scope->root()->get("Структура")->create_structure_object())) {
-                node_compilation_result->error = set_result;
-                return node_compilation_result;
-            }
+        const auto value_type = new CompilationType();
+        value_type->parent = scope->root()->get("Структура")->types[0];
+        if (const auto assign_error = scope->assign(name, {value_type}, value_type)) {
+            node_compilation_result->error = assign_error;
+            return node_compilation_result;
         }
+
         return node_compilation_result;
     }
 
@@ -1009,12 +1043,14 @@ namespace jejalyk {
                                                               CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_subject_node->name;
-        const auto type = compile_node(mockup_subject_node->type, scope, options)->type;
-        if (!scope->has(name)) {
-            if (const auto set_result = scope->set(name, type)) {
-                node_compilation_result->error = set_result;
-                return node_compilation_result;
-            }
+        const auto compiled_types = compile_types(mockup_subject_node->types, scope, options);
+        if (compiled_types->error) {
+            node_compilation_result->error = compiled_types->error;
+            return node_compilation_result;
+        }
+        if (const auto define_error = scope->define(name, compiled_types->types)) {
+            node_compilation_result->error = define_error;
+            return node_compilation_result;
         }
         return node_compilation_result;
     }
@@ -1050,7 +1086,7 @@ namespace jejalyk {
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->result = number_node->value;
-        node_compilation_result->type = scope->root()->get("число")->create_object();
+        node_compilation_result->type = scope->root()->get("число")->types[0];
         return node_compilation_result;
     }
 
@@ -1154,7 +1190,7 @@ namespace jejalyk {
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->result = "\"" + string_node->value + "\"";
-        node_compilation_result->type = scope->root()->get("текст")->create_object();
+        node_compilation_result->type = scope->root()->get("текст")->types[0];
         return node_compilation_result;
     }
 
@@ -1553,10 +1589,8 @@ namespace jejalyk {
             }
             compiled_body.push_back(item_node_compilation_result->result);
         }
-        if (!jejalyk::tools::instanceof<CompilationMicroScope>(scope)) {
-            for (auto subject: scope->subjects) {
-                compiled_body.insert(compiled_body.begin(), "var " + varname(subject.first));
-            }
+        for (auto subject: scope->subjects) {
+            compiled_body.insert(compiled_body.begin(), "var " + varname(subject.first));
         }
         node_compilation_result->result = tools::implode(compiled_body, ";\n");
         return node_compilation_result;
@@ -1573,14 +1607,7 @@ namespace jejalyk {
             const auto param_name = param->name;
             std::string compiled_param_type = "undefined";
             std::string compiled_param_value = "undefined";
-            if (param->type) {
-                const auto param_type_compilation_result = compile_node(param->type, scope, options);
-                if (param_type_compilation_result->error) {
-                    node_compilation_result->error = param_type_compilation_result->error;
-                    return node_compilation_result;
-                }
-                const auto param_type_result = param_type_compilation_result->result;
-            }
+            // todo: handle type
             std::string param_string = MAVKA_PARAM + "(" + "\"" + param_name + "\"";
             if (compiled_param_type != "undefined") {
                 param_string += "," + compiled_param_type;
@@ -1595,6 +1622,28 @@ namespace jejalyk {
     }
 
 
+    inline TypesCompilationResult* compile_types(std::vector<mavka::ast::ASTNode *> types,
+                                                 CompilationScope* scope,
+                                                 CompilationOptions* options) {
+        const auto types_compilation_result = new TypesCompilationResult();
+        std::vector<std::string> compiled_types;
+        std::vector<CompilationType *> compiled_types_values;
+        for (int i = 0; i < types.size(); ++i) {
+            const auto type = types[i];
+            const auto type_compilation_result = compile_node(type, scope, options);
+            if (type_compilation_result->error) {
+                types_compilation_result->error = type_compilation_result->error;
+                return types_compilation_result;
+            }
+            compiled_types.push_back(type_compilation_result->result);
+            compiled_types_values.push_back(type_compilation_result->type);
+        }
+        types_compilation_result->types = compiled_types_values;
+        types_compilation_result->result = "[" + tools::implode(compiled_types, ",") + "]";
+        return types_compilation_result;
+    }
+
+
     inline NodeCompilationResult* compile_structure_params(std::vector<mavka::ast::StructureParamNode *> params,
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
@@ -1605,14 +1654,7 @@ namespace jejalyk {
             const auto param_name = param->name;
             std::string compiled_param_type = "undefined";
             std::string compiled_param_value = "undefined";
-            if (param->type) {
-                const auto param_type_compilation_result = compile_node(param->type, scope, options);
-                if (param_type_compilation_result->error) {
-                    node_compilation_result->error = param_type_compilation_result->error;
-                    return node_compilation_result;
-                }
-                const auto param_type_result = param_type_compilation_result->result;
-            }
+            // todo: handle type
             std::string param_string = MAVKA_PARAM + "(" + "\"" + param_name + "\"";
             if (compiled_param_type != "undefined") {
                 param_string += "," + compiled_param_type;

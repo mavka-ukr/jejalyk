@@ -209,9 +209,9 @@ namespace mavka::parser {
 
         std::any visitStructure_param(MavkaParser::Structure_paramContext* context) override {
             const std::string name = context->sp_name->getText();
-            ast::ASTNode* type = nullptr;
+            std::vector<ast::ASTNode *> types;
             if (context->sp_type) {
-                type = any_to_ast_result(visitType_value(context->sp_type))->node;
+                types = std::any_cast<std::vector<ast::ASTNode *>>(visitType_value(context->sp_type));
             }
             ast::ASTNode* value = nullptr;
             if (context->sp_value) {
@@ -219,7 +219,7 @@ namespace mavka::parser {
             }
             const auto structure_param_node = new ast::StructureParamNode();
             structure_param_node->name = name;
-            structure_param_node->type = type;
+            structure_param_node->types = types;
             structure_param_node->value = value;
             return create_ast_result(structure_param_node);
         }
@@ -275,7 +275,8 @@ namespace mavka::parser {
                 );
             }
             if (context->md_type) {
-                mockup_diia_node->result = any_to_ast_result(visitType_value(context->md_type))->node;
+                mockup_diia_node->return_types = std::any_cast<std::vector<ast::ASTNode
+                    *>>(visitType_value(context->md_type));
             }
             return create_ast_result(mockup_diia_node);
         }
@@ -283,7 +284,7 @@ namespace mavka::parser {
         std::any visitMockup_subject(MavkaParser::Mockup_subjectContext* context) override {
             const auto mockup_subject_node = new ast::MockupSubjectNode();
             mockup_subject_node->name = context->ms_name->getText();
-            mockup_subject_node->type = any_to_ast_result(visitType_value(context->ms_type))->node;
+            mockup_subject_node->types = std::any_cast<std::vector<ast::ASTNode *>>(visitType_value(context->ms_type));
             return create_ast_result(mockup_subject_node);
         }
 
@@ -309,7 +310,7 @@ namespace mavka::parser {
                 );
             }
             if (context->d_type) {
-                diia_node->type = any_to_ast_result(visitType_value(context->d_type))->node;
+                diia_node->return_types = std::any_cast<std::vector<ast::ASTNode *>>(visitType_value(context->d_type));
             }
             if (context->d_body) {
                 diia_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -717,7 +718,8 @@ namespace mavka::parser {
                 );
             }
             if (context->f_type) {
-                function_node->type = any_to_ast_result(visitType_value(context->f_type))->node;
+                function_node->return_types = std::any_cast<std::vector<ast::ASTNode *>>(
+                    visitType_value(context->f_type));
             }
             if (context->f_body) {
                 const auto function_node_body = any_to_ast_result(visitExpr(context->f_body))->node;
@@ -735,7 +737,8 @@ namespace mavka::parser {
                 );
             }
             if (context->d_type) {
-                function_node->type = any_to_ast_result(visitType_value(context->d_type))->node;
+                function_node->return_types = std::any_cast<std::vector<ast::ASTNode *>>(
+                    visitType_value(context->d_type));
             }
             if (context->d_body) {
                 function_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -780,7 +783,8 @@ namespace mavka::parser {
             const auto assign_simple_node = new ast::AssignSimpleNode();
             assign_simple_node->name = context->as_identifier->ID()->getText();
             if (context->as_type) {
-                assign_simple_node->type = any_to_ast_result(visitType_value(context->as_type))->node;
+                assign_simple_node->types = std::any_cast<std::vector<ast::ASTNode *>>(
+                    visitType_value(context->as_type));
             }
             assign_simple_node->op = context->assign_symbol()->getText();
             assign_simple_node->value = any_to_ast_result(visitExpr(context->as_value))->node;
@@ -883,7 +887,7 @@ namespace mavka::parser {
             const auto param_node = new ast::ParamNode();
             param_node->name = context->p_name->getText();
             if (context->p_type) {
-                param_node->type = any_to_ast_result(visitType_value(context->p_type))->node;
+                param_node->types = std::any_cast<std::vector<ast::ASTNode *>>(visitType_value(context->p_type));
             }
             if (context->p_value) {
                 param_node->value = any_to_ast_result(visitParam_value(context->p_value))->node;
@@ -893,6 +897,26 @@ namespace mavka::parser {
 
         std::any visitParam_value(MavkaParser::Param_valueContext* context) {
             return create_ast_result(nullptr);
+        }
+
+        std::any visitIdentifiers_chain(MavkaParser::Identifiers_chainContext* context) override {
+            if (context->ic_identifier) {
+                return visitIdentifier(context->ic_identifier);
+            }
+            const auto chain_node = new ast::ChainNode();
+            chain_node->left = any_to_ast_result(visitIdentifiers_chain(context->ic_left))->node;
+            chain_node->right = any_to_ast_result(visitExtended_identifier(context->ic_right))->node;
+            return create_ast_result(chain_node);
+        }
+
+        std::any visitType_value(MavkaParser::Type_valueContext* context) override {
+            std::vector<ast::ASTNode *> types;
+            for (int i = 0; i < context->type_value_item().size(); ++i) {
+                const auto type = context->type_value_item()[i];
+                const auto ast_result = any_to_ast_result(visitIdentifiers_chain(type->tv_single));
+                types.push_back(ast_result->node);
+            }
+            return types;
         }
 
         std::any visitArgs(MavkaParser::ArgsContext* context) override {

@@ -121,10 +121,10 @@ wait_assign: 'чекати' wa_assign=assign;
 identifier: ID;
 extended_identifier: ID | END | DIIA | STRUCTURE | FOR | IF | WAIT | TAKE | GIVE | AS | IS | RETURN | ASYNC | AND | OR | TRY | CATCH | ELSE | THROW | WHILE | MODULE | EQ_WORD | GR_WORD | SM_WORD | MOCKUP | IMPLEMENTS | EVAL | WHEN | TA;
 
-identifiers_chain: ic_identifier=identifier | ic_left=identifiers_chain '.' ic_right=identifiers_chain;
+identifiers_chain: ic_identifier=identifier | ic_left=identifiers_chain '.' ic_right=extended_identifier;
 
-type_value: (tv_array=type_value_array)? tv_single=identifiers_chain | tv_left=type_value tv_operation=test_op tv_right=type_value;
-type_value_array: '[' ']';
+type_value: type_value_item (('|' | 'або') type_value_item)*;
+type_value_item: (tv_array='[' ']')? tv_single=identifiers_chain;
 
 args: arg (',' arg)*;
 arg: nls (a_spread='...')? a_value=expr nls;

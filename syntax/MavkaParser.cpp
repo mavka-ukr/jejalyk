@@ -65,7 +65,7 @@ void mavkaparserParserInitialize() {
       "object_destruction_el", "assign", "assign_simple", "assign_complex", 
       "assign_complex_left", "assign_complex_right", "assign_array_destruction", 
       "assign_object_destruction", "assign_symbol", "wait_assign", "identifier", 
-      "extended_identifier", "identifiers_chain", "type_value", "type_value_array", 
+      "extended_identifier", "identifiers_chain", "type_value", "type_value_item", 
       "args", "arg", "named_args", "named_arg", "params", "param", "param_value", 
       "body", "body_element_or_return", "body_element", "return_body_line", 
       "arithmetic_op_mul", "arithmetic_op_add", "bitwise_op", "test_op", 
@@ -122,7 +122,7 @@ void mavkaparserParserInitialize() {
     }
   );
   static const int32_t serializedATNSegment[] = {
-  	4,1,111,941,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
+  	4,1,111,937,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,6,2,
   	7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,2,14,7,
   	14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,7,20,2,21,7,
   	21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,2,27,7,27,2,28,7,
@@ -183,99 +183,99 @@ void mavkaparserParserInitialize() {
   	49,1,49,1,49,1,49,1,49,1,49,1,49,1,49,5,49,773,8,49,10,49,12,49,776,9,
   	49,1,50,1,50,1,50,1,50,1,50,1,50,3,50,784,8,50,1,51,1,51,1,51,1,51,1,
   	52,1,52,1,52,1,52,1,53,1,53,1,54,1,54,1,54,1,55,1,55,1,56,1,56,1,57,1,
-  	57,1,57,1,57,1,57,1,57,5,57,809,8,57,10,57,12,57,812,9,57,1,58,1,58,3,
-  	58,816,8,58,1,58,1,58,1,58,1,58,1,58,1,58,5,58,824,8,58,10,58,12,58,827,
-  	9,58,1,59,1,59,1,59,1,60,1,60,1,60,5,60,835,8,60,10,60,12,60,838,9,60,
-  	1,61,1,61,3,61,842,8,61,1,61,1,61,1,61,1,62,1,62,1,62,5,62,850,8,62,10,
-  	62,12,62,853,9,62,1,63,1,63,1,63,1,63,1,63,1,63,1,64,1,64,1,64,1,64,1,
-  	64,1,64,5,64,867,8,64,10,64,12,64,870,9,64,1,65,3,65,873,8,65,1,65,1,
-  	65,1,65,3,65,878,8,65,1,65,3,65,881,8,65,1,65,1,65,3,65,885,8,65,1,66,
-  	1,66,1,66,1,66,1,66,1,66,1,66,3,66,894,8,66,1,67,1,67,1,67,1,67,5,67,
-  	900,8,67,10,67,12,67,903,9,67,1,68,1,68,3,68,907,8,68,1,69,1,69,1,69,
-  	1,69,1,69,1,69,1,69,1,69,1,69,3,69,918,8,69,1,70,1,70,1,70,1,71,1,71,
-  	1,72,1,72,1,73,1,73,1,74,1,74,1,75,1,75,1,76,1,76,1,77,5,77,936,8,77,
-  	10,77,12,77,939,9,77,1,77,0,4,70,98,114,116,78,0,2,4,6,8,10,12,14,16,
-  	18,20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,
-  	64,66,68,70,72,74,76,78,80,82,84,86,88,90,92,94,96,98,100,102,104,106,
-  	108,110,112,114,116,118,120,122,124,126,128,130,132,134,136,138,140,142,
-  	144,146,148,150,152,154,0,10,2,0,79,82,87,89,1,0,5,10,1,0,107,108,2,0,
-  	48,48,62,78,8,0,1,4,11,13,16,21,23,30,32,34,42,43,45,46,98,98,2,0,81,
-  	82,87,89,1,0,79,80,2,0,90,90,93,96,2,0,23,24,91,92,3,0,5,10,19,19,32,
-  	40,1025,0,156,1,0,0,0,2,159,1,0,0,0,4,184,1,0,0,0,6,186,1,0,0,0,8,199,
-  	1,0,0,0,10,223,1,0,0,0,12,225,1,0,0,0,14,237,1,0,0,0,16,248,1,0,0,0,18,
-  	259,1,0,0,0,20,261,1,0,0,0,22,274,1,0,0,0,24,276,1,0,0,0,26,289,1,0,0,
-  	0,28,302,1,0,0,0,30,319,1,0,0,0,32,324,1,0,0,0,34,336,1,0,0,0,36,348,
-  	1,0,0,0,38,351,1,0,0,0,40,380,1,0,0,0,42,399,1,0,0,0,44,423,1,0,0,0,46,
-  	425,1,0,0,0,48,432,1,0,0,0,50,451,1,0,0,0,52,453,1,0,0,0,54,455,1,0,0,
-  	0,56,457,1,0,0,0,58,467,1,0,0,0,60,482,1,0,0,0,62,504,1,0,0,0,64,506,
-  	1,0,0,0,66,515,1,0,0,0,68,520,1,0,0,0,70,562,1,0,0,0,72,631,1,0,0,0,74,
-  	645,1,0,0,0,76,647,1,0,0,0,78,655,1,0,0,0,80,704,1,0,0,0,82,706,1,0,0,
-  	0,84,709,1,0,0,0,86,726,1,0,0,0,88,728,1,0,0,0,90,739,1,0,0,0,92,747,
-  	1,0,0,0,94,750,1,0,0,0,96,759,1,0,0,0,98,764,1,0,0,0,100,783,1,0,0,0,
-  	102,785,1,0,0,0,104,789,1,0,0,0,106,793,1,0,0,0,108,795,1,0,0,0,110,798,
-  	1,0,0,0,112,800,1,0,0,0,114,802,1,0,0,0,116,813,1,0,0,0,118,828,1,0,0,
-  	0,120,831,1,0,0,0,122,839,1,0,0,0,124,846,1,0,0,0,126,854,1,0,0,0,128,
-  	860,1,0,0,0,130,877,1,0,0,0,132,893,1,0,0,0,134,895,1,0,0,0,136,906,1,
-  	0,0,0,138,917,1,0,0,0,140,919,1,0,0,0,142,922,1,0,0,0,144,924,1,0,0,0,
-  	146,926,1,0,0,0,148,928,1,0,0,0,150,930,1,0,0,0,152,932,1,0,0,0,154,937,
-  	1,0,0,0,156,157,3,2,1,0,157,158,5,0,0,1,158,1,1,0,0,0,159,165,3,4,2,0,
-  	160,161,3,152,76,0,161,162,3,4,2,0,162,164,1,0,0,0,163,160,1,0,0,0,164,
-  	167,1,0,0,0,165,163,1,0,0,0,165,166,1,0,0,0,166,3,1,0,0,0,167,165,1,0,
-  	0,0,168,185,3,6,3,0,169,185,3,14,7,0,170,185,3,22,11,0,171,185,3,38,19,
-  	0,172,185,3,40,20,0,173,185,3,42,21,0,174,185,3,56,28,0,175,185,3,58,
-  	29,0,176,185,3,80,40,0,177,185,3,82,41,0,178,185,3,60,30,0,179,185,3,
-  	108,54,0,180,185,3,92,46,0,181,185,3,62,31,0,182,185,3,64,32,0,183,185,
-  	3,154,77,0,184,168,1,0,0,0,184,169,1,0,0,0,184,170,1,0,0,0,184,171,1,
-  	0,0,0,184,172,1,0,0,0,184,173,1,0,0,0,184,174,1,0,0,0,184,175,1,0,0,0,
-  	184,176,1,0,0,0,184,177,1,0,0,0,184,178,1,0,0,0,184,179,1,0,0,0,184,180,
-  	1,0,0,0,184,181,1,0,0,0,184,182,1,0,0,0,184,183,1,0,0,0,185,5,1,0,0,0,
-  	186,188,5,30,0,0,187,189,3,110,55,0,188,187,1,0,0,0,188,189,1,0,0,0,189,
-  	190,1,0,0,0,190,194,3,152,76,0,191,192,3,8,4,0,192,193,3,152,76,0,193,
-  	195,1,0,0,0,194,191,1,0,0,0,194,195,1,0,0,0,195,196,1,0,0,0,196,197,3,
-  	154,77,0,197,198,5,1,0,0,198,7,1,0,0,0,199,205,3,10,5,0,200,201,3,152,
-  	76,0,201,202,3,10,5,0,202,204,1,0,0,0,203,200,1,0,0,0,204,207,1,0,0,0,
-  	205,203,1,0,0,0,205,206,1,0,0,0,206,9,1,0,0,0,207,205,1,0,0,0,208,224,
-  	3,6,3,0,209,224,3,14,7,0,210,224,3,22,11,0,211,224,3,38,19,0,212,224,
-  	3,40,20,0,213,224,3,42,21,0,214,224,3,56,28,0,215,224,3,58,29,0,216,224,
-  	3,80,40,0,217,224,3,82,41,0,218,224,3,60,30,0,219,224,3,108,54,0,220,
-  	224,3,92,46,0,221,224,3,64,32,0,222,224,3,154,77,0,223,208,1,0,0,0,223,
-  	209,1,0,0,0,223,210,1,0,0,0,223,211,1,0,0,0,223,212,1,0,0,0,223,213,1,
-  	0,0,0,223,214,1,0,0,0,223,215,1,0,0,0,223,216,1,0,0,0,223,217,1,0,0,0,
-  	223,218,1,0,0,0,223,219,1,0,0,0,223,220,1,0,0,0,223,221,1,0,0,0,223,222,
-  	1,0,0,0,224,11,1,0,0,0,225,226,3,110,55,0,226,227,5,57,0,0,227,229,3,
-  	154,77,0,228,230,3,128,64,0,229,228,1,0,0,0,229,230,1,0,0,0,230,231,1,
-  	0,0,0,231,232,3,154,77,0,232,233,1,0,0,0,233,235,5,58,0,0,234,236,3,116,
-  	58,0,235,234,1,0,0,0,235,236,1,0,0,0,236,13,1,0,0,0,237,238,5,3,0,0,238,
-  	239,3,110,55,0,239,243,3,152,76,0,240,241,3,16,8,0,241,242,3,152,76,0,
-  	242,244,1,0,0,0,243,240,1,0,0,0,243,244,1,0,0,0,244,245,1,0,0,0,245,246,
-  	3,154,77,0,246,247,5,1,0,0,247,15,1,0,0,0,248,254,3,18,9,0,249,250,3,
-  	152,76,0,250,251,3,18,9,0,251,253,1,0,0,0,252,249,1,0,0,0,253,256,1,0,
-  	0,0,254,252,1,0,0,0,254,255,1,0,0,0,255,17,1,0,0,0,256,254,1,0,0,0,257,
-  	260,3,20,10,0,258,260,3,154,77,0,259,257,1,0,0,0,259,258,1,0,0,0,260,
-  	19,1,0,0,0,261,263,3,110,55,0,262,264,3,116,58,0,263,262,1,0,0,0,263,
-  	264,1,0,0,0,264,267,1,0,0,0,265,266,5,62,0,0,266,268,3,132,66,0,267,265,
-  	1,0,0,0,267,268,1,0,0,0,268,21,1,0,0,0,269,275,3,24,12,0,270,275,3,26,
-  	13,0,271,275,3,28,14,0,272,275,3,30,15,0,273,275,3,32,16,0,274,269,1,
-  	0,0,0,274,270,1,0,0,0,274,271,1,0,0,0,274,272,1,0,0,0,274,273,1,0,0,0,
-  	275,23,1,0,0,0,276,277,5,42,0,0,277,278,5,30,0,0,278,279,3,110,55,0,279,
-  	280,3,152,76,0,280,284,3,154,77,0,281,282,3,34,17,0,282,283,3,152,76,
-  	0,283,285,1,0,0,0,284,281,1,0,0,0,284,285,1,0,0,0,285,286,1,0,0,0,286,
-  	287,3,154,77,0,287,288,5,1,0,0,288,25,1,0,0,0,289,290,5,42,0,0,290,291,
-  	5,3,0,0,291,292,3,110,55,0,292,293,3,152,76,0,293,297,3,154,77,0,294,
-  	295,3,34,17,0,295,296,3,152,76,0,296,298,1,0,0,0,297,294,1,0,0,0,297,
-  	298,1,0,0,0,298,299,1,0,0,0,299,300,3,154,77,0,300,301,5,1,0,0,301,27,
-  	1,0,0,0,302,304,5,42,0,0,303,305,5,21,0,0,304,303,1,0,0,0,304,305,1,0,
-  	0,0,305,306,1,0,0,0,306,307,5,2,0,0,307,308,3,110,55,0,308,309,5,57,0,
-  	0,309,311,3,154,77,0,310,312,3,128,64,0,311,310,1,0,0,0,311,312,1,0,0,
-  	0,312,313,1,0,0,0,313,314,3,154,77,0,314,315,1,0,0,0,315,317,5,58,0,0,
-  	316,318,3,116,58,0,317,316,1,0,0,0,317,318,1,0,0,0,318,29,1,0,0,0,319,
-  	320,5,42,0,0,320,321,5,22,0,0,321,322,3,110,55,0,322,323,3,116,58,0,323,
-  	31,1,0,0,0,324,325,5,42,0,0,325,326,3,110,55,0,326,327,3,152,76,0,327,
-  	331,3,154,77,0,328,329,3,34,17,0,329,330,3,152,76,0,330,332,1,0,0,0,331,
-  	328,1,0,0,0,331,332,1,0,0,0,332,333,1,0,0,0,333,334,3,154,77,0,334,335,
-  	5,1,0,0,335,33,1,0,0,0,336,342,3,36,18,0,337,338,3,152,76,0,338,339,3,
-  	36,18,0,339,341,1,0,0,0,340,337,1,0,0,0,341,344,1,0,0,0,342,340,1,0,0,
-  	0,342,343,1,0,0,0,343,35,1,0,0,0,344,342,1,0,0,0,345,349,3,20,10,0,346,
+  	57,1,57,1,57,1,57,1,57,5,57,809,8,57,10,57,12,57,812,9,57,1,58,1,58,1,
+  	58,5,58,817,8,58,10,58,12,58,820,9,58,1,59,1,59,3,59,824,8,59,1,59,1,
+  	59,1,60,1,60,1,60,5,60,831,8,60,10,60,12,60,834,9,60,1,61,1,61,3,61,838,
+  	8,61,1,61,1,61,1,61,1,62,1,62,1,62,5,62,846,8,62,10,62,12,62,849,9,62,
+  	1,63,1,63,1,63,1,63,1,63,1,63,1,64,1,64,1,64,1,64,1,64,1,64,5,64,863,
+  	8,64,10,64,12,64,866,9,64,1,65,3,65,869,8,65,1,65,1,65,1,65,3,65,874,
+  	8,65,1,65,3,65,877,8,65,1,65,1,65,3,65,881,8,65,1,66,1,66,1,66,1,66,1,
+  	66,1,66,1,66,3,66,890,8,66,1,67,1,67,1,67,1,67,5,67,896,8,67,10,67,12,
+  	67,899,9,67,1,68,1,68,3,68,903,8,68,1,69,1,69,1,69,1,69,1,69,1,69,1,69,
+  	1,69,1,69,3,69,914,8,69,1,70,1,70,1,70,1,71,1,71,1,72,1,72,1,73,1,73,
+  	1,74,1,74,1,75,1,75,1,76,1,76,1,77,5,77,932,8,77,10,77,12,77,935,9,77,
+  	1,77,0,3,70,98,114,78,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,
+  	36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,80,
+  	82,84,86,88,90,92,94,96,98,100,102,104,106,108,110,112,114,116,118,120,
+  	122,124,126,128,130,132,134,136,138,140,142,144,146,148,150,152,154,0,
+  	11,2,0,79,82,87,89,1,0,5,10,1,0,107,108,2,0,48,48,62,78,8,0,1,4,11,13,
+  	16,21,23,30,32,34,42,43,45,46,98,98,2,0,24,24,93,93,2,0,81,82,87,89,1,
+  	0,79,80,2,0,90,90,93,96,2,0,23,24,91,92,3,0,5,10,19,19,32,40,1021,0,156,
+  	1,0,0,0,2,159,1,0,0,0,4,184,1,0,0,0,6,186,1,0,0,0,8,199,1,0,0,0,10,223,
+  	1,0,0,0,12,225,1,0,0,0,14,237,1,0,0,0,16,248,1,0,0,0,18,259,1,0,0,0,20,
+  	261,1,0,0,0,22,274,1,0,0,0,24,276,1,0,0,0,26,289,1,0,0,0,28,302,1,0,0,
+  	0,30,319,1,0,0,0,32,324,1,0,0,0,34,336,1,0,0,0,36,348,1,0,0,0,38,351,
+  	1,0,0,0,40,380,1,0,0,0,42,399,1,0,0,0,44,423,1,0,0,0,46,425,1,0,0,0,48,
+  	432,1,0,0,0,50,451,1,0,0,0,52,453,1,0,0,0,54,455,1,0,0,0,56,457,1,0,0,
+  	0,58,467,1,0,0,0,60,482,1,0,0,0,62,504,1,0,0,0,64,506,1,0,0,0,66,515,
+  	1,0,0,0,68,520,1,0,0,0,70,562,1,0,0,0,72,631,1,0,0,0,74,645,1,0,0,0,76,
+  	647,1,0,0,0,78,655,1,0,0,0,80,704,1,0,0,0,82,706,1,0,0,0,84,709,1,0,0,
+  	0,86,726,1,0,0,0,88,728,1,0,0,0,90,739,1,0,0,0,92,747,1,0,0,0,94,750,
+  	1,0,0,0,96,759,1,0,0,0,98,764,1,0,0,0,100,783,1,0,0,0,102,785,1,0,0,0,
+  	104,789,1,0,0,0,106,793,1,0,0,0,108,795,1,0,0,0,110,798,1,0,0,0,112,800,
+  	1,0,0,0,114,802,1,0,0,0,116,813,1,0,0,0,118,823,1,0,0,0,120,827,1,0,0,
+  	0,122,835,1,0,0,0,124,842,1,0,0,0,126,850,1,0,0,0,128,856,1,0,0,0,130,
+  	873,1,0,0,0,132,889,1,0,0,0,134,891,1,0,0,0,136,902,1,0,0,0,138,913,1,
+  	0,0,0,140,915,1,0,0,0,142,918,1,0,0,0,144,920,1,0,0,0,146,922,1,0,0,0,
+  	148,924,1,0,0,0,150,926,1,0,0,0,152,928,1,0,0,0,154,933,1,0,0,0,156,157,
+  	3,2,1,0,157,158,5,0,0,1,158,1,1,0,0,0,159,165,3,4,2,0,160,161,3,152,76,
+  	0,161,162,3,4,2,0,162,164,1,0,0,0,163,160,1,0,0,0,164,167,1,0,0,0,165,
+  	163,1,0,0,0,165,166,1,0,0,0,166,3,1,0,0,0,167,165,1,0,0,0,168,185,3,6,
+  	3,0,169,185,3,14,7,0,170,185,3,22,11,0,171,185,3,38,19,0,172,185,3,40,
+  	20,0,173,185,3,42,21,0,174,185,3,56,28,0,175,185,3,58,29,0,176,185,3,
+  	80,40,0,177,185,3,82,41,0,178,185,3,60,30,0,179,185,3,108,54,0,180,185,
+  	3,92,46,0,181,185,3,62,31,0,182,185,3,64,32,0,183,185,3,154,77,0,184,
+  	168,1,0,0,0,184,169,1,0,0,0,184,170,1,0,0,0,184,171,1,0,0,0,184,172,1,
+  	0,0,0,184,173,1,0,0,0,184,174,1,0,0,0,184,175,1,0,0,0,184,176,1,0,0,0,
+  	184,177,1,0,0,0,184,178,1,0,0,0,184,179,1,0,0,0,184,180,1,0,0,0,184,181,
+  	1,0,0,0,184,182,1,0,0,0,184,183,1,0,0,0,185,5,1,0,0,0,186,188,5,30,0,
+  	0,187,189,3,110,55,0,188,187,1,0,0,0,188,189,1,0,0,0,189,190,1,0,0,0,
+  	190,194,3,152,76,0,191,192,3,8,4,0,192,193,3,152,76,0,193,195,1,0,0,0,
+  	194,191,1,0,0,0,194,195,1,0,0,0,195,196,1,0,0,0,196,197,3,154,77,0,197,
+  	198,5,1,0,0,198,7,1,0,0,0,199,205,3,10,5,0,200,201,3,152,76,0,201,202,
+  	3,10,5,0,202,204,1,0,0,0,203,200,1,0,0,0,204,207,1,0,0,0,205,203,1,0,
+  	0,0,205,206,1,0,0,0,206,9,1,0,0,0,207,205,1,0,0,0,208,224,3,6,3,0,209,
+  	224,3,14,7,0,210,224,3,22,11,0,211,224,3,38,19,0,212,224,3,40,20,0,213,
+  	224,3,42,21,0,214,224,3,56,28,0,215,224,3,58,29,0,216,224,3,80,40,0,217,
+  	224,3,82,41,0,218,224,3,60,30,0,219,224,3,108,54,0,220,224,3,92,46,0,
+  	221,224,3,64,32,0,222,224,3,154,77,0,223,208,1,0,0,0,223,209,1,0,0,0,
+  	223,210,1,0,0,0,223,211,1,0,0,0,223,212,1,0,0,0,223,213,1,0,0,0,223,214,
+  	1,0,0,0,223,215,1,0,0,0,223,216,1,0,0,0,223,217,1,0,0,0,223,218,1,0,0,
+  	0,223,219,1,0,0,0,223,220,1,0,0,0,223,221,1,0,0,0,223,222,1,0,0,0,224,
+  	11,1,0,0,0,225,226,3,110,55,0,226,227,5,57,0,0,227,229,3,154,77,0,228,
+  	230,3,128,64,0,229,228,1,0,0,0,229,230,1,0,0,0,230,231,1,0,0,0,231,232,
+  	3,154,77,0,232,233,1,0,0,0,233,235,5,58,0,0,234,236,3,116,58,0,235,234,
+  	1,0,0,0,235,236,1,0,0,0,236,13,1,0,0,0,237,238,5,3,0,0,238,239,3,110,
+  	55,0,239,243,3,152,76,0,240,241,3,16,8,0,241,242,3,152,76,0,242,244,1,
+  	0,0,0,243,240,1,0,0,0,243,244,1,0,0,0,244,245,1,0,0,0,245,246,3,154,77,
+  	0,246,247,5,1,0,0,247,15,1,0,0,0,248,254,3,18,9,0,249,250,3,152,76,0,
+  	250,251,3,18,9,0,251,253,1,0,0,0,252,249,1,0,0,0,253,256,1,0,0,0,254,
+  	252,1,0,0,0,254,255,1,0,0,0,255,17,1,0,0,0,256,254,1,0,0,0,257,260,3,
+  	20,10,0,258,260,3,154,77,0,259,257,1,0,0,0,259,258,1,0,0,0,260,19,1,0,
+  	0,0,261,263,3,110,55,0,262,264,3,116,58,0,263,262,1,0,0,0,263,264,1,0,
+  	0,0,264,267,1,0,0,0,265,266,5,62,0,0,266,268,3,132,66,0,267,265,1,0,0,
+  	0,267,268,1,0,0,0,268,21,1,0,0,0,269,275,3,24,12,0,270,275,3,26,13,0,
+  	271,275,3,28,14,0,272,275,3,30,15,0,273,275,3,32,16,0,274,269,1,0,0,0,
+  	274,270,1,0,0,0,274,271,1,0,0,0,274,272,1,0,0,0,274,273,1,0,0,0,275,23,
+  	1,0,0,0,276,277,5,42,0,0,277,278,5,30,0,0,278,279,3,110,55,0,279,280,
+  	3,152,76,0,280,284,3,154,77,0,281,282,3,34,17,0,282,283,3,152,76,0,283,
+  	285,1,0,0,0,284,281,1,0,0,0,284,285,1,0,0,0,285,286,1,0,0,0,286,287,3,
+  	154,77,0,287,288,5,1,0,0,288,25,1,0,0,0,289,290,5,42,0,0,290,291,5,3,
+  	0,0,291,292,3,110,55,0,292,293,3,152,76,0,293,297,3,154,77,0,294,295,
+  	3,34,17,0,295,296,3,152,76,0,296,298,1,0,0,0,297,294,1,0,0,0,297,298,
+  	1,0,0,0,298,299,1,0,0,0,299,300,3,154,77,0,300,301,5,1,0,0,301,27,1,0,
+  	0,0,302,304,5,42,0,0,303,305,5,21,0,0,304,303,1,0,0,0,304,305,1,0,0,0,
+  	305,306,1,0,0,0,306,307,5,2,0,0,307,308,3,110,55,0,308,309,5,57,0,0,309,
+  	311,3,154,77,0,310,312,3,128,64,0,311,310,1,0,0,0,311,312,1,0,0,0,312,
+  	313,1,0,0,0,313,314,3,154,77,0,314,315,1,0,0,0,315,317,5,58,0,0,316,318,
+  	3,116,58,0,317,316,1,0,0,0,317,318,1,0,0,0,318,29,1,0,0,0,319,320,5,42,
+  	0,0,320,321,5,22,0,0,321,322,3,110,55,0,322,323,3,116,58,0,323,31,1,0,
+  	0,0,324,325,5,42,0,0,325,326,3,110,55,0,326,327,3,152,76,0,327,331,3,
+  	154,77,0,328,329,3,34,17,0,329,330,3,152,76,0,330,332,1,0,0,0,331,328,
+  	1,0,0,0,331,332,1,0,0,0,332,333,1,0,0,0,333,334,3,154,77,0,334,335,5,
+  	1,0,0,335,33,1,0,0,0,336,342,3,36,18,0,337,338,3,152,76,0,338,339,3,36,
+  	18,0,339,341,1,0,0,0,340,337,1,0,0,0,341,344,1,0,0,0,342,340,1,0,0,0,
+  	342,343,1,0,0,0,343,35,1,0,0,0,344,342,1,0,0,0,345,349,3,20,10,0,346,
   	349,3,12,6,0,347,349,3,154,77,0,348,345,1,0,0,0,348,346,1,0,0,0,348,347,
   	1,0,0,0,349,37,1,0,0,0,350,352,5,21,0,0,351,350,1,0,0,0,351,352,1,0,0,
   	0,352,353,1,0,0,0,353,357,5,2,0,0,354,355,3,110,55,0,355,356,5,84,0,0,
@@ -407,50 +407,50 @@ void mavkaparserParserInitialize() {
   	105,1,0,0,0,793,794,7,3,0,0,794,107,1,0,0,0,795,796,5,12,0,0,796,797,
   	3,92,46,0,797,109,1,0,0,0,798,799,5,98,0,0,799,111,1,0,0,0,800,801,7,
   	4,0,0,801,113,1,0,0,0,802,803,6,57,-1,0,803,804,3,110,55,0,804,810,1,
-  	0,0,0,805,806,10,1,0,0,806,807,5,84,0,0,807,809,3,114,57,2,808,805,1,
+  	0,0,0,805,806,10,1,0,0,806,807,5,84,0,0,807,809,3,112,56,0,808,805,1,
   	0,0,0,809,812,1,0,0,0,810,808,1,0,0,0,810,811,1,0,0,0,811,115,1,0,0,0,
-  	812,810,1,0,0,0,813,815,6,58,-1,0,814,816,3,118,59,0,815,814,1,0,0,0,
-  	815,816,1,0,0,0,816,817,1,0,0,0,817,818,3,114,57,0,818,825,1,0,0,0,819,
-  	820,10,1,0,0,820,821,3,148,74,0,821,822,3,116,58,2,822,824,1,0,0,0,823,
-  	819,1,0,0,0,824,827,1,0,0,0,825,823,1,0,0,0,825,826,1,0,0,0,826,117,1,
-  	0,0,0,827,825,1,0,0,0,828,829,5,59,0,0,829,830,5,60,0,0,830,119,1,0,0,
-  	0,831,836,3,122,61,0,832,833,5,61,0,0,833,835,3,122,61,0,834,832,1,0,
-  	0,0,835,838,1,0,0,0,836,834,1,0,0,0,836,837,1,0,0,0,837,121,1,0,0,0,838,
-  	836,1,0,0,0,839,841,3,154,77,0,840,842,5,51,0,0,841,840,1,0,0,0,841,842,
-  	1,0,0,0,842,843,1,0,0,0,843,844,3,80,40,0,844,845,3,154,77,0,845,123,
-  	1,0,0,0,846,851,3,126,63,0,847,848,5,61,0,0,848,850,3,126,63,0,849,847,
-  	1,0,0,0,850,853,1,0,0,0,851,849,1,0,0,0,851,852,1,0,0,0,852,125,1,0,0,
-  	0,853,851,1,0,0,0,854,855,3,154,77,0,855,856,3,110,55,0,856,857,5,62,
-  	0,0,857,858,3,80,40,0,858,859,3,154,77,0,859,127,1,0,0,0,860,868,3,130,
-  	65,0,861,862,3,154,77,0,862,863,5,61,0,0,863,864,3,154,77,0,864,865,3,
-  	130,65,0,865,867,1,0,0,0,866,861,1,0,0,0,867,870,1,0,0,0,868,866,1,0,
-  	0,0,868,869,1,0,0,0,869,129,1,0,0,0,870,868,1,0,0,0,871,873,5,51,0,0,
-  	872,871,1,0,0,0,872,873,1,0,0,0,873,874,1,0,0,0,874,878,3,110,55,0,875,
-  	878,3,84,42,0,876,878,3,88,44,0,877,872,1,0,0,0,877,875,1,0,0,0,877,876,
-  	1,0,0,0,878,880,1,0,0,0,879,881,3,116,58,0,880,879,1,0,0,0,880,881,1,
-  	0,0,0,881,884,1,0,0,0,882,883,5,62,0,0,883,885,3,132,66,0,884,882,1,0,
-  	0,0,884,885,1,0,0,0,885,131,1,0,0,0,886,894,5,99,0,0,887,894,7,2,0,0,
-  	888,894,3,110,55,0,889,890,5,57,0,0,890,894,5,58,0,0,891,892,5,59,0,0,
-  	892,894,5,60,0,0,893,886,1,0,0,0,893,887,1,0,0,0,893,888,1,0,0,0,893,
-  	889,1,0,0,0,893,891,1,0,0,0,894,133,1,0,0,0,895,901,3,136,68,0,896,897,
-  	3,152,76,0,897,898,3,136,68,0,898,900,1,0,0,0,899,896,1,0,0,0,900,903,
-  	1,0,0,0,901,899,1,0,0,0,901,902,1,0,0,0,902,135,1,0,0,0,903,901,1,0,0,
-  	0,904,907,3,138,69,0,905,907,3,140,70,0,906,904,1,0,0,0,906,905,1,0,0,
-  	0,907,137,1,0,0,0,908,918,3,40,20,0,909,918,3,42,21,0,910,918,3,56,28,
-  	0,911,918,3,58,29,0,912,918,3,80,40,0,913,918,3,82,41,0,914,918,3,108,
-  	54,0,915,918,3,92,46,0,916,918,3,154,77,0,917,908,1,0,0,0,917,909,1,0,
-  	0,0,917,910,1,0,0,0,917,911,1,0,0,0,917,912,1,0,0,0,917,913,1,0,0,0,917,
-  	914,1,0,0,0,917,915,1,0,0,0,917,916,1,0,0,0,918,139,1,0,0,0,919,920,5,
-  	20,0,0,920,921,3,80,40,0,921,141,1,0,0,0,922,923,7,5,0,0,923,143,1,0,
-  	0,0,924,925,7,6,0,0,925,145,1,0,0,0,926,927,7,7,0,0,927,147,1,0,0,0,928,
-  	929,7,8,0,0,929,149,1,0,0,0,930,931,7,9,0,0,931,151,1,0,0,0,932,933,5,
-  	54,0,0,933,153,1,0,0,0,934,936,3,152,76,0,935,934,1,0,0,0,936,939,1,0,
-  	0,0,937,935,1,0,0,0,937,938,1,0,0,0,938,155,1,0,0,0,939,937,1,0,0,0,90,
-  	165,184,188,194,205,223,229,235,243,254,259,263,267,274,284,297,304,311,
-  	317,331,342,348,351,357,363,369,375,386,392,397,402,408,411,417,423,428,
-  	435,440,451,463,473,478,487,492,502,504,512,518,548,554,559,562,597,624,
-  	626,628,642,652,658,668,672,676,681,687,693,699,704,721,734,747,750,754,
-  	774,783,810,815,825,836,841,851,868,872,877,880,884,893,901,906,917,937
+  	812,810,1,0,0,0,813,818,3,118,59,0,814,815,7,5,0,0,815,817,3,118,59,0,
+  	816,814,1,0,0,0,817,820,1,0,0,0,818,816,1,0,0,0,818,819,1,0,0,0,819,117,
+  	1,0,0,0,820,818,1,0,0,0,821,822,5,59,0,0,822,824,5,60,0,0,823,821,1,0,
+  	0,0,823,824,1,0,0,0,824,825,1,0,0,0,825,826,3,114,57,0,826,119,1,0,0,
+  	0,827,832,3,122,61,0,828,829,5,61,0,0,829,831,3,122,61,0,830,828,1,0,
+  	0,0,831,834,1,0,0,0,832,830,1,0,0,0,832,833,1,0,0,0,833,121,1,0,0,0,834,
+  	832,1,0,0,0,835,837,3,154,77,0,836,838,5,51,0,0,837,836,1,0,0,0,837,838,
+  	1,0,0,0,838,839,1,0,0,0,839,840,3,80,40,0,840,841,3,154,77,0,841,123,
+  	1,0,0,0,842,847,3,126,63,0,843,844,5,61,0,0,844,846,3,126,63,0,845,843,
+  	1,0,0,0,846,849,1,0,0,0,847,845,1,0,0,0,847,848,1,0,0,0,848,125,1,0,0,
+  	0,849,847,1,0,0,0,850,851,3,154,77,0,851,852,3,110,55,0,852,853,5,62,
+  	0,0,853,854,3,80,40,0,854,855,3,154,77,0,855,127,1,0,0,0,856,864,3,130,
+  	65,0,857,858,3,154,77,0,858,859,5,61,0,0,859,860,3,154,77,0,860,861,3,
+  	130,65,0,861,863,1,0,0,0,862,857,1,0,0,0,863,866,1,0,0,0,864,862,1,0,
+  	0,0,864,865,1,0,0,0,865,129,1,0,0,0,866,864,1,0,0,0,867,869,5,51,0,0,
+  	868,867,1,0,0,0,868,869,1,0,0,0,869,870,1,0,0,0,870,874,3,110,55,0,871,
+  	874,3,84,42,0,872,874,3,88,44,0,873,868,1,0,0,0,873,871,1,0,0,0,873,872,
+  	1,0,0,0,874,876,1,0,0,0,875,877,3,116,58,0,876,875,1,0,0,0,876,877,1,
+  	0,0,0,877,880,1,0,0,0,878,879,5,62,0,0,879,881,3,132,66,0,880,878,1,0,
+  	0,0,880,881,1,0,0,0,881,131,1,0,0,0,882,890,5,99,0,0,883,890,7,2,0,0,
+  	884,890,3,110,55,0,885,886,5,57,0,0,886,890,5,58,0,0,887,888,5,59,0,0,
+  	888,890,5,60,0,0,889,882,1,0,0,0,889,883,1,0,0,0,889,884,1,0,0,0,889,
+  	885,1,0,0,0,889,887,1,0,0,0,890,133,1,0,0,0,891,897,3,136,68,0,892,893,
+  	3,152,76,0,893,894,3,136,68,0,894,896,1,0,0,0,895,892,1,0,0,0,896,899,
+  	1,0,0,0,897,895,1,0,0,0,897,898,1,0,0,0,898,135,1,0,0,0,899,897,1,0,0,
+  	0,900,903,3,138,69,0,901,903,3,140,70,0,902,900,1,0,0,0,902,901,1,0,0,
+  	0,903,137,1,0,0,0,904,914,3,40,20,0,905,914,3,42,21,0,906,914,3,56,28,
+  	0,907,914,3,58,29,0,908,914,3,80,40,0,909,914,3,82,41,0,910,914,3,108,
+  	54,0,911,914,3,92,46,0,912,914,3,154,77,0,913,904,1,0,0,0,913,905,1,0,
+  	0,0,913,906,1,0,0,0,913,907,1,0,0,0,913,908,1,0,0,0,913,909,1,0,0,0,913,
+  	910,1,0,0,0,913,911,1,0,0,0,913,912,1,0,0,0,914,139,1,0,0,0,915,916,5,
+  	20,0,0,916,917,3,80,40,0,917,141,1,0,0,0,918,919,7,6,0,0,919,143,1,0,
+  	0,0,920,921,7,7,0,0,921,145,1,0,0,0,922,923,7,8,0,0,923,147,1,0,0,0,924,
+  	925,7,9,0,0,925,149,1,0,0,0,926,927,7,10,0,0,927,151,1,0,0,0,928,929,
+  	5,54,0,0,929,153,1,0,0,0,930,932,3,152,76,0,931,930,1,0,0,0,932,935,1,
+  	0,0,0,933,931,1,0,0,0,933,934,1,0,0,0,934,155,1,0,0,0,935,933,1,0,0,0,
+  	90,165,184,188,194,205,223,229,235,243,254,259,263,267,274,284,297,304,
+  	311,317,331,342,348,351,357,363,369,375,386,392,397,402,408,411,417,423,
+  	428,435,440,451,463,473,478,487,492,502,504,512,518,548,554,559,562,597,
+  	624,626,628,642,652,658,668,672,676,681,687,693,699,704,721,734,747,750,
+  	754,774,783,810,818,823,832,837,847,864,868,873,876,880,889,897,902,913,
+  	933
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 
@@ -1417,7 +1417,7 @@ MavkaParser::Method_declarationContext* MavkaParser::method_declaration() {
 
     || _la == MavkaParser::ID) {
       setState(234);
-      antlrcpp::downCast<Method_declarationContext *>(_localctx)->md_type = type_value(0);
+      antlrcpp::downCast<Method_declarationContext *>(_localctx)->md_type = type_value();
     }
    
   }
@@ -1779,7 +1779,7 @@ MavkaParser::Structure_paramContext* MavkaParser::structure_param() {
 
     || _la == MavkaParser::ID) {
       setState(262);
-      antlrcpp::downCast<Structure_paramContext *>(_localctx)->sp_type = type_value(0);
+      antlrcpp::downCast<Structure_paramContext *>(_localctx)->sp_type = type_value();
     }
     setState(267);
     _errHandler->sync(this);
@@ -2282,7 +2282,7 @@ MavkaParser::Mockup_diiaContext* MavkaParser::mockup_diia() {
 
     || _la == MavkaParser::ID) {
       setState(316);
-      antlrcpp::downCast<Mockup_diiaContext *>(_localctx)->md_type = type_value(0);
+      antlrcpp::downCast<Mockup_diiaContext *>(_localctx)->md_type = type_value();
     }
    
   }
@@ -2362,7 +2362,7 @@ MavkaParser::Mockup_subjectContext* MavkaParser::mockup_subject() {
     setState(321);
     antlrcpp::downCast<Mockup_subjectContext *>(_localctx)->ms_name = identifier();
     setState(322);
-    antlrcpp::downCast<Mockup_subjectContext *>(_localctx)->ms_type = type_value(0);
+    antlrcpp::downCast<Mockup_subjectContext *>(_localctx)->ms_type = type_value();
    
   }
   catch (RecognitionException &e) {
@@ -2827,7 +2827,7 @@ MavkaParser::DiiaContext* MavkaParser::diia() {
 
     || _la == MavkaParser::ID) {
       setState(368);
-      antlrcpp::downCast<DiiaContext *>(_localctx)->d_type = type_value(0);
+      antlrcpp::downCast<DiiaContext *>(_localctx)->d_type = type_value();
     }
     setState(371);
     nl();
@@ -6546,7 +6546,7 @@ MavkaParser::ExprContext* MavkaParser::expr() {
 
       || _la == MavkaParser::ID) {
         setState(675);
-        antlrcpp::downCast<FunctionContext *>(_localctx)->f_type = type_value(0);
+        antlrcpp::downCast<FunctionContext *>(_localctx)->f_type = type_value();
       }
       setState(678);
       match(MavkaParser::COLON);
@@ -6594,7 +6594,7 @@ MavkaParser::ExprContext* MavkaParser::expr() {
 
       || _la == MavkaParser::ID) {
         setState(692);
-        antlrcpp::downCast<Anonymous_diiaContext *>(_localctx)->d_type = type_value(0);
+        antlrcpp::downCast<Anonymous_diiaContext *>(_localctx)->d_type = type_value();
       }
       setState(695);
       nl();
@@ -7238,7 +7238,7 @@ MavkaParser::Assign_simpleContext* MavkaParser::assign_simple() {
 
     || _la == MavkaParser::ID) {
       setState(753);
-      antlrcpp::downCast<Assign_simpleContext *>(_localctx)->as_type = type_value(0);
+      antlrcpp::downCast<Assign_simpleContext *>(_localctx)->as_type = type_value();
     }
     setState(756);
     antlrcpp::downCast<Assign_simpleContext *>(_localctx)->as_symbol = assign_symbol();
@@ -8156,12 +8156,12 @@ tree::TerminalNode* MavkaParser::Identifiers_chainContext::DOT() {
   return getToken(MavkaParser::DOT, 0);
 }
 
-std::vector<MavkaParser::Identifiers_chainContext *> MavkaParser::Identifiers_chainContext::identifiers_chain() {
-  return getRuleContexts<MavkaParser::Identifiers_chainContext>();
+MavkaParser::Identifiers_chainContext* MavkaParser::Identifiers_chainContext::identifiers_chain() {
+  return getRuleContext<MavkaParser::Identifiers_chainContext>(0);
 }
 
-MavkaParser::Identifiers_chainContext* MavkaParser::Identifiers_chainContext::identifiers_chain(size_t i) {
-  return getRuleContext<MavkaParser::Identifiers_chainContext>(i);
+MavkaParser::Extended_identifierContext* MavkaParser::Identifiers_chainContext::extended_identifier() {
+  return getRuleContext<MavkaParser::Extended_identifierContext>(0);
 }
 
 
@@ -8235,7 +8235,7 @@ MavkaParser::Identifiers_chainContext* MavkaParser::identifiers_chain(int preced
         setState(806);
         match(MavkaParser::DOT);
         setState(807);
-        antlrcpp::downCast<Identifiers_chainContext *>(_localctx)->ic_right = identifiers_chain(2); 
+        antlrcpp::downCast<Identifiers_chainContext *>(_localctx)->ic_right = extended_identifier(); 
       }
       setState(812);
       _errHandler->sync(this);
@@ -8256,24 +8256,28 @@ MavkaParser::Type_valueContext::Type_valueContext(ParserRuleContext *parent, siz
   : ParserRuleContext(parent, invokingState) {
 }
 
-MavkaParser::Identifiers_chainContext* MavkaParser::Type_valueContext::identifiers_chain() {
-  return getRuleContext<MavkaParser::Identifiers_chainContext>(0);
+std::vector<MavkaParser::Type_value_itemContext *> MavkaParser::Type_valueContext::type_value_item() {
+  return getRuleContexts<MavkaParser::Type_value_itemContext>();
 }
 
-MavkaParser::Type_value_arrayContext* MavkaParser::Type_valueContext::type_value_array() {
-  return getRuleContext<MavkaParser::Type_value_arrayContext>(0);
+MavkaParser::Type_value_itemContext* MavkaParser::Type_valueContext::type_value_item(size_t i) {
+  return getRuleContext<MavkaParser::Type_value_itemContext>(i);
 }
 
-std::vector<MavkaParser::Type_valueContext *> MavkaParser::Type_valueContext::type_value() {
-  return getRuleContexts<MavkaParser::Type_valueContext>();
+std::vector<tree::TerminalNode *> MavkaParser::Type_valueContext::OR_BW() {
+  return getTokens(MavkaParser::OR_BW);
 }
 
-MavkaParser::Type_valueContext* MavkaParser::Type_valueContext::type_value(size_t i) {
-  return getRuleContext<MavkaParser::Type_valueContext>(i);
+tree::TerminalNode* MavkaParser::Type_valueContext::OR_BW(size_t i) {
+  return getToken(MavkaParser::OR_BW, i);
 }
 
-MavkaParser::Test_opContext* MavkaParser::Type_valueContext::test_op() {
-  return getRuleContext<MavkaParser::Test_opContext>(0);
+std::vector<tree::TerminalNode *> MavkaParser::Type_valueContext::OR() {
+  return getTokens(MavkaParser::OR);
+}
+
+tree::TerminalNode* MavkaParser::Type_valueContext::OR(size_t i) {
+  return getToken(MavkaParser::OR, i);
 }
 
 
@@ -8301,117 +8305,10 @@ std::any MavkaParser::Type_valueContext::accept(tree::ParseTreeVisitor *visitor)
     return visitor->visitChildren(this);
 }
 
-
 MavkaParser::Type_valueContext* MavkaParser::type_value() {
-   return type_value(0);
-}
-
-MavkaParser::Type_valueContext* MavkaParser::type_value(int precedence) {
-  ParserRuleContext *parentContext = _ctx;
-  size_t parentState = getState();
-  MavkaParser::Type_valueContext *_localctx = _tracker.createInstance<Type_valueContext>(_ctx, parentState);
-  MavkaParser::Type_valueContext *previousContext = _localctx;
-  (void)previousContext; // Silence compiler, in case the context is not used by generated code.
-  size_t startState = 116;
-  enterRecursionRule(_localctx, 116, MavkaParser::RuleType_value, precedence);
-
-    size_t _la = 0;
-
-#if __cplusplus > 201703L
-  auto onExit = finally([=, this] {
-#else
-  auto onExit = finally([=] {
-#endif
-    unrollRecursionContexts(parentContext);
-  });
-  try {
-    size_t alt;
-    enterOuterAlt(_localctx, 1);
-    setState(815);
-    _errHandler->sync(this);
-
-    _la = _input->LA(1);
-    if (_la == MavkaParser::OPEN_ARRAY) {
-      setState(814);
-      antlrcpp::downCast<Type_valueContext *>(_localctx)->tv_array = type_value_array();
-    }
-    setState(817);
-    antlrcpp::downCast<Type_valueContext *>(_localctx)->tv_single = identifiers_chain(0);
-    _ctx->stop = _input->LT(-1);
-    setState(825);
-    _errHandler->sync(this);
-    alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 76, _ctx);
-    while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
-      if (alt == 1) {
-        if (!_parseListeners.empty())
-          triggerExitRuleEvent();
-        previousContext = _localctx;
-        _localctx = _tracker.createInstance<Type_valueContext>(parentContext, parentState);
-        _localctx->tv_left = previousContext;
-        pushNewRecursionContext(_localctx, startState, RuleType_value);
-        setState(819);
-
-        if (!(precpred(_ctx, 1))) throw FailedPredicateException(this, "precpred(_ctx, 1)");
-        setState(820);
-        antlrcpp::downCast<Type_valueContext *>(_localctx)->tv_operation = test_op();
-        setState(821);
-        antlrcpp::downCast<Type_valueContext *>(_localctx)->tv_right = type_value(2); 
-      }
-      setState(827);
-      _errHandler->sync(this);
-      alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 76, _ctx);
-    }
-  }
-  catch (RecognitionException &e) {
-    _errHandler->reportError(this, e);
-    _localctx->exception = std::current_exception();
-    _errHandler->recover(this, _localctx->exception);
-  }
-  return _localctx;
-}
-
-//----------------- Type_value_arrayContext ------------------------------------------------------------------
-
-MavkaParser::Type_value_arrayContext::Type_value_arrayContext(ParserRuleContext *parent, size_t invokingState)
-  : ParserRuleContext(parent, invokingState) {
-}
-
-tree::TerminalNode* MavkaParser::Type_value_arrayContext::OPEN_ARRAY() {
-  return getToken(MavkaParser::OPEN_ARRAY, 0);
-}
-
-tree::TerminalNode* MavkaParser::Type_value_arrayContext::CLOSE_ARRAY() {
-  return getToken(MavkaParser::CLOSE_ARRAY, 0);
-}
-
-
-size_t MavkaParser::Type_value_arrayContext::getRuleIndex() const {
-  return MavkaParser::RuleType_value_array;
-}
-
-void MavkaParser::Type_value_arrayContext::enterRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<MavkaParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->enterType_value_array(this);
-}
-
-void MavkaParser::Type_value_arrayContext::exitRule(tree::ParseTreeListener *listener) {
-  auto parserListener = dynamic_cast<MavkaParserListener *>(listener);
-  if (parserListener != nullptr)
-    parserListener->exitType_value_array(this);
-}
-
-
-std::any MavkaParser::Type_value_arrayContext::accept(tree::ParseTreeVisitor *visitor) {
-  if (auto parserVisitor = dynamic_cast<MavkaParserVisitor*>(visitor))
-    return parserVisitor->visitType_value_array(this);
-  else
-    return visitor->visitChildren(this);
-}
-
-MavkaParser::Type_value_arrayContext* MavkaParser::type_value_array() {
-  Type_value_arrayContext *_localctx = _tracker.createInstance<Type_value_arrayContext>(_ctx, getState());
-  enterRule(_localctx, 118, MavkaParser::RuleType_value_array);
+  Type_valueContext *_localctx = _tracker.createInstance<Type_valueContext>(_ctx, getState());
+  enterRule(_localctx, 116, MavkaParser::RuleType_value);
+  size_t _la = 0;
 
 #if __cplusplus > 201703L
   auto onExit = finally([=, this] {
@@ -8422,10 +8319,107 @@ MavkaParser::Type_value_arrayContext* MavkaParser::type_value_array() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(828);
-    match(MavkaParser::OPEN_ARRAY);
-    setState(829);
-    match(MavkaParser::CLOSE_ARRAY);
+    setState(813);
+    type_value_item();
+    setState(818);
+    _errHandler->sync(this);
+    _la = _input->LA(1);
+    while (_la == MavkaParser::OR || _la == MavkaParser::OR_BW) {
+      setState(814);
+      _la = _input->LA(1);
+      if (!(_la == MavkaParser::OR || _la == MavkaParser::OR_BW)) {
+      _errHandler->recoverInline(this);
+      }
+      else {
+        _errHandler->reportMatch(this);
+        consume();
+      }
+      setState(815);
+      type_value_item();
+      setState(820);
+      _errHandler->sync(this);
+      _la = _input->LA(1);
+    }
+   
+  }
+  catch (RecognitionException &e) {
+    _errHandler->reportError(this, e);
+    _localctx->exception = std::current_exception();
+    _errHandler->recover(this, _localctx->exception);
+  }
+
+  return _localctx;
+}
+
+//----------------- Type_value_itemContext ------------------------------------------------------------------
+
+MavkaParser::Type_value_itemContext::Type_value_itemContext(ParserRuleContext *parent, size_t invokingState)
+  : ParserRuleContext(parent, invokingState) {
+}
+
+MavkaParser::Identifiers_chainContext* MavkaParser::Type_value_itemContext::identifiers_chain() {
+  return getRuleContext<MavkaParser::Identifiers_chainContext>(0);
+}
+
+tree::TerminalNode* MavkaParser::Type_value_itemContext::CLOSE_ARRAY() {
+  return getToken(MavkaParser::CLOSE_ARRAY, 0);
+}
+
+tree::TerminalNode* MavkaParser::Type_value_itemContext::OPEN_ARRAY() {
+  return getToken(MavkaParser::OPEN_ARRAY, 0);
+}
+
+
+size_t MavkaParser::Type_value_itemContext::getRuleIndex() const {
+  return MavkaParser::RuleType_value_item;
+}
+
+void MavkaParser::Type_value_itemContext::enterRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<MavkaParserListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->enterType_value_item(this);
+}
+
+void MavkaParser::Type_value_itemContext::exitRule(tree::ParseTreeListener *listener) {
+  auto parserListener = dynamic_cast<MavkaParserListener *>(listener);
+  if (parserListener != nullptr)
+    parserListener->exitType_value_item(this);
+}
+
+
+std::any MavkaParser::Type_value_itemContext::accept(tree::ParseTreeVisitor *visitor) {
+  if (auto parserVisitor = dynamic_cast<MavkaParserVisitor*>(visitor))
+    return parserVisitor->visitType_value_item(this);
+  else
+    return visitor->visitChildren(this);
+}
+
+MavkaParser::Type_value_itemContext* MavkaParser::type_value_item() {
+  Type_value_itemContext *_localctx = _tracker.createInstance<Type_value_itemContext>(_ctx, getState());
+  enterRule(_localctx, 118, MavkaParser::RuleType_value_item);
+  size_t _la = 0;
+
+#if __cplusplus > 201703L
+  auto onExit = finally([=, this] {
+#else
+  auto onExit = finally([=] {
+#endif
+    exitRule();
+  });
+  try {
+    enterOuterAlt(_localctx, 1);
+    setState(823);
+    _errHandler->sync(this);
+
+    _la = _input->LA(1);
+    if (_la == MavkaParser::OPEN_ARRAY) {
+      setState(821);
+      antlrcpp::downCast<Type_value_itemContext *>(_localctx)->tv_array = match(MavkaParser::OPEN_ARRAY);
+      setState(822);
+      match(MavkaParser::CLOSE_ARRAY);
+    }
+    setState(825);
+    antlrcpp::downCast<Type_value_itemContext *>(_localctx)->tv_single = identifiers_chain(0);
    
   }
   catch (RecognitionException &e) {
@@ -8498,17 +8492,17 @@ MavkaParser::ArgsContext* MavkaParser::args() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(831);
+    setState(827);
     arg();
-    setState(836);
+    setState(832);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == MavkaParser::COMMA) {
-      setState(832);
+      setState(828);
       match(MavkaParser::COMMA);
-      setState(833);
+      setState(829);
       arg();
-      setState(838);
+      setState(834);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -8584,19 +8578,19 @@ MavkaParser::ArgContext* MavkaParser::arg() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(839);
+    setState(835);
     nls();
-    setState(841);
+    setState(837);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == MavkaParser::SPREAD) {
-      setState(840);
+      setState(836);
       antlrcpp::downCast<ArgContext *>(_localctx)->a_spread = match(MavkaParser::SPREAD);
     }
-    setState(843);
+    setState(839);
     antlrcpp::downCast<ArgContext *>(_localctx)->a_value = expr();
-    setState(844);
+    setState(840);
     nls();
    
   }
@@ -8670,17 +8664,17 @@ MavkaParser::Named_argsContext* MavkaParser::named_args() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(846);
+    setState(842);
     named_arg();
-    setState(851);
+    setState(847);
     _errHandler->sync(this);
     _la = _input->LA(1);
     while (_la == MavkaParser::COMMA) {
-      setState(847);
+      setState(843);
       match(MavkaParser::COMMA);
-      setState(848);
+      setState(844);
       named_arg();
-      setState(853);
+      setState(849);
       _errHandler->sync(this);
       _la = _input->LA(1);
     }
@@ -8759,15 +8753,15 @@ MavkaParser::Named_argContext* MavkaParser::named_arg() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(854);
+    setState(850);
     nls();
-    setState(855);
+    setState(851);
     antlrcpp::downCast<Named_argContext *>(_localctx)->na_name = identifier();
-    setState(856);
+    setState(852);
     match(MavkaParser::ASSIGN);
-    setState(857);
+    setState(853);
     antlrcpp::downCast<Named_argContext *>(_localctx)->na_value = expr();
-    setState(858);
+    setState(854);
     nls();
    
   }
@@ -8849,23 +8843,23 @@ MavkaParser::ParamsContext* MavkaParser::params() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(860);
+    setState(856);
     param();
-    setState(868);
+    setState(864);
     _errHandler->sync(this);
     alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 80, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
-        setState(861);
+        setState(857);
         nls();
-        setState(862);
+        setState(858);
         match(MavkaParser::COMMA);
-        setState(863);
+        setState(859);
         nls();
-        setState(864);
+        setState(860);
         param(); 
       }
-      setState(870);
+      setState(866);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 80, _ctx);
     }
@@ -8953,32 +8947,32 @@ MavkaParser::ParamContext* MavkaParser::param() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(877);
+    setState(873);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case MavkaParser::SPREAD:
       case MavkaParser::ID: {
-        setState(872);
+        setState(868);
         _errHandler->sync(this);
 
         _la = _input->LA(1);
         if (_la == MavkaParser::SPREAD) {
-          setState(871);
+          setState(867);
           antlrcpp::downCast<ParamContext *>(_localctx)->p_spread = match(MavkaParser::SPREAD);
         }
-        setState(874);
+        setState(870);
         antlrcpp::downCast<ParamContext *>(_localctx)->p_name = identifier();
         break;
       }
 
       case MavkaParser::OPEN_ARRAY: {
-        setState(875);
+        setState(871);
         antlrcpp::downCast<ParamContext *>(_localctx)->p_array_destruction = array_destruction();
         break;
       }
 
       case MavkaParser::OPEN_PAREN: {
-        setState(876);
+        setState(872);
         antlrcpp::downCast<ParamContext *>(_localctx)->p_object_destruction = object_destruction();
         break;
       }
@@ -8986,24 +8980,24 @@ MavkaParser::ParamContext* MavkaParser::param() {
     default:
       throw NoViableAltException(this);
     }
-    setState(880);
+    setState(876);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == MavkaParser::OPEN_ARRAY
 
     || _la == MavkaParser::ID) {
-      setState(879);
-      antlrcpp::downCast<ParamContext *>(_localctx)->p_type = type_value(0);
+      setState(875);
+      antlrcpp::downCast<ParamContext *>(_localctx)->p_type = type_value();
     }
-    setState(884);
+    setState(880);
     _errHandler->sync(this);
 
     _la = _input->LA(1);
     if (_la == MavkaParser::ASSIGN) {
-      setState(882);
+      setState(878);
       match(MavkaParser::ASSIGN);
-      setState(883);
+      setState(879);
       antlrcpp::downCast<ParamContext *>(_localctx)->p_value = param_value();
     }
    
@@ -9182,13 +9176,13 @@ MavkaParser::Param_valueContext* MavkaParser::param_value() {
     exitRule();
   });
   try {
-    setState(893);
+    setState(889);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case MavkaParser::NUMBER: {
         _localctx = _tracker.createInstance<MavkaParser::Param_value_numberContext>(_localctx);
         enterOuterAlt(_localctx, 1);
-        setState(886);
+        setState(882);
         match(MavkaParser::NUMBER);
         break;
       }
@@ -9197,7 +9191,7 @@ MavkaParser::Param_valueContext* MavkaParser::param_value() {
       case MavkaParser::STRING: {
         _localctx = _tracker.createInstance<MavkaParser::Param_value_stringContext>(_localctx);
         enterOuterAlt(_localctx, 2);
-        setState(887);
+        setState(883);
         _la = _input->LA(1);
         if (!(_la == MavkaParser::STRING_MULTILINE
 
@@ -9214,7 +9208,7 @@ MavkaParser::Param_valueContext* MavkaParser::param_value() {
       case MavkaParser::ID: {
         _localctx = _tracker.createInstance<MavkaParser::Param_value_identifierContext>(_localctx);
         enterOuterAlt(_localctx, 3);
-        setState(888);
+        setState(884);
         identifier();
         break;
       }
@@ -9222,9 +9216,9 @@ MavkaParser::Param_valueContext* MavkaParser::param_value() {
       case MavkaParser::OPEN_PAREN: {
         _localctx = _tracker.createInstance<MavkaParser::Param_value_empty_dictionaryContext>(_localctx);
         enterOuterAlt(_localctx, 4);
-        setState(889);
+        setState(885);
         match(MavkaParser::OPEN_PAREN);
-        setState(890);
+        setState(886);
         match(MavkaParser::CLOSE_PAREN);
         break;
       }
@@ -9232,9 +9226,9 @@ MavkaParser::Param_valueContext* MavkaParser::param_value() {
       case MavkaParser::OPEN_ARRAY: {
         _localctx = _tracker.createInstance<MavkaParser::Param_value_empty_listContext>(_localctx);
         enterOuterAlt(_localctx, 5);
-        setState(891);
+        setState(887);
         match(MavkaParser::OPEN_ARRAY);
-        setState(892);
+        setState(888);
         match(MavkaParser::CLOSE_ARRAY);
         break;
       }
@@ -9314,19 +9308,19 @@ MavkaParser::BodyContext* MavkaParser::body() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(895);
+    setState(891);
     body_element_or_return();
-    setState(901);
+    setState(897);
     _errHandler->sync(this);
     alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 86, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
-        setState(896);
+        setState(892);
         nl();
-        setState(897);
+        setState(893);
         body_element_or_return(); 
       }
-      setState(903);
+      setState(899);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 86, _ctx);
     }
@@ -9392,7 +9386,7 @@ MavkaParser::Body_element_or_returnContext* MavkaParser::body_element_or_return(
     exitRule();
   });
   try {
-    setState(906);
+    setState(902);
     _errHandler->sync(this);
     switch (_input->LA(1)) {
       case MavkaParser::DIIA:
@@ -9418,14 +9412,14 @@ MavkaParser::Body_element_or_returnContext* MavkaParser::body_element_or_return(
       case MavkaParser::STRING_MULTILINE:
       case MavkaParser::STRING: {
         enterOuterAlt(_localctx, 1);
-        setState(904);
+        setState(900);
         body_element();
         break;
       }
 
       case MavkaParser::RETURN: {
         enterOuterAlt(_localctx, 2);
-        setState(905);
+        setState(901);
         return_body_line();
         break;
       }
@@ -9523,68 +9517,68 @@ MavkaParser::Body_elementContext* MavkaParser::body_element() {
     exitRule();
   });
   try {
-    setState(917);
+    setState(913);
     _errHandler->sync(this);
     switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 88, _ctx)) {
     case 1: {
       enterOuterAlt(_localctx, 1);
-      setState(908);
+      setState(904);
       if_();
       break;
     }
 
     case 2: {
       enterOuterAlt(_localctx, 2);
-      setState(909);
+      setState(905);
       each();
       break;
     }
 
     case 3: {
       enterOuterAlt(_localctx, 3);
-      setState(910);
+      setState(906);
       while_();
       break;
     }
 
     case 4: {
       enterOuterAlt(_localctx, 4);
-      setState(911);
+      setState(907);
       try_();
       break;
     }
 
     case 5: {
       enterOuterAlt(_localctx, 5);
-      setState(912);
+      setState(908);
       expr();
       break;
     }
 
     case 6: {
       enterOuterAlt(_localctx, 6);
-      setState(913);
+      setState(909);
       throw_();
       break;
     }
 
     case 7: {
       enterOuterAlt(_localctx, 7);
-      setState(914);
+      setState(910);
       wait_assign();
       break;
     }
 
     case 8: {
       enterOuterAlt(_localctx, 8);
-      setState(915);
+      setState(911);
       assign();
       break;
     }
 
     case 9: {
       enterOuterAlt(_localctx, 9);
-      setState(916);
+      setState(912);
       nls();
       break;
     }
@@ -9655,9 +9649,9 @@ MavkaParser::Return_body_lineContext* MavkaParser::return_body_line() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(919);
+    setState(915);
     match(MavkaParser::RETURN);
-    setState(920);
+    setState(916);
     antlrcpp::downCast<Return_body_lineContext *>(_localctx)->rbl_value = expr();
    
   }
@@ -9735,7 +9729,7 @@ MavkaParser::Arithmetic_op_mulContext* MavkaParser::arithmetic_op_mul() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(922);
+    setState(918);
     _la = _input->LA(1);
     if (!(((((_la - 81) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 81)) & 451) != 0))) {
@@ -9809,7 +9803,7 @@ MavkaParser::Arithmetic_op_addContext* MavkaParser::arithmetic_op_add() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(924);
+    setState(920);
     _la = _input->LA(1);
     if (!(_la == MavkaParser::PLUS
 
@@ -9896,7 +9890,7 @@ MavkaParser::Bitwise_opContext* MavkaParser::bitwise_op() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(926);
+    setState(922);
     _la = _input->LA(1);
     if (!(((((_la - 90) & ~ 0x3fULL) == 0) &&
       ((1ULL << (_la - 90)) & 121) != 0))) {
@@ -9978,7 +9972,7 @@ MavkaParser::Test_opContext* MavkaParser::test_op() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(928);
+    setState(924);
     _la = _input->LA(1);
     if (!(_la == MavkaParser::AND
 
@@ -10111,7 +10105,7 @@ MavkaParser::Comparison_opContext* MavkaParser::comparison_op() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(930);
+    setState(926);
     _la = _input->LA(1);
     if (!((((_la & ~ 0x3fULL) == 0) &&
       ((1ULL << _la) & 2194728814560) != 0))) {
@@ -10180,7 +10174,7 @@ MavkaParser::NlContext* MavkaParser::nl() {
   });
   try {
     enterOuterAlt(_localctx, 1);
-    setState(932);
+    setState(928);
     match(MavkaParser::NL);
    
   }
@@ -10246,15 +10240,15 @@ MavkaParser::NlsContext* MavkaParser::nls() {
   try {
     size_t alt;
     enterOuterAlt(_localctx, 1);
-    setState(937);
+    setState(933);
     _errHandler->sync(this);
     alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 89, _ctx);
     while (alt != 2 && alt != atn::ATN::INVALID_ALT_NUMBER) {
       if (alt == 1) {
-        setState(934);
+        setState(930);
         nl(); 
       }
-      setState(939);
+      setState(935);
       _errHandler->sync(this);
       alt = getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 89, _ctx);
     }
@@ -10274,7 +10268,6 @@ bool MavkaParser::sempred(RuleContext *context, size_t ruleIndex, size_t predica
     case 35: return valueSempred(antlrcpp::downCast<ValueContext *>(context), predicateIndex);
     case 49: return assign_complex_leftSempred(antlrcpp::downCast<Assign_complex_leftContext *>(context), predicateIndex);
     case 57: return identifiers_chainSempred(antlrcpp::downCast<Identifiers_chainContext *>(context), predicateIndex);
-    case 58: return type_valueSempred(antlrcpp::downCast<Type_valueContext *>(context), predicateIndex);
 
   default:
     break;
@@ -10317,16 +10310,6 @@ bool MavkaParser::assign_complex_leftSempred(Assign_complex_leftContext *_localc
 bool MavkaParser::identifiers_chainSempred(Identifiers_chainContext *_localctx, size_t predicateIndex) {
   switch (predicateIndex) {
     case 14: return precpred(_ctx, 1);
-
-  default:
-    break;
-  }
-  return true;
-}
-
-bool MavkaParser::type_valueSempred(Type_valueContext *_localctx, size_t predicateIndex) {
-  switch (predicateIndex) {
-    case 15: return precpred(_ctx, 1);
 
   default:
     break;

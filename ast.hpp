@@ -19,7 +19,7 @@ namespace mavka::ast {
         std::string TYPE = "ParamNode";
 
         std::string name;
-        ASTNode* type;
+        std::vector<ASTNode *> types;
         ASTNode* value;
     };
 
@@ -29,7 +29,7 @@ namespace mavka::ast {
 
         bool async;
         std::vector<ParamNode *> params;
-        ASTNode* type;
+        std::vector<ASTNode *> return_types;
         std::vector<ASTNode *> body;
     };
 
@@ -89,7 +89,7 @@ namespace mavka::ast {
         std::string TYPE = "AssignSimpleNode";
 
         std::string name;
-        ASTNode* type;
+        std::vector<ASTNode *> types;
         std::string op;
         ASTNode* value;
     };
@@ -160,7 +160,7 @@ namespace mavka::ast {
         std::string structure;
         std::string name;
         std::vector<ParamNode *> params;
-        ASTNode* type;
+        std::vector<ASTNode *> return_types;
         std::vector<ASTNode *> body;
     };
 
@@ -187,7 +187,7 @@ namespace mavka::ast {
 
         bool async;
         std::vector<ParamNode *> params;
-        ASTNode* type;
+        std::vector<ASTNode *> return_types;
         std::vector<ASTNode *> body;
     };
 
@@ -258,7 +258,7 @@ namespace mavka::ast {
         bool async;
         std::string name;
         std::vector<ParamNode *> params;
-        ASTNode* result;
+        std::vector<ASTNode *> return_types;
     };
 
     class MockupModuleNode final : public ASTNode {
@@ -282,7 +282,7 @@ namespace mavka::ast {
     class MockupSubjectNode final : public ASTNode {
     public:
         std::string name;
-        ASTNode* type;
+        std::vector<ASTNode *> types;
     };
 
     class ModuleNode final : public ASTNode {
@@ -375,7 +375,7 @@ namespace mavka::ast {
         std::string TYPE = "StructureParamNode";
 
         std::string name;
-        ASTNode* type;
+        std::vector<ASTNode *> types;
         ASTNode* value;
     };
 

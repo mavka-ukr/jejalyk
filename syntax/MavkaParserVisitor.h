@@ -203,7 +203,7 @@ public:
 
     virtual std::any visitType_value(MavkaParser::Type_valueContext *context) = 0;
 
-    virtual std::any visitType_value_array(MavkaParser::Type_value_arrayContext *context) = 0;
+    virtual std::any visitType_value_item(MavkaParser::Type_value_itemContext *context) = 0;
 
     virtual std::any visitArgs(MavkaParser::ArgsContext *context) = 0;
 

@@ -383,7 +383,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitType_value_array(MavkaParser::Type_value_arrayContext *ctx) override {
+  virtual std::any visitType_value_item(MavkaParser::Type_value_itemContext *ctx) override {
     return visitChildren(ctx);
   }
 
