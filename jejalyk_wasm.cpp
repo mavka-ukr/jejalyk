@@ -93,8 +93,8 @@ val compile(std::string code) {
 
     val result = val::object();
     const auto compilation_result = jejalyk::compile(code, options);
-    if (compilation_result->parser_error) {
-        result.set(std::string("parser_error"), parser_error_to_val(compilation_result->parser_error));
+    if (compilation_result->error) {
+        result.set(std::string("parser_error"), parser_error_to_val(compilation_result->error));
     } else {
         result.set(std::string("result"), std::string(compilation_result->result));
     }

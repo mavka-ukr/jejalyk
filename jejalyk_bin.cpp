@@ -16,9 +16,7 @@ int main(int argc, char** argv) {
 
     const auto result = jejalyk::compile(code, options);
 
-    if (result->parser_error) {
-        std::cout << result->parser_error->message << std::endl;
-    } else if (result->error) {
+    if (result->error) {
         std::cout << result->error->line << ":" << result->error->column << ": " << result->error->message << std::endl;
     } else if (argc > 2) {
         std::ofstream out(argv[2]);
