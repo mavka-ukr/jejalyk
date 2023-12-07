@@ -497,6 +497,7 @@ public:
     Mockup_subjectContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *MOCKUP();
+    antlr4::tree::TerminalNode *SUBJECT();
     IdentifierContext *identifier();
     Type_valueContext *type_value();
 

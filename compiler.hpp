@@ -58,17 +58,43 @@ namespace jejalyk {
 
     class CompilationType {
     public:
-        CompilationType* parent = nullptr;
+        inline static int STRUCTURE = 1;
+        inline static int OBJECT = 2;
+
+        int type = 0;
+        CompilationType* constructor = nullptr;
         std::map<std::string, CompilationType *> properties;
 
-        bool is_instanceof(CompilationType* type) const {
+        bool can_set(CompilationType* type) const {
+            return is(type->constructor);
+        }
+
+        bool is(CompilationType* type) const {
+            if (type) {
+                if (type->type == STRUCTURE) {
+                    if (constructor) {
+                        return constructor->is_as_structure(type);
+                    }
+                }
+            }
+            return false;
+        }
+
+        bool is_as_structure(CompilationType* type) {
             if (this == type) {
                 return true;
             }
-            if (parent) {
-                return parent->is_instanceof(type);
+            if (const auto parent = properties["предок"]) {
+                return parent->is_as_structure(type);
             }
             return false;
+        }
+
+        CompilationType* create_object() {
+            const auto object = new CompilationType();
+            object->type = OBJECT;
+            object->constructor = this;
+            return object;
         }
     };
 
@@ -80,8 +106,10 @@ namespace jejalyk {
         std::map<std::string, CompilationType *> subjects;
 
         virtual CompilationError* set(const std::string& name, CompilationType* type) {
-            if (const auto subject = subjects[name]) {
-                if (!subject->is_instanceof(type)) {
+            const auto subject_it = subjects.find(name);
+            if (subject_it != subjects.end()) {
+                const auto subject = subject_it->second;
+                if (subject != nullptr && !subject->can_set(type)) {
                     const auto error = new CompilationError();
                     error->message = "Неможливо перевизначити \"" + name + "\".";
                     return error;
@@ -92,8 +120,9 @@ namespace jejalyk {
         }
 
         CompilationType* get(const std::string& name) {
-            if (subjects[name]) {
-                return subjects[name];
+            const auto subject_it = subjects.find(name);
+            if (subject_it != subjects.end()) {
+                return subject_it->second;
             }
             if (parent) {
                 return parent->get(name);
@@ -102,13 +131,21 @@ namespace jejalyk {
         }
 
         bool has(const std::string& name) {
-            if (subjects[name]) {
+            const auto subject_it = subjects.find(name);
+            if (subject_it != subjects.end()) {
                 return true;
             }
             if (parent) {
                 return parent->has(name);
             }
             return false;
+        }
+
+        CompilationScope* root() {
+            if (parent) {
+                return parent->root();
+            }
+            return this;
         }
     };
 
@@ -367,7 +404,10 @@ namespace jejalyk {
         }
         const auto compiled_params = params_compilation_result->result;
 
-        const auto body = compile_body(anon_diia_node->body, scope, options);
+        const auto diia_scope = new CompilationScope();
+        diia_scope->parent = scope;
+
+        const auto body = compile_body(anon_diia_node->body, diia_scope, options);
 
         node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ",function() {\n" + body->result
                                           + "\n})";
@@ -461,6 +501,12 @@ namespace jejalyk {
         if (value->error) {
             node_compilation_result->error = value->error;
             return node_compilation_result;
+        }
+        if (!scope->has(name)) {
+            if (const auto set_result = scope->set(name, scope->get("пусто"))) {
+                node_compilation_result->error = set_result;
+                return node_compilation_result;
+            }
         }
         if (const auto set_result = scope->set(name, value->type)) {
             node_compilation_result->error = set_result;
@@ -659,7 +705,10 @@ namespace jejalyk {
         }
         const auto compiled_params = params_compilation_result->result;
 
-        const auto body = compile_body(diia_node->body, scope, options);
+        const auto diia_scope = new CompilationScope();
+        diia_scope->parent = scope;
+
+        const auto body = compile_body(diia_node->body, diia_scope, options);
 
         node_compilation_result->result = varname(diia_node->name) + "=" + MAVKA_DIIA + "(" + "\"" + diia_node->name
                                           + "\"" + "," +
@@ -708,7 +757,10 @@ namespace jejalyk {
         }
         const auto compiled_params = params_compilation_result->result;
 
-        const auto body = compile_body(function_node->body, scope, options);
+        const auto function_scope = new CompilationScope();
+        function_scope->parent = scope;
+
+        const auto body = compile_body(function_node->body, function_scope, options);
 
         node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ",function() {\n" + body->result
                                           + "\n})";
@@ -893,7 +945,7 @@ namespace jejalyk {
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->result = number_node->value;
-        node_compilation_result->type = scope->get("число");
+        node_compilation_result->type = scope->root()->get("число")->create_object();
         return node_compilation_result;
     }
 
@@ -997,7 +1049,7 @@ namespace jejalyk {
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->result = "\"" + string_node->value + "\"";
-        node_compilation_result->type = scope->get("текст");
+        node_compilation_result->type = scope->root()->get("текст")->create_object();
         return node_compilation_result;
     }
 
@@ -1262,6 +1314,8 @@ namespace jejalyk {
             return compile_module_node(dynamic_cast<mavka::ast::ModuleNode *>(node), scope, options);
         }
 
+        // todo mockup
+
         if (jejalyk::tools::instanceof<mavka::ast::NegativeNode>(node)) {
             return compile_negative_node(dynamic_cast<mavka::ast::NegativeNode *>(node), scope, options);
         }
@@ -1375,6 +1429,11 @@ namespace jejalyk {
                 continue;
             }
             compiled_body.push_back(item_node_compilation_result->result);
+        }
+        if (!jejalyk::tools::instanceof<CompilationMicroScope>(scope)) {
+            for (auto subject: scope->subjects) {
+                compiled_body.insert(compiled_body.begin(), "var " + varname(subject.first));
+            }
         }
         node_compilation_result->result = tools::implode(compiled_body, ";\n");
         return node_compilation_result;

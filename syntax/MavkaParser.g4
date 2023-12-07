@@ -24,7 +24,7 @@ mockup: mockup_module | mockup_structure | mockup_diia | mockup_subject | mockup
 mockup_module: 'макет' 'модуль' mm_name=identifier nl nls (mm_elements=mockup_body nl)? nls 'кінець';
 mockup_structure: 'макет' 'структура' ms_name=identifier nl nls (ms_elements=mockup_body nl)? nls 'кінець';
 mockup_diia: 'макет' (md_async='тривала')? 'дія' md_name=identifier '(' ( nls md_params=params? nls ) ')' (md_type=type_value)?;
-mockup_subject: 'макет' ms_name=identifier ms_type=type_value;
+mockup_subject: 'макет' 'субʼєкт' ms_name=identifier ms_type=type_value;
 mockup_object: 'макет' mo_name=identifier nl nls (mo_elements=mockup_body nl)? nls 'кінець';
 mockup_body: mockup_body_element (nl mockup_body_element)*;
 mockup_body_element: structure_param | method_declaration | nls;
