@@ -49,22 +49,73 @@ namespace jejalyk {
         return "м_" + name;
     }
 
-    class CompilationType {
-    public:
-        std::map<std::string, CompilationType *> properties;
-    };
-
-    class CompilationScope {
-    public:
-        CompilationScope* parent = nullptr;
-        std::map<std::string, CompilationType *> subjects;
-    };
-
     class CompilationError {
     public:
         size_t line{};
         size_t column{};
         std::string message;
+    };
+
+    class CompilationType {
+    public:
+        CompilationType* parent = nullptr;
+        std::map<std::string, CompilationType *> properties;
+
+        bool is_instanceof(CompilationType* type) const {
+            if (this == type) {
+                return true;
+            }
+            if (parent) {
+                return parent->is_instanceof(type);
+            }
+            return false;
+        }
+    };
+
+    class CompilationScope {
+    public:
+        virtual ~CompilationScope() = default;
+
+        CompilationScope* parent = nullptr;
+        std::map<std::string, CompilationType *> subjects;
+
+        virtual CompilationError* set(const std::string& name, CompilationType* type) {
+            if (const auto subject = subjects[name]) {
+                if (!subject->is_instanceof(type)) {
+                    const auto error = new CompilationError();
+                    error->message = "Неможливо перевизначити \"" + name + "\".";
+                    return error;
+                }
+            }
+            subjects[name] = type;
+            return nullptr;
+        }
+
+        CompilationType* get(const std::string& name) {
+            if (subjects[name]) {
+                return subjects[name];
+            }
+            if (parent) {
+                return parent->get(name);
+            }
+            return nullptr;
+        }
+
+        bool has(const std::string& name) {
+            if (subjects[name]) {
+                return true;
+            }
+            if (parent) {
+                return parent->has(name);
+            }
+            return false;
+        }
+    };
+
+    class CompilationMicroScope final : public CompilationScope {
+        CompilationError* set(const std::string& name, CompilationType* type) override {
+            return parent->set(name, type);
+        }
     };
 
     class NodeCompilationResult {
@@ -136,7 +187,7 @@ namespace jejalyk {
                                                        CompilationScope* scope,
                                                        CompilationOptions* options);
 
-    NodeCompilationResult* compile_assign_simple_node(mavka::ast::AssignSimpleNode* node,
+    NodeCompilationResult* compile_assign_simple_node(const mavka::ast::AssignSimpleNode* assign_simple_node,
                                                       CompilationScope* scope,
                                                       CompilationOptions* options);
 
@@ -204,15 +255,15 @@ namespace jejalyk {
                                             CompilationScope* scope,
                                             CompilationOptions* options);
 
-    NodeCompilationResult* compile_identifier_node(mavka::ast::IdentifierNode* node,
+    NodeCompilationResult* compile_identifier_node(const mavka::ast::IdentifierNode* identifier_node,
                                                    CompilationScope* scope,
                                                    CompilationOptions* options);
 
-    NodeCompilationResult* compile_if_node(mavka::ast::IfNode* node,
+    NodeCompilationResult* compile_if_node(const mavka::ast::IfNode* if_node,
                                            CompilationScope* scope,
                                            CompilationOptions* options);
 
-    NodeCompilationResult* compile_module_node(mavka::ast::ModuleNode* node,
+    NodeCompilationResult* compile_module_node(const mavka::ast::ModuleNode* module_node,
                                                CompilationScope* scope,
                                                CompilationOptions* options);
 
@@ -401,7 +452,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_assign_simple_node(mavka::ast::AssignSimpleNode* assign_simple_node,
+    inline NodeCompilationResult* compile_assign_simple_node(const mavka::ast::AssignSimpleNode* assign_simple_node,
                                                              CompilationScope* scope,
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -409,6 +460,10 @@ namespace jejalyk {
         const auto value = compile_node(assign_simple_node->value, scope, options);
         if (value->error) {
             node_compilation_result->error = value->error;
+            return node_compilation_result;
+        }
+        if (const auto set_result = scope->set(name, value->type)) {
+            node_compilation_result->error = set_result;
             return node_compilation_result;
         }
         node_compilation_result->result = varname(name) + "=" + value->result;
@@ -747,15 +802,23 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_identifier_node(mavka::ast::IdentifierNode* identifier_node,
+    inline NodeCompilationResult* compile_identifier_node(const mavka::ast::IdentifierNode* identifier_node,
                                                           CompilationScope* scope,
                                                           CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        if (!scope->has(identifier_node->name)) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = identifier_node->start_line;
+            node_compilation_result->error->column = identifier_node->start_column;
+            node_compilation_result->error->message = "Субʼєкт \"" + identifier_node->name + "\" не визначено.";
+            return node_compilation_result;
+        }
         node_compilation_result->result = varname(identifier_node->name);
+        node_compilation_result->type = scope->get(identifier_node->name);
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_if_node(mavka::ast::IfNode* if_node,
+    inline NodeCompilationResult* compile_if_node(const mavka::ast::IfNode* if_node,
                                                   CompilationScope* scope,
                                                   CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -783,7 +846,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_module_node(mavka::ast::ModuleNode* module_node,
+    inline NodeCompilationResult* compile_module_node(const mavka::ast::ModuleNode* module_node,
                                                       CompilationScope* scope,
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -830,6 +893,7 @@ namespace jejalyk {
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->result = number_node->value;
+        node_compilation_result->type = scope->get("число");
         return node_compilation_result;
     }
 
@@ -933,6 +997,7 @@ namespace jejalyk {
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->result = "\"" + string_node->value + "\"";
+        node_compilation_result->type = scope->get("текст");
         return node_compilation_result;
     }
 

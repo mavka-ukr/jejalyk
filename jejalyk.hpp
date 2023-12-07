@@ -16,7 +16,12 @@ namespace jejalyk {
             compilation_result->error->message = parser_result->error->message;
         } else {
             const auto scope = new CompilationScope();
+            scope->subjects["обʼєкт"] = new CompilationType();
             scope->subjects["число"] = new CompilationType();
+            scope->subjects["текст"] = new CompilationType();
+            scope->subjects["логічне"] = new CompilationType();
+            scope->subjects["так"] = scope->subjects["логічне"];
+            scope->subjects["ні"] = scope->subjects["логічне"];
             std::vector<std::string> lines;
 
             for (const auto& node: parser_result->program_node->body) {
