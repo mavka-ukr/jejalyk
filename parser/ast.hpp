@@ -173,7 +173,7 @@ namespace mavka {
         public:
             std::string TYPE = "DictionaryNode";
 
-            std::map<ASTNode *, ASTNode *> elements;
+            std::map<std::string, ASTNode *> elements;
         };
 
         // diia
@@ -706,7 +706,7 @@ namespace mavka {
                 if (context->structure_param()) {
                     return visitStructure_param(context->structure_param());
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitStructure_param(MavkaParser::Structure_paramContext* context) override {
@@ -742,7 +742,7 @@ namespace mavka {
                 if (context->mockup_object()) {
                     return visitMockup_object(context->mockup_object());
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitMockup_module(MavkaParser::Mockup_moduleContext* context) override {
@@ -858,9 +858,11 @@ namespace mavka {
             std::any visitWhile(MavkaParser::WhileContext* context) override {
                 const auto while_node = new WhileNode();
                 while_node->condition = any_to_ast_result(visitExpr(context->w_value))->node;
-                while_node->body = std::any_cast<std::vector<ASTNode *>>(
-                    visitBody(context->w_body)
-                );
+                if (context->w_body) {
+                    while_node->body = std::any_cast<std::vector<ASTNode *>>(
+                        visitBody(context->w_body)
+                    );
+                }
                 return create_ast_result(while_node);
             }
 
@@ -893,7 +895,7 @@ namespace mavka {
                     const auto anonymous_diia_context = dynamic_cast<MavkaParser::Anonymous_diiaContext *>(context);
                     return visitAnonymous_diia(anonymous_diia_context);
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitValue(MavkaParser::ValueContext* context) {
@@ -975,7 +977,7 @@ namespace mavka {
                 if (instanceof<MavkaParser::GodContext>(context)) {
                     return visitGod(dynamic_cast<MavkaParser::GodContext *>(context));
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitNumber(MavkaParser::NumberContext* context) override {
@@ -1121,6 +1123,34 @@ namespace mavka {
                 return visitExpr(context->ae_value);
             }
 
+            std::any visitDictionary(MavkaParser::DictionaryContext* context) override {
+                const auto dictionary_node = new DictionaryNode();
+                if (context->d_args) {
+                    dictionary_node->elements = std::any_cast<std::map<std::string, ASTNode *>>(
+                        visitDictionary_args(context->d_args)
+                    );
+                }
+                return create_ast_result(dictionary_node);
+            }
+
+            std::any visitDictionary_args(MavkaParser::Dictionary_argsContext* context) override {
+                std::map<std::string, ASTNode *> elements;
+                for (const auto dictionary_arg: context->dictionary_arg()) {
+                    const auto value = any_to_ast_result(visitExpr(dictionary_arg->da_value))->node;
+                    if (dictionary_arg->da_name_id) {
+                        elements[dictionary_arg->da_name_id->getText()] = value;
+                    } else if (dictionary_arg->da_name_string) {
+                        const auto name_string = dictionary_arg->da_name_string->getText();
+                        if (name_string.starts_with(R"(""")")) {
+                            elements[name_string.substr(3, name_string.length() - 6)] = value;
+                        } else {
+                            elements[name_string.substr(1, name_string.length() - 2)] = value;
+                        }
+                    }
+                }
+                return elements;
+            }
+
             std::any visitWait(MavkaParser::WaitContext* context) override {
                 const auto wait_node = new WaitNode();
                 wait_node->value = any_to_ast_result(visitValue(context->w_value))->node;
@@ -1182,7 +1212,7 @@ namespace mavka {
                 // wait_node->value = any_to_ast_result(assign_node)->node;
                 // assign_node->node = wait_node;
                 // return create_ast_result(assign_node);
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitAssign(MavkaParser::AssignContext* context) override {
@@ -1192,7 +1222,7 @@ namespace mavka {
                 if (context->assign_complex()) {
                     return visitAssign_complex(context->assign_complex());
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitAssign_simple(MavkaParser::Assign_simpleContext* context) override {
@@ -1225,7 +1255,7 @@ namespace mavka {
                     get_element_node->index = any_to_ast_result(visitExpr(context->acl_element))->node;
                     return create_ast_result(get_element_node);
                 }
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitAssign_complex_right(MavkaParser::Assign_complex_rightContext* context) override {
@@ -1311,7 +1341,7 @@ namespace mavka {
             }
 
             std::any visitParam_value(MavkaParser::Param_valueContext* context) {
-                return create_ast_result(new ASTNode());
+                return create_ast_result(nullptr);
             }
 
             std::any visitArgs(MavkaParser::ArgsContext* context) override {

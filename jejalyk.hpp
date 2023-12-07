@@ -37,6 +37,8 @@ namespace jejalyk {
     const std::string MAVKA_PRE_INCREMENT = "мПрі"; // мПрі(значення)
     const std::string MAVKA_GIVE = "мДт"; // мДт(модуль, назва, значення)
     const std::string MAVKA_STRUCTURE = "мСтр"; // мСтр(назва, параметри)
+    const std::string MAVKA_IS = "мЄ"; // мЄ(а, б)
+    const std::string MAVKA_CONTAINS = "мМє"; // мМє(а, б)
 
     std::string varname(std::string name) {
         return "м_" + name;
@@ -55,8 +57,9 @@ namespace jejalyk {
 
     class CompilationError {
     public:
-        mavka::parser::MavkaParserError* parser_error = nullptr;
-        std::string result;
+        size_t line{};
+        size_t column{};
+        std::string message;
     };
 
     class NodeCompilationResult {
@@ -236,7 +239,9 @@ namespace jejalyk {
                         MAVKA_DIV + "(" + compiled_left->result + "," + compiled_right->result + ")";
             } else {
                 node_compilation_result->error = new CompilationError();
-                node_compilation_result->error->result = "unsupported arithmetic operation: " + arithmetic_node->op;
+                node_compilation_result->error->line = arithmetic_node->start_line;
+                node_compilation_result->error->column = arithmetic_node->start_column;
+                node_compilation_result->error->message = "unsupported arithmetic operation: " + arithmetic_node->op;
             }
             return node_compilation_result;
         }
@@ -314,7 +319,9 @@ namespace jejalyk {
                         MAVKA_BIT_RSHIFT + "(" + compiled_left->result + "," + compiled_right->result + ")";
             } else {
                 node_compilation_result->error = new CompilationError();
-                node_compilation_result->error->result = "unsupported bitwise operation: " + bitwise_node->op;
+                node_compilation_result->error->line = bitwise_node->start_line;
+                node_compilation_result->error->column = bitwise_node->start_column;
+                node_compilation_result->error->message = "unsupported bitwise operation: " + bitwise_node->op;
             }
         }
 
@@ -415,9 +422,23 @@ namespace jejalyk {
             } else if (comparison_node->op == ">=") {
                 node_compilation_result->result =
                         MAVKA_GE + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == "є") {
+                node_compilation_result->result =
+                        MAVKA_IS + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == "не є") {
+                node_compilation_result->result =
+                        "!" + MAVKA_IS + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == "містить") {
+                node_compilation_result->result =
+                        MAVKA_CONTAINS + "(" + compiled_left->result + "," + compiled_right->result + ")";
+            } else if (comparison_node->op == "не містить") {
+                node_compilation_result->result =
+                        "!" + MAVKA_CONTAINS + "(" + compiled_left->result + "," + compiled_right->result + ")";
             } else {
                 node_compilation_result->error = new CompilationError();
-                node_compilation_result->error->result = "unsupported comparison operation: " + comparison_node->op;
+                node_compilation_result->error->line = comparison_node->start_line;
+                node_compilation_result->error->column = comparison_node->start_column;
+                node_compilation_result->error->message = "unsupported comparison operation: " + comparison_node->op;
             }
         }
 
@@ -477,7 +498,7 @@ namespace jejalyk {
 
             const auto body = compile_body(function_node->body, scope, options);
 
-            node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + "function() {\n" + body->result
+            node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ",function() {\n" + body->result
                                               + "\n})";
             return node_compilation_result;
         }
@@ -532,7 +553,17 @@ namespace jejalyk {
                 node_compilation_result->error = body->error;
                 return node_compilation_result;
             }
-            node_compilation_result->result = "if(" + condition->result + "){\n" + body->result + "\n}";
+            if (!if_node->else_body.empty()) {
+                const auto else_body = compile_body(if_node->else_body, scope, options);
+                if (else_body->error) {
+                    node_compilation_result->error = else_body->error;
+                    return node_compilation_result;
+                }
+                node_compilation_result->result = "if(" + condition->result + "){\n" + body->result + "\n}else{\n"
+                                                  + else_body->result + "\n}";
+            } else {
+                node_compilation_result->result = "if(" + condition->result + "){\n" + body->result + "\n}";
+            }
         }
 
         if (mavka::ast::instanceof<mavka::ast::ModuleNode>(node)) {
@@ -624,6 +655,17 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::DictionaryNode>(node)) {
+            const auto dictionary_node = dynamic_cast<mavka::ast::DictionaryNode *>(node);
+            std::vector<std::string> compiled_elements;
+            for (const auto& element: dictionary_node->elements) {
+                const auto value = compile_node(element.second, scope, options);
+                if (value->error) {
+                    node_compilation_result->error = value->error;
+                    return node_compilation_result;
+                }
+                compiled_elements.push_back("[\"" + element.first + "\"," + value->result + "]");
+            }
+            node_compilation_result->result = "new Map([" + implode(compiled_elements, ",") + "])";
         }
 
         if (mavka::ast::instanceof<mavka::ast::ReturnNode>(node)) {
@@ -706,6 +748,20 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::TryNode>(node)) {
+            const auto try_node = dynamic_cast<mavka::ast::TryNode *>(node);
+            const auto body = compile_body(try_node->body, scope, options);
+            if (body->error) {
+                node_compilation_result->error = body->error;
+                return node_compilation_result;
+            }
+            const auto catch_body = compile_body(try_node->catch_body, scope, options);
+            if (catch_body->error) {
+                node_compilation_result->error = catch_body->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = "try{\n" + body->result + "\n}catch(" + varname(try_node->name) + "){\n" +
+                                              catch_body->result
+                                              + "\n}";
         }
 
         if (mavka::ast::instanceof<mavka::ast::TypeValueNode>(node)) {
@@ -715,9 +771,28 @@ namespace jejalyk {
         }
 
         if (mavka::ast::instanceof<mavka::ast::WaitNode>(node)) {
+            const auto wait_node = dynamic_cast<mavka::ast::WaitNode *>(node);
+            const auto value = compile_node(wait_node->value, scope, options);
+            if (value->error) {
+                node_compilation_result->error = value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = "await " + value->result;
         }
 
         if (mavka::ast::instanceof<mavka::ast::WhileNode>(node)) {
+            const auto while_node = dynamic_cast<mavka::ast::WhileNode *>(node);
+            const auto condition = compile_node(while_node->condition, scope, options);
+            if (condition->error) {
+                node_compilation_result->error = condition->error;
+                return node_compilation_result;
+            }
+            const auto body = compile_body(while_node->body, scope, options);
+            if (body->error) {
+                node_compilation_result->error = body->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = "while(" + condition->result + "){\n" + body->result + "\n}";
         }
 
         return node_compilation_result;

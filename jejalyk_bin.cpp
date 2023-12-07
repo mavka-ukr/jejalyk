@@ -5,7 +5,7 @@
 
 int main(int argc, char** argv) {
     if (argc < 2) {
-        std::cout << "Використання: джеджалик <вхід.м> [вихід.js]" << std::endl;
+        std::cout << "Використання: джеджалик [команда] [...опції] <вхід.м> [вихід.{js|html}]" << std::endl;
         return 1;
     }
 
@@ -18,6 +18,8 @@ int main(int argc, char** argv) {
 
     if (result->parser_error) {
         std::cout << result->parser_error->message << std::endl;
+    } else if (result->error) {
+        std::cout << result->error->line << ":" << result->error->column << ": " << result->error->message << std::endl;
     } else if (argc > 2) {
         std::ofstream out(argv[2]);
         out << result->result;
