@@ -8,7 +8,7 @@ if [ "$TARGET" = "" ]; then
 fi
 
 if [ "$TARGET" = "antlr4" ]; then
-    cd parser
+    cd syntax
     java -jar antlr-4.13.0-complete.jar -Dlanguage=Cpp *.g4 -visitor
     cd ..
 fi

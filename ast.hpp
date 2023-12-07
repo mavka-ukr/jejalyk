@@ -1,10 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "MavkaParserBaseVisitor.h"
 
 namespace mavka::ast {
-    // base
     class ASTNode {
     public:
         std::string TYPE = "ASTNode";
@@ -16,7 +14,6 @@ namespace mavka::ast {
         virtual ~ASTNode() = default;
     };
 
-    // anon diia
     class ParamNode final : public ASTNode {
     public:
         std::string TYPE = "ParamNode";
@@ -36,7 +33,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> body;
     };
 
-    // arg
     class ArgNode final : public ASTNode {
     public:
         std::string TYPE = "ArgNode";
@@ -46,7 +42,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // arithmetic
     class ArithmeticNode final : public ASTNode {
     public:
         std::string TYPE = "ArithmeticNode";
@@ -56,7 +51,6 @@ namespace mavka::ast {
         std::string op;
     };
 
-    // array
     class ArrayNode final : public ASTNode {
     public:
         std::string TYPE = "ArrayNode";
@@ -64,7 +58,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> elements;
     };
 
-    // as
     class AsNode final : public ASTNode {
     public:
         std::string TYPE = "AsNode";
@@ -73,7 +66,6 @@ namespace mavka::ast {
         ASTNode* right;
     };
 
-    // assign complex
     class AssignComplexRightNode final : public ASTNode {
     public:
         std::string TYPE = "AssignComplexRightNode";
@@ -92,7 +84,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // assign simple
     class AssignSimpleNode final : public ASTNode {
     public:
         std::string TYPE = "AssignSimpleNode";
@@ -103,7 +94,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // bitwise
     class BitwiseNode final : public ASTNode {
     public:
         std::string TYPE = "BitwiseNode";
@@ -113,7 +103,6 @@ namespace mavka::ast {
         std::string op;
     };
 
-    // bitwise not
     class BitwiseNotNode final : public ASTNode {
     public:
         std::string TYPE = "BitwiseNotNode";
@@ -121,13 +110,11 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // break
     class BreakNode final : public ASTNode {
     public:
         std::string TYPE = "BreakNode";
     };
 
-    // call
     class CallNode final : public ASTNode {
     public:
         std::string TYPE = "CallNode";
@@ -136,7 +123,6 @@ namespace mavka::ast {
         std::vector<ArgNode *> args;
     };
 
-    // chain
     class ChainNode final : public ASTNode {
     public:
         std::string TYPE = "ChainNode";
@@ -145,7 +131,6 @@ namespace mavka::ast {
         ASTNode* right;
     };
 
-    // comparison
     class ComparisonNode final : public ASTNode {
     public:
         std::string TYPE = "ComparisonNode";
@@ -155,13 +140,11 @@ namespace mavka::ast {
         std::string op;
     };
 
-    // continue
     class ContinueNode final : public ASTNode {
     public:
         std::string TYPE = "ContinueNode";
     };
 
-    // dictionary
     class DictionaryNode final : public ASTNode {
     public:
         std::string TYPE = "DictionaryNode";
@@ -169,7 +152,6 @@ namespace mavka::ast {
         std::map<std::string, ASTNode *> elements;
     };
 
-    // diia
     class DiiaNode final : public ASTNode {
     public:
         std::string TYPE = "DiiaNode";
@@ -182,7 +164,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> body;
     };
 
-    // each
     class EachNode final : public ASTNode {
     public:
         std::string TYPE = "EachNode";
@@ -193,7 +174,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> body;
     };
 
-    // eval
     class EvalNode final : public ASTNode {
     public:
         std::string TYPE = "EvalNode";
@@ -201,7 +181,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // function
     class FunctionNode final : public ASTNode {
     public:
         std::string TYPE = "FunctionNode";
@@ -212,7 +191,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> body;
     };
 
-    // get element
     class GetElementNode final : public ASTNode {
     public:
         std::string TYPE = "GetElementNode";
@@ -221,7 +199,6 @@ namespace mavka::ast {
         ASTNode* index;
     };
 
-    // give
     class GiveElementNode final : public ASTNode {
     public:
         std::string TYPE = "GiveElementNode";
@@ -237,7 +214,6 @@ namespace mavka::ast {
         std::vector<GiveElementNode *> elements;
     };
 
-    // god
     class GodNode final : public ASTNode {
     public:
         std::string TYPE = "GodNode";
@@ -245,7 +221,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> elements;
     };
 
-    // identifier
     class IdentifierNode final : public ASTNode {
     public:
         std::string TYPE = "IdentifierNode";
@@ -253,7 +228,6 @@ namespace mavka::ast {
         std::string name;
     };
 
-    // if
     class IfNode final : public ASTNode {
     public:
         std::string TYPE = "IfNode";
@@ -263,7 +237,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> else_body;
     };
 
-    // mockup
     class MockupDiiaNode final : public ASTNode {
     public:
         bool async;
@@ -296,7 +269,6 @@ namespace mavka::ast {
         ASTNode* type;
     };
 
-    // module
     class ModuleNode final : public ASTNode {
     public:
         std::string TYPE = "ModuleNode";
@@ -305,7 +277,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> body;
     };
 
-    // negative
     class NegativeNode final : public ASTNode {
     public:
         std::string TYPE = "NegativeNode";
@@ -313,7 +284,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // not
     class NotNode final : public ASTNode {
     public:
         std::string TYPE = "NotNode";
@@ -321,7 +291,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // number
     class NumberNode final : public ASTNode {
     public:
         std::string TYPE = "NumberNode";
@@ -329,7 +298,6 @@ namespace mavka::ast {
         std::string value;
     };
 
-    // positive
     class PositiveNode final : public ASTNode {
     public:
         std::string TYPE = "PositiveNode";
@@ -337,7 +305,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // post decrement
     class PostDecrementNode final : public ASTNode {
     public:
         std::string TYPE = "PostDecrementNode";
@@ -345,7 +312,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // post increment
     class PostIncrementNode final : public ASTNode {
     public:
         std::string TYPE = "PostIncrementNode";
@@ -353,7 +319,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // pre decrement
     class PreDecrementNode final : public ASTNode {
     public:
         std::string TYPE = "PreDecrementNode";
@@ -361,7 +326,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // pre increment
     class PreInrementNode final : public ASTNode {
     public:
         std::string TYPE = "PreInrementNode";
@@ -369,7 +333,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // program
     class ProgramNode final : public ASTNode {
     public:
         std::string TYPE = "ProgramNode";
@@ -377,7 +340,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> body;
     };
 
-    // return
     class ReturnNode final : public ASTNode {
     public:
         std::string TYPE = "ReturnNode";
@@ -385,7 +347,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // string
     class StringNode final : public ASTNode {
     public:
         std::string TYPE = "StringNode";
@@ -393,7 +354,6 @@ namespace mavka::ast {
         std::string value;
     };
 
-    // structure
     class StructureParamNode final : public ASTNode {
     public:
         std::string TYPE = "StructureParamNode";
@@ -411,7 +371,6 @@ namespace mavka::ast {
         std::vector<StructureParamNode *> params;
     };
 
-    // take module
     class TakeModuleNode final : public ASTNode {
     public:
         std::string TYPE = "TakeModuleNode";
@@ -420,7 +379,6 @@ namespace mavka::ast {
         std::string as;
     };
 
-    // take pak
     class TakePakNode final : public ASTNode {
     public:
         std::string TYPE = "TakePakNode";
@@ -429,7 +387,6 @@ namespace mavka::ast {
         std::string as;
     };
 
-    // ternary
     class TernaryNode final : public ASTNode {
     public:
         std::string TYPE = "TernaryNode";
@@ -439,7 +396,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> else_body;
     };
 
-    // test
     class TestNode final : public ASTNode {
     public:
         std::string TYPE = "TestNode";
@@ -449,7 +405,6 @@ namespace mavka::ast {
         std::string op;
     };
 
-    // throw
     class ThrowNode final : public ASTNode {
     public:
         std::string TYPE = "ThrowNode";
@@ -457,7 +412,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // try
     class TryNode final : public ASTNode {
     public:
         std::string TYPE = "TryNode";
@@ -467,7 +421,6 @@ namespace mavka::ast {
         std::vector<ASTNode *> catch_body;
     };
 
-    // type value
     class TypeValueNode final : public ASTNode {
     public:
         std::string TYPE = "TypeValueNode";
@@ -477,7 +430,6 @@ namespace mavka::ast {
         std::string op;
     };
 
-    // type value sinlge
     class TypeValueSingleNode final : public ASTNode {
     public:
         std::string TYPE = "TypeValueSingleNode";
@@ -486,7 +438,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // wait
     class WaitNode final : public ASTNode {
     public:
         std::string TYPE = "WaitNode";
@@ -494,7 +445,6 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    // while
     class WhileNode final : public ASTNode {
     public:
         std::string TYPE = "WhileNode";

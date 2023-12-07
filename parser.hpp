@@ -5,6 +5,7 @@
 #include "MavkaParser.h"
 #include "ast.hpp"
 #include "tools.hpp"
+#include "MavkaParserBaseVisitor.h"
 
 namespace mavka::parser {
     class ASTResult {
