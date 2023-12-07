@@ -42,6 +42,8 @@ namespace jejalyk {
     const std::string MAVKA_STRUCTURE = "мСтр"; // мСтр(назва, параметри)
     const std::string MAVKA_IS = "мЄ"; // мЄ(а, б)
     const std::string MAVKA_CONTAINS = "мМє"; // мМє(а, б)
+    const std::string MAVKA_FROM_TO = "мВід"; // мВід(від, до, символ, функція)
+    const std::string MAVKA_FROM_TO_FN = "мВідФ"; // мВідФ(оператор, крок)
 
     inline std::string varname(const std::string& name) {
         return "м_" + name;
@@ -181,6 +183,14 @@ namespace jejalyk {
     NodeCompilationResult* compile_function_node(mavka::ast::FunctionNode* node,
                                                  CompilationScope* scope,
                                                  CompilationOptions* options);
+
+    NodeCompilationResult* compile_from_to_simple_node(mavka::ast::FromToSimpleNode* from_to_simple_node,
+                                                       CompilationScope* scope,
+                                                       CompilationOptions* options);
+
+    NodeCompilationResult* compile_from_to_complex_node(mavka::ast::FromToComplexNode* from_to_complex_node,
+                                                        CompilationScope* scope,
+                                                        CompilationOptions* options);
 
     NodeCompilationResult* compile_get_element_node(mavka::ast::GetElementNode* node,
                                                     CompilationScope* scope,
@@ -650,6 +660,50 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
+    inline NodeCompilationResult* compile_from_to_simple_node(mavka::ast::FromToSimpleNode* from_to_simple_node,
+                                                              CompilationScope* scope,
+                                                              CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        const auto from = compile_node(from_to_simple_node->from, scope, options);
+        if (from->error) {
+            node_compilation_result->error = from->error;
+            return node_compilation_result;
+        }
+        const auto to = compile_node(from_to_simple_node->to, scope, options);
+        if (to->error) {
+            node_compilation_result->error = to->error;
+            return node_compilation_result;
+        }
+        node_compilation_result->result = MAVKA_FROM_TO + "(" + from->result + "," + to->result + ",\"" +
+                                          from_to_simple_node->toSymbol + "\"," + MAVKA_FROM_TO_FN + "(\"+\",1))";
+        return node_compilation_result;
+    }
+
+    inline NodeCompilationResult* compile_from_to_complex_node(mavka::ast::FromToComplexNode* from_to_complex_node,
+                                                               CompilationScope* scope,
+                                                               CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        const auto from = compile_node(from_to_complex_node->from, scope, options);
+        if (from->error) {
+            node_compilation_result->error = from->error;
+            return node_compilation_result;
+        }
+        const auto to = compile_node(from_to_complex_node->to, scope, options);
+        if (to->error) {
+            node_compilation_result->error = to->error;
+            return node_compilation_result;
+        }
+        const auto step = compile_node(from_to_complex_node->step, scope, options);
+        if (step->error) {
+            node_compilation_result->error = step->error;
+            return node_compilation_result;
+        }
+        node_compilation_result->result = MAVKA_FROM_TO + "(" + from->result + "," + to->result + ",\"" +
+                                          from_to_complex_node->toSymbol + "\"," + MAVKA_FROM_TO_FN + "(\"" +
+                                          from_to_complex_node->stepSymbol + "\"," + step->result + "))";
+        return node_compilation_result;
+    }
+
     inline NodeCompilationResult* compile_get_element_node(mavka::ast::GetElementNode* get_element_node,
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
@@ -1111,6 +1165,14 @@ namespace jejalyk {
             return compile_function_node(dynamic_cast<mavka::ast::FunctionNode *>(node), scope, options);
         }
 
+        if (jejalyk::tools::instanceof<mavka::ast::FromToSimpleNode>(node)) {
+            return compile_from_to_simple_node(dynamic_cast<mavka::ast::FromToSimpleNode *>(node), scope, options);
+        }
+
+        if (jejalyk::tools::instanceof<mavka::ast::FromToComplexNode>(node)) {
+            return compile_from_to_complex_node(dynamic_cast<mavka::ast::FromToComplexNode *>(node), scope, options);
+        }
+
         if (jejalyk::tools::instanceof<mavka::ast::GetElementNode>(node)) {
             return compile_get_element_node(dynamic_cast<mavka::ast::GetElementNode *>(node), scope, options);
         }
@@ -1224,6 +1286,12 @@ namespace jejalyk {
             return compile_while_node(dynamic_cast<mavka::ast::WhileNode *>(node), scope, options);
         }
 
+        if (node == nullptr) {
+            const auto node_compilation_result = new NodeCompilationResult();
+            node_compilation_result->result = "";
+            return node_compilation_result;
+        }
+
         throw std::runtime_error("Unknown node type");
     }
 
@@ -1237,6 +1305,9 @@ namespace jejalyk {
             if (item_node_compilation_result->error) {
                 item_node_compilation_result->error = item_node_compilation_result->error;
                 return item_node_compilation_result;
+            }
+            if (item_node_compilation_result->result.empty()) {
+                continue;
             }
             compiled_body.push_back(item_node_compilation_result->result);
         }

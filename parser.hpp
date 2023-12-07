@@ -322,9 +322,11 @@ namespace mavka::parser {
         std::any visitIf(MavkaParser::IfContext* context) override {
             const auto if_node = new ast::IfNode();
             if_node->condition = any_to_ast_result(visitExpr(context->i_value))->node;
-            if_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
-                visitBody(context->i_body)
-            );
+            if (context->i_body) {
+                if_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
+                    visitBody(context->i_body)
+                );
+            }
             if (context->i_else_body) {
                 if_node->else_body = std::any_cast<std::vector<ast::ASTNode *>>(
                     visitBody(context->i_else_body)
