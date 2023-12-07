@@ -43,7 +43,7 @@ namespace jejalyk {
     const std::string MAVKA_IS = "мЄ"; // мЄ(а, б)
     const std::string MAVKA_CONTAINS = "мМє"; // мМє(а, б)
 
-    std::string varname(std::string name) {
+    inline std::string varname(const std::string& name) {
         return "м_" + name;
     }
 
@@ -1228,8 +1228,8 @@ namespace jejalyk {
     }
 
     inline NodeCompilationResult* compile_body(std::vector<mavka::ast::ASTNode *> body,
-                                        CompilationScope* scope,
-                                        CompilationOptions* options) {
+                                               CompilationScope* scope,
+                                               CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         std::vector<std::string> compiled_body;
         for (const auto node: body) {
@@ -1246,8 +1246,8 @@ namespace jejalyk {
 
 
     inline NodeCompilationResult* compile_params(std::vector<mavka::ast::ParamNode *> params,
-                                          CompilationScope* scope,
-                                          CompilationOptions* options) {
+                                                 CompilationScope* scope,
+                                                 CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         std::vector<std::string> compiled_params;
         for (int i = 0; i < params.size(); ++i) {

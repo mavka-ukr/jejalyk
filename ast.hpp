@@ -191,6 +191,22 @@ namespace mavka::ast {
         std::vector<ASTNode *> body;
     };
 
+    class FromToSimpleNode final : public ASTNode {
+    public:
+        ASTNode* from;
+        ASTNode* to;
+        std::string toSymbol;
+    };
+
+    class FromToComplexNode final : public ASTNode {
+    public:
+        ASTNode* from;
+        ASTNode* to;
+        std::string toSymbol;
+        ASTNode* step;
+        std::string stepSymbol;
+    };
+
     class GetElementNode final : public ASTNode {
     public:
         std::string TYPE = "GetElementNode";

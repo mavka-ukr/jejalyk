@@ -20,7 +20,7 @@ namespace jejalyk {
             std::vector<std::string> lines;
 
             for (const auto& node: parser_result->program_node->body) {
-                const auto node_compilation_result = compile_node(node, scope, options);
+                const auto node_compilation_result = jejalyk::compile_node(node, scope, options);
                 if (node_compilation_result->error) {
                     compilation_result->error = node_compilation_result->error;
                     return compilation_result;

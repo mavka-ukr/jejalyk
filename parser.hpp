@@ -351,7 +351,58 @@ namespace mavka::parser {
             return create_ast_result(each_node);
         }
 
-        // todo: fromto
+        std::any visitFromto(MavkaParser::FromtoContext* context) override {
+            if (context->fromto_simple()) {
+                return visitFromto_simple(context->fromto_simple());
+            }
+            if (context->fromto_complex()) {
+                return visitFromto_complex(context->fromto_complex());
+            }
+            return create_ast_result(nullptr);
+        }
+
+        std::any visitFromto_simple(MavkaParser::Fromto_simpleContext* context) override {
+            const auto fromto_simple_node = new ast::FromToSimpleNode();
+            fromto_simple_node->from = any_to_ast_result(visitFromto_value(context->fs_from))->node;
+            fromto_simple_node->to = any_to_ast_result(visitFromto_value(context->fs_to))->node;
+            fromto_simple_node->toSymbol = context->fs_to_symbol ? context->fs_to_symbol->getText() : "<=";
+            return create_ast_result(fromto_simple_node);
+        }
+
+        std::any visitFromto_complex(MavkaParser::Fromto_complexContext* context) override {
+            const auto fromto_complex_node = new ast::FromToComplexNode();
+            fromto_complex_node->from = any_to_ast_result(visitFromto_value(context->fc_from))->node;
+            fromto_complex_node->to = any_to_ast_result(visitFromto_value(context->fc_to))->node;
+            fromto_complex_node->toSymbol = context->fc_to_symbol ? context->fc_to_symbol->getText() : "<=";
+            fromto_complex_node->step = any_to_ast_result(visitFromto_value(context->fc_middle))->node;
+            fromto_complex_node->stepSymbol = context->fc_middle_symbol ? context->fc_middle_symbol->getText() : "+";
+            return create_ast_result(fromto_complex_node);
+        }
+
+        std::any visitFromto_value(MavkaParser::Fromto_valueContext* context) {
+            if (jejalyk::tools::instanceof<MavkaParser::Fromto_numberContext>(context)) {
+                const auto number_node = new ast::NumberNode();
+                number_node->value = dynamic_cast<MavkaParser::Fromto_numberContext *>(context)->NUMBER()->getText();
+                return create_ast_result(number_node);
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Fromto_stringContext>(context)) {
+                const auto string_node = new ast::StringNode();
+                string_node->value = dynamic_cast<MavkaParser::Fromto_stringContext *>(context)->STRING()->getText();
+                if (string_node->value.starts_with(R"(""")")) {
+                    string_node->value = string_node->value.substr(3, string_node->value.length() - 6);
+                } else {
+                    string_node->value = string_node->value.substr(1, string_node->value.length() - 2);
+                }
+                return create_ast_result(string_node);
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Fromto_idContext>(context)) {
+                return visitIdentifier(dynamic_cast<MavkaParser::Fromto_idContext *>(context)->identifier());
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Fromto_nestedContext>(context)) {
+                return visitValue(dynamic_cast<MavkaParser::Fromto_nestedContext *>(context)->fn_value);
+            }
+            return create_ast_result(nullptr);
+        }
 
         std::any visitWhile(MavkaParser::WhileContext* context) override {
             const auto while_node = new ast::WhileNode();
