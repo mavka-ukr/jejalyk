@@ -13,7 +13,7 @@ namespace jejalyk::tools {
     }
 
     template<typename Base, typename T>
-    inline bool instanceof(const T* ptr) {
+    bool instanceof(const T* ptr) {
         return dynamic_cast<const Base *>(ptr) != nullptr;
     }
 }

@@ -5,7 +5,8 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(syntax)
 
-add_executable(jejalyk jejalyk_bin.cpp)
+add_executable(jejalyk jejalyk_bin.cpp
+)
 add_executable(jejalyk_node jejalyk_wasm.cpp)
 add_executable(jejalyk_web jejalyk_wasm.cpp)
 add_executable(optimized_jejalyk jejalyk_bin.cpp)

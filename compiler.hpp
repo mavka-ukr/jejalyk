@@ -57,38 +57,9 @@ namespace jejalyk {
         std::string message;
     };
 
-    class CompilationType {
-    public:
-        CompilationType* parent = nullptr;
-        std::unordered_map<std::string, CompilationType *> properties;
-
-        bool is(const CompilationType* type) const {
-            if (this == type) {
-                return true;
-            }
-            if (parent) {
-                return parent->is(type);
-            }
-            return false;
-        }
-    };
-
     class CompilationSubject {
     public:
-        bool can_redefine = true;
-        std::vector<CompilationType *> types;
-
-        bool can_set(const CompilationType* type) const {
-            if (types.empty()) {
-                return true;
-            }
-            for (const auto& t: types) {
-                if (t->is(type)) {
-                    return true;
-                }
-            }
-            return false;
-        }
+        virtual ~CompilationSubject() = default;
     };
 
     class CompilationScope {
@@ -98,49 +69,12 @@ namespace jejalyk {
         CompilationScope* parent = nullptr;
         std::unordered_map<std::string, CompilationSubject *> subjects;
 
-        virtual CompilationError* define(const std::string& name, std::vector<CompilationType *> types) {
-            if (has_local(name)) {
-                if (!types.empty()) {
-                    const auto error = new CompilationError();
-                    error->message = "Неможливо перевизначити \"" + name + "\".";
-                    return error;
-                }
-            } else {
-                const auto subject = new CompilationSubject();
-                subject->types = std::move(types);
-                subject->can_redefine = types.empty();
-                subjects.insert(std::pair(name, subject));
-            }
+        virtual CompilationError* assign(const std::string& name) {
+            subjects.insert({name, new CompilationSubject()});
             return nullptr;
         }
 
-        virtual CompilationError* assign(const std::string& name,
-                                         std::vector<CompilationType *> types,
-                                         CompilationType* value_type) {
-            if (has_local(name)) {
-                if (!types.empty()) {
-                    const auto error = new CompilationError();
-                    error->message = "Неможливо перевизначити \"" + name + "\".";
-                    return error;
-                }
-
-                if (const auto subject = get_local(name)) {
-                    if (!subject->can_set(value_type)) {
-                        const auto error = new CompilationError();
-                        error->message = "Неможливо перевизначити \"" + name + "\".";
-                        return error;
-                    }
-                }
-            } else {
-                const auto subject = new CompilationSubject();
-                subject->types = std::move(types);
-                subject->can_redefine = types.empty();
-                subjects.insert(std::pair(name, subject));
-            }
-            return nullptr;
-        }
-
-        CompilationSubject* get_local(const std::string& name) {
+        virtual CompilationSubject* get_local(const std::string& name) const {
             const auto subject_it = subjects.find(name);
             if (subject_it != subjects.end()) {
                 return subject_it->second;
@@ -148,7 +82,7 @@ namespace jejalyk {
             return nullptr;
         }
 
-        bool has_local(const std::string& name) {
+        virtual bool has_local(const std::string& name) const {
             const auto subject_it = subjects.find(name);
             if (subject_it != subjects.end()) {
                 return true;
@@ -156,7 +90,7 @@ namespace jejalyk {
             return false;
         }
 
-        CompilationSubject* get(const std::string& name) {
+        virtual CompilationSubject* get(const std::string& name) const {
             if (const auto subject = get_local(name)) {
                 return subject;
             }
@@ -166,7 +100,7 @@ namespace jejalyk {
             return nullptr;
         }
 
-        bool has(const std::string& name) {
+        virtual bool has(const std::string& name) const {
             if (has_local(name)) {
                 return true;
             }
@@ -176,7 +110,7 @@ namespace jejalyk {
             return false;
         }
 
-        CompilationScope* root() {
+        virtual CompilationScope* root() {
             if (parent) {
                 return parent->root();
             }
@@ -184,17 +118,35 @@ namespace jejalyk {
         }
     };
 
+    class CompilationMicroScope final : public CompilationScope {
+        CompilationError* assign(const std::string& name) override {
+            return parent->assign(name);
+        }
+
+        CompilationSubject* get_local(const std::string& name) const override {
+            return parent->get_local(name);
+        }
+
+        bool has_local(const std::string& name) const override {
+            return parent->has_local(name);
+        }
+
+        CompilationSubject* get(const std::string& name) const override {
+            return parent->get(name);
+        }
+
+        bool has(const std::string& name) const override {
+            return parent->has(name);
+        }
+
+        CompilationScope* root() override {
+            return parent->root();
+        }
+    };
+
     class NodeCompilationResult {
     public:
         CompilationError* error = nullptr;
-        CompilationType* type = nullptr;
-        std::string result;
-    };
-
-    class TypesCompilationResult {
-    public:
-        CompilationError* error = nullptr;
-        std::vector<CompilationType *> types;
         std::string result;
     };
 
@@ -228,7 +180,7 @@ namespace jejalyk {
                                         CompilationScope* scope,
                                         CompilationOptions* options);
 
-    NodeCompilationResult* compile_body(std::vector<mavka::ast::ASTNode *> body,
+    NodeCompilationResult* compile_body(const std::vector<mavka::ast::ASTNode *>& body,
                                         CompilationScope* scope,
                                         CompilationOptions* options);
 
@@ -240,27 +192,27 @@ namespace jejalyk {
                                                     CompilationScope* scope,
                                                     CompilationOptions* options);
 
-    TypesCompilationResult* compile_types(std::vector<mavka::ast::ASTNode *> types,
-                                          CompilationScope* scope,
-                                          CompilationOptions* options);
+    // TypesCompilationResult* compile_types(std::vector<mavka::ast::ASTNode *> types,
+    //                                       CompilationScope* scope,
+    //                                       CompilationOptions* options);
 
-    NodeCompilationResult* compile_anon_diia_node(mavka::ast::AnonDiiaNode* node,
+    NodeCompilationResult* compile_anon_diia_node(const mavka::ast::AnonDiiaNode* anon_diia_node,
                                                   CompilationScope* scope,
                                                   CompilationOptions* options);
 
-    NodeCompilationResult* compile_arithmetic_node(mavka::ast::ArithmeticNode* node,
+    NodeCompilationResult* compile_arithmetic_node(const mavka::ast::ArithmeticNode* arithmetic_node,
                                                    CompilationScope* scope,
                                                    CompilationOptions* options);
 
-    NodeCompilationResult* compile_array_node(mavka::ast::ArrayNode* node,
+    NodeCompilationResult* compile_array_node(const mavka::ast::ArrayNode* array_node,
                                               CompilationScope* scope,
                                               CompilationOptions* options);
 
-    NodeCompilationResult* compile_as_node(mavka::ast::AsNode* node,
+    NodeCompilationResult* compile_as_node(const mavka::ast::AsNode* as_node,
                                            CompilationScope* scope,
                                            CompilationOptions* options);
 
-    NodeCompilationResult* compile_assign_complex_node(mavka::ast::AssignComplexNode* node,
+    NodeCompilationResult* compile_assign_complex_node(mavka::ast::AssignComplexNode* assign_complex_node,
                                                        CompilationScope* scope,
                                                        CompilationOptions* options);
 
@@ -268,63 +220,63 @@ namespace jejalyk {
                                                       CompilationScope* scope,
                                                       CompilationOptions* options);
 
-    NodeCompilationResult* compile_bitwise_node(mavka::ast::BitwiseNode* node,
+    NodeCompilationResult* compile_bitwise_node(const mavka::ast::BitwiseNode* bitwise_node,
                                                 CompilationScope* scope,
                                                 CompilationOptions* options);
 
-    NodeCompilationResult* compile_bitwise_not_node(mavka::ast::BitwiseNotNode* node,
+    NodeCompilationResult* compile_bitwise_not_node(const mavka::ast::BitwiseNotNode* bitwise_not_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options);
 
-    NodeCompilationResult* compile_call_node(mavka::ast::CallNode* node,
+    NodeCompilationResult* compile_call_node(const mavka::ast::CallNode* call_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
 
-    NodeCompilationResult* compile_arg_node(mavka::ast::ArgNode* node,
+    NodeCompilationResult* compile_arg_node(const mavka::ast::ArgNode* arg_node,
                                             CompilationScope* scope,
                                             CompilationOptions* options);
 
-    NodeCompilationResult* compile_chain_node(mavka::ast::ChainNode* node,
+    NodeCompilationResult* compile_chain_node(const mavka::ast::ChainNode* chain_node,
                                               CompilationScope* scope,
                                               CompilationOptions* options);
 
-    NodeCompilationResult* compile_comparison_node(mavka::ast::ComparisonNode* node,
+    NodeCompilationResult* compile_comparison_node(const mavka::ast::ComparisonNode* comparison_node,
                                                    CompilationScope* scope,
                                                    CompilationOptions* options);
 
-    NodeCompilationResult* compile_continue_node(mavka::ast::ContinueNode* node,
+    NodeCompilationResult* compile_continue_node(mavka::ast::ContinueNode* continue_node,
                                                  CompilationScope* scope,
                                                  CompilationOptions* options);
 
-    NodeCompilationResult* compile_diia_node(mavka::ast::DiiaNode* node,
+    NodeCompilationResult* compile_diia_node(const mavka::ast::DiiaNode* diia_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
 
-    NodeCompilationResult* compile_each_node(mavka::ast::EachNode* node,
+    NodeCompilationResult* compile_each_node(const mavka::ast::EachNode* each_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
 
-    NodeCompilationResult* compile_eval_node(mavka::ast::EvalNode* node,
+    NodeCompilationResult* compile_eval_node(mavka::ast::EvalNode* eval_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
 
-    NodeCompilationResult* compile_function_node(mavka::ast::FunctionNode* node,
+    NodeCompilationResult* compile_function_node(const mavka::ast::FunctionNode* function_node,
                                                  CompilationScope* scope,
                                                  CompilationOptions* options);
 
-    NodeCompilationResult* compile_from_to_simple_node(mavka::ast::FromToSimpleNode* from_to_simple_node,
+    NodeCompilationResult* compile_from_to_simple_node(const mavka::ast::FromToSimpleNode* from_to_simple_node,
                                                        CompilationScope* scope,
                                                        CompilationOptions* options);
 
-    NodeCompilationResult* compile_from_to_complex_node(mavka::ast::FromToComplexNode* from_to_complex_node,
+    NodeCompilationResult* compile_from_to_complex_node(const mavka::ast::FromToComplexNode* from_to_complex_node,
                                                         CompilationScope* scope,
                                                         CompilationOptions* options);
 
-    NodeCompilationResult* compile_get_element_node(mavka::ast::GetElementNode* node,
+    NodeCompilationResult* compile_get_element_node(const mavka::ast::GetElementNode* get_element_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options);
 
-    NodeCompilationResult* compile_give_node(mavka::ast::GiveNode* node,
+    NodeCompilationResult* compile_give_node(const mavka::ast::GiveNode* give_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
 
@@ -364,79 +316,79 @@ namespace jejalyk {
                                                        CompilationScope* scope,
                                                        CompilationOptions* options);
 
-    NodeCompilationResult* compile_negative_node(mavka::ast::NegativeNode* node,
+    NodeCompilationResult* compile_negative_node(const mavka::ast::NegativeNode* negative_node,
                                                  CompilationScope* scope,
                                                  CompilationOptions* options);
 
-    NodeCompilationResult* compile_not_node(mavka::ast::NotNode* node,
+    NodeCompilationResult* compile_not_node(const mavka::ast::NotNode* not_node,
                                             CompilationScope* scope,
                                             CompilationOptions* options);
 
-    NodeCompilationResult* compile_number_node(mavka::ast::NumberNode* node,
+    NodeCompilationResult* compile_number_node(const mavka::ast::NumberNode* number_node,
                                                CompilationScope* scope,
                                                CompilationOptions* options);
 
-    NodeCompilationResult* compile_positive_node(mavka::ast::PositiveNode* node,
+    NodeCompilationResult* compile_positive_node(const mavka::ast::PositiveNode* positive_node,
                                                  CompilationScope* scope,
                                                  CompilationOptions* options);
 
-    NodeCompilationResult* compile_post_decrement_node(mavka::ast::PostDecrementNode* node,
+    NodeCompilationResult* compile_post_decrement_node(const mavka::ast::PostDecrementNode* post_decrement_node,
                                                        CompilationScope* scope,
                                                        CompilationOptions* options);
 
-    NodeCompilationResult* compile_post_increment_node(mavka::ast::PostIncrementNode* node,
+    NodeCompilationResult* compile_post_increment_node(const mavka::ast::PostIncrementNode* post_increment_node,
                                                        CompilationScope* scope,
                                                        CompilationOptions* options);
 
-    NodeCompilationResult* compile_pre_decrement_node(mavka::ast::PreDecrementNode* node,
+    NodeCompilationResult* compile_pre_decrement_node(const mavka::ast::PreDecrementNode* pre_decrement_node,
                                                       CompilationScope* scope,
                                                       CompilationOptions* options);
 
-    NodeCompilationResult* compile_pre_increment_node(mavka::ast::PreInrementNode* node,
+    NodeCompilationResult* compile_pre_increment_node(const mavka::ast::PreInrementNode* pre_increment_node,
                                                       CompilationScope* scope,
                                                       CompilationOptions* options);
 
-    NodeCompilationResult* compile_dictionary_node(mavka::ast::DictionaryNode* node,
+    NodeCompilationResult* compile_dictionary_node(const mavka::ast::DictionaryNode* dictionary_node,
                                                    CompilationScope* scope,
                                                    CompilationOptions* options);
 
-    NodeCompilationResult* compile_return_node(mavka::ast::ReturnNode* node,
+    NodeCompilationResult* compile_return_node(const mavka::ast::ReturnNode* return_node,
                                                CompilationScope* scope,
                                                CompilationOptions* options);
 
-    NodeCompilationResult* compile_string_node(mavka::ast::StringNode* node,
+    NodeCompilationResult* compile_string_node(const mavka::ast::StringNode* string_node,
                                                CompilationScope* scope,
                                                CompilationOptions* options);
 
-    NodeCompilationResult* compile_structure_node(mavka::ast::StructureNode* node,
+    NodeCompilationResult* compile_structure_node(const mavka::ast::StructureNode* structure_node,
                                                   CompilationScope* scope,
                                                   CompilationOptions* options);
 
-    NodeCompilationResult* compile_take_module_node(mavka::ast::TakeModuleNode* node,
+    NodeCompilationResult* compile_take_module_node(mavka::ast::TakeModuleNode* take_module_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options);
 
-    NodeCompilationResult* compile_take_pak_node(mavka::ast::TakePakNode* node,
+    NodeCompilationResult* compile_take_pak_node(mavka::ast::TakePakNode* take_pak_node,
                                                  CompilationScope* scope,
                                                  CompilationOptions* options);
 
-    NodeCompilationResult* compile_ternary_node(mavka::ast::TernaryNode* node,
+    NodeCompilationResult* compile_ternary_node(const mavka::ast::TernaryNode* ternary_node,
                                                 CompilationScope* scope,
                                                 CompilationOptions* options);
 
-    NodeCompilationResult* compile_test_node(mavka::ast::TestNode* node,
+    NodeCompilationResult* compile_test_node(const mavka::ast::TestNode* test_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
 
-    NodeCompilationResult* compile_throw_node(mavka::ast::ThrowNode* node,
+    NodeCompilationResult* compile_throw_node(const mavka::ast::ThrowNode* throw_node,
                                               CompilationScope* scope,
                                               CompilationOptions* options);
 
-    NodeCompilationResult* compile_try_node(mavka::ast::TryNode* node,
+    NodeCompilationResult* compile_try_node(const mavka::ast::TryNode* try_node,
                                             CompilationScope* scope,
                                             CompilationOptions* options);
 
-    NodeCompilationResult* compile_type_value_node(mavka::ast::TypeValueNode* node,
+    NodeCompilationResult* compile_type_value_node(mavka::ast::TypeValueNode* type_value_node,
                                                    CompilationScope* scope,
                                                    CompilationOptions* options);
 
@@ -444,15 +396,15 @@ namespace jejalyk {
                                                           CompilationScope* scope,
                                                           CompilationOptions* options);
 
-    NodeCompilationResult* compile_wait_node(mavka::ast::WaitNode* node,
+    NodeCompilationResult* compile_wait_node(const mavka::ast::WaitNode* wait_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
 
-    NodeCompilationResult* compile_while_node(mavka::ast::WhileNode* node,
+    NodeCompilationResult* compile_while_node(const mavka::ast::WhileNode* while_node,
                                               CompilationScope* scope,
                                               CompilationOptions* options);
 
-    inline NodeCompilationResult* compile_anon_diia_node(mavka::ast::AnonDiiaNode* anon_diia_node,
+    inline NodeCompilationResult* compile_anon_diia_node(const mavka::ast::AnonDiiaNode* anon_diia_node,
                                                          CompilationScope* scope,
                                                          CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -474,7 +426,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_arithmetic_node(mavka::ast::ArithmeticNode* arithmetic_node,
+    inline NodeCompilationResult* compile_arithmetic_node(const mavka::ast::ArithmeticNode* arithmetic_node,
                                                           CompilationScope* scope,
                                                           CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -510,7 +462,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_array_node(mavka::ast::ArrayNode* array_node,
+    inline NodeCompilationResult* compile_array_node(const mavka::ast::ArrayNode* array_node,
                                                      CompilationScope* scope,
                                                      CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -527,7 +479,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_as_node(mavka::ast::AsNode* as_node,
+    inline NodeCompilationResult* compile_as_node(const mavka::ast::AsNode* as_node,
                                                   CompilationScope* scope,
                                                   CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -545,7 +497,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_assign_complex_node(mavka::ast::AssignComplexNode* node,
+    inline NodeCompilationResult* compile_assign_complex_node(mavka::ast::AssignComplexNode* assign_complex_node,
                                                               CompilationScope* scope,
                                                               CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -562,16 +514,7 @@ namespace jejalyk {
             node_compilation_result->error = compiled_assign_value->error;
             return node_compilation_result;
         }
-        const auto compiled_assign_types = compile_types(assign_simple_node->types, scope, options);
-        if (compiled_assign_types->error) {
-            node_compilation_result->error = compiled_assign_types->error;
-            return node_compilation_result;
-        }
-        if (const auto assign_error = scope->assign(
-            assign_name,
-            compiled_assign_types->types,
-            compiled_assign_value->type
-        )) {
+        if (const auto assign_error = scope->assign(assign_name)) {
             node_compilation_result->error = assign_error;
             return node_compilation_result;
         }
@@ -579,7 +522,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_bitwise_node(mavka::ast::BitwiseNode* bitwise_node,
+    inline NodeCompilationResult* compile_bitwise_node(const mavka::ast::BitwiseNode* bitwise_node,
                                                        CompilationScope* scope,
                                                        CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -617,7 +560,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_bitwise_not_node(mavka::ast::BitwiseNotNode* bitwise_not_node,
+    inline NodeCompilationResult* compile_bitwise_not_node(const mavka::ast::BitwiseNotNode* bitwise_not_node,
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -630,7 +573,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_call_node(mavka::ast::CallNode* call_node,
+    inline NodeCompilationResult* compile_call_node(const mavka::ast::CallNode* call_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -653,7 +596,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_arg_node(mavka::ast::ArgNode* arg_node,
+    inline NodeCompilationResult* compile_arg_node(const mavka::ast::ArgNode* arg_node,
                                                    CompilationScope* scope,
                                                    CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -672,7 +615,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_chain_node(mavka::ast::ChainNode* chain_node,
+    inline NodeCompilationResult* compile_chain_node(const mavka::ast::ChainNode* chain_node,
                                                      CompilationScope* scope,
                                                      CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -695,7 +638,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_comparison_node(mavka::ast::ComparisonNode* comparison_node,
+    inline NodeCompilationResult* compile_comparison_node(const mavka::ast::ComparisonNode* comparison_node,
                                                           CompilationScope* scope,
                                                           CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -748,7 +691,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_continue_node(mavka::ast::ContinueNode* node,
+    inline NodeCompilationResult* compile_continue_node(mavka::ast::ContinueNode* continue_node,
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -756,7 +699,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_diia_node(mavka::ast::DiiaNode* diia_node,
+    inline NodeCompilationResult* compile_diia_node(const mavka::ast::DiiaNode* diia_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -779,7 +722,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_each_node(mavka::ast::EachNode* each_node,
+    inline NodeCompilationResult* compile_each_node(const mavka::ast::EachNode* each_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -788,27 +731,34 @@ namespace jejalyk {
             node_compilation_result->error = value->error;
             return node_compilation_result;
         }
+        const auto each_scope = new CompilationMicroScope();
+        each_scope->parent = scope;
+        const auto body = compile_body(each_node->body, each_scope, options);
+        if (body->error) {
+            node_compilation_result->error = body->error;
+            return node_compilation_result;
+        }
         if (each_node->keyName.empty()) {
             node_compilation_result->result =
-                    "for (" + varname(each_node->name) + " of mavka_values(" + value->result
-                    + ")) {}";
+                    "for(" + varname(each_node->name) + " of mavka_values(" + value->result
+                    + ")){\n" + body->result + "\n}";
         } else {
             node_compilation_result->result =
-                    "for ([" + varname(each_node->keyName) + "," + varname(each_node->keyName) +
+                    "for([" + varname(each_node->keyName) + "," + varname(each_node->keyName) +
                     "] of mavka_entries(" + value->result
-                    + ")) {}";
+                    + ")){\n" + body->result + "\n}";
         }
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_eval_node(mavka::ast::EvalNode* node,
+    inline NodeCompilationResult* compile_eval_node(mavka::ast::EvalNode* eval_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_function_node(mavka::ast::FunctionNode* function_node,
+    inline NodeCompilationResult* compile_function_node(const mavka::ast::FunctionNode* function_node,
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -830,7 +780,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_from_to_simple_node(mavka::ast::FromToSimpleNode* from_to_simple_node,
+    inline NodeCompilationResult* compile_from_to_simple_node(const mavka::ast::FromToSimpleNode* from_to_simple_node,
                                                               CompilationScope* scope,
                                                               CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -849,9 +799,10 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_from_to_complex_node(mavka::ast::FromToComplexNode* from_to_complex_node,
-                                                               CompilationScope* scope,
-                                                               CompilationOptions* options) {
+    inline NodeCompilationResult* compile_from_to_complex_node(
+        const mavka::ast::FromToComplexNode* from_to_complex_node,
+        CompilationScope* scope,
+        CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto from = compile_node(from_to_complex_node->from, scope, options);
         if (from->error) {
@@ -874,7 +825,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_get_element_node(mavka::ast::GetElementNode* get_element_node,
+    inline NodeCompilationResult* compile_get_element_node(const mavka::ast::GetElementNode* get_element_node,
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -892,7 +843,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_give_node(mavka::ast::GiveNode* give_node,
+    inline NodeCompilationResult* compile_give_node(const mavka::ast::GiveNode* give_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -929,10 +880,6 @@ namespace jejalyk {
             return node_compilation_result;
         }
         node_compilation_result->result = varname(identifier_node->name);
-        const auto subject = scope->get(identifier_node->name);
-        if (subject->types.size() == 1) {
-            node_compilation_result->type = subject->types[0];
-        }
         return node_compilation_result;
     }
 
@@ -945,13 +892,17 @@ namespace jejalyk {
             node_compilation_result->error = condition->error;
             return node_compilation_result;
         }
-        const auto body = compile_body(if_node->body, scope, options);
+        const auto if_scope = new CompilationMicroScope();
+        if_scope->parent = scope;
+        const auto body = compile_body(if_node->body, if_scope, options);
         if (body->error) {
             node_compilation_result->error = body->error;
             return node_compilation_result;
         }
         if (!if_node->else_body.empty()) {
-            const auto else_body = compile_body(if_node->else_body, scope, options);
+            const auto else_if_scope = new CompilationMicroScope();
+            else_if_scope->parent = scope;
+            const auto else_body = compile_body(if_node->else_body, else_if_scope, options);
             if (else_body->error) {
                 node_compilation_result->error = else_body->error;
                 return node_compilation_result;
@@ -968,7 +919,9 @@ namespace jejalyk {
                                                       CompilationScope* scope,
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-        const auto body = compile_body(module_node->body, scope, options);
+        const auto module_scope = new CompilationScope();
+        module_scope->parent = scope;
+        const auto body = compile_body(module_node->body, module_scope, options);
         if (body->error) {
             node_compilation_result->error = body->error;
             return node_compilation_result;
@@ -986,12 +939,7 @@ namespace jejalyk {
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_diia_node->name;
-        const auto value_type = new CompilationType();
-        value_type->parent = scope->root()->get("Дія")->types[0];
-        if (const auto assign_error = scope->assign(name, {value_type}, value_type)) {
-            node_compilation_result->error = assign_error;
-            return node_compilation_result;
-        }
+        scope->assign(name);
         return node_compilation_result;
     }
 
@@ -1000,12 +948,7 @@ namespace jejalyk {
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_module_node->name;
-        const auto value_type = new CompilationType();
-        value_type->parent = scope->root()->get("Модуль")->types[0];
-        if (const auto assign_error = scope->assign(name, {value_type}, value_type)) {
-            node_compilation_result->error = assign_error;
-            return node_compilation_result;
-        }
+        scope->assign(name);
         return node_compilation_result;
     }
 
@@ -1014,12 +957,7 @@ namespace jejalyk {
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_object_node->name;
-        const auto value_type = new CompilationType();
-        value_type->parent = scope->root()->get("обʼєкт")->types[0];
-        if (const auto assign_error = scope->assign(name, {value_type}, value_type)) {
-            node_compilation_result->error = assign_error;
-            return node_compilation_result;
-        }
+        scope->assign(name);
         return node_compilation_result;
     }
 
@@ -1028,13 +966,7 @@ namespace jejalyk {
                                                                 CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_structure->name;
-        const auto value_type = new CompilationType();
-        value_type->parent = scope->root()->get("Структура")->types[0];
-        if (const auto assign_error = scope->assign(name, {value_type}, value_type)) {
-            node_compilation_result->error = assign_error;
-            return node_compilation_result;
-        }
-
+        scope->assign(name);
         return node_compilation_result;
     }
 
@@ -1043,19 +975,11 @@ namespace jejalyk {
                                                               CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto name = mockup_subject_node->name;
-        const auto compiled_types = compile_types(mockup_subject_node->types, scope, options);
-        if (compiled_types->error) {
-            node_compilation_result->error = compiled_types->error;
-            return node_compilation_result;
-        }
-        if (const auto define_error = scope->define(name, compiled_types->types)) {
-            node_compilation_result->error = define_error;
-            return node_compilation_result;
-        }
+        scope->assign(name);
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_negative_node(mavka::ast::NegativeNode* negative_node,
+    inline NodeCompilationResult* compile_negative_node(const mavka::ast::NegativeNode* negative_node,
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1068,7 +992,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_not_node(mavka::ast::NotNode* not_node,
+    inline NodeCompilationResult* compile_not_node(const mavka::ast::NotNode* not_node,
                                                    CompilationScope* scope,
                                                    CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1081,16 +1005,15 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_number_node(mavka::ast::NumberNode* number_node,
+    inline NodeCompilationResult* compile_number_node(const mavka::ast::NumberNode* number_node,
                                                       CompilationScope* scope,
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->result = number_node->value;
-        node_compilation_result->type = scope->root()->get("число")->types[0];
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_positive_node(mavka::ast::PositiveNode* positive_node,
+    inline NodeCompilationResult* compile_positive_node(const mavka::ast::PositiveNode* positive_node,
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1103,7 +1026,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_post_decrement_node(mavka::ast::PostDecrementNode* post_decrement_node,
+    inline NodeCompilationResult* compile_post_decrement_node(const mavka::ast::PostDecrementNode* post_decrement_node,
                                                               CompilationScope* scope,
                                                               CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1116,7 +1039,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_post_increment_node(mavka::ast::PostIncrementNode* post_increment_node,
+    inline NodeCompilationResult* compile_post_increment_node(const mavka::ast::PostIncrementNode* post_increment_node,
                                                               CompilationScope* scope,
                                                               CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1129,7 +1052,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_pre_decrement_node(mavka::ast::PreDecrementNode* pre_decrement_node,
+    inline NodeCompilationResult* compile_pre_decrement_node(const mavka::ast::PreDecrementNode* pre_decrement_node,
                                                              CompilationScope* scope,
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1142,7 +1065,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_pre_increment_node(mavka::ast::PreInrementNode* pre_increment_node,
+    inline NodeCompilationResult* compile_pre_increment_node(const mavka::ast::PreInrementNode* pre_increment_node,
                                                              CompilationScope* scope,
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1155,7 +1078,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_dictionary_node(mavka::ast::DictionaryNode* dictionary_node,
+    inline NodeCompilationResult* compile_dictionary_node(const mavka::ast::DictionaryNode* dictionary_node,
                                                           CompilationScope* scope,
                                                           CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1172,7 +1095,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_return_node(mavka::ast::ReturnNode* return_node,
+    inline NodeCompilationResult* compile_return_node(const mavka::ast::ReturnNode* return_node,
                                                       CompilationScope* scope,
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1185,16 +1108,15 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_string_node(mavka::ast::StringNode* string_node,
+    inline NodeCompilationResult* compile_string_node(const mavka::ast::StringNode* string_node,
                                                       CompilationScope* scope,
                                                       CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->result = "\"" + string_node->value + "\"";
-        node_compilation_result->type = scope->root()->get("текст")->types[0];
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_structure_node(mavka::ast::StructureNode* structure_node,
+    inline NodeCompilationResult* compile_structure_node(const mavka::ast::StructureNode* structure_node,
                                                          CompilationScope* scope,
                                                          CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1209,21 +1131,21 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_take_module_node(mavka::ast::TakeModuleNode* node,
+    inline NodeCompilationResult* compile_take_module_node(mavka::ast::TakeModuleNode* take_module_node,
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_take_pak_node(mavka::ast::TakePakNode* node,
+    inline NodeCompilationResult* compile_take_pak_node(mavka::ast::TakePakNode* take_pak_node,
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_ternary_node(mavka::ast::TernaryNode* ternary_node,
+    inline NodeCompilationResult* compile_ternary_node(const mavka::ast::TernaryNode* ternary_node,
                                                        CompilationScope* scope,
                                                        CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1247,7 +1169,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_test_node(mavka::ast::TestNode* test_node,
+    inline NodeCompilationResult* compile_test_node(const mavka::ast::TestNode* test_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1265,7 +1187,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_throw_node(mavka::ast::ThrowNode* throw_node,
+    inline NodeCompilationResult* compile_throw_node(const mavka::ast::ThrowNode* throw_node,
                                                      CompilationScope* scope,
                                                      CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1278,16 +1200,20 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_try_node(mavka::ast::TryNode* try_node,
+    inline NodeCompilationResult* compile_try_node(const mavka::ast::TryNode* try_node,
                                                    CompilationScope* scope,
                                                    CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-        const auto body = compile_body(try_node->body, scope, options);
+        const auto try_scope = new CompilationMicroScope();
+        try_scope->parent = scope;
+        const auto body = compile_body(try_node->body, try_scope, options);
         if (body->error) {
             node_compilation_result->error = body->error;
             return node_compilation_result;
         }
-        const auto catch_body = compile_body(try_node->catch_body, scope, options);
+        const auto catch_scope = new CompilationMicroScope();
+        catch_scope->parent = scope;
+        const auto catch_body = compile_body(try_node->catch_body, catch_scope, options);
         if (catch_body->error) {
             node_compilation_result->error = catch_body->error;
             return node_compilation_result;
@@ -1320,7 +1246,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_wait_node(mavka::ast::WaitNode* wait_node,
+    inline NodeCompilationResult* compile_wait_node(const mavka::ast::WaitNode* wait_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1333,7 +1259,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_while_node(mavka::ast::WhileNode* while_node,
+    inline NodeCompilationResult* compile_while_node(const mavka::ast::WhileNode* while_node,
                                                      CompilationScope* scope,
                                                      CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1342,7 +1268,9 @@ namespace jejalyk {
             node_compilation_result->error = condition->error;
             return node_compilation_result;
         }
-        const auto body = compile_body(while_node->body, scope, options);
+        const auto while_scope = new CompilationMicroScope();
+        while_scope->parent = scope;
+        const auto body = compile_body(while_node->body, while_scope, options);
         if (body->error) {
             node_compilation_result->error = body->error;
             return node_compilation_result;
@@ -1573,7 +1501,7 @@ namespace jejalyk {
         throw std::runtime_error("Unknown node type");
     }
 
-    inline NodeCompilationResult* compile_body(std::vector<mavka::ast::ASTNode *> body,
+    inline NodeCompilationResult* compile_body(const std::vector<mavka::ast::ASTNode *>& body,
                                                CompilationScope* scope,
                                                CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1622,26 +1550,26 @@ namespace jejalyk {
     }
 
 
-    inline TypesCompilationResult* compile_types(std::vector<mavka::ast::ASTNode *> types,
-                                                 CompilationScope* scope,
-                                                 CompilationOptions* options) {
-        const auto types_compilation_result = new TypesCompilationResult();
-        std::vector<std::string> compiled_types;
-        std::vector<CompilationType *> compiled_types_values;
-        for (int i = 0; i < types.size(); ++i) {
-            const auto type = types[i];
-            const auto type_compilation_result = compile_node(type, scope, options);
-            if (type_compilation_result->error) {
-                types_compilation_result->error = type_compilation_result->error;
-                return types_compilation_result;
-            }
-            compiled_types.push_back(type_compilation_result->result);
-            compiled_types_values.push_back(type_compilation_result->type);
-        }
-        types_compilation_result->types = compiled_types_values;
-        types_compilation_result->result = "[" + tools::implode(compiled_types, ",") + "]";
-        return types_compilation_result;
-    }
+    // inline TypesCompilationResult* compile_types(std::vector<mavka::ast::ASTNode *> types,
+    //                                              CompilationScope* scope,
+    //                                              CompilationOptions* options) {
+    //     const auto types_compilation_result = new TypesCompilationResult();
+    //     std::vector<std::string> compiled_types;
+    //     std::vector<CompilationType *> compiled_types_values;
+    //     for (int i = 0; i < types.size(); ++i) {
+    //         const auto type = types[i];
+    //         const auto type_compilation_result = compile_node(type, scope, options);
+    //         if (type_compilation_result->error) {
+    //             types_compilation_result->error = type_compilation_result->error;
+    //             return types_compilation_result;
+    //         }
+    //         compiled_types.push_back(type_compilation_result->result);
+    //         // compiled_types_values.push_back(type_compilation_result->type);
+    //     }
+    //     types_compilation_result->types = compiled_types_values;
+    //     types_compilation_result->result = "[" + tools::implode(compiled_types, ",") + "]";
+    //     return types_compilation_result;
+    // }
 
 
     inline NodeCompilationResult* compile_structure_params(std::vector<mavka::ast::StructureParamNode *> params,

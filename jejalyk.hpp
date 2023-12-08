@@ -6,6 +6,9 @@
 
 namespace jejalyk {
     const std::string head = R"(
+макет структура пусто
+кінець
+
 макет структура число
 кінець
 
@@ -39,8 +42,6 @@ namespace jejalyk {
         }
         const auto head_compilation_result = new CompilationResult();
         const auto root_scope = new CompilationScope();
-        const auto structureObject = new CompilationType();
-        root_scope->assign("Структура", {structureObject}, structureObject);
         const auto head_body_compilation_result = jejalyk::compile_body(
             head_parser_result->program_node->body,
             root_scope,
