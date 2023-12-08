@@ -1,6 +1,5 @@
 #pragma once
 
-#include <map>
 #include <string>
 #include <utility>
 #include "tools.hpp"
@@ -50,6 +49,8 @@ namespace jejalyk {
     const std::string MAVKA_CONTAINS = "мМє"; // мМє(а, б)
     const std::string MAVKA_FROM_TO = "мВід"; // мВід(від, до, символ, функція)
     const std::string MAVKA_FROM_TO_FN = "мВідФ"; // мВідФ(оператор, крок)
+    const std::string MAVKA_VALUES_ITERATOR = "мІтер"; // мІтер(значення)
+    const std::string MAVKA_ENTRIES_ITERATOR = "мІтерП"; // мІтерП(значення)
 
     inline std::string varname(const std::string& name) {
         return "м_" + name;
@@ -834,14 +835,14 @@ namespace jejalyk {
             return node_compilation_result;
         }
         if (each_node->keyName.empty()) {
-            each_scope->assign(each_node->keyName);
             node_compilation_result->result =
-                    "for(" + varname(each_node->name) + " of mavka_values(" + value->result
+                    "for(" + varname(each_node->name) + " of " + MAVKA_VALUES_ITERATOR + "(" + value->result
                     + "))" + body->result + "";
         } else {
+            each_scope->assign(each_node->keyName);
             node_compilation_result->result =
-                    "for([" + varname(each_node->keyName) + "," + varname(each_node->keyName) +
-                    "] of mavka_entries(" + value->result
+                    "for([" + varname(each_node->keyName) + "," + varname(each_node->name) +
+                    "] of " + MAVKA_ENTRIES_ITERATOR + "(" + value->result
                     + "))" + body->result + "";
         }
         return node_compilation_result;
@@ -851,6 +852,12 @@ namespace jejalyk {
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        if (tools::instanceof<mavka::ast::StringNode>(eval_node->value)) {
+            const auto string_value = dynamic_cast<mavka::ast::StringNode *>(eval_node->value)->value;
+            node_compilation_result->result = "/* --- js --- */\n" + string_value + "\n/* --- /js --- */";
+        } else {
+            const auto eval_value = compile_node(eval_node->value, scope, options);
+        }
         return node_compilation_result;
     }
 
