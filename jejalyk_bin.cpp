@@ -9,12 +9,13 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    std::unordered_map<std::string, std::string> x;
-
     std::ifstream file(argv[1]);
     std::string code((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 
     const auto options = new jejalyk::CompilationOptions();
+    options->std_code = R"(
+макет дія друк(...значення) ніщо
+)";
 
     const auto result = jejalyk::compile(code, options);
 
