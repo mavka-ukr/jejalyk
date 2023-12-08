@@ -11,7 +11,15 @@ if [ "$TARGET" = "antlr4" ]; then
     cd syntax
     java -jar antlr-4.13.0-complete.jar -Dlanguage=Cpp *.g4 -visitor
     cd ..
+    exit 0
 fi
+
+MAVKA_HEAD_JS=$(cat голова.js)
+MAVKA_HEAD_M=$(cat голова.м)
+
+echo "std::string MAVKA_HEAD_JS = R\"($MAVKA_HEAD_JS)\";
+std::string MAVKA_HEAD_M = R\"($MAVKA_HEAD_M)\";
+" >head.h
 
 if [ "$TARGET" = "bin" ] || [ "$TARGET" = "all" ]; then
     mkdir -p build
