@@ -339,15 +339,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitAssign_complex(MavkaParser::Assign_complexContext *ctx) override {
+  virtual std::any visitAssign_by_identifier(MavkaParser::Assign_by_identifierContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitAssign_complex_left(MavkaParser::Assign_complex_leftContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitAssign_complex_right(MavkaParser::Assign_complex_rightContext *ctx) override {
+  virtual std::any visitAssign_by_element(MavkaParser::Assign_by_elementContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -376,6 +372,10 @@ public:
   }
 
   virtual std::any visitIdentifiers_chain(MavkaParser::Identifiers_chainContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitSuper_identifiers_chain(MavkaParser::Super_identifiers_chainContext *ctx) override {
     return visitChildren(ctx);
   }
 

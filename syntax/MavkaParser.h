@@ -49,15 +49,16 @@ public:
     RuleArray_element = 37, RuleDictionary_args = 38, RuleDictionary_arg = 39, 
     RuleExpr = 40, RuleThrow = 41, RuleArray_destruction = 42, RuleArray_destruction_el = 43, 
     RuleObject_destruction = 44, RuleObject_destruction_el = 45, RuleAssign = 46, 
-    RuleAssign_simple = 47, RuleAssign_complex = 48, RuleAssign_complex_left = 49, 
-    RuleAssign_complex_right = 50, RuleAssign_array_destruction = 51, RuleAssign_object_destruction = 52, 
-    RuleAssign_symbol = 53, RuleWait_assign = 54, RuleIdentifier = 55, RuleExtended_identifier = 56, 
-    RuleIdentifiers_chain = 57, RuleType_value = 58, RuleType_value_item = 59, 
-    RuleArgs = 60, RuleArg = 61, RuleNamed_args = 62, RuleNamed_arg = 63, 
-    RuleParams = 64, RuleParam = 65, RuleParam_value = 66, RuleBody = 67, 
-    RuleBody_element_or_return = 68, RuleBody_element = 69, RuleReturn_body_line = 70, 
-    RuleArithmetic_op_mul = 71, RuleArithmetic_op_add = 72, RuleBitwise_op = 73, 
-    RuleTest_op = 74, RuleComparison_op = 75, RuleNl = 76, RuleNls = 77
+    RuleAssign_simple = 47, RuleAssign_by_identifier = 48, RuleAssign_by_element = 49, 
+    RuleAssign_array_destruction = 50, RuleAssign_object_destruction = 51, 
+    RuleAssign_symbol = 52, RuleWait_assign = 53, RuleIdentifier = 54, RuleExtended_identifier = 55, 
+    RuleIdentifiers_chain = 56, RuleSuper_identifiers_chain = 57, RuleType_value = 58, 
+    RuleType_value_item = 59, RuleArgs = 60, RuleArg = 61, RuleNamed_args = 62, 
+    RuleNamed_arg = 63, RuleParams = 64, RuleParam = 65, RuleParam_value = 66, 
+    RuleBody = 67, RuleBody_element_or_return = 68, RuleBody_element = 69, 
+    RuleReturn_body_line = 70, RuleArithmetic_op_mul = 71, RuleArithmetic_op_add = 72, 
+    RuleBitwise_op = 73, RuleTest_op = 74, RuleComparison_op = 75, RuleNl = 76, 
+    RuleNls = 77
   };
 
   explicit MavkaParser(antlr4::TokenStream *input);
@@ -125,9 +126,8 @@ public:
   class Object_destruction_elContext;
   class AssignContext;
   class Assign_simpleContext;
-  class Assign_complexContext;
-  class Assign_complex_leftContext;
-  class Assign_complex_rightContext;
+  class Assign_by_identifierContext;
+  class Assign_by_elementContext;
   class Assign_array_destructionContext;
   class Assign_object_destructionContext;
   class Assign_symbolContext;
@@ -135,6 +135,7 @@ public:
   class IdentifierContext;
   class Extended_identifierContext;
   class Identifiers_chainContext;
+  class Super_identifiers_chainContext;
   class Type_valueContext;
   class Type_value_itemContext;
   class ArgsContext;
@@ -1664,7 +1665,8 @@ public:
     AssignContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     Assign_simpleContext *assign_simple();
-    Assign_complexContext *assign_complex();
+    Assign_by_identifierContext *assign_by_identifier();
+    Assign_by_elementContext *assign_by_element();
     Assign_array_destructionContext *assign_array_destruction();
     Assign_object_destructionContext *assign_object_destruction();
 
@@ -1701,16 +1703,17 @@ public:
 
   Assign_simpleContext* assign_simple();
 
-  class  Assign_complexContext : public antlr4::ParserRuleContext {
+  class  Assign_by_identifierContext : public antlr4::ParserRuleContext {
   public:
-    MavkaParser::Assign_complex_leftContext *ac_left = nullptr;
-    MavkaParser::Assign_complex_rightContext *ac_right = nullptr;
-    MavkaParser::Assign_symbolContext *ac_symbol = nullptr;
-    MavkaParser::ExprContext *ac_value = nullptr;
-    Assign_complexContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    MavkaParser::Super_identifiers_chainContext *abi_left = nullptr;
+    MavkaParser::IdentifierContext *abi_identifier = nullptr;
+    MavkaParser::Assign_symbolContext *abi_symbol = nullptr;
+    MavkaParser::ExprContext *abi_value = nullptr;
+    Assign_by_identifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    Assign_complex_leftContext *assign_complex_left();
-    Assign_complex_rightContext *assign_complex_right();
+    antlr4::tree::TerminalNode *DOT();
+    Super_identifiers_chainContext *super_identifiers_chain();
+    IdentifierContext *identifier();
     Assign_symbolContext *assign_symbol();
     ExprContext *expr();
 
@@ -1721,20 +1724,22 @@ public:
    
   };
 
-  Assign_complexContext* assign_complex();
+  Assign_by_identifierContext* assign_by_identifier();
 
-  class  Assign_complex_leftContext : public antlr4::ParserRuleContext {
+  class  Assign_by_elementContext : public antlr4::ParserRuleContext {
   public:
-    MavkaParser::Assign_complex_leftContext *acl_left = nullptr;
-    MavkaParser::Identifiers_chainContext *acl_chain = nullptr;
-    MavkaParser::ExprContext *acl_element = nullptr;
-    Assign_complex_leftContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    MavkaParser::Super_identifiers_chainContext *abe_left = nullptr;
+    MavkaParser::ExprContext *abe_index = nullptr;
+    MavkaParser::Assign_symbolContext *abe_symbol = nullptr;
+    MavkaParser::ExprContext *abe_value = nullptr;
+    Assign_by_elementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    Identifiers_chainContext *identifiers_chain();
     antlr4::tree::TerminalNode *OPEN_ARRAY();
     antlr4::tree::TerminalNode *CLOSE_ARRAY();
-    Assign_complex_leftContext *assign_complex_left();
-    ExprContext *expr();
+    Super_identifiers_chainContext *super_identifiers_chain();
+    std::vector<ExprContext *> expr();
+    ExprContext* expr(size_t i);
+    Assign_symbolContext *assign_symbol();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1743,28 +1748,7 @@ public:
    
   };
 
-  Assign_complex_leftContext* assign_complex_left();
-  Assign_complex_leftContext* assign_complex_left(int precedence);
-  class  Assign_complex_rightContext : public antlr4::ParserRuleContext {
-  public:
-    MavkaParser::IdentifierContext *acr_identifier = nullptr;
-    MavkaParser::ExprContext *acr_element = nullptr;
-    Assign_complex_rightContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *DOT();
-    IdentifierContext *identifier();
-    antlr4::tree::TerminalNode *OPEN_ARRAY();
-    antlr4::tree::TerminalNode *CLOSE_ARRAY();
-    ExprContext *expr();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  Assign_complex_rightContext* assign_complex_right();
+  Assign_by_elementContext* assign_by_element();
 
   class  Assign_array_destructionContext : public antlr4::ParserRuleContext {
   public:
@@ -1932,6 +1916,31 @@ public:
 
   Identifiers_chainContext* identifiers_chain();
   Identifiers_chainContext* identifiers_chain(int precedence);
+  class  Super_identifiers_chainContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::Super_identifiers_chainContext *sic_left = nullptr;
+    MavkaParser::IdentifierContext *sic_identifier = nullptr;
+    MavkaParser::Extended_identifierContext *sic_right = nullptr;
+    MavkaParser::ExprContext *sic_index = nullptr;
+    Super_identifiers_chainContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    IdentifierContext *identifier();
+    antlr4::tree::TerminalNode *DOT();
+    Super_identifiers_chainContext *super_identifiers_chain();
+    Extended_identifierContext *extended_identifier();
+    antlr4::tree::TerminalNode *OPEN_ARRAY();
+    antlr4::tree::TerminalNode *CLOSE_ARRAY();
+    ExprContext *expr();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Super_identifiers_chainContext* super_identifiers_chain();
+  Super_identifiers_chainContext* super_identifiers_chain(int precedence);
   class  Type_valueContext : public antlr4::ParserRuleContext {
   public:
     Type_valueContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -2379,8 +2388,8 @@ public:
   bool sempred(antlr4::RuleContext *_localctx, size_t ruleIndex, size_t predicateIndex) override;
 
   bool valueSempred(ValueContext *_localctx, size_t predicateIndex);
-  bool assign_complex_leftSempred(Assign_complex_leftContext *_localctx, size_t predicateIndex);
   bool identifiers_chainSempred(Identifiers_chainContext *_localctx, size_t predicateIndex);
+  bool super_identifiers_chainSempred(Super_identifiers_chainContext *_localctx, size_t predicateIndex);
 
   // By default the static state used to implement the parser is lazily initialized during the first
   // call to the constructor. You can call this function if you wish to initialize the static state

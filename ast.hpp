@@ -66,20 +66,22 @@ namespace mavka::ast {
         ASTNode* right;
     };
 
-    class AssignComplexRightNode final : public ASTNode {
+    class AssignByIdentifierNode final : public ASTNode {
     public:
-        std::string TYPE = "AssignComplexRightNode";
-
-        std::string name;
-        ASTNode* index;
-    };
-
-    class AssignComplexNode final : public ASTNode {
-    public:
-        std::string TYPE = "AssignComplexNode";
+        std::string TYPE = "AssignByIdentifierNode";
 
         ASTNode* left;
-        ASTNode* right;
+        std::string identifier;
+        std::string op;
+        ASTNode* value;
+    };
+
+    class AssignByElementNode final : public ASTNode {
+    public:
+        std::string TYPE = "AssignByElementNode";
+
+        ASTNode* left;
+        ASTNode* element;
         std::string op;
         ASTNode* value;
     };

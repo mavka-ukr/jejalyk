@@ -257,14 +257,11 @@ public:
   virtual void enterAssign_simple(MavkaParser::Assign_simpleContext *ctx) = 0;
   virtual void exitAssign_simple(MavkaParser::Assign_simpleContext *ctx) = 0;
 
-  virtual void enterAssign_complex(MavkaParser::Assign_complexContext *ctx) = 0;
-  virtual void exitAssign_complex(MavkaParser::Assign_complexContext *ctx) = 0;
+  virtual void enterAssign_by_identifier(MavkaParser::Assign_by_identifierContext *ctx) = 0;
+  virtual void exitAssign_by_identifier(MavkaParser::Assign_by_identifierContext *ctx) = 0;
 
-  virtual void enterAssign_complex_left(MavkaParser::Assign_complex_leftContext *ctx) = 0;
-  virtual void exitAssign_complex_left(MavkaParser::Assign_complex_leftContext *ctx) = 0;
-
-  virtual void enterAssign_complex_right(MavkaParser::Assign_complex_rightContext *ctx) = 0;
-  virtual void exitAssign_complex_right(MavkaParser::Assign_complex_rightContext *ctx) = 0;
+  virtual void enterAssign_by_element(MavkaParser::Assign_by_elementContext *ctx) = 0;
+  virtual void exitAssign_by_element(MavkaParser::Assign_by_elementContext *ctx) = 0;
 
   virtual void enterAssign_array_destruction(MavkaParser::Assign_array_destructionContext *ctx) = 0;
   virtual void exitAssign_array_destruction(MavkaParser::Assign_array_destructionContext *ctx) = 0;
@@ -286,6 +283,9 @@ public:
 
   virtual void enterIdentifiers_chain(MavkaParser::Identifiers_chainContext *ctx) = 0;
   virtual void exitIdentifiers_chain(MavkaParser::Identifiers_chainContext *ctx) = 0;
+
+  virtual void enterSuper_identifiers_chain(MavkaParser::Super_identifiers_chainContext *ctx) = 0;
+  virtual void exitSuper_identifiers_chain(MavkaParser::Super_identifiers_chainContext *ctx) = 0;
 
   virtual void enterType_value(MavkaParser::Type_valueContext *ctx) = 0;
   virtual void exitType_value(MavkaParser::Type_valueContext *ctx) = 0;

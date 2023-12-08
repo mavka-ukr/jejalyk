@@ -259,14 +259,11 @@ public:
   virtual void enterAssign_simple(MavkaParser::Assign_simpleContext * /*ctx*/) override { }
   virtual void exitAssign_simple(MavkaParser::Assign_simpleContext * /*ctx*/) override { }
 
-  virtual void enterAssign_complex(MavkaParser::Assign_complexContext * /*ctx*/) override { }
-  virtual void exitAssign_complex(MavkaParser::Assign_complexContext * /*ctx*/) override { }
+  virtual void enterAssign_by_identifier(MavkaParser::Assign_by_identifierContext * /*ctx*/) override { }
+  virtual void exitAssign_by_identifier(MavkaParser::Assign_by_identifierContext * /*ctx*/) override { }
 
-  virtual void enterAssign_complex_left(MavkaParser::Assign_complex_leftContext * /*ctx*/) override { }
-  virtual void exitAssign_complex_left(MavkaParser::Assign_complex_leftContext * /*ctx*/) override { }
-
-  virtual void enterAssign_complex_right(MavkaParser::Assign_complex_rightContext * /*ctx*/) override { }
-  virtual void exitAssign_complex_right(MavkaParser::Assign_complex_rightContext * /*ctx*/) override { }
+  virtual void enterAssign_by_element(MavkaParser::Assign_by_elementContext * /*ctx*/) override { }
+  virtual void exitAssign_by_element(MavkaParser::Assign_by_elementContext * /*ctx*/) override { }
 
   virtual void enterAssign_array_destruction(MavkaParser::Assign_array_destructionContext * /*ctx*/) override { }
   virtual void exitAssign_array_destruction(MavkaParser::Assign_array_destructionContext * /*ctx*/) override { }
@@ -288,6 +285,9 @@ public:
 
   virtual void enterIdentifiers_chain(MavkaParser::Identifiers_chainContext * /*ctx*/) override { }
   virtual void exitIdentifiers_chain(MavkaParser::Identifiers_chainContext * /*ctx*/) override { }
+
+  virtual void enterSuper_identifiers_chain(MavkaParser::Super_identifiers_chainContext * /*ctx*/) override { }
+  virtual void exitSuper_identifiers_chain(MavkaParser::Super_identifiers_chainContext * /*ctx*/) override { }
 
   virtual void enterType_value(MavkaParser::Type_valueContext * /*ctx*/) override { }
   virtual void exitType_value(MavkaParser::Type_valueContext * /*ctx*/) override { }

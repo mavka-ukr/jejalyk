@@ -761,11 +761,14 @@ namespace mavka::parser {
         }
 
         std::any visitWait_assign(MavkaParser::Wait_assignContext* context) override {
-            // const auto assign_node = visitAssign(context->wa_assign);
-            // const auto wait_node = new WaitNode();
-            // wait_node->value = any_to_ast_result(assign_node)->node;
-            // assign_node->node = wait_node;
-            // return create_ast_result(assign_node);
+            const auto assign_node = any_to_ast_result(visitAssign(context->wa_assign))->node;
+            if (jejalyk::tools::instanceof<ast::AssignSimpleNode>(assign_node)) {
+                const auto assign_simple_node = dynamic_cast<ast::AssignSimpleNode *>(assign_node);
+                const auto wait_node = new ast::WaitNode();
+                wait_node->value = any_to_ast_result(assign_node)->node;
+                assign_simple_node->value = wait_node;
+                return create_ast_result(assign_simple_node);
+            }
             return create_ast_result(nullptr);
         }
 
@@ -773,8 +776,11 @@ namespace mavka::parser {
             if (context->assign_simple()) {
                 return visitAssign_simple(context->assign_simple());
             }
-            if (context->assign_complex()) {
-                return visitAssign_complex(context->assign_complex());
+            if (context->assign_by_identifier()) {
+                return visitAssign_by_identifier(context->assign_by_identifier());
+            }
+            if (context->assign_by_element()) {
+                return visitAssign_by_element(context->assign_by_element());
             }
             return create_ast_result(nullptr);
         }
@@ -791,37 +797,22 @@ namespace mavka::parser {
             return create_ast_result(assign_simple_node);
         }
 
-        std::any visitAssign_complex(MavkaParser::Assign_complexContext* context) override {
-            const auto assign_complex_node = new ast::AssignComplexNode();
-            assign_complex_node->left = any_to_ast_result(visitAssign_complex_left(context->ac_left))->node;
-            assign_complex_node->right = any_to_ast_result(visitAssign_complex_right(context->ac_right))->node;
-            assign_complex_node->op = context->assign_symbol()->getText();
-            assign_complex_node->value = any_to_ast_result(visitExpr(context->ac_value))->node;
-            return create_ast_result(assign_complex_node);
+        std::any visitAssign_by_identifier(MavkaParser::Assign_by_identifierContext* context) override {
+            const auto assign_by_identifier_node = new ast::AssignByIdentifierNode();
+            assign_by_identifier_node->left = any_to_ast_result(visitSuper_identifiers_chain(context->abi_left))->node;
+            assign_by_identifier_node->identifier = context->abi_identifier->getText();
+            assign_by_identifier_node->op = context->assign_symbol()->getText();
+            assign_by_identifier_node->value = any_to_ast_result(visitExpr(context->abi_value))->node;
+            return create_ast_result(assign_by_identifier_node);
         }
 
-        std::any visitAssign_complex_left(MavkaParser::Assign_complex_leftContext* context) override {
-            if (context->acl_chain) {
-                return visitIdentifiers_chain(context->acl_chain);
-            }
-            if (context->acl_left) {
-                const auto get_element_node = new ast::GetElementNode();
-                get_element_node->value = any_to_ast_result(visitAssign_complex_left(context->acl_left))->node;
-                get_element_node->index = any_to_ast_result(visitExpr(context->acl_element))->node;
-                return create_ast_result(get_element_node);
-            }
-            return create_ast_result(nullptr);
-        }
-
-        std::any visitAssign_complex_right(MavkaParser::Assign_complex_rightContext* context) override {
-            const auto assign_complex_right_node = new ast::AssignComplexRightNode();
-            if (context->acr_identifier) {
-                assign_complex_right_node->name = context->acr_identifier->ID()->getText();
-            }
-            if (context->acr_element) {
-                assign_complex_right_node->index = any_to_ast_result(visitExpr(context->acr_element))->node;
-            }
-            return create_ast_result(assign_complex_right_node);
+        std::any visitAssign_by_element(MavkaParser::Assign_by_elementContext* context) override {
+            const auto assign_by_element_node = new ast::AssignByElementNode();
+            assign_by_element_node->left = any_to_ast_result(visitSuper_identifiers_chain(context->abe_left))->node;
+            assign_by_element_node->element = any_to_ast_result(visitExpr(context->abe_index))->node;
+            assign_by_element_node->op = context->assign_symbol()->getText();
+            assign_by_element_node->value = any_to_ast_result(visitExpr(context->abe_value))->node;
+            return create_ast_result(assign_by_element_node);
         }
 
         std::any visitAssign_array_destruction(MavkaParser::Assign_array_destructionContext* context) override {
@@ -907,6 +898,25 @@ namespace mavka::parser {
             chain_node->left = any_to_ast_result(visitIdentifiers_chain(context->ic_left))->node;
             chain_node->right = any_to_ast_result(visitExtended_identifier(context->ic_right))->node;
             return create_ast_result(chain_node);
+        }
+
+        std::any visitSuper_identifiers_chain(MavkaParser::Super_identifiers_chainContext* context) override {
+            if (context->sic_identifier) {
+                return visitIdentifier(context->sic_identifier);
+            }
+            const auto left = any_to_ast_result(visitSuper_identifiers_chain(context->sic_left))->node;
+            if (context->sic_right) {
+                const auto right = any_to_ast_result(visitExtended_identifier(context->sic_right))->node;
+                const auto chain_node = new ast::ChainNode();
+                chain_node->left = left;
+                chain_node->right = right;
+                return create_ast_result(chain_node);
+            }
+            const auto index = any_to_ast_result(visitExpr(context->sic_index))->node;
+            const auto get_element_node = new ast::GetElementNode();
+            get_element_node->value = left;
+            get_element_node->index = index;
+            return create_ast_result(get_element_node);
         }
 
         std::any visitType_value(MavkaParser::Type_valueContext* context) override {

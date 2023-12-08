@@ -14,6 +14,12 @@ int main(int argc, char** argv) {
 
     const auto options = new jejalyk::CompilationOptions();
     options->std_code = R"(
+js """
+var м_друк = мДі("друк", [], function(args) {
+  console.log(Object.values(args));
+});
+"""
+
 макет дія друк(...значення) ніщо
 )";
 

@@ -8,6 +8,8 @@
 namespace jejalyk {
     const std::string MAVKA_CALL = "мВк"; // мВк(значення, аргументи)
     const std::string MAVKA_GET = "мОт"; // мО(значення, властивість)
+    const std::string MAVKA_SET = "мВс"; // мВс(значення, властивість, значення)
+    const std::string MAVKA_SET_ELEMENT = "мВсЕ"; // мВсЕ(значення, елемент, значення)
     const std::string MAVKA_DIIA = "мДі"; // мД(назва, параметри, функція)
     const std::string MAVKA_METHOD = "мМт"; // мМт(параметри, функція)
     const std::string MAVKA_SET_METHOD = "мВМт"; // мВМт(структура, назва, метод)
@@ -237,9 +239,14 @@ namespace jejalyk {
                                            CompilationScope* scope,
                                            CompilationOptions* options);
 
-    NodeCompilationResult* compile_assign_complex_node(mavka::ast::AssignComplexNode* assign_complex_node,
-                                                       CompilationScope* scope,
-                                                       CompilationOptions* options);
+    NodeCompilationResult* compile_assign_by_identifier_node(
+        const mavka::ast::AssignByIdentifierNode* assign_by_identifier_node,
+        CompilationScope* scope,
+        CompilationOptions* options);
+
+    NodeCompilationResult* compile_assign_by_element_node(const mavka::ast::AssignByElementNode* assign_by_element_node,
+                                                          CompilationScope* scope,
+                                                          CompilationOptions* options);
 
     NodeCompilationResult* compile_assign_simple_node(const mavka::ast::AssignSimpleNode* assign_simple_node,
                                                       CompilationScope* scope,
@@ -434,15 +441,15 @@ namespace jejalyk {
                                                          CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
 
-        const auto params_compilation_result = compile_params(anon_diia_node->params, scope, options);
+        const auto diia_scope = new CompilationScope();
+        diia_scope->parent = scope;
+
+        const auto params_compilation_result = compile_params(anon_diia_node->params, diia_scope, options);
         if (params_compilation_result->error) {
             node_compilation_result->error = params_compilation_result->error;
             return node_compilation_result;
         }
         const auto compiled_params = params_compilation_result->result;
-
-        const auto diia_scope = new CompilationScope();
-        diia_scope->parent = scope;
 
         const auto body = compile_body(anon_diia_node->body, diia_scope, options, true);
         if (body->error) {
@@ -532,10 +539,48 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_assign_complex_node(mavka::ast::AssignComplexNode* assign_complex_node,
-                                                              CompilationScope* scope,
-                                                              CompilationOptions* options) {
+    inline NodeCompilationResult* compile_assign_by_identifier_node(
+        const mavka::ast::AssignByIdentifierNode* assign_by_identifier_node,
+        CompilationScope* scope,
+        CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        const auto assign_left = compile_node(assign_by_identifier_node->left, scope, options);
+        if (assign_left->error) {
+            node_compilation_result->error = assign_left->error;
+            return node_compilation_result;
+        }
+        const auto assign_value = compile_node(assign_by_identifier_node->value, scope, options);
+        if (assign_value->error) {
+            node_compilation_result->error = assign_value->error;
+            return node_compilation_result;
+        }
+        node_compilation_result->result = MAVKA_SET + "(" + assign_left->result + ",\"" +
+                                          assign_by_identifier_node->identifier + "\"," + assign_value->result + ")";
+        return node_compilation_result;
+    }
+
+    inline NodeCompilationResult* compile_assign_by_element_node(
+        const mavka::ast::AssignByElementNode* assign_by_element_node,
+        CompilationScope* scope,
+        CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        const auto assign_left = compile_node(assign_by_element_node->left, scope, options);
+        if (assign_left->error) {
+            node_compilation_result->error = assign_left->error;
+            return node_compilation_result;
+        }
+        const auto assign_element = compile_node(assign_by_element_node->element, scope, options);
+        if (assign_element->error) {
+            node_compilation_result->error = assign_element->error;
+            return node_compilation_result;
+        }
+        const auto assign_value = compile_node(assign_by_element_node->value, scope, options);
+        if (assign_value->error) {
+            node_compilation_result->error = assign_value->error;
+            return node_compilation_result;
+        }
+        node_compilation_result->result = MAVKA_SET_ELEMENT + "(" + assign_left->result + "," +
+                                          assign_element->result + "," + assign_value->result + ")";
         return node_compilation_result;
     }
 
@@ -739,7 +784,9 @@ namespace jejalyk {
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         scope->assign(diia_node->name);
-        const auto params_compilation_result = compile_params(diia_node->params, scope, options);
+        const auto diia_scope = new CompilationScope();
+        diia_scope->parent = scope;
+        const auto params_compilation_result = compile_params(diia_node->params, diia_scope, options);
         if (params_compilation_result->error) {
             node_compilation_result->error = params_compilation_result->error;
             return node_compilation_result;
@@ -747,8 +794,6 @@ namespace jejalyk {
         const auto compiled_params = params_compilation_result->result;
 
         if (diia_node->structure.empty()) {
-            const auto diia_scope = new CompilationScope();
-            diia_scope->parent = scope;
             const auto body = compile_body(diia_node->body, diia_scope, options, true);
             if (body->error) {
                 node_compilation_result->error = body->error;
@@ -758,10 +803,8 @@ namespace jejalyk {
                                               + "\"" + "," +
                                               compiled_params + ",function()" + body->result + ")";
         } else {
-            const auto method_scope = new CompilationScope();
-            method_scope->parent = scope;
-            method_scope->assign("я");
-            const auto body = compile_body(diia_node->body, method_scope, options, true);
+            diia_scope->assign("я");
+            const auto body = compile_body(diia_node->body, diia_scope, options, true);
             if (body->error) {
                 node_compilation_result->error = body->error;
                 return node_compilation_result;
@@ -815,16 +858,14 @@ namespace jejalyk {
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-
-        const auto params_compilation_result = compile_params(function_node->params, scope, options);
+        const auto function_scope = new CompilationScope();
+        function_scope->parent = scope;
+        const auto params_compilation_result = compile_params(function_node->params, function_scope, options);
         if (params_compilation_result->error) {
             node_compilation_result->error = params_compilation_result->error;
             return node_compilation_result;
         }
         const auto compiled_params = params_compilation_result->result;
-
-        const auto function_scope = new CompilationScope();
-        function_scope->parent = scope;
 
         const auto body = compile_body(function_node->body, function_scope, options, true);
         if (body->error) {
@@ -1355,8 +1396,14 @@ namespace jejalyk {
             return compile_as_node(dynamic_cast<mavka::ast::AsNode *>(node), scope, options);
         }
 
-        if (jejalyk::tools::instanceof<mavka::ast::AssignComplexNode>(node)) {
-            return compile_assign_complex_node(dynamic_cast<mavka::ast::AssignComplexNode *>(node), scope, options);
+        if (jejalyk::tools::instanceof<mavka::ast::AssignByIdentifierNode>(node)) {
+            return compile_assign_by_identifier_node(dynamic_cast<mavka::ast::AssignByIdentifierNode *>(node), scope,
+                                                     options);
+        }
+
+        if (jejalyk::tools::instanceof<mavka::ast::AssignByElementNode>(node)) {
+            return compile_assign_by_element_node(dynamic_cast<mavka::ast::AssignByElementNode *>(node), scope,
+                                                  options);
         }
 
         if (jejalyk::tools::instanceof<mavka::ast::AssignSimpleNode>(node)) {

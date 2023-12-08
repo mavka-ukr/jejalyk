@@ -181,11 +181,9 @@ public:
 
     virtual std::any visitAssign_simple(MavkaParser::Assign_simpleContext *context) = 0;
 
-    virtual std::any visitAssign_complex(MavkaParser::Assign_complexContext *context) = 0;
+    virtual std::any visitAssign_by_identifier(MavkaParser::Assign_by_identifierContext *context) = 0;
 
-    virtual std::any visitAssign_complex_left(MavkaParser::Assign_complex_leftContext *context) = 0;
-
-    virtual std::any visitAssign_complex_right(MavkaParser::Assign_complex_rightContext *context) = 0;
+    virtual std::any visitAssign_by_element(MavkaParser::Assign_by_elementContext *context) = 0;
 
     virtual std::any visitAssign_array_destruction(MavkaParser::Assign_array_destructionContext *context) = 0;
 
@@ -200,6 +198,8 @@ public:
     virtual std::any visitExtended_identifier(MavkaParser::Extended_identifierContext *context) = 0;
 
     virtual std::any visitIdentifiers_chain(MavkaParser::Identifiers_chainContext *context) = 0;
+
+    virtual std::any visitSuper_identifiers_chain(MavkaParser::Super_identifiers_chainContext *context) = 0;
 
     virtual std::any visitType_value(MavkaParser::Type_valueContext *context) = 0;
 

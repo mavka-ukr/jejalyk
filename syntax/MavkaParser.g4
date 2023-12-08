@@ -108,11 +108,10 @@ array_destruction_el: ade_id=identifier;
 object_destruction: '(' object_destruction_el (',' object_destruction_el)* ')';
 object_destruction_el: nls ode_id=identifier nls;
 
-assign: assign_simple | assign_complex | assign_array_destruction | assign_object_destruction;
+assign: assign_simple | assign_by_identifier | assign_by_element | assign_array_destruction | assign_object_destruction;
 assign_simple: (as_subject='субʼєкт')? as_identifier=identifier (as_type=type_value)? as_symbol=assign_symbol as_value=expr;
-assign_complex: ac_left=assign_complex_left ac_right=assign_complex_right ac_symbol=assign_symbol ac_value=expr;
-assign_complex_left: acl_chain=identifiers_chain | acl_left=assign_complex_left '[' acl_element=expr ']';
-assign_complex_right: ('.' acr_identifier=identifier) | ('[' acr_element=expr ']');
+assign_by_identifier: abi_left=super_identifiers_chain '.' abi_identifier=identifier abi_symbol=assign_symbol abi_value=expr;
+assign_by_element: abe_left=super_identifiers_chain '[' abe_index=expr ']' abe_symbol=assign_symbol abe_value=expr;
 assign_array_destruction: aad_array_destruction=array_destruction '=' aad_value=expr;
 assign_object_destruction: aod_object_destruction=object_destruction '=' aod_value=expr;
 assign_symbol: 'це' | '=' | ':=' | '+=' | '-=' | '*=' | '/=' | '//=' | '%=' | '**=' | '&=' | '|=' | '<<=' | '>>=' | '^=' | '&&=' | '||=' | '??=';
@@ -122,6 +121,9 @@ identifier: ID;
 extended_identifier: ID | END | DIIA | STRUCTURE | FOR | IF | WAIT | TAKE | GIVE | AS | IS | RETURN | ASYNC | AND | OR | TRY | CATCH | ELSE | THROW | WHILE | MODULE | EQ_WORD | GR_WORD | SM_WORD | MOCKUP | IMPLEMENTS | EVAL | WHEN | TA;
 
 identifiers_chain: ic_identifier=identifier | ic_left=identifiers_chain '.' ic_right=extended_identifier;
+super_identifiers_chain: sic_identifier=identifier
+                       | sic_left=super_identifiers_chain '.' sic_right=extended_identifier
+                       | sic_left=super_identifiers_chain '[' sic_index=expr ']';
 
 type_value: type_value_item (('|' | 'або') type_value_item)*;
 type_value_item: (tv_array='[' ']')? tv_single=identifiers_chain;
