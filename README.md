@@ -155,7 +155,8 @@ Module().then(async (jejalyk) => {
 
 ```html
 
-<script src="./dist/optimized_jejalyk_web.js">
+<script src="./dist/optimized_jejalyk_web.js"></script>
+<script>
   window.mavka_compilation_options = {
     args: "",
     std_code: "",
