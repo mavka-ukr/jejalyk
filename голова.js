@@ -106,7 +106,7 @@ function мСтрк(name, params, parent) {
   var structureValue = Object.create(null);
   structureValue[MAVKA] = Object.create(null);
   structureValue[MAVKA].name = name;
-  structureValue[MAVKA].params = parent ? [...params, ...parent[MAVKA].params] : [];
+  structureValue[MAVKA].params = parent ? [...params, ...parent[MAVKA].params] : params;
   for (const param of structureValue[MAVKA].params) {
     const duplicateParam = structureValue[MAVKA].params.find((p) => p !== param && p.get("назва") === param.get("назва"));
     if (duplicateParam) {
