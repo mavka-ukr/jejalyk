@@ -1,9 +1,16 @@
 {
   "type": "module",
   "name": "jejalyk",
-  "version": "0.1.1",
+  "version": "0.1.5",
   "devDependencies": {
     "prettier": "3.1.0",
     "uglify-js": "^3.17.4"
+  },
+  "exports": {
+    "./node": "./dist/optimized_jejalyk_node.js",
+    "./node.wasm": "./dist/optimized_jejalyk_node.wasm",
+    "./web": "./dist/optimized_jejalyk_web.js",
+    "./web.wasm": "./dist/optimized_jejalyk_web.wasm",
+    "./version": "./version.js"
   }
 }

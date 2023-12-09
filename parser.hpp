@@ -1136,14 +1136,14 @@ namespace mavka::parser {
             error->line = line;
             error->column = charPositionInLine;
             error->message = msg;
-            throw error;
+            throw *error;
         }
     };
 
     class MavkaParserResult {
     public:
         MavkaParserError* error = nullptr;
-        mavka::ast::ProgramNode* program_node = nullptr;
+        ast::ProgramNode* program_node = nullptr;
     };
 
     MavkaParserResult* parse(std::string code) {
@@ -1178,8 +1178,13 @@ namespace mavka::parser {
         } catch (antlr4::RuntimeException& e) {
             const auto parser_result = new MavkaParserResult();
             const auto parser_error = new MavkaParserError();
-            // todo: handle
-            parser_error->message = "antlr4::RuntimeException";
+            parser_error->message = e.what();
+            parser_result->error = parser_error;
+            return parser_result;
+        } catch (...) {
+            const auto parser_result = new MavkaParserResult();
+            const auto parser_error = new MavkaParserError();
+            parser_error->message = "parser error";
             parser_result->error = parser_error;
             return parser_result;
         }
