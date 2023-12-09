@@ -796,7 +796,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         std::vector<std::string> before;
         if (parent) {
-            before.emplace_back("м_предок=" + MAVKA_PARENT + "(м_я)");
+            before.emplace_back("var м_предок=" + MAVKA_PARENT + "(м_я)");
         }
         for (int i = 0; i < params.size(); ++i) {
             const auto param = params[i];

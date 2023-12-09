@@ -13,7 +13,7 @@ val compilation_options_to_val(jejalyk::CompilationOptions* options) {
     return options_val;
 }
 
-val parser_error_to_val(mavka::parser::MavkaParserError* error) {
+val compilation_error_to_val(jejalyk::CompilationError* error) {
     const auto error_val = val::object();
     error_val.set(std::string("line"), error->line);
     error_val.set(std::string("column"), error->column);
@@ -80,6 +80,7 @@ std::string get_remote_module_code(std::string module, jejalyk::CompilationOptio
 val compile(std::string code) {
     const auto mco = val::global("mavka_compilation_options");
     const auto options = new jejalyk::CompilationOptions();
+    options->std_code = mco["std_code"].as<std::string>();
     options->root_module_path = mco["root_module_path"].as<std::string>();
     options->current_module_path = mco["current_module_path"].as<std::string>();
     options->get_module_name = &get_module_name;
@@ -94,7 +95,7 @@ val compile(std::string code) {
     val result = val::object();
     const auto compilation_result = jejalyk::compile(code, options);
     if (compilation_result->error) {
-        result.set(std::string("parser_error"), parser_error_to_val(compilation_result->error));
+        result.set(std::string("error"), compilation_error_to_val(compilation_result->error));
     } else {
         result.set(std::string("result"), std::string(compilation_result->result));
     }

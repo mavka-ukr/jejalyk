@@ -18,9 +18,11 @@
 ./build.sh antlr4 # antlr4 grammar
 ```
 
-```shell
-./build.sh bin # executable
-```
+[//]: # (```shell)
+
+[//]: # (./build.sh bin # executable)
+
+[//]: # (```)
 
 ```shell
 ./build.sh node # node wasm
@@ -34,9 +36,11 @@
 ./build.sh all # executable and node wasm and web wasm
 ```
 
-```shell
-./build.sh Obin # optimized executable
-```
+[//]: # (```shell)
+
+[//]: # (./build.sh Obin # optimized executable)
+
+[//]: # (```)
 
 ```shell
 ./build.sh Onode # optimized node wasm
@@ -98,6 +102,7 @@ std::string get_remote_module_code(std::string module, jejalyk::CompilationOptio
 
 int main() {
     const auto options = new jejalyk::CompilationOptions();
+    options->std_code = "";
     options->root_module_path = "";
     options->current_module_path = "";
     options->get_module_name = &get_module_name;
@@ -125,19 +130,29 @@ int main() {
 ### JavaScript
 
 ```javascript
-import Module from "./build/jejalyk_node.js";
+import Module from "./dist/optimized_jejalyk_node.js";
 
 global.mavka_compilation_options = {
-    root_module_path: "./",
-    current_module_path: "./",
-    get_module_name: async (relative, module, options) => {
-        return "";
-    },
-    // ...
+  root_module_path: "./",
+  current_module_path: "./",
+  get_module_name: async (relative, module, options) => {
+    return "";
+  },
+  // ...
 };
 
 Module().then(async (jejalyk) => {
-    const result = await jejalyk.compile(`друк("Привіт від Івана!")`);
-    console.log(result);
+  const result = await jejalyk.compile(`друк("Привіт від Івана!")`);
+  console.log(result);
 });
+```
+
+## Розробка
+
+### Початок
+
+```
+git clone https://github.com/mavka-ukr/jejalyk
+cd jejalyk
+npm install
 ```
