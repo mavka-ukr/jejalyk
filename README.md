@@ -4,61 +4,12 @@
 
 Швидкий компілятор Мавки в JavaScript.
 
-## Вимоги
-
-- C++20
-- CMake
-- Make
-- Node.js
-- Emscripten
-
-## Будування
-
-```shell
-./build.sh antlr4 # antlr4 grammar
-```
-
-[//]: # (```shell)
-
-[//]: # (./build.sh bin # executable)
-
-[//]: # (```)
-
-```shell
-./build.sh node # node wasm
-```
-
-```shell
-./build.sh web # web wasm
-```
-
-```shell
-./build.sh all # executable and node wasm and web wasm
-```
-
-[//]: # (```shell)
-
-[//]: # (./build.sh Obin # optimized executable)
-
-[//]: # (```)
-
-```shell
-./build.sh Onode # optimized node wasm
-```
-
-```shell
-./build.sh Oweb # optimized web wasm
-```
-
-```shell
-./build.sh Oall # optimized executable and optimized node wasm and optimized web wasm
-```
-
 ## Використання
 
 [//]: # (### Термінал)
 
 [//]: # ()
+
 [//]: # (```shell)
 
 [//]: # (./build/джеджалик тест.м тест.js)
@@ -181,10 +132,64 @@ Module().then(async (jejalyk) => {
 
 ## Розробка
 
+### Вимоги
+
+- C++20
+- CMake
+- Make
+- Node.js
+- Emscripten
+
 ### Початок
 
 ```
 git clone https://github.com/mavka-ukr/jejalyk
 cd jejalyk
 npm install
+```
+
+### Будування
+
+```shell
+./build.sh antlr4 # antlr4 grammar
+```
+
+[//]: # (```shell)
+
+[//]: # (./build.sh bin # executable)
+
+[//]: # (```)
+
+```shell
+./build.sh node # node wasm
+```
+
+```shell
+./build.sh web # web wasm
+```
+
+```shell
+./build.sh all # executable and node wasm and web wasm
+```
+
+[//]: # (```shell)
+
+[//]: # (./build.sh Obin # optimized executable)
+
+[//]: # (```)
+
+```shell
+./build.sh Onode # optimized node wasm
+```
+
+```shell
+./build.sh Oweb # optimized web wasm
+```
+
+```shell
+./build.sh Oall # optimized executable and optimized node wasm and optimized web wasm
+```
+
+```shell
+./dist.sh # optimized dist (node and web)
 ```
