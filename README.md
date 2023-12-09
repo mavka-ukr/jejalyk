@@ -131,8 +131,12 @@ int main() {
 
 ### Node.js
 
+```html
+npm i jejalyk
+```
+
 ```javascript
-import Module from "./dist/optimized_jejalyk_node.js";
+import Module from "jejalyk/node";
 
 global.mavka_compilation_options = {
   args: "",
