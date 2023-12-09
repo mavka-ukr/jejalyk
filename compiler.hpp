@@ -168,6 +168,7 @@ namespace jejalyk {
         std::string root_module_path;
         std::string current_module_path;
         std::string std_code;
+        std::string args;
         int body_depth = 0;
 
         std::string (*get_module_name)(bool, std::string, CompilationOptions*) = nullptr;

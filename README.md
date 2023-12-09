@@ -105,6 +105,7 @@ std::string get_remote_module_code(std::string module, jejalyk::CompilationOptio
 
 int main() {
     const auto options = new jejalyk::CompilationOptions();
+    options->args = "";
     options->std_code = "";
     options->root_module_path = "";
     options->current_module_path = "";
@@ -134,6 +135,7 @@ int main() {
 import Module from "./dist/optimized_jejalyk_node.js";
 
 global.mavka_compilation_options = {
+  args: "",
   std_code: "",
   root_module_path: "",
   current_module_path: "",
@@ -155,6 +157,7 @@ Module().then(async (jejalyk) => {
 
 <script src="./dist/optimized_jejalyk_web.js">
   window.mavka_compilation_options = {
+    args: "",
     std_code: "",
     root_module_path: "",
     current_module_path: "",

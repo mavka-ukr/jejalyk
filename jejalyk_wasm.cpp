@@ -80,6 +80,7 @@ std::string get_remote_module_code(std::string module, jejalyk::CompilationOptio
 val compile(std::string code) {
     const auto mco = val::global("mavka_compilation_options");
     const auto options = new jejalyk::CompilationOptions();
+    options->std_code = mco["args"].as<std::string>();
     options->std_code = mco["std_code"].as<std::string>();
     options->root_module_path = mco["root_module_path"].as<std::string>();
     options->current_module_path = mco["current_module_path"].as<std::string>();
