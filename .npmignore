@@ -1,0 +1,9 @@
+.idea/
+build/
+cmake-build-debug/
+gen/
+test.js
+тест.м
+head.h
+тест.js
+node_modules/

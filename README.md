@@ -133,8 +133,9 @@ int main() {
 import Module from "./dist/optimized_jejalyk_node.js";
 
 global.mavka_compilation_options = {
-  root_module_path: "./",
-  current_module_path: "./",
+  std_code: "",
+  root_module_path: "",
+  current_module_path: "",
   get_module_name: async (relative, module, options) => {
     return "";
   },
