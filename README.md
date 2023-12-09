@@ -127,7 +127,7 @@ int main() {
 }
 ```
 
-### JavaScript
+### Node.js
 
 ```javascript
 import Module from "./dist/optimized_jejalyk_node.js";
@@ -146,6 +146,28 @@ Module().then(async (jejalyk) => {
   const result = await jejalyk.compile(`друк("Привіт від Івана!")`);
   console.log(result);
 });
+```
+
+### Web
+
+```html
+
+<script src="./dist/optimized_jejalyk_web.js">
+  global.mavka_compilation_options = {
+    std_code: "",
+    root_module_path: "",
+    current_module_path: "",
+    get_module_name: async (relative, module, options) => {
+      return "";
+    },
+    // ...
+  };
+
+  Module.onRuntimeInitialized = async () => {
+    const result = await Module.compile(`друк("Привіт від Івана!")`);
+    console.log(result);
+  };
+</script>
 ```
 
 ## Розробка
