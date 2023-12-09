@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Джеджалик</title>
+</head>
+<body>
+
+<script src="https://bundle.run/buffer@6.0.3"></script>
+<script src="../dist/optimized_jejalyk_web.js"></script>
+<script>
+  window.Buffer = window.buffer.Buffer;
+
+  window.__mavka_emitParentEvent__ = function(event) {
+    try {
+      window.parent.postMessage(JSON.stringify(event), "*");
+    } catch (e) {
+      console.error("cannot post event", event, e);
+    }
+  };
+
+  function parseHashParams() {
+    const hash = window.location.hash.substr(1);
+    const params = hash.split("&");
+    const result = {};
+
+    for (let i = 0; i < params.length; i++) {
+      const param = params[i].split("=");
+      result[param[0]] = param[1];
+    }
+
+    return result;
+  }
+
+  const dataJson = Buffer.from(parseHashParams().data || "", "base64").toString();
+  const data = dataJson.trim() ? JSON.parse(dataJson) : {};
+  const code = data.code || "";
+
+  window.mavka_compilation_options = {
+    std_code: `
+js """
+var м_друк = мДія("друк", [], function(args) {
+  console.log(...Object.values(args));
+});
+"""
+
+макет дія друк(...значення) ніщо
+`,
+    root_module_path: "./",
+    current_module_path: "./",
+    get_module_name: async (relative, module, options) => {
+      console.log(relative, module, options);
+      return "test";
+    },
+  };
+
+  Module.onRuntimeInitialized = async function() {
+    const result = await Module.compile(code);
+    window.__mavka_emitParentEvent__({ type: "compilation_result", result });
+  };
+</script>
+</body>
+</html>
