@@ -118,9 +118,7 @@ int main() {
     options->get_remote_module_code = &get_remote_module_code;
 
     const auto result = jejalyk::compile("друк(\"Привіт від Івана!\")", options);
-    if (result->parser_error) {
-        std::cout << result->parser_error->message << std::endl;
-    } else if (result->error) {
+    if (result->error) {
         std::cout << result->error->message << std::endl;
     } else {
         std::cout << result->result << std::endl;
@@ -156,7 +154,7 @@ Module().then(async (jejalyk) => {
 ```html
 
 <script src="./dist/optimized_jejalyk_web.js">
-  global.mavka_compilation_options = {
+  window.mavka_compilation_options = {
     std_code: "",
     root_module_path: "",
     current_module_path: "",
