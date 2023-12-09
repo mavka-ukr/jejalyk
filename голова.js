@@ -54,6 +54,18 @@ var м_текст = String;
 м_текст["чародія_перетворити_на_текст"] = мДія("чародія_перетворити_на_текст", [], function() {
   return "<структура текст>";
 });
+Object.defineProperty(м_текст.prototype, "довжина", {
+  get() {
+    return this.length;
+  },
+});
+Object.defineProperty(м_текст.prototype, "обрізати", {
+  get() {
+    return мДія("обрізати", [], () => {
+      return this.trim();
+    });
+  },
+});
 
 var м_Дія = Function;
 м_Дія["чародія_викликати"] = мДія("чародія_викликати", [], function() {
@@ -70,16 +82,9 @@ var м_список = Array;
 м_список["чародія_перетворити_на_текст"] = мДія("чародія_перетворити_на_текст", [], function() {
   return "<структура список>";
 });
-// Object.defineProperty(м_список.prototype, "довжина", {
-//   get() {
-//     return this.length;
-//   },
-// });
 Object.defineProperty(м_список.prototype, "довжина", {
   get() {
-    return мДія("довжина", [], (args) => {
-      return this.length;
-    });
+    return this.length;
   },
 });
 Object.defineProperty(м_список.prototype, "додати", {
@@ -193,6 +198,15 @@ function мПарм(name, type, defaultValue) {
     ["назва", name],
     ["тип", type],
     ["значення", defaultValue],
+  ]);
+}
+
+function мВпрм(name, type, defaultValue) {
+  return new Map([
+    ["назва", name],
+    ["тип", type],
+    ["значення", defaultValue],
+    ["варіативний", true],
   ]);
 }
 
@@ -438,20 +452,6 @@ function мРівн(a, b) {
     return мВикл(a["чародія_порівняти_чи_рівно"], [b]);
   }
   return a === b ? м_так : м_ні;
-}
-
-function мАбо(a, b) {
-  if (!a) {
-    return b;
-  }
-  return a;
-}
-
-function мІ(a, b) {
-  if (a) {
-    return b;
-  }
-  return a;
 }
 
 function мЄ(a, b) {

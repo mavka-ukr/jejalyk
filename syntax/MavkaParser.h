@@ -2086,6 +2086,9 @@ public:
 
   class  ParamsContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *p_variadic = nullptr;
+    MavkaParser::IdentifierContext *p_variadic_name = nullptr;
+    MavkaParser::Type_valueContext *p_variadic_type = nullptr;
     ParamsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     std::vector<ParamContext *> param();
@@ -2094,6 +2097,9 @@ public:
     NlsContext* nls(size_t i);
     std::vector<antlr4::tree::TerminalNode *> COMMA();
     antlr4::tree::TerminalNode* COMMA(size_t i);
+    antlr4::tree::TerminalNode *SPREAD();
+    IdentifierContext *identifier();
+    Type_valueContext *type_value();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -2106,7 +2112,6 @@ public:
 
   class  ParamContext : public antlr4::ParserRuleContext {
   public:
-    antlr4::Token *p_spread = nullptr;
     MavkaParser::IdentifierContext *p_name = nullptr;
     MavkaParser::Array_destructionContext *p_array_destruction = nullptr;
     MavkaParser::Object_destructionContext *p_object_destruction = nullptr;
@@ -2120,7 +2125,6 @@ public:
     antlr4::tree::TerminalNode *ASSIGN();
     Type_valueContext *type_value();
     Param_valueContext *param_value();
-    antlr4::tree::TerminalNode *SPREAD();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

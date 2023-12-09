@@ -134,8 +134,9 @@ arg: nls (a_spread='...')? a_value=expr nls;
 named_args: named_arg (',' named_arg)*;
 named_arg: nls na_name=identifier '=' na_value=expr nls;
 
-params: param (nls ',' nls param)*;
-param: ((p_spread='...')? p_name=identifier | p_array_destruction=array_destruction | p_object_destruction=object_destruction) p_type=type_value? ('=' p_value=param_value)?;
+params: param (nls ',' nls param)* (nls ',' nls p_variadic='...' p_variadic_name=identifier p_variadic_type=type_value?)?
+      | p_variadic='...' p_variadic_name=identifier p_variadic_type=type_value?;
+param: (p_name=identifier | p_array_destruction=array_destruction | p_object_destruction=object_destruction) p_type=type_value? ('=' p_value=param_value)?;
 param_value: NUMBER #param_value_number
            | (STRING | STRING_MULTILINE) #param_value_string
            | identifier #param_value_identifier

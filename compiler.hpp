@@ -13,6 +13,7 @@ namespace jejalyk {
     const std::string MAVKA_METHOD = "мМетд"; // мМетд(назва, параметри, функція)
     const std::string MAVKA_SET_METHOD = "мВМтд"; // мВМтд(структура, метод)
     const std::string MAVKA_PARAM = "мПарм"; // мПарм(назва, тип, значення)
+    const std::string MAVKA_VPARAM = "мВпрм"; // мВпрм(назва, тип, значення)
     const std::string MAVKA_ADD = "мДодт"; // мДодт(а, б)
     const std::string MAVKA_SUB = "мВідн"; // мВідн(а, б)
     const std::string MAVKA_MUL = "мМнож"; // мМнож(а, б)
@@ -795,7 +796,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         std::vector<std::string> before;
         if (parent) {
-            before.emplace_back("м_предок="+MAVKA_PARENT+"(м_я)");
+            before.emplace_back("м_предок=" + MAVKA_PARENT + "(м_я)");
         }
         for (int i = 0; i < params.size(); ++i) {
             const auto param = params[i];
@@ -811,9 +812,15 @@ namespace jejalyk {
                     compiled_value->result + "):args[\"" + param->name + "\"]:args[" + std::to_string(i) + "]"
                 );
             } else {
-                before.push_back(
-                    varname(param->name) + "=args[" + std::to_string(i) + "]===undefined?args[\"" + param->name +
-                    "\"]:args[" + std::to_string(i) + "]");
+                if (param->variadic) {
+                    before.push_back(
+                        varname(param->name) + "=args[\"" + param->name + "\"]===undefined?Object.values(args).slice(" +
+                        std::to_string(i) + "):args[\"" + param->name + "\"]");
+                } else {
+                    before.push_back(
+                        varname(param->name) + "=args[" + std::to_string(i) + "]===undefined?args[\"" + param->name +
+                        "\"]:args[" + std::to_string(i) + "]");
+                }
             }
         }
         const auto body_compilation_result = compile_body(body, scope, options, wrap, tools::implode(before, ";\n"));
@@ -1344,9 +1351,9 @@ namespace jejalyk {
             return node_compilation_result;
         }
         if (test_node->op == "і") {
-            node_compilation_result->result = MAVKA_AND + "(" + left->result + "," + right->result + ")";
+            node_compilation_result->result = "(" + left->result + ")&&(" + right->result + ")";
         } else if (test_node->op == "або") {
-            node_compilation_result->result = MAVKA_OR + "(" + left->result + "," + right->result + ")";
+            node_compilation_result->result = "(" + left->result + ")||(" + right->result + ")";
         } else {
             node_compilation_result->error = new CompilationError();
             node_compilation_result->error->line = test_node->start_line;
@@ -1732,7 +1739,7 @@ namespace jejalyk {
             std::string compiled_param_type = "undefined";
             std::string compiled_param_value = "undefined";
             // todo: handle type
-            std::string param_string = MAVKA_PARAM + "(" + "\"" + param_name + "\"";
+            std::string param_string = (param->variadic ? MAVKA_VPARAM : MAVKA_PARAM) + "(" + "\"" + param_name + "\"";
             if (compiled_param_type != "undefined") {
                 param_string += "," + compiled_param_type;
             }

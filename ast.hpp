@@ -21,6 +21,7 @@ namespace mavka::ast {
         std::string name;
         std::vector<ASTNode *> types;
         ASTNode* value;
+        bool variadic = false;
     };
 
     class AnonDiiaNode final : public ASTNode {
