@@ -226,6 +226,9 @@ public:
   virtual void enterDictionary_arg(MavkaParser::Dictionary_argContext * /*ctx*/) override { }
   virtual void exitDictionary_arg(MavkaParser::Dictionary_argContext * /*ctx*/) override { }
 
+  virtual void enterCall_parent(MavkaParser::Call_parentContext * /*ctx*/) override { }
+  virtual void exitCall_parent(MavkaParser::Call_parentContext * /*ctx*/) override { }
+
   virtual void enterSimple(MavkaParser::SimpleContext * /*ctx*/) override { }
   virtual void exitSimple(MavkaParser::SimpleContext * /*ctx*/) override { }
 

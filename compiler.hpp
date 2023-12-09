@@ -10,8 +10,8 @@ namespace jejalyk {
     const std::string MAVKA_SET = "мВстн"; // мВстн(значення, властивість, значення)
     const std::string MAVKA_SET_ELEMENT = "мПклс"; // мПклс(значення, елемент, значення)
     const std::string MAVKA_DIIA = "мДія"; // мДія(назва, параметри, функція)
-    const std::string MAVKA_METHOD = "мМетд"; // мМетд(параметри, функція)
-    const std::string MAVKA_SET_METHOD = "мВМтд"; // мВМтд(структура, назва, метод)
+    const std::string MAVKA_METHOD = "мМетд"; // мМетд(назва, параметри, функція)
+    const std::string MAVKA_SET_METHOD = "мВМтд"; // мВМтд(структура, метод)
     const std::string MAVKA_PARAM = "мПарм"; // мПарм(назва, тип, значення)
     const std::string MAVKA_ADD = "мДодт"; // мДодт(а, б)
     const std::string MAVKA_SUB = "мВідн"; // мВідн(а, б)
@@ -44,13 +44,14 @@ namespace jejalyk {
     const std::string MAVKA_PRE_DECREMENT = "мПрдк"; // мПрдк(значення)
     const std::string MAVKA_PRE_INCREMENT = "мПрік"; // мПрік(значення)
     const std::string MAVKA_GIVE = "мДати"; // мДати(модуль, назва, значення)
-    const std::string MAVKA_STRUCTURE = "мСтрк"; // мСтрк(назва, параметри)
+    const std::string MAVKA_STRUCTURE = "мСтрк"; // мСтрк(назва, параметри, предок)
     const std::string MAVKA_IS = "мЄ"; // мЄ(а, б)
     const std::string MAVKA_CONTAINS = "мМає"; // мМає(а, б)
     const std::string MAVKA_FROM_TO = "мЦВід"; // мЦВід(від, до, символ, функція)
     const std::string MAVKA_FROM_TO_FN = "мЦВідФ"; // мЦВідФ(оператор, крок)
     const std::string MAVKA_VALUES_ITERATOR = "мІтер"; // мІтер(значення)
     const std::string MAVKA_ENTRIES_ITERATOR = "мІтерП"; // мІтерП(значення)
+    const std::string MAVKA_PARENT = "мСпрд"; // мСпрд(я)
 
     inline std::string varname(const std::string& name) {
         return "м_" + name;
@@ -210,7 +211,8 @@ namespace jejalyk {
     NodeCompilationResult* compile_body(const std::vector<mavka::ast::ASTNode *>& body,
                                         CompilationScope* scope,
                                         CompilationOptions* options,
-                                        const bool wrap);
+                                        const bool wrap = true,
+                                        const std::string& before = "");
 
     NodeCompilationResult* compile_params(std::vector<mavka::ast::ParamNode *> params,
                                           CompilationScope* scope,
@@ -496,6 +498,10 @@ namespace jejalyk {
             node_compilation_result->result = MAVKA_DIV_DIV + "(" + compiled_left->result + "," + compiled_right->result
                                               +
                                               ")";
+        } else if (arithmetic_node->op == "**") {
+            node_compilation_result->result = MAVKA_POW + "(" + compiled_left->result + "," + compiled_right->result
+                                              +
+                                              ")";
         } else {
             node_compilation_result->error = new CompilationError();
             node_compilation_result->error->line = arithmetic_node->start_line;
@@ -733,22 +739,22 @@ namespace jejalyk {
             node_compilation_result->error = compiled_right->error;
             return node_compilation_result;
         }
-        if (comparison_node->op == "==") {
+        if (comparison_node->op == "==" || comparison_node->op == "рівно") {
             node_compilation_result->result =
                     MAVKA_EQ + "(" + compiled_left->result + "," + compiled_right->result + ")";
-        } else if (comparison_node->op == "!=") {
+        } else if (comparison_node->op == "!=" || comparison_node->op == "не рівно") {
             node_compilation_result->result =
                     "!" + MAVKA_EQ + "(" + compiled_left->result + "," + compiled_right->result + ")";
-        } else if (comparison_node->op == "<") {
+        } else if (comparison_node->op == "<" || comparison_node->op == "менше") {
             node_compilation_result->result =
                     MAVKA_LT + "(" + compiled_left->result + "," + compiled_right->result + ")";
-        } else if (comparison_node->op == "<=") {
+        } else if (comparison_node->op == "<=" || comparison_node->op == "не більше") {
             node_compilation_result->result =
                     MAVKA_LE + "(" + compiled_left->result + "," + compiled_right->result + ")";
-        } else if (comparison_node->op == ">") {
+        } else if (comparison_node->op == ">" || comparison_node->op == "більше") {
             node_compilation_result->result =
                     MAVKA_GT + "(" + compiled_left->result + "," + compiled_right->result + ")";
-        } else if (comparison_node->op == ">=") {
+        } else if (comparison_node->op == ">=" || comparison_node->op == "не менше") {
             node_compilation_result->result =
                     MAVKA_GE + "(" + compiled_left->result + "," + compiled_right->result + ")";
         } else if (comparison_node->op == "є") {
@@ -780,6 +786,45 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
+    inline NodeCompilationResult* compile_diia_body(const std::vector<mavka::ast::ASTNode *>& body,
+                                                    const std::vector<mavka::ast::ParamNode *>& params,
+                                                    CompilationScope* scope,
+                                                    CompilationOptions* options,
+                                                    const bool wrap = true,
+                                                    const bool parent = false) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        std::vector<std::string> before;
+        if (parent) {
+            before.emplace_back("м_предок="+MAVKA_PARENT+"(м_я)");
+        }
+        for (int i = 0; i < params.size(); ++i) {
+            const auto param = params[i];
+            if (param->value) {
+                const auto compiled_value = compile_node(param->value, scope, options);
+                if (compiled_value->error) {
+                    node_compilation_result->error = compiled_value->error;
+                    return node_compilation_result;
+                }
+                before.push_back(
+                    varname(param->name) + "=args[" + std::to_string(i) + "]===undefined?args[\"" + param->name +
+                    "\"]===undefined?(" +
+                    compiled_value->result + "):args[\"" + param->name + "\"]:args[" + std::to_string(i) + "]"
+                );
+            } else {
+                before.push_back(
+                    varname(param->name) + "=args[" + std::to_string(i) + "]===undefined?args[\"" + param->name +
+                    "\"]:args[" + std::to_string(i) + "]");
+            }
+        }
+        const auto body_compilation_result = compile_body(body, scope, options, wrap, tools::implode(before, ";\n"));
+        if (body_compilation_result->error) {
+            node_compilation_result->error = body_compilation_result->error;
+            return node_compilation_result;
+        }
+        node_compilation_result->result = body_compilation_result->result;
+        return node_compilation_result;
+    }
+
     inline NodeCompilationResult* compile_diia_node(const mavka::ast::DiiaNode* diia_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
@@ -795,24 +840,25 @@ namespace jejalyk {
         const auto compiled_params = params_compilation_result->result;
 
         if (diia_node->structure.empty()) {
-            const auto body = compile_body(diia_node->body, diia_scope, options, true);
+            const auto body = compile_diia_body(diia_node->body, diia_node->params, diia_scope, options, true);
             if (body->error) {
                 node_compilation_result->error = body->error;
                 return node_compilation_result;
             }
             node_compilation_result->result = varname(diia_node->name) + "=" + MAVKA_DIIA + "(" + "\"" + diia_node->name
                                               + "\"" + "," +
-                                              compiled_params + ",function()" + body->result + ")";
+                                              compiled_params + ",function(args)" + body->result + ")";
         } else {
             diia_scope->assign("я");
-            const auto body = compile_body(diia_node->body, diia_scope, options, true);
+            diia_scope->assign("предок");
+            const auto body = compile_diia_body(diia_node->body, diia_node->params, diia_scope, options, true, true);
             if (body->error) {
                 node_compilation_result->error = body->error;
                 return node_compilation_result;
             }
-            node_compilation_result->result = MAVKA_SET_METHOD + "(" + varname(diia_node->structure) + ",\"" + diia_node
-                                              ->name + "\"," + MAVKA_METHOD + "(" +
-                                              compiled_params + ",function()" + body->result + "))";
+            node_compilation_result->result = MAVKA_SET_METHOD + "(" + varname(diia_node->structure) + "," +
+                                              MAVKA_METHOD + "(\"" + diia_node->name + "\"," +
+                                              compiled_params + ",function(м_я,args)" + body->result + "))";
         }
         return node_compilation_result;
     }
@@ -1230,9 +1276,18 @@ namespace jejalyk {
             node_compilation_result->error = compiled_params->error;
             return node_compilation_result;
         }
+        std::string parent = "undefined";
+        if (structure_node->parent) {
+            const auto compiled_parent = compile_node(structure_node->parent, scope, options);
+            if (compiled_parent->error) {
+                node_compilation_result->error = compiled_parent->error;
+                return node_compilation_result;
+            }
+            parent = compiled_parent->result;
+        }
         node_compilation_result->result = varname(structure_node->name) + "=" + MAVKA_STRUCTURE + "(" + "\""
                                           + structure_node->name + "\"" + "," +
-                                          compiled_params->result + ")";
+                                          compiled_params->result + "," + parent + ")";
         return node_compilation_result;
     }
 
@@ -1288,7 +1343,16 @@ namespace jejalyk {
             node_compilation_result->error = right->error;
             return node_compilation_result;
         }
-        // todo: complete
+        if (test_node->op == "і") {
+            node_compilation_result->result = MAVKA_AND + "(" + left->result + "," + right->result + ")";
+        } else if (test_node->op == "або") {
+            node_compilation_result->result = MAVKA_OR + "(" + left->result + "," + right->result + ")";
+        } else {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = test_node->start_line;
+            node_compilation_result->error->column = test_node->start_column;
+            node_compilation_result->error->message = "unsupported test operation: " + test_node->op;
+        }
         return node_compilation_result;
     }
 
@@ -1614,7 +1678,8 @@ namespace jejalyk {
     inline NodeCompilationResult* compile_body(const std::vector<mavka::ast::ASTNode *>& body,
                                                CompilationScope* scope,
                                                CompilationOptions* options,
-                                               const bool wrap) {
+                                               const bool wrap,
+                                               const std::string& before) {
         const auto options_clone = options->clone();
         options_clone->body_depth = options->body_depth + 1;
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1630,8 +1695,17 @@ namespace jejalyk {
             }
             compiled_body.push_back(item_node_compilation_result->result);
         }
+        if (!before.empty()) {
+            compiled_body.insert(compiled_body.begin(), before);
+        }
         std::vector<std::string> vars;
         for (auto subject: scope->subjects) {
+            if (subject.first == "я") {
+                continue;
+            }
+            if (subject.first == "предок") {
+                continue;
+            }
             vars.push_back(varname(subject.first));
         }
         if (!vars.empty()) {

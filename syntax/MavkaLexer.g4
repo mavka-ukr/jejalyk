@@ -47,6 +47,7 @@ IMPLEMENT: 'втілити';
 EVAL: 'js';
 WHEN: 'коли';
 ALSO: 'також';
+PARENT: 'предок';
 TSE: 'це';
 TEST: 'тест';
 IY: 'й';

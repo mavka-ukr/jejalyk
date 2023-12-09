@@ -224,6 +224,9 @@ public:
   virtual void enterDictionary_arg(MavkaParser::Dictionary_argContext *ctx) = 0;
   virtual void exitDictionary_arg(MavkaParser::Dictionary_argContext *ctx) = 0;
 
+  virtual void enterCall_parent(MavkaParser::Call_parentContext *ctx) = 0;
+  virtual void exitCall_parent(MavkaParser::Call_parentContext *ctx) = 0;
+
   virtual void enterSimple(MavkaParser::SimpleContext *ctx) = 0;
   virtual void exitSimple(MavkaParser::SimpleContext *ctx) = 0;
 

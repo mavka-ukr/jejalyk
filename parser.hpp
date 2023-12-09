@@ -177,13 +177,20 @@ namespace mavka::parser {
 
         std::any visitStructure(MavkaParser::StructureContext* context) override {
             const std::string name = context->s_name->getText();
-            const auto params = std::any_cast<std::vector<ast::ASTNode *>>(
-                visitStructure_elements(context->structure_elements())
-            );
+            std::vector<ast::ASTNode *> params;
+            if (context->structure_elements()) {
+                params = std::any_cast<std::vector<ast::ASTNode *>>(
+                    visitStructure_elements(context->structure_elements())
+                );
+            }
             const auto structure_node = new ast::StructureNode();
             structure_node->name = name;
+            if (context->s_parent) {
+                const auto parent = any_to_ast_result(visitSuper_identifiers_chain(context->s_parent))->node;
+                structure_node->parent = parent;
+            }
             structure_node->params = std::vector<ast::StructureParamNode *>();
-            for (auto& param: params) {
+            for (const auto& param: params) {
                 if (jejalyk::tools::instanceof<ast::StructureParamNode>(param)) {
                     structure_node->params.push_back(dynamic_cast<ast::StructureParamNode *>(param));
                 }
@@ -431,6 +438,27 @@ namespace mavka::parser {
         }
 
         std::any visitExpr(MavkaParser::ExprContext* context) {
+            if (jejalyk::tools::instanceof<MavkaParser::Call_parentContext>(context)) {
+                const auto call_parent_context = dynamic_cast<MavkaParser::Call_parentContext *>(context);
+                const auto call_node = new ast::CallNode();
+                const auto chain_node = new ast::ChainNode();
+                const auto identifier_node = new ast::IdentifierNode();
+                identifier_node->name = "предок";
+                chain_node->left = identifier_node;
+                chain_node->right = any_to_ast_result(visitIdentifier(call_parent_context->cp_id))->node;
+                call_node->value = chain_node;
+                if (call_parent_context->cp_args) {
+                    call_node->args = std::any_cast<std::vector<ast::ArgNode *>>(
+                        visitArgs(call_parent_context->cp_args)
+                    );
+                }
+                if (call_parent_context->cp_named_args) {
+                    call_node->args = std::any_cast<std::vector<ast::ArgNode *>>(
+                        visitNamed_args(call_parent_context->cp_named_args)
+                    );
+                }
+                return create_ast_result(call_node);
+            }
             if (jejalyk::tools::instanceof<MavkaParser::SimpleContext>(context)) {
                 const auto simple_context = dynamic_cast<MavkaParser::SimpleContext *>(context);
                 return visitValue(simple_context->value());
@@ -887,7 +915,68 @@ namespace mavka::parser {
         }
 
         std::any visitParam_value(MavkaParser::Param_valueContext* context) {
+            if (jejalyk::tools::instanceof<MavkaParser::Param_value_stringContext>(context)) {
+                return visitParam_value_string(dynamic_cast<MavkaParser::Param_value_stringContext *>(context));
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Param_value_numberContext>(context)) {
+                return visitParam_value_number(dynamic_cast<MavkaParser::Param_value_numberContext *>(context));
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Param_value_identifierContext>(context)) {
+                return visitParam_value_identifier(dynamic_cast<MavkaParser::Param_value_identifierContext *>(context));
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Param_value_empty_dictionaryContext>(context)) {
+                return visitParam_value_empty_dictionary(
+                    dynamic_cast<MavkaParser::Param_value_empty_dictionaryContext *>(context));
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Param_value_empty_listContext>(context)) {
+                return visitParam_value_empty_list(dynamic_cast<MavkaParser::Param_value_empty_listContext *>(context));
+            }
             return create_ast_result(nullptr);
+        }
+
+        std::any visitParam_value_string(MavkaParser::Param_value_stringContext* context) override {
+            if (context->STRING()) {
+                const auto string_node = new ast::StringNode();
+                string_node->value = context->STRING()->getText();
+                if (string_node->value.starts_with(R"(""")")) {
+                    string_node->value = string_node->value.substr(3, string_node->value.length() - 6);
+                } else {
+                    string_node->value = string_node->value.substr(1, string_node->value.length() - 2);
+                }
+                return create_ast_result(string_node);
+            } else if (context->STRING_MULTILINE()) {
+                const auto string_node = new ast::StringNode();
+                string_node->value = context->STRING_MULTILINE()->getText();
+                if (string_node->value.starts_with(R"(""")")) {
+                    string_node->value = string_node->value.substr(3, string_node->value.length() - 6);
+                } else {
+                    string_node->value = string_node->value.substr(1, string_node->value.length() - 2);
+                }
+                return create_ast_result(string_node);
+            }
+            return create_ast_result(nullptr);
+        }
+
+        std::any visitParam_value_number(MavkaParser::Param_value_numberContext* context) override {
+            const auto number_node = new ast::NumberNode();
+            number_node->value = context->NUMBER()->getText();
+            return create_ast_result(number_node);
+        }
+
+        std::any visitParam_value_identifier(MavkaParser::Param_value_identifierContext* context) override {
+            const auto identifier_node = new ast::IdentifierNode();
+            identifier_node->name = context->identifier()->getText();
+            return create_ast_result(identifier_node);
+        }
+
+        std::any visitParam_value_empty_dictionary(MavkaParser::Param_value_empty_dictionaryContext* context) override {
+            const auto dictionary_node = new ast::DictionaryNode();
+            return create_ast_result(dictionary_node);
+        }
+
+        std::any visitParam_value_empty_list(MavkaParser::Param_value_empty_listContext* context) override {
+            const auto array_node = new ast::ArrayNode();
+            return create_ast_result(array_node);
         }
 
         std::any visitIdentifiers_chain(MavkaParser::Identifiers_chainContext* context) override {

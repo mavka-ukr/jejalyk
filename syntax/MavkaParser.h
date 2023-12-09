@@ -20,19 +20,19 @@ public:
     EQ_WORD = 32, GR_WORD = 33, SM_WORD = 34, NOT_GR_WORD = 35, NOT_SM_WORD = 36, 
     NOT_EQ_WORD = 37, NOT_IS_WORD = 38, HAS_IS_WORD = 39, NOT_HAS_IS_WORD = 40, 
     STAR_ALL = 41, MOCKUP = 42, IMPLEMENTS = 43, IMPLEMENT = 44, EVAL = 45, 
-    WHEN = 46, ALSO = 47, TSE = 48, TEST = 49, IY = 50, SPREAD = 51, FROMTO = 52, 
-    SKIP_SPACES = 53, NL = 54, DECREMENT = 55, INCREMENT = 56, OPEN_PAREN = 57, 
-    CLOSE_PAREN = 58, OPEN_ARRAY = 59, CLOSE_ARRAY = 60, COMMA = 61, ASSIGN = 62, 
-    ASSIGN_PARENT = 63, ASSIGN_ADD = 64, ASSIGN_SUB = 65, ASSIGN_MUL = 66, 
-    ASSIGN_DIV = 67, ASSIGN_DIVDIV = 68, ASSIGN_MOD = 69, ASSIGN_BW_OR = 70, 
-    ASSIGN_BW_AND = 71, ASSIGN_BW_SHIFT_LEFT = 72, ASSIGN_BW_SHIFT_RIGHT = 73, 
-    ASSIGN_XOR = 74, ASSIGN_POW = 75, ASSIGN_OR = 76, ASSIGN_AND = 77, ASSIGN_IF = 78, 
-    PLUS = 79, MINUS = 80, MUL = 81, DIV = 82, COLON = 83, DOT = 84, NOT = 85, 
-    TILDA = 86, PERCENT = 87, DIVDIV = 88, POW = 89, XOR = 90, OR_SYM = 91, 
-    AND_SYM = 92, OR_BW = 93, AND_BW = 94, BW_SHIFT_LEFT = 95, BW_SHIFT_RIGHT = 96, 
-    HEX_START = 97, ID = 98, NUMBER = 99, INTEGER = 100, FLOAT = 101, HEX = 102, 
-    HEXUKR = 103, BINNUM = 104, BINNUMUKR = 105, TRIPPLE_QUOTE = 106, STRING_MULTILINE = 107, 
-    STRING = 108, COMMENT = 109, LINE_COMMENT = 110, OLD_COMMENT = 111
+    WHEN = 46, ALSO = 47, PARENT = 48, TSE = 49, TEST = 50, IY = 51, SPREAD = 52, 
+    FROMTO = 53, SKIP_SPACES = 54, NL = 55, DECREMENT = 56, INCREMENT = 57, 
+    OPEN_PAREN = 58, CLOSE_PAREN = 59, OPEN_ARRAY = 60, CLOSE_ARRAY = 61, 
+    COMMA = 62, ASSIGN = 63, ASSIGN_PARENT = 64, ASSIGN_ADD = 65, ASSIGN_SUB = 66, 
+    ASSIGN_MUL = 67, ASSIGN_DIV = 68, ASSIGN_DIVDIV = 69, ASSIGN_MOD = 70, 
+    ASSIGN_BW_OR = 71, ASSIGN_BW_AND = 72, ASSIGN_BW_SHIFT_LEFT = 73, ASSIGN_BW_SHIFT_RIGHT = 74, 
+    ASSIGN_XOR = 75, ASSIGN_POW = 76, ASSIGN_OR = 77, ASSIGN_AND = 78, ASSIGN_IF = 79, 
+    PLUS = 80, MINUS = 81, MUL = 82, DIV = 83, COLON = 84, DOT = 85, NOT = 86, 
+    TILDA = 87, PERCENT = 88, DIVDIV = 89, POW = 90, XOR = 91, OR_SYM = 92, 
+    AND_SYM = 93, OR_BW = 94, AND_BW = 95, BW_SHIFT_LEFT = 96, BW_SHIFT_RIGHT = 97, 
+    HEX_START = 98, ID = 99, NUMBER = 100, INTEGER = 101, FLOAT = 102, HEX = 103, 
+    HEXUKR = 104, BINNUM = 105, BINNUMUKR = 106, TRIPPLE_QUOTE = 107, STRING_MULTILINE = 108, 
+    STRING = 109, COMMENT = 110, LINE_COMMENT = 111, OLD_COMMENT = 112
   };
 
   enum {
@@ -319,6 +319,7 @@ public:
   class  StructureContext : public antlr4::ParserRuleContext {
   public:
     MavkaParser::IdentifierContext *s_name = nullptr;
+    MavkaParser::Super_identifiers_chainContext *s_parent = nullptr;
     MavkaParser::Structure_elementsContext *s_elements = nullptr;
     StructureContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -328,6 +329,8 @@ public:
     NlsContext *nls();
     antlr4::tree::TerminalNode *END();
     IdentifierContext *identifier();
+    antlr4::tree::TerminalNode *IS();
+    Super_identifiers_chainContext *super_identifiers_chain();
     Structure_elementsContext *structure_elements();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1533,6 +1536,28 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  Call_parentContext : public ExprContext {
+  public:
+    Call_parentContext(ExprContext *ctx);
+
+    MavkaParser::IdentifierContext *cp_id = nullptr;
+    MavkaParser::ArgsContext *cp_args = nullptr;
+    MavkaParser::Named_argsContext *cp_named_args = nullptr;
+    antlr4::tree::TerminalNode *PARENT();
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *DOT();
+    antlr4::tree::TerminalNode *OPEN_PAREN();
+    antlr4::tree::TerminalNode *CLOSE_PAREN();
+    IdentifierContext *identifier();
+    ArgsContext *args();
+    Named_argsContext *named_args();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  FunctionContext : public ExprContext {
   public:
     FunctionContext(ExprContext *ctx);
@@ -1925,6 +1950,8 @@ public:
     Super_identifiers_chainContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdentifierContext *identifier();
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
     antlr4::tree::TerminalNode *DOT();
     Super_identifiers_chainContext *super_identifiers_chain();
     Extended_identifierContext *extended_identifier();

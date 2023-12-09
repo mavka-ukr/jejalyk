@@ -27,6 +27,7 @@ var м_друк = мДія("друк", [], function(args) {
 
     if (result->error) {
         std::cout << result->error->line << ":" << result->error->column << ": " << result->error->message << std::endl;
+        return 1;
     } else if (argc > 2) {
         std::ofstream out(argv[2]);
         out << result->result;

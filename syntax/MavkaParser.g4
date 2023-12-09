@@ -15,7 +15,7 @@ module_body_element: module | structure | mockup | diia | if | each | while | tr
 
 method_declaration: md_name=identifier '(' (nls md_params=params? nls) ')' (md_type=type_value)?;
 
-structure: 'структура' s_name=identifier nl (s_elements=structure_elements nl)? nls 'кінець';
+structure: 'структура' s_name=identifier ('є' s_parent=super_identifiers_chain)? nl (s_elements=structure_elements nl)? nls 'кінець';
 structure_elements: structure_element (nl structure_element)*;
 structure_element: structure_param | nls;
 structure_param: sp_name=identifier sp_type=type_value? ('=' sp_value=param_value)?;
@@ -94,7 +94,8 @@ array_element: ae_value=expr;
 dictionary_args: dictionary_arg (',' dictionary_arg)*;
 dictionary_arg: nls (da_name_id=identifier | da_name_string=STRING) '=' da_value=expr nls;
 
-expr: value #simple
+expr: 'предок' nls '.' nls cp_id=identifier '(' (cp_args=args | cp_named_args=named_args)? ')' #call_parent
+    | value #simple
     | 'чекати' w_value=value #wait
     | (f_async='тривала')? '(' f_params=params? ')' f_type=type_value? ':' f_body=expr #function
     | (d_async='тривала')? 'дія' '(' ( nls d_params=params? nls ) ')' (d_type=type_value)? nl (d_body=body nl)? nls 'кінець' #anonymous_diia
@@ -122,8 +123,8 @@ extended_identifier: ID | END | DIIA | STRUCTURE | FOR | IF | WAIT | TAKE | GIVE
 
 identifiers_chain: ic_identifier=identifier | ic_left=identifiers_chain '.' ic_right=extended_identifier;
 super_identifiers_chain: sic_identifier=identifier
-                       | sic_left=super_identifiers_chain '.' sic_right=extended_identifier
-                       | sic_left=super_identifiers_chain '[' sic_index=expr ']';
+                       | sic_left=super_identifiers_chain nls '.' nls sic_right=extended_identifier
+                       | sic_left=super_identifiers_chain '[' nls sic_index=expr nls ']';
 
 type_value: type_value_item (('|' | 'або') type_value_item)*;
 type_value_item: (tv_array='[' ']')? tv_single=identifiers_chain;

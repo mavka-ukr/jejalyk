@@ -159,6 +159,8 @@ public:
 
     virtual std::any visitDictionary_arg(MavkaParser::Dictionary_argContext *context) = 0;
 
+    virtual std::any visitCall_parent(MavkaParser::Call_parentContext *context) = 0;
+
     virtual std::any visitSimple(MavkaParser::SimpleContext *context) = 0;
 
     virtual std::any visitWait(MavkaParser::WaitContext *context) = 0;

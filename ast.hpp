@@ -278,6 +278,7 @@ namespace mavka::ast {
     class MockupStructureNode final : public ASTNode {
     public:
         std::string name;
+        ASTNode* parent;
         std::vector<ASTNode *> params;
     };
 
@@ -386,6 +387,7 @@ namespace mavka::ast {
         std::string TYPE = "StructureNode";
 
         std::string name;
+        ASTNode* parent;
         std::vector<StructureParamNode *> params;
     };
 
