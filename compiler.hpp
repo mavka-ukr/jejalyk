@@ -177,8 +177,6 @@ namespace jejalyk {
 
         std::string (*get_module_code)(bool, std::string, CompilationOptions*) = nullptr;
 
-        std::string (*get_butintin_module_code)(std::string, CompilationOptions*) = nullptr;
-
         std::string (*get_remote_module_name)(std::string, CompilationOptions*) = nullptr;
 
         std::string (*get_remote_module_pak_path)(std::string, CompilationOptions*) = nullptr;
@@ -197,7 +195,6 @@ namespace jejalyk {
             clone->get_module_name = get_module_name;
             clone->get_module_path = get_module_path;
             clone->get_module_code = get_module_code;
-            clone->get_butintin_module_code = get_butintin_module_code;
             clone->get_remote_module_name = get_remote_module_name;
             clone->get_remote_module_pak_path = get_remote_module_pak_path;
             clone->get_remote_module_path = get_remote_module_path;

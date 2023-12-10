@@ -34,10 +34,6 @@ std::string get_module_code(bool relative, std::string module, jejalyk::Compilat
     // ...
 }
 
-std::string get_butintin_module_code(std::string module, jejalyk::CompilationOptions* options) {
-    // ...
-}
-
 std::string get_remote_module_name(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
@@ -63,7 +59,6 @@ int main() {
     options->get_module_name = &get_module_name;
     options->get_module_path = &get_module_path;
     options->get_module_code = &get_module_code;
-    options->get_butintin_module_code = &get_butintin_module_code;
     options->get_remote_module_name = &get_remote_module_name;
     options->get_remote_module_pak_path = &get_remote_module_pak_path;
     options->get_remote_module_path = &get_remote_module_path;
