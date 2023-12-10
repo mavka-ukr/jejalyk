@@ -91,6 +91,9 @@ namespace mavka::parser {
             if (context->expr()) {
                 return visitExpr(context->expr());
             }
+            if (context->take()) {
+                return visitTake(context->take());
+            }
             if (context->throw_()) {
                 return visitThrow(context->throw_());
             }
@@ -858,9 +861,25 @@ namespace mavka::parser {
             return create_ast_result(new ast::ASTNode());
         }
 
+        std::any visitTake(MavkaParser::TakeContext* context) {
+            if (jejalyk::tools::instanceof<MavkaParser::Take_moduleContext>(context)) {
+                return visitTake_module(dynamic_cast<MavkaParser::Take_moduleContext *>(context));
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Take_fileContext>(context)) {
+                return visitTake_file(dynamic_cast<MavkaParser::Take_fileContext *>(context));
+            }
+            if (jejalyk::tools::instanceof<MavkaParser::Take_remoteContext>(context)) {
+                return visitTake_remote(dynamic_cast<MavkaParser::Take_remoteContext *>(context));
+            }
+            return create_ast_result(nullptr);
+        }
+
         std::any visitTake_module(MavkaParser::Take_moduleContext* context) override {
-            // todo
-            return create_ast_result(new ast::ASTNode());
+            const auto take_module_node = new ast::TakeModuleNode();
+            take_module_node->relative = context->tm_relative != nullptr;
+            take_module_node->name = context->tm_elements_chain->getText();
+            take_module_node->as = context->tm_as ? context->tm_as->getText() : "";
+            return create_ast_result(take_module_node);
         }
 
         std::any visitTake_file(MavkaParser::Take_fileContext* context) override {
@@ -869,8 +888,15 @@ namespace mavka::parser {
         }
 
         std::any visitTake_remote(MavkaParser::Take_remoteContext* context) override {
-            // todo
-            return create_ast_result(new ast::ASTNode());
+            const auto take_pak_node = new ast::TakePakNode();
+            take_pak_node->name = context->tr_url->getText();
+            if (take_pak_node->name.starts_with(R"(""")")) {
+                take_pak_node->name = take_pak_node->name.substr(3, take_pak_node->name.length() - 6);
+            } else {
+                take_pak_node->name = take_pak_node->name.substr(1, take_pak_node->name.length() - 2);
+            }
+            take_pak_node->as = context->tr_as ? context->tr_as->getText() : "";
+            return create_ast_result(take_pak_node);
         }
 
         std::any visitGive(MavkaParser::GiveContext* context) override {
@@ -1042,6 +1068,7 @@ namespace mavka::parser {
             const auto arg_node = new ast::ArgNode();
             arg_node->index = index;
             arg_node->value = any_to_ast_result(visitExpr(context->a_value))->node;
+            arg_node->spread = context->a_spread != nullptr;
             return create_ast_result(arg_node);
         }
 

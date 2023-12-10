@@ -41,6 +41,7 @@ namespace mavka::ast {
         int index;
         std::string name;
         ASTNode* value;
+        bool spread = false;
     };
 
     class ArithmeticNode final : public ASTNode {
@@ -396,6 +397,7 @@ namespace mavka::ast {
     public:
         std::string TYPE = "TakeModuleNode";
 
+        bool relative;
         std::string name;
         std::string as;
     };

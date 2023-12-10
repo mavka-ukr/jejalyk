@@ -91,7 +91,7 @@ namespace jejalyk {
             if (body_compilation_result->error) {
                 compilation_result->error = body_compilation_result->error;
             } else {
-                compilation_result->result = compilation_result->result + "\n" + body_compilation_result->result;
+                compilation_result->result = "(async function(){\n" + compilation_result->result + "\n" + body_compilation_result->result + "\n})()";
             }
         }
         return compilation_result;

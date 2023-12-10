@@ -1,3 +1,4 @@
+#include <emscripten.h>
 #include <emscripten/bind.h>
 
 #include <string>
@@ -96,5 +97,5 @@ val compile(std::string code) {
 }
 
 EMSCRIPTEN_BINDINGS (jejalyk_wasm) {
-    function("compile", &compile);
+    function("compile", &compile, allow_raw_pointers());
 }

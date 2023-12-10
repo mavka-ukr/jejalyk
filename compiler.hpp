@@ -262,6 +262,10 @@ namespace jejalyk {
                                                     CompilationScope* scope,
                                                     CompilationOptions* options);
 
+    NodeCompilationResult* compile_break_node(const mavka::ast::BreakNode* break_node,
+                                              CompilationScope* scope,
+                                              CompilationOptions* options);
+
     NodeCompilationResult* compile_call_node(const mavka::ast::CallNode* call_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
@@ -549,63 +553,178 @@ namespace jejalyk {
         const mavka::ast::AssignByIdentifierNode* assign_by_identifier_node,
         CompilationScope* scope,
         CompilationOptions* options) {
-        const auto node_compilation_result = new NodeCompilationResult();
-        const auto assign_left = compile_node(assign_by_identifier_node->left, scope, options);
-        if (assign_left->error) {
-            node_compilation_result->error = assign_left->error;
+        if (assign_by_identifier_node->op == "=") {
+            const auto node_compilation_result = new NodeCompilationResult();
+            const auto assign_left = compile_node(assign_by_identifier_node->left, scope, options);
+            if (assign_left->error) {
+                node_compilation_result->error = assign_left->error;
+                return node_compilation_result;
+            }
+            const auto assign_value = compile_node(assign_by_identifier_node->value, scope, options);
+            if (assign_value->error) {
+                node_compilation_result->error = assign_value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_SET + "(" + assign_left->result + ",\"" +
+                                              assign_by_identifier_node->identifier + "\"," + assign_value->result +
+                                              ")";
             return node_compilation_result;
+        } else {
+            auto operation = assign_by_identifier_node->op;
+            if (operation == "+=") {
+                operation = "+";
+            }
+            if (operation == "-=") {
+                operation = "-";
+            }
+            if (operation == "*=") {
+                operation = "*";
+            }
+            if (operation == "/=") {
+                operation = "/";
+            }
+            if (operation == "%=") {
+                operation = "%";
+            }
+            if (operation == "//=") {
+                operation = "//";
+            }
+            if (operation == "**=") {
+                operation = "**";
+            }
+            const auto new_assign_by_identifier_node = new mavka::ast::AssignByIdentifierNode();
+            new_assign_by_identifier_node->left = assign_by_identifier_node->left;
+            new_assign_by_identifier_node->identifier = assign_by_identifier_node->identifier;
+            new_assign_by_identifier_node->op = "=";
+            const auto arithmetic_node = new mavka::ast::ArithmeticNode();
+            const auto chain_node = new mavka::ast::ChainNode();
+            chain_node->left = assign_by_identifier_node->left;
+            const auto identifier_node = new mavka::ast::IdentifierNode();
+            identifier_node->name = assign_by_identifier_node->identifier;
+            chain_node->right = identifier_node;
+            arithmetic_node->left = chain_node;
+            arithmetic_node->right = assign_by_identifier_node->value;
+            arithmetic_node->op = operation;
+            new_assign_by_identifier_node->value = arithmetic_node;
+            return compile_assign_by_identifier_node(new_assign_by_identifier_node, scope, options);
         }
-        const auto assign_value = compile_node(assign_by_identifier_node->value, scope, options);
-        if (assign_value->error) {
-            node_compilation_result->error = assign_value->error;
-            return node_compilation_result;
-        }
-        node_compilation_result->result = MAVKA_SET + "(" + assign_left->result + ",\"" +
-                                          assign_by_identifier_node->identifier + "\"," + assign_value->result + ")";
-        return node_compilation_result;
     }
 
     inline NodeCompilationResult* compile_assign_by_element_node(
         const mavka::ast::AssignByElementNode* assign_by_element_node,
         CompilationScope* scope,
         CompilationOptions* options) {
-        const auto node_compilation_result = new NodeCompilationResult();
-        const auto assign_left = compile_node(assign_by_element_node->left, scope, options);
-        if (assign_left->error) {
-            node_compilation_result->error = assign_left->error;
+        if (assign_by_element_node->op == "=") {
+            const auto node_compilation_result = new NodeCompilationResult();
+            const auto assign_left = compile_node(assign_by_element_node->left, scope, options);
+            if (assign_left->error) {
+                node_compilation_result->error = assign_left->error;
+                return node_compilation_result;
+            }
+            const auto assign_element = compile_node(assign_by_element_node->element, scope, options);
+            if (assign_element->error) {
+                node_compilation_result->error = assign_element->error;
+                return node_compilation_result;
+            }
+            const auto assign_value = compile_node(assign_by_element_node->value, scope, options);
+            if (assign_value->error) {
+                node_compilation_result->error = assign_value->error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = MAVKA_SET_ELEMENT + "(" + assign_left->result + "," +
+                                              assign_element->result + "," + assign_value->result + ")";
             return node_compilation_result;
+        } else {
+            auto operation = assign_by_element_node->op;
+            if (operation == "+=") {
+                operation = "+";
+            }
+            if (operation == "-=") {
+                operation = "-";
+            }
+            if (operation == "*=") {
+                operation = "*";
+            }
+            if (operation == "/=") {
+                operation = "/";
+            }
+            if (operation == "%=") {
+                operation = "%";
+            }
+            if (operation == "//=") {
+                operation = "//";
+            }
+            if (operation == "**=") {
+                operation = "**";
+            }
+            const auto new_assign_by_element_node = new mavka::ast::AssignByElementNode();
+            new_assign_by_element_node->left = assign_by_element_node->left;
+            new_assign_by_element_node->element = assign_by_element_node->element;
+            new_assign_by_element_node->op = "=";
+            const auto arithmetic_node = new mavka::ast::ArithmeticNode();
+            const auto get_element_node = new mavka::ast::GetElementNode();
+            get_element_node->value = assign_by_element_node->left;
+            get_element_node->index = assign_by_element_node->element;
+            arithmetic_node->left = get_element_node;
+            arithmetic_node->right = assign_by_element_node->value;
+            arithmetic_node->op = operation;
+            new_assign_by_element_node->value = arithmetic_node;
+            return compile_assign_by_element_node(new_assign_by_element_node, scope, options);
         }
-        const auto assign_element = compile_node(assign_by_element_node->element, scope, options);
-        if (assign_element->error) {
-            node_compilation_result->error = assign_element->error;
-            return node_compilation_result;
-        }
-        const auto assign_value = compile_node(assign_by_element_node->value, scope, options);
-        if (assign_value->error) {
-            node_compilation_result->error = assign_value->error;
-            return node_compilation_result;
-        }
-        node_compilation_result->result = MAVKA_SET_ELEMENT + "(" + assign_left->result + "," +
-                                          assign_element->result + "," + assign_value->result + ")";
-        return node_compilation_result;
     }
 
     inline NodeCompilationResult* compile_assign_simple_node(const mavka::ast::AssignSimpleNode* assign_simple_node,
                                                              CompilationScope* scope,
                                                              CompilationOptions* options) {
-        const auto node_compilation_result = new NodeCompilationResult();
-        const auto assign_name = assign_simple_node->name;
-        const auto compiled_assign_value = compile_node(assign_simple_node->value, scope, options);
-        if (compiled_assign_value->error) {
-            node_compilation_result->error = compiled_assign_value->error;
+        if (assign_simple_node->op == "=") {
+            const auto node_compilation_result = new NodeCompilationResult();
+            const auto assign_name = assign_simple_node->name;
+            const auto compiled_assign_value = compile_node(assign_simple_node->value, scope, options);
+            if (compiled_assign_value->error) {
+                node_compilation_result->error = compiled_assign_value->error;
+                return node_compilation_result;
+            }
+            if (const auto assign_error = scope->assign(assign_name)) {
+                node_compilation_result->error = assign_error;
+                return node_compilation_result;
+            }
+            node_compilation_result->result = varname(assign_name) + "=" + compiled_assign_value->result;
             return node_compilation_result;
+        } else {
+            auto operation = assign_simple_node->op;
+            if (operation == "+=") {
+                operation = "+";
+            }
+            if (operation == "-=") {
+                operation = "-";
+            }
+            if (operation == "*=") {
+                operation = "*";
+            }
+            if (operation == "/=") {
+                operation = "/";
+            }
+            if (operation == "%=") {
+                operation = "%";
+            }
+            if (operation == "//=") {
+                operation = "//";
+            }
+            if (operation == "**=") {
+                operation = "**";
+            }
+            const auto new_assign_simple_node = new mavka::ast::AssignSimpleNode();
+            new_assign_simple_node->name = assign_simple_node->name;
+            new_assign_simple_node->op = "=";
+            const auto arithmetic_node = new mavka::ast::ArithmeticNode();
+            const auto identifier_node = new mavka::ast::IdentifierNode();
+            identifier_node->name = assign_simple_node->name;
+            arithmetic_node->left = identifier_node;
+            arithmetic_node->right = assign_simple_node->value;
+            arithmetic_node->op = operation;
+            new_assign_simple_node->value = arithmetic_node;
+            return compile_assign_simple_node(new_assign_simple_node, scope, options);
         }
-        if (const auto assign_error = scope->assign(assign_name)) {
-            node_compilation_result->error = assign_error;
-            return node_compilation_result;
-        }
-        node_compilation_result->result = varname(assign_name) + "=" + compiled_assign_value->result;
-        return node_compilation_result;
     }
 
     inline NodeCompilationResult* compile_bitwise_node(const mavka::ast::BitwiseNode* bitwise_node,
@@ -659,6 +778,15 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
+    inline NodeCompilationResult* compile_break_node(const mavka::ast::BreakNode* break_node,
+                                                     CompilationScope* scope,
+                                                     CompilationOptions* options) {
+        const auto node_compilation_result = new NodeCompilationResult();
+        // todo: handle only loops
+        node_compilation_result->result = "break";
+        return node_compilation_result;
+    }
+
     inline NodeCompilationResult* compile_call_node(const mavka::ast::CallNode* call_node,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
@@ -686,6 +814,13 @@ namespace jejalyk {
                                                    CompilationScope* scope,
                                                    CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        if (arg_node->spread) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = arg_node->start_line;
+            node_compilation_result->error->column = arg_node->start_column;
+            node_compilation_result->error->message = "Оператор розгортання не підтримується в аргументах.";
+            return node_compilation_result;
+        }
         const auto value = compile_node(arg_node->value, scope, options);
         if (value->error) {
             node_compilation_result->error = value->error;
@@ -781,6 +916,7 @@ namespace jejalyk {
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        // todo: handle only loops
         node_compilation_result->result = "continue";
         return node_compilation_result;
     }
@@ -1076,12 +1212,13 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto module_scope = new CompilationScope();
         module_scope->parent = scope;
+        scope->assign(module_node->name);
         const auto body = compile_body(module_node->body, module_scope, options, true);
         if (body->error) {
             node_compilation_result->error = body->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = varname(module_node->name) + "=" + MAVKA_MODULE + "(" + "\"" + module_node
+        node_compilation_result->result = varname(module_node->name) + "=await " + MAVKA_MODULE + "(" + "\"" + module_node
                                           ->name + "\"" +
                                           ",function(module)"
                                           + body->result + ")";
@@ -1300,6 +1437,11 @@ namespace jejalyk {
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        const auto module_code = options->get_module_code(
+            take_module_node->relative,
+            take_module_node->name,
+            options
+        );
         return node_compilation_result;
     }
 

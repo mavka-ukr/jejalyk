@@ -181,6 +181,19 @@ function мСпрд(me) {
   return parentValue;
 }
 
+async function мМодл(name, fn) {
+  var moduleValue = Object.create(null);
+  moduleValue[MAVKA] = Object.create(null);
+  moduleValue[MAVKA].name = name;
+  await fn(moduleValue);
+  return moduleValue;
+}
+
+function мДати(module, name, value) {
+  module[name] = value;
+  return value;
+}
+
 function мВМтд(structure, method) {
   structure[MAVKA].methods.push(method);
 }
@@ -213,6 +226,10 @@ function мВпрм(name, type, defaultValue) {
 function мВстн(a, name, value) {
   if (a == null) {
     throw new Error(`Неможливо змінити властивіть "${name}" для "пусто".`);
+  }
+  if (a instanceof Map) {
+    a.set(name, value);
+    return value;
   }
   a[name] = value;
   return value;
@@ -518,7 +535,20 @@ function мБірі(a, b) {
   if (a["чародія_порівняти_чи_не_менше"]) {
     return мВикл(a["чародія_порівняти_чи_не_менше"], [b]);
   }
-  throw new Error(`Неможливо порівняти чи більше з "пусто".`);
+  throw new Error(`Неможливо порівняти чи не менше з "пусто".`);
+}
+
+function мМері(a, b) {
+  if (a == null || b == null) {
+    throw new Error(`Неможливо порівняти чи не більше з "пусто".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a <= b;
+  }
+  if (a["чародія_порівняти_чи_не_більше"]) {
+    return мВикл(a["чародія_порівняти_чи_не_більше"], [b]);
+  }
+  throw new Error(`Неможливо порівняти чи не більше з "пусто".`);
 }
 
 
