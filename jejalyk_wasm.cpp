@@ -50,13 +50,6 @@ std::string get_remote_module_name(std::string module, jejalyk::CompilationOptio
     return answer.as<std::string>();
 }
 
-std::string get_remote_module_pak_path(std::string module, jejalyk::CompilationOptions* options) {
-    const auto mco = val::global("mavka_compilation_options");
-    const auto mco_module_name = mco["get_remote_module_pak_path"];
-    const auto answer = mco_module_name(module, compilation_options_to_val(options)).await();
-    return answer.as<std::string>();
-}
-
 std::string get_remote_module_path(std::string module, jejalyk::CompilationOptions* options) {
     const auto mco = val::global("mavka_compilation_options");
     const auto mco_module_name = mco["get_remote_module_path"];
@@ -82,7 +75,6 @@ val compile(std::string code) {
     options->get_module_path = &get_module_path;
     options->get_module_code = &get_module_code;
     options->get_remote_module_name = &get_remote_module_name;
-    options->get_remote_module_pak_path = &get_remote_module_pak_path;
     options->get_remote_module_path = &get_remote_module_path;
     options->get_remote_module_code = &get_remote_module_code;
 

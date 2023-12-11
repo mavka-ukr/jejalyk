@@ -38,10 +38,6 @@ std::string get_remote_module_name(std::string module, jejalyk::CompilationOptio
     // ...
 }
 
-std::string get_remote_module_pak_path(std::string module, jejalyk::CompilationOptions* options) {
-    // ...
-}
-
 std::string get_remote_module_path(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
@@ -60,7 +56,6 @@ int main() {
     options->get_module_path = &get_module_path;
     options->get_module_code = &get_module_code;
     options->get_remote_module_name = &get_remote_module_name;
-    options->get_remote_module_pak_path = &get_remote_module_pak_path;
     options->get_remote_module_path = &get_remote_module_path;
     options->get_remote_module_code = &get_remote_module_code;
 
@@ -134,6 +129,7 @@ Module().then(async (jejalyk) => {
 - Make
 - Node.js
 - Emscripten
+- Java (для ANTLR4)
 
 ### Початок
 
