@@ -96,6 +96,8 @@ Object.defineProperty(м_список.prototype, "додати", {
   },
 });
 
+var м_байти = Uint8Array;
+
 function мДія(name, params, fn) {
   var diiaValue = function(...args) {
     return fn(args);
