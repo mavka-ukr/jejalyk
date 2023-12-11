@@ -1,5 +1,8 @@
 var MAVKA = Symbol("мавка");
 
+var mavka_utf8Decoder = new TextDecoder("utf-8");
+var mavka_utf8Encoder = new TextEncoder("utf-8");
+
 var м_пусто = null;
 
 var м_логічне = Boolean;
@@ -45,6 +48,15 @@ var м_текст = String;
   }
   if (typeof value === "boolean") {
     return value ? "так" : "ні";
+  }
+  if (value instanceof Array) {
+    return "<список>";
+  }
+  if (value instanceof Map) {
+    return "<словник>";
+  }
+  if (value instanceof Uint8Array) {
+    return mavka_utf8Decoder.decode(value);
   }
   if (value[MAVKA]) {
     return "<обʼєкт>";
@@ -97,7 +109,13 @@ Object.defineProperty(м_список.prototype, "додати", {
 });
 
 var м_байти = Uint8Array;
+м_байти["чародія_перетворити_на_текст"] = мДія("чародія_перетворити_на_текст", [], function() {
+  return "<структура байти>";
+});
 var м_словник = Map;
+м_словник["чародія_перетворити_на_текст"] = мДія("чародія_перетворити_на_текст", [], function() {
+  return "<структура словник>";
+});
 
 function мДія(name, params, fn) {
   var diiaValue = function(...args) {
