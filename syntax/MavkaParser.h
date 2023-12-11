@@ -966,6 +966,8 @@ public:
     antlr4::tree::TerminalNode *GIVE();
     std::vector<Give_elementContext *> give_element();
     Give_elementContext* give_element(size_t i);
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
     std::vector<antlr4::tree::TerminalNode *> COMMA();
     antlr4::tree::TerminalNode* COMMA(size_t i);
 

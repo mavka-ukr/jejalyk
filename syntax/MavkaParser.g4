@@ -55,7 +55,7 @@ take: 'взяти' (tm_relative='.')? tm_elements_chain=identifiers_chain ('як
     | 'взяти файл' tf_name=STRING 'як' tf_as=identifier #take_file
     | 'взяти' tr_url=STRING ('як' tr_as=identifier)? #take_remote;
 
-give: 'дати' give_element (',' give_element)*;
+give: 'дати' give_element (nls ',' nls give_element)*;
 give_element: ge_name=identifier ('як' ge_as=identifier)?;
 
 string: STRING | STRING_MULTILINE;
