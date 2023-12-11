@@ -109,6 +109,16 @@ Object.defineProperty(м_список.prototype, "додати", {
 });
 
 var м_байти = Uint8Array;
+м_текст["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args) {
+  var value = args[0] ?? args["значення"];
+  if (value instanceof Uint8Array) {
+    return value;
+  }
+  if (typeof value === "string") {
+    return mavka_utf8Encoder.encode(value);
+  }
+  throw new Error("Неможливо перетворити на байти.");
+});
 м_байти["чародія_перетворити_на_текст"] = мДія("чародія_перетворити_на_текст", [], function() {
   return "<структура байти>";
 });
