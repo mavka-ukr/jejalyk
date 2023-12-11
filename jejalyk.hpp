@@ -96,9 +96,9 @@ namespace jejalyk {
                     compiled_modules.push_back(module.second);
                 }
                 const auto compiled_modules_string = tools::implode(compiled_modules, "\n");
-                compilation_result->result = "(async function(){\n" + compiled_modules_string + "\n" +
+                compilation_result->result = "await (async function(){\n" + compiled_modules_string + "\n" +
                                              compilation_result->result + "\n" + body_compilation_result->result +
-                                             "\n})()";
+                                             "\n})();";
             }
         }
         return compilation_result;
