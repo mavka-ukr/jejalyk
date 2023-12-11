@@ -76,9 +76,22 @@ namespace jejalyk {
 
         CompilationScope* parent = nullptr;
         std::unordered_map<std::string, CompilationSubject *> subjects;
+        std::unordered_map<std::string, std::string> modules;
+
+        virtual bool has_module(const std::string& name) {
+            return root()->modules.contains(name);
+        }
+
+        virtual std::string get_module(const std::string& name) {
+            return root()->modules.find(name)->second;
+        }
+
+        virtual void set_module(const std::string& name, std::string code) {
+            root()->modules.insert_or_assign(name, code);
+        }
 
         virtual CompilationError* assign(const std::string& name) {
-            subjects.insert({name, new CompilationSubject()});
+            subjects.insert_or_assign(name, new CompilationSubject());
             return nullptr;
         }
 
@@ -1218,7 +1231,8 @@ namespace jejalyk {
             node_compilation_result->error = body->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = varname(module_node->name) + "=await " + MAVKA_MODULE + "(" + "\"" + module_node
+        node_compilation_result->result = varname(module_node->name) + "=await " + MAVKA_MODULE + "(" + "\"" +
+                                          module_node
                                           ->name + "\"" +
                                           ",function(module)"
                                           + body->result + ")";
@@ -1437,11 +1451,55 @@ namespace jejalyk {
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        const auto module_name = options->get_module_name(take_module_node->relative, take_module_node->name, options);
+        const auto module_path = options->get_module_path(take_module_node->relative, take_module_node->name, options);
+        const std::hash<std::string> hash_fn;
+        const auto temp_module_name = module_name + "_" + std::to_string(hash_fn(module_path));
+        const auto init_module_code = "await init_" + temp_module_name + "();\n" + varname(module_name) + "=" +
+                                      temp_module_name;
+        if (scope->has_module(module_path)) {
+            node_compilation_result->result = init_module_code;
+            return node_compilation_result;
+        }
+        scope->set_module(module_path, "");
         const auto module_code = options->get_module_code(
             take_module_node->relative,
             take_module_node->name,
             options
         );
+        scope->assign(module_name);
+        const auto module_parser_result = mavka::parser::parse(module_code);
+        if (module_parser_result->error) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = module_parser_result->error->line;
+            node_compilation_result->error->column = module_parser_result->error->column;
+            node_compilation_result->error->message = module_parser_result->error->message;
+            return node_compilation_result;
+        }
+        const auto module_scope = new CompilationScope();
+        module_scope->parent = scope->root();
+        const auto scope_compilation_options = options->clone();
+        scope_compilation_options->current_module_path = module_path;
+        const auto module_compilation_result = compile_body(module_parser_result->program_node->body,
+                                                            module_scope,
+                                                            scope_compilation_options,
+                                                            false);
+        if (module_compilation_result->error) {
+            node_compilation_result->error = module_compilation_result->error;
+            return node_compilation_result;
+        }
+        const auto compiled_module_code = "var " + temp_module_name + ";\n"
+                                          + "var init_" + temp_module_name + "=async function(){\n"
+                                          + "if(" + temp_module_name + "){ return; }\n"
+                                          + "var module = await " + MAVKA_MODULE + "(" + "\"" + module_name + "\"" +
+                                          ",function(module){\n"
+                                          + "var " + varname("___шлях_до_модуля___") + "=\"" + module_path + "\";\n"
+                                          + module_compilation_result->result
+                                          + "\n});\n"
+                                          + temp_module_name + "=module;\n"
+                                          + "\n}";
+        scope->set_module(module_path, compiled_module_code);
+        node_compilation_result->result = init_module_code;
         return node_compilation_result;
     }
 

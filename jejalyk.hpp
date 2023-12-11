@@ -91,7 +91,14 @@ namespace jejalyk {
             if (body_compilation_result->error) {
                 compilation_result->error = body_compilation_result->error;
             } else {
-                compilation_result->result = "(async function(){\n" + compilation_result->result + "\n" + body_compilation_result->result + "\n})()";
+                std::vector<std::string> compiled_modules;
+                for (const auto module: root_scope->modules) {
+                    compiled_modules.push_back(module.second);
+                }
+                const auto compiled_modules_string = tools::implode(compiled_modules, "\n");
+                compilation_result->result = "(async function(){\n" + compiled_modules_string + "\n" +
+                                             compilation_result->result + "\n" + body_compilation_result->result +
+                                             "\n})()";
             }
         }
         return compilation_result;
