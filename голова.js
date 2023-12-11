@@ -97,6 +97,7 @@ Object.defineProperty(м_список.prototype, "додати", {
 });
 
 var м_байти = Uint8Array;
+var м_словник = Map;
 
 function мДія(name, params, fn) {
   var diiaValue = function(...args) {

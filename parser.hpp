@@ -275,6 +275,25 @@ namespace mavka::parser {
             return create_ast_result(mockup_structure_node);
         }
 
+        std::any visitMockup_body(MavkaParser::Mockup_bodyContext* context) override {
+            std::vector<ast::ASTNode *> elements;
+            for (const auto mockup_element: context->mockup_body_element()) {
+                const auto ast_result = any_to_ast_result(visitMockup_body_element(mockup_element));
+                elements.push_back(ast_result->node);
+            }
+            return elements;
+        }
+
+        std::any visitMockup_body_element(MavkaParser::Mockup_body_elementContext* context) override {
+            if (context->structure_param()) {
+                return visitStructure_param(context->structure_param());
+            }
+            if (context->method_declaration()) {
+                return visitMethod_declaration(context->method_declaration());
+            }
+            return create_ast_result(nullptr);
+        }
+
         std::any visitMockup_diia(MavkaParser::Mockup_diiaContext* context) override {
             const auto mockup_diia_node = new ast::MockupDiiaNode();
             mockup_diia_node->async = context->md_async != nullptr;
@@ -1240,6 +1259,12 @@ namespace mavka::parser {
             parser_result->error = &parser_error;
             return parser_result;
         } catch (antlr4::RuntimeException& e) {
+            const auto parser_result = new MavkaParserResult();
+            const auto parser_error = new MavkaParserError();
+            parser_error->message = e.what();
+            parser_result->error = parser_error;
+            return parser_result;
+        } catch (std::exception& e) {
             const auto parser_result = new MavkaParserResult();
             const auto parser_error = new MavkaParserError();
             parser_error->message = e.what();
