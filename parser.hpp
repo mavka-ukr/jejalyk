@@ -795,10 +795,47 @@ namespace mavka::parser {
             const auto assign_node = any_to_ast_result(visitAssign(context->wa_assign))->node;
             if (jejalyk::tools::instanceof<ast::AssignSimpleNode>(assign_node)) {
                 const auto assign_simple_node = dynamic_cast<ast::AssignSimpleNode *>(assign_node);
+                const auto new_assign_simple_node = new ast::AssignSimpleNode();
                 const auto wait_node = new ast::WaitNode();
-                wait_node->value = any_to_ast_result(assign_node)->node;
-                assign_simple_node->value = wait_node;
-                return create_ast_result(assign_simple_node);
+                wait_node->value = assign_simple_node->value;
+                new_assign_simple_node->start_line = assign_simple_node->start_line;
+                new_assign_simple_node->start_column = assign_simple_node->start_column;
+                new_assign_simple_node->end_line = assign_simple_node->end_line;
+                new_assign_simple_node->end_column = assign_simple_node->end_column;
+                new_assign_simple_node->op = assign_simple_node->op;
+                new_assign_simple_node->name = assign_simple_node->name;
+                new_assign_simple_node->value = wait_node;
+                return create_ast_result(new_assign_simple_node);
+            }
+            if (jejalyk::tools::instanceof<ast::AssignByIdentifierNode>(assign_node)) {
+                const auto assign_by_identifier_node = dynamic_cast<ast::AssignByIdentifierNode *>(assign_node);
+                const auto new_assign_by_identifier_node = new ast::AssignByIdentifierNode();
+                const auto wait_node = new ast::WaitNode();
+                wait_node->value = assign_by_identifier_node->value;
+                new_assign_by_identifier_node->start_line = assign_by_identifier_node->start_line;
+                new_assign_by_identifier_node->start_column = assign_by_identifier_node->start_column;
+                new_assign_by_identifier_node->end_line = assign_by_identifier_node->end_line;
+                new_assign_by_identifier_node->end_column = assign_by_identifier_node->end_column;
+                new_assign_by_identifier_node->op = assign_by_identifier_node->op;
+                new_assign_by_identifier_node->left = assign_by_identifier_node->left;
+                new_assign_by_identifier_node->identifier = assign_by_identifier_node->identifier;
+                new_assign_by_identifier_node->value = wait_node;
+                return create_ast_result(new_assign_by_identifier_node);
+            }
+            if (jejalyk::tools::instanceof<ast::AssignByElementNode>(assign_node)) {
+                const auto assign_by_element_node = dynamic_cast<ast::AssignByElementNode *>(assign_node);
+                const auto new_assign_by_element_node = new ast::AssignByElementNode();
+                const auto wait_node = new ast::WaitNode();
+                wait_node->value = assign_by_element_node->value;
+                new_assign_by_element_node->start_line = assign_by_element_node->start_line;
+                new_assign_by_element_node->start_column = assign_by_element_node->start_column;
+                new_assign_by_element_node->end_line = assign_by_element_node->end_line;
+                new_assign_by_element_node->end_column = assign_by_element_node->end_column;
+                new_assign_by_element_node->op = assign_by_element_node->op;
+                new_assign_by_element_node->left = assign_by_element_node->left;
+                new_assign_by_element_node->element = assign_by_element_node->element;
+                new_assign_by_element_node->value = wait_node;
+                return create_ast_result(new_assign_by_element_node);
             }
             return create_ast_result(nullptr);
         }
