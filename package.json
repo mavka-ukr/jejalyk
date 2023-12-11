@@ -12,5 +12,10 @@
     "./web": "./dist/optimized_jejalyk_web.js",
     "./web.wasm": "./dist/optimized_jejalyk_web.wasm",
     "./version": "./version.js"
+  },
+  "dependencies": {
+    "@zip.js/zip.js": "^2.7.32",
+    "axios": "^1.6.2",
+    "semver": "^7.5.4"
   }
 }
