@@ -1234,7 +1234,7 @@ namespace jejalyk {
         node_compilation_result->result = varname(module_node->name) + "=await " + MAVKA_MODULE + "(" + "\"" +
                                           module_node
                                           ->name + "\"" +
-                                          ",function(module)"
+                                          ",async function(module)"
                                           + body->result + ")";
         return node_compilation_result;
     }
@@ -1492,7 +1492,7 @@ namespace jejalyk {
                                           + "var init_" + temp_module_name + "=async function(){\n"
                                           + "if(" + temp_module_name + "){ return; }\n"
                                           + "var module = await " + MAVKA_MODULE + "(" + "\"" + module_name + "\"" +
-                                          ",function(module){\n"
+                                          ",async function(module){\n"
                                           + "var " + varname("___шлях_до_модуля___") + "=\"" + module_path + "\";\n"
                                           + module_compilation_result->result
                                           + "\n});\n"
@@ -1547,7 +1547,7 @@ namespace jejalyk {
                                           + "var init_" + temp_module_name + "=async function(){\n"
                                           + "if(" + temp_module_name + "){ return; }\n"
                                           + "var module = await " + MAVKA_MODULE + "(" + "\"" + module_name + "\"" +
-                                          ",function(module){\n"
+                                          ",async function(module){\n"
                                           + "var " + varname("___шлях_до_модуля___") + "=\"" + module_path + "\";\n"
                                           + module_compilation_result->result
                                           + "\n});\n"
