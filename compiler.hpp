@@ -296,6 +296,13 @@ namespace jejalyk {
                                                  CompilationScope* scope,
                                                  CompilationOptions* options);
 
+    NodeCompilationResult* compile_diia_body(const std::vector<mavka::ast::ASTNode *>& body,
+                                             const std::vector<mavka::ast::ParamNode *>& params,
+                                             CompilationScope* scope,
+                                             CompilationOptions* options,
+                                             const bool wrap = true,
+                                             const bool parent = false);
+
     NodeCompilationResult* compile_diia_node(const mavka::ast::DiiaNode* diia_node,
                                              CompilationScope* scope,
                                              CompilationOptions* options);
@@ -456,26 +463,24 @@ namespace jejalyk {
                                                          CompilationScope* scope,
                                                          CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-
-        const auto diia_scope = new CompilationScope();
-        diia_scope->parent = scope;
-
-        const auto params_compilation_result = compile_params(anon_diia_node->params, diia_scope, options);
+        const auto anon_diia_scope = new CompilationScope();
+        anon_diia_scope->parent = scope;
+        const auto params_compilation_result = compile_params(anon_diia_node->params, anon_diia_scope, options);
         if (params_compilation_result->error) {
             node_compilation_result->error = params_compilation_result->error;
             return node_compilation_result;
         }
         const auto compiled_params = params_compilation_result->result;
 
-        const auto body = compile_body(anon_diia_node->body, diia_scope, options, true);
+        const auto body = compile_diia_body(anon_diia_node->body, anon_diia_node->params, anon_diia_scope, options,
+                                            true);
         if (body->error) {
             node_compilation_result->error = body->error;
             return node_compilation_result;
         }
-
-        node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + "," + (
-                                              anon_diia_node->async ? "async " : "") + "function()" + body->result +
-                                          ")";
+        node_compilation_result->result = MAVKA_DIIA + "(null," +
+                                          compiled_params + "," + (anon_diia_node->async ? "async " : "") +
+                                          "function(args)" + body->result + ")";
         return node_compilation_result;
     }
 
@@ -937,8 +942,8 @@ namespace jejalyk {
                                                     const std::vector<mavka::ast::ParamNode *>& params,
                                                     CompilationScope* scope,
                                                     CompilationOptions* options,
-                                                    const bool wrap = true,
-                                                    const bool parent = false) {
+                                                    const bool wrap,
+                                                    const bool parent) {
         const auto node_compilation_result = new NodeCompilationResult();
         std::vector<std::string> before;
         if (parent) {
@@ -1075,14 +1080,14 @@ namespace jejalyk {
         }
         const auto compiled_params = params_compilation_result->result;
 
-        const auto body = compile_body(function_node->body, function_scope, options, true);
+        const auto body = compile_diia_body(function_node->body, function_node->params, function_scope, options, true);
         if (body->error) {
             node_compilation_result->error = body->error;
             return node_compilation_result;
         }
-
-        node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + "," + (
-                                              function_node->async ? "async " : "") + "function()" + body->result + ")";
+        node_compilation_result->result = MAVKA_DIIA + "(null," +
+                                          compiled_params + "," + (function_node->async ? "async " : "") +
+                                          "function(args)" + body->result + ")";
         return node_compilation_result;
     }
 
