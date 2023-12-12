@@ -480,6 +480,10 @@ function мОтрм(a, b) {
   return a[b];
 }
 
+function мНі(a) {
+  return !a;
+}
+
 function мРівн(a, b) {
   if (a == null && b == null) {
     return м_так;
