@@ -1424,9 +1424,9 @@ namespace jejalyk {
         std::string current_part;
         bool interpolation = false;
         for (int i = 0; i < string_node->value.length(); ++i) {
-            if (!interpolation && tools::is_digit(string_node->value.substr(i, 1)) &&
-                string_node->value.substr(i - 1, 1) == "\\" &&
-                string_node->value.substr(i - 2, 1) != "\\") {
+            if (!interpolation && tools::is_digit(tools::safe_substr(string_node->value, i, 1)) &&
+                tools::safe_substr(string_node->value, i - 1, 1) == "\\" &&
+                tools::safe_substr(string_node->value, i - 2, 1) != "\\") {
                 node_compilation_result->error = new CompilationError();
                 node_compilation_result->error->line = string_node->start_line;
                 node_compilation_result->error->column = string_node->start_column + i;
@@ -1434,8 +1434,9 @@ namespace jejalyk {
                 return node_compilation_result;
             }
 
-            if (!interpolation && string_node->value.substr(i, 1) == "%" &&
-                string_node->value.substr(i + 1, 1) == "(" && string_node->value.substr(i - 1, 1) != "\\") {
+            if (!interpolation && tools::safe_substr(string_node->value, i, 1) == "%" &&
+                tools::safe_substr(string_node->value, i + 1, 1) == "(" && tools::safe_substr(
+                    string_node->value, i - 1, 1) != "\\") {
                 interpolation = true;
                 const auto part_string = new mavka::ast::StringNode();
                 part_string->value = current_part;
@@ -1445,7 +1446,8 @@ namespace jejalyk {
                 continue;
             }
 
-            if (interpolation && string_node->value.substr(i, 1) == ")" && string_node->value.substr(i - 1, 1) !=
+            if (interpolation && tools::safe_substr(string_node->value, i, 1) == ")" && tools::safe_substr(
+                    string_node->value, i - 1, 1) !=
                 "\\") {
                 interpolation = false;
                 const auto parser_result = mavka::parser::parse(current_part);

@@ -41,7 +41,7 @@ namespace jejalyk::tools {
                s == "5" || s == "6" || s == "7" || s == "8" || s == "9";
     }
 
-    void replace_all(std::string& str, const std::string& from, const std::string& to) {
+    inline void replace_all(std::string& str, const std::string& from, const std::string& to) {
         if (from.empty())
             return;
         size_t start_pos = 0;
@@ -49,6 +49,19 @@ namespace jejalyk::tools {
             str.replace(start_pos, from.length(), to);
             start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
         }
+    }
+
+    inline std::string safe_substr(const std::string& str, size_t start, size_t count) {
+        if (start < 0) {
+            start = 0;
+        }
+        if (count < 0) {
+            count = 0;
+        }
+        if (start + count > str.length()) {
+            count = str.length() - start;
+        }
+        return str.substr(start, count);
     }
 
     template<typename Base, typename T>
