@@ -109,7 +109,7 @@ Object.defineProperty(м_список.prototype, "додати", {
 });
 
 var м_байти = Uint8Array;
-м_текст["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args) {
+м_байти["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args) {
   var value = args[0] ?? args["значення"];
   if (value instanceof Uint8Array) {
     return value;

@@ -36,6 +36,21 @@ namespace jejalyk::tools {
         return ret;
     }
 
+    inline bool is_digit(std::string s) {
+        return s == "0" || s == "1" || s == "2" || s == "3" || s == "4" ||
+               s == "5" || s == "6" || s == "7" || s == "8" || s == "9";
+    }
+
+    void replace_all(std::string& str, const std::string& from, const std::string& to) {
+        if (from.empty())
+            return;
+        size_t start_pos = 0;
+        while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length(); // In case 'to' contains 'from', like replacing 'x' with 'yx'
+        }
+    }
+
     template<typename Base, typename T>
     bool instanceof(const T* ptr) {
         return dynamic_cast<const Base *>(ptr) != nullptr;
