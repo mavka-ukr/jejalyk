@@ -5639,7 +5639,7 @@ MavkaParser::ValueContext* MavkaParser::value(int precedence) {
       setState(549);
       match(MavkaParser::OPEN_PAREN);
       setState(550);
-      antlrcpp::downCast<Call_exprContext *>(_localctx)->c_value = expr();
+      antlrcpp::downCast<Call_exprContext *>(_localctx)->ce_value = expr();
       setState(551);
       match(MavkaParser::CLOSE_PAREN);
       setState(552);
@@ -5650,13 +5650,13 @@ MavkaParser::ValueContext* MavkaParser::value(int precedence) {
       switch (getInterpreter<atn::ParserATNSimulator>()->adaptivePredict(_input, 49, _ctx)) {
       case 1: {
         setState(553);
-        antlrcpp::downCast<Call_exprContext *>(_localctx)->c_args = args();
+        antlrcpp::downCast<Call_exprContext *>(_localctx)->ce_args = args();
         break;
       }
 
       case 2: {
         setState(554);
-        antlrcpp::downCast<Call_exprContext *>(_localctx)->c_named_args = named_args();
+        antlrcpp::downCast<Call_exprContext *>(_localctx)->ce_named_args = named_args();
         break;
       }
 

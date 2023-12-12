@@ -1271,9 +1271,9 @@ public:
   public:
     Call_exprContext(ValueContext *ctx);
 
-    MavkaParser::ExprContext *c_value = nullptr;
-    MavkaParser::ArgsContext *c_args = nullptr;
-    MavkaParser::Named_argsContext *c_named_args = nullptr;
+    MavkaParser::ExprContext *ce_value = nullptr;
+    MavkaParser::ArgsContext *ce_args = nullptr;
+    MavkaParser::Named_argsContext *ce_named_args = nullptr;
     std::vector<antlr4::tree::TerminalNode *> OPEN_PAREN();
     antlr4::tree::TerminalNode* OPEN_PAREN(size_t i);
     std::vector<antlr4::tree::TerminalNode *> CLOSE_PAREN();

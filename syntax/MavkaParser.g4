@@ -75,7 +75,7 @@ value: NUMBER #number
      | '!' n_value=value  #not
      | '~' bn_value=value  #bitwise_not
      | '(' n_value=expr ')' #nested
-     | '(' c_value=expr ')' '(' (c_args=args | c_named_args=named_args)? ')' #call_expr
+     | '(' ce_value=expr ')' '(' (ce_args=args | ce_named_args=named_args)? ')' #call_expr
      | a_left=value 'як' a_right=value #as
      | a_left=value a_operation=arithmetic_op_mul a_right=value #arithmetic_mul
      | a_left=value a_operation=arithmetic_op_add a_right=value #arithmetic_add

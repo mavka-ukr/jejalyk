@@ -659,14 +659,60 @@ namespace mavka::parser {
             return create_ast_result(negative_node);
         }
 
+        std::any visitPre_decrement(MavkaParser::Pre_decrementContext* context) override {
+            const auto pre_decrement_node = new ast::PreDecrementNode();
+            pre_decrement_node->value = any_to_ast_result(visitValue(context->pd_value))->node;
+            return create_ast_result(pre_decrement_node);
+        }
+
+        std::any visitPre_increment(MavkaParser::Pre_incrementContext* context) override {
+            const auto pre_increment_node = new ast::PreIncrementNode();
+            pre_increment_node->value = any_to_ast_result(visitValue(context->pi_value))->node;
+            return create_ast_result(pre_increment_node);
+        }
+
+        std::any visitPost_decrement(MavkaParser::Post_decrementContext* context) override {
+            const auto post_decrement_node = new ast::PostDecrementNode();
+            post_decrement_node->value = any_to_ast_result(visitValue(context->pd_value))->node;
+            return create_ast_result(post_decrement_node);
+        }
+
+        std::any visitPost_increment(MavkaParser::Post_incrementContext* context) override {
+            const auto post_increment_node = new ast::PostIncrementNode();
+            post_increment_node->value = any_to_ast_result(visitValue(context->pi_value))->node;
+            return create_ast_result(post_increment_node);
+        }
+
         std::any visitNot(MavkaParser::NotContext* context) override {
             const auto not_node = new ast::NotNode();
             not_node->value = any_to_ast_result(visitValue(context->n_value))->node;
             return create_ast_result(not_node);
         }
 
+        std::any visitBitwise_not(MavkaParser::Bitwise_notContext* context) override {
+            const auto bitwise_not_node = new ast::BitwiseNotNode();
+            bitwise_not_node->value = any_to_ast_result(visitValue(context->bn_value))->node;
+            return create_ast_result(bitwise_not_node);
+        }
+
         std::any visitNested(MavkaParser::NestedContext* context) override {
             return visitExpr(context->n_value);
+        }
+
+        std::any visitCall_expr(MavkaParser::Call_exprContext* context) override {
+            const auto call_expr_node = new ast::CallNode();
+            call_expr_node->value = any_to_ast_result(visitExpr(context->ce_value))->node;
+            if (context->ce_args) {
+                call_expr_node->args = std::any_cast<std::vector<ast::ArgNode *>>(
+                    visitArgs(context->ce_args)
+                );
+            }
+            if (context->ce_named_args) {
+                call_expr_node->args = std::any_cast<std::vector<ast::ArgNode *>>(
+                    visitNamed_args(context->ce_named_args)
+                );
+            }
+            return create_ast_result(call_expr_node);
         }
 
         std::any visitAs(MavkaParser::AsContext* context) override {
@@ -684,12 +730,32 @@ namespace mavka::parser {
             return create_ast_result(arithmetic_node);
         }
 
+        std::any visitArithmetic_op_mul(MavkaParser::Arithmetic_op_mulContext* context) override {
+            return context->getText();
+        }
+
         std::any visitArithmetic_add(MavkaParser::Arithmetic_addContext* context) override {
             const auto arithmetic_node = new ast::ArithmeticNode();
             arithmetic_node->left = any_to_ast_result(visitValue(context->a_left))->node;
             arithmetic_node->right = any_to_ast_result(visitValue(context->a_right))->node;
             arithmetic_node->op = context->a_operation->getText();
             return create_ast_result(arithmetic_node);
+        }
+
+        std::any visitArithmetic_op_add(MavkaParser::Arithmetic_op_addContext* context) override {
+            return context->getText();
+        }
+
+        std::any visitBitwise(MavkaParser::BitwiseContext* context) override {
+            const auto bitwise_node = new ast::BitwiseNode();
+            bitwise_node->left = any_to_ast_result(visitValue(context->b_left))->node;
+            bitwise_node->right = any_to_ast_result(visitValue(context->b_right))->node;
+            bitwise_node->op = context->b_operation->getText();
+            return create_ast_result(bitwise_node);
+        }
+
+        std::any visitBitwise_op(MavkaParser::Bitwise_opContext* context) override {
+            return context->getText();
         }
 
         std::any visitComparison(MavkaParser::ComparisonContext* context) override {
@@ -706,6 +772,22 @@ namespace mavka::parser {
             test_node->right = any_to_ast_result(visitValue(context->t_right))->node;
             test_node->op = context->t_operation->getText();
             return create_ast_result(test_node);
+        }
+
+        std::any visitTernary(MavkaParser::TernaryContext* context) override {
+            const auto ternary_node = new ast::TernaryNode();
+            ternary_node->condition = any_to_ast_result(visitValue(context->t_value))->node;
+            std::vector<ast::ASTNode *> body;
+            if (context->t_positive) {
+                body.push_back(any_to_ast_result(visitExpr(context->t_positive))->node);
+            }
+            ternary_node->body = body;
+            std::vector<ast::ASTNode *> else_body;
+            if (context->t_negative) {
+                else_body.push_back(any_to_ast_result(visitExpr(context->t_negative))->node);
+            }
+            ternary_node->else_body = else_body;
+            return create_ast_result(ternary_node);
         }
 
         std::any visitArray(MavkaParser::ArrayContext* context) override {
@@ -757,6 +839,17 @@ namespace mavka::parser {
                 }
             }
             return elements;
+        }
+
+        std::any visitGod(MavkaParser::GodContext* context) override {
+            const auto god_node = new ast::GodNode();
+            std::vector<ast::ASTNode *> elements;
+            for (const auto value: context->value()) {
+                const auto value_node = any_to_ast_result(visitValue(value))->node;
+                elements.push_back(value_node);
+            }
+            god_node->elements = elements;
+            return create_ast_result(god_node);
         }
 
         std::any visitWait(MavkaParser::WaitContext* context) override {

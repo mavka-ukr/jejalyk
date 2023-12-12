@@ -399,7 +399,7 @@ namespace jejalyk {
                                                       CompilationScope* scope,
                                                       CompilationOptions* options);
 
-    NodeCompilationResult* compile_pre_increment_node(const mavka::ast::PreInrementNode* pre_increment_node,
+    NodeCompilationResult* compile_pre_increment_node(const mavka::ast::PreIncrementNode* pre_increment_node,
                                                       CompilationScope* scope,
                                                       CompilationOptions* options);
 
@@ -1378,7 +1378,7 @@ namespace jejalyk {
         return node_compilation_result;
     }
 
-    inline NodeCompilationResult* compile_pre_increment_node(const mavka::ast::PreInrementNode* pre_increment_node,
+    inline NodeCompilationResult* compile_pre_increment_node(const mavka::ast::PreIncrementNode* pre_increment_node,
                                                              CompilationScope* scope,
                                                              CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
@@ -1933,8 +1933,8 @@ namespace jejalyk {
             return compile_pre_decrement_node(dynamic_cast<mavka::ast::PreDecrementNode *>(node), scope, options);
         }
 
-        if (jejalyk::tools::instanceof<mavka::ast::PreInrementNode>(node)) {
-            return compile_pre_increment_node(dynamic_cast<mavka::ast::PreInrementNode *>(node), scope, options);
+        if (jejalyk::tools::instanceof<mavka::ast::PreIncrementNode>(node)) {
+            return compile_pre_increment_node(dynamic_cast<mavka::ast::PreIncrementNode *>(node), scope, options);
         }
 
         if (jejalyk::tools::instanceof<mavka::ast::DictionaryNode>(node)) {

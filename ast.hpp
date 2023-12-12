@@ -347,9 +347,9 @@ namespace mavka::ast {
         ASTNode* value;
     };
 
-    class PreInrementNode final : public ASTNode {
+    class PreIncrementNode final : public ASTNode {
     public:
-        std::string TYPE = "PreInrementNode";
+        std::string TYPE = "PreIncrementNode";
 
         ASTNode* value;
     };
