@@ -1581,6 +1581,7 @@ namespace jejalyk {
         }
         scope->set_module(module_path, "");
         const auto scope_compilation_options = options->clone();
+        scope_compilation_options->root_module_path = module_path;
         scope_compilation_options->current_module_path = module_path;
         const auto module_code = options->get_remote_module_code(
             take_pak_node->name,
