@@ -51,7 +51,7 @@ namespace jejalyk::tools {
         }
     }
 
-    inline std::string safe_substr(const std::string& str, size_t start, size_t count) {
+    inline std::string safe_substr(const std::string& str, int start, int count) {
         if (start < 0) {
             start = 0;
         }
@@ -59,7 +59,7 @@ namespace jejalyk::tools {
             count = 0;
         }
         if (start + count > str.length()) {
-            count = str.length() - start;
+            count = static_cast<int>(str.length()) - start;
         }
         return str.substr(start, count);
     }
