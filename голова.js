@@ -1,3 +1,11 @@
+class MavkaError extends Error {
+  constructor(message, di) {
+    super(message);
+    this.message = message;
+    this.di = di;
+  }
+}
+
 var MAVKA = Symbol("мавка");
 
 var mavka_utf8Decoder = new TextDecoder("utf-8");
@@ -6,10 +14,10 @@ var mavka_utf8Encoder = new TextEncoder("utf-8");
 var м_пусто = null;
 
 var м_логічне = Boolean;
-м_логічне["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args) {
+м_логічне["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args, di) {
   var value = args[0] ?? args["значення"];
   if (value["чародія_перетворити_на_логічне"]) {
-    return мВикл(value["чародія_перетворити_на_логічне"], [value]);
+    return мВикл(value["чародія_перетворити_на_логічне"], [value], di);
   }
   return Boolean(value);
 });
@@ -20,10 +28,10 @@ var м_так = true;
 var м_ні = false;
 
 var м_число = Number;
-м_число["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args) {
+м_число["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args, di) {
   var value = args[0] ?? args["значення"];
   if (value["чародія_перетворити_на_число"]) {
-    return мВикл(value["чародія_перетворити_на_число"], [value]);
+    return мВикл(value["чародія_перетворити_на_число"], [value], di);
   }
   return Number(value);
 });
@@ -32,13 +40,13 @@ var м_число = Number;
 });
 
 var м_текст = String;
-м_текст["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args) {
+м_текст["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args, di) {
   var value = args[0] ?? args["значення"];
   if (value == null) {
     return "пусто";
   }
   if (value["чародія_перетворити_на_текст"]) {
-    return мВикл(value["чародія_перетворити_на_текст"], []);
+    return мВикл(value["чародія_перетворити_на_текст"], [], di);
   }
   if (typeof value === "string") {
     return value;
@@ -109,7 +117,7 @@ Object.defineProperty(м_список.prototype, "додати", {
 });
 
 var м_байти = Uint8Array;
-м_байти["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args) {
+м_байти["чародія_викликати"] = мДія("чародія_викликати", [мПарм("значення")], function(args, di) {
   var value = args[0] ?? args["значення"];
   if (value instanceof Uint8Array) {
     return value;
@@ -117,7 +125,7 @@ var м_байти = Uint8Array;
   if (typeof value === "string") {
     return mavka_utf8Encoder.encode(value);
   }
-  throw new Error("Неможливо перетворити на байти.");
+  throw new MavkaError("Неможливо перетворити на байти.", di);
 });
 м_байти["чародія_перетворити_на_текст"] = мДія("чародія_перетворити_на_текст", [], function() {
   return "<структура байти>";
@@ -138,7 +146,7 @@ function мДія(name, params, fn) {
   return diiaValue;
 }
 
-function мСтрк(name, params, parent) {
+function мСтрк(name, params, parent, di) {
   var structureValue = Object.create(null);
   structureValue[MAVKA] = Object.create(null);
   structureValue[MAVKA].name = name;
@@ -146,12 +154,12 @@ function мСтрк(name, params, parent) {
   for (const param of structureValue[MAVKA].params) {
     const duplicateParam = structureValue[MAVKA].params.find((p) => p !== param && p.get("назва") === param.get("назва"));
     if (duplicateParam) {
-      throw new Error(`[мСтрк] Властивість "${param.get("назва")}" в "${name}" вже визначено в батьківській структурі.`);
+      throw new MavkaError(`Властивість "${param.get("назва")}" в "${name}" вже визначено в батьківській структурі.`, di);
     }
   }
   structureValue[MAVKA].parent = parent;
   structureValue[MAVKA].methods = parent ? [...parent[MAVKA].methods] : [];
-  structureValue["чародія_викликати"] = мДія("чародія_викликати", [], function(args) {
+  structureValue["чародія_викликати"] = мДія("чародія_викликати", [], function(args, di) {
     var instance = Object.create(null);
     instance[MAVKA] = Object.create(null);
     instance[MAVKA].structure = structureValue;
@@ -160,8 +168,8 @@ function мСтрк(name, params, parent) {
         var methodName = method.get("назва");
         var methodParams = method.get("параметри");
         var methodFn = method.get("функція");
-        instance[methodName] = мДія(methodName, methodParams, function(methodArgs) {
-          return methodFn(instance, methodArgs);
+        instance[methodName] = мДія(methodName, methodParams, function(methodArgs, di) {
+          return methodFn(instance, methodArgs, di);
         });
       })());
     }
@@ -171,7 +179,7 @@ function мСтрк(name, params, parent) {
         const paramName = param.get("назва");
         instance[paramName] = param.get("значення");
       }
-      мВикл(instance["чародія_створити"], args);
+      мВикл(instance["чародія_створити"], args, di);
     } else {
       for (let i = 0; i < structureValue[MAVKA].params.length; i++) {
         const param = structureValue[MAVKA].params[i];
@@ -190,7 +198,7 @@ function мСтрк(name, params, parent) {
   return structureValue;
 }
 
-function мСпрд(me) {
+function мСпрд(me, di) {
   if (me[MAVKA].cachedParent) {
     return me[MAVKA].cachedParent;
   }
@@ -212,7 +220,7 @@ function мСпрд(me) {
   return parentValue;
 }
 
-async function мМодл(name, fn) {
+async function мМодл(name, fn, di) {
   var moduleValue = Object.create(null);
   moduleValue[MAVKA] = Object.create(null);
   moduleValue[MAVKA].name = name;
@@ -220,12 +228,12 @@ async function мМодл(name, fn) {
   return moduleValue;
 }
 
-function мДати(module, name, value) {
+function мДати(module, name, value, di) {
   module[name] = value;
   return value;
 }
 
-function мВМтд(structure, method) {
+function мВМтд(structure, method, di) {
   structure[MAVKA].methods.push(method);
 }
 
@@ -254,9 +262,9 @@ function мВпрм(name, type, defaultValue) {
   ]);
 }
 
-function мВстн(a, name, value) {
+function мВстн(a, name, value, di) {
   if (a == null) {
-    throw new Error(`Неможливо змінити властивіть "${name}" для "пусто".`);
+    throw new MavkaError(`Неможливо змінити властивіть "${name}" для "пусто".`, di);
   }
   if (a instanceof Map) {
     a.set(name, value);
@@ -266,17 +274,17 @@ function мВстн(a, name, value) {
   return value;
 }
 
-function мІтер(value) {
+function мІтер(value, di) {
   if (value == null) {
-    throw new Error(`Неможливо перебрати "пусто".`);
+    throw new MavkaError(`Неможливо перебрати "пусто".`, di);
   }
   if (value[Symbol.iterator]) {
     return value;
   }
-  throw new Error(`Неможливо перебрати.`);
+  throw new MavkaError(`Неможливо перебрати.`, di);
 }
 
-function* мЦВід(from, to, operation, fn) {
+function* мЦВід(from, to, operation, fn, di) {
   if (operation === "==") {
     for (let i = from; i === to; i = fn(i)) {
       yield i;
@@ -298,11 +306,11 @@ function* мЦВід(from, to, operation, fn) {
       yield i;
     }
   } else {
-    throw new Error(`[мЦВід] Невідома операція "${operation}".`);
+    throw new MavkaError(`Невідома операція "${operation}".`, di);
   }
 }
 
-function мЦВідФ(operation, step) {
+function мЦВідФ(operation, step, di) {
   if (operation === "+") {
     return function(value) {
       return value + step;
@@ -333,28 +341,28 @@ function мЦВідФ(operation, step) {
       return value % step;
     };
   }
-  throw new Error(`[мЦВідФ] Невідома операція "${operation}".`);
+  throw new MavkaError(`Невідома операція "${operation}".`, di);
 }
 
-function мПклс(a, index, value) {
+function мПклс(a, index, value, di) {
   if (a == null) {
-    throw new Error(`Неможливо встановити спеціальну властивість для "пусто".`);
+    throw new MavkaError(`Неможливо встановити спеціальну властивість для "пусто".`, di);
   }
   var aSetSpecialFn = a["чародія_змінити_спеціальну_властивість"];
   if (aSetSpecialFn) {
-    return мВикл(aSetSpecialFn, [index, value]);
+    return мВикл(aSetSpecialFn, [index, value], di);
   }
   a[index] = value;
   return value;
 }
 
-function мВикл(value, args) {
+function мВикл(value, args, di) {
   if (value == null) {
-    throw new Error(`Неможливо виконати "пусто".`);
+    throw new MavkaError(`Неможливо виконати "пусто".`, di);
   }
   var valueCallFn = value["чародія_викликати"];
   if (valueCallFn) {
-    return мВикл(valueCallFn, args);
+    return мВикл(valueCallFn, args, di);
   }
   if (typeof value === "function") {
     var valueMavkaValue = value[MAVKA];
@@ -366,12 +374,12 @@ function мВикл(value, args) {
     }
     return value(...Object.values(args));
   }
-  throw new Error("Неможливо виконати.");
+  throw new MavkaError("Неможливо виконати.", di);
 }
 
-function мДодт(a, b) {
+function мДодт(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо виконати додавання з "пусто".`);
+    throw new MavkaError(`Неможливо виконати додавання з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a + b;
@@ -381,84 +389,84 @@ function мДодт(a, b) {
   }
   var aSubtractFn = a["чародія_додати"];
   if (aSubtractFn) {
-    return мВикл(aSubtractFn, [b]);
+    return мВикл(aSubtractFn, [b], di);
   }
-  throw new Error("Неможливо виконати додавання.");
+  throw new MavkaError("Неможливо виконати додавання.", di);
 }
 
-function мВідн(a, b) {
+function мВідн(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо виконати віднімання з "пусто".`);
+    throw new MavkaError(`Неможливо виконати віднімання з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a - b;
   }
   var aSubtractFn = a["чародія_відняти"];
   if (aSubtractFn) {
-    return мВикл(aSubtractFn, [b]);
+    return мВикл(aSubtractFn, [b], di);
   }
-  throw new Error("Неможливо виконати віднімання.");
+  throw new MavkaError("Неможливо виконати віднімання.", di);
 }
 
-function мМнож(a, b) {
+function мМнож(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо виконати множення з "пусто".`);
+    throw new MavkaError(`Неможливо виконати множення з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
   }
   var aMultiplyFn = a["чародія_помножити"];
   if (aMultiplyFn) {
-    return мВикл(aMultiplyFn, [b]);
+    return мВикл(aMultiplyFn, [b], di);
   }
-  throw new Error("Неможливо виконати множення.");
+  throw new MavkaError("Неможливо виконати множення.", di);
 }
 
-function мДілт(a, b) {
+function мДілт(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо виконати ділення з "пусто".`);
+    throw new MavkaError(`Неможливо виконати ділення з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a / b;
   }
   var aDivideFn = a["чародія_поділити"];
   if (aDivideFn) {
-    return мВикл(aDivideFn, [b]);
+    return мВикл(aDivideFn, [b], di);
   }
-  throw new Error("Неможливо виконати ділення.");
+  throw new MavkaError("Неможливо виконати ділення.", di);
 }
 
-function мСтпн(a, b) {
+function мСтпн(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо виконати піднесення до степеня з "пусто".`);
+    throw new MavkaError(`Неможливо виконати піднесення до степеня з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return Math.pow(a, b);
   }
   var aDivDivFn = a["чародія_піднести_до_степеня"];
   if (aDivDivFn) {
-    return мВикл(aDivDivFn, [b]);
+    return мВикл(aDivDivFn, [b], di);
   }
-  throw new Error("Неможливо виконати піднесення до степеня.");
+  throw new MavkaError("Неможливо виконати піднесення до степеня.", di);
 }
 
-function мОст2(a, b) {
+function мОст2(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо виконати ділення за модулем частка з "пусто".`);
+    throw new MavkaError(`Неможливо виконати ділення за модулем частка з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return Math.floor(a / b);
   }
   var aDivDivFn = a["чародія_поділити_за_модулем_частка"];
   if (aDivDivFn) {
-    return мВикл(aDivDivFn, [b]);
+    return мВикл(aDivDivFn, [b], di);
   }
-  throw new Error("Неможливо виконати множення.");
+  throw new MavkaError("Неможливо виконати множення.", di);
 }
 
-function мНегт(a) {
+function мНегт(a, di) {
   if (a == null) {
-    throw new Error(`Неможливо отримати відʼємне значення з "пусто".`);
+    throw new MavkaError(`Неможливо отримати відʼємне значення з "пусто".`, di);
   }
   if (typeof a === "number") {
     return -a;
@@ -467,12 +475,25 @@ function мНегт(a) {
   // if (aMultiplyFn) {
   //   return мВикл(aMultiplyFn, [b]);
   // }
-  throw new Error("Неможливо виконати множення.");
+  throw new MavkaError("Неможливо виконати множення.", di);
 }
 
-function мОтрм(a, b) {
+function мОтрм(a, b, di) {
   if (a == null) {
-    throw new Error(`Неможливо отримати властивість "${b}" з "пусто".`);
+    throw new MavkaError(`Неможливо отримати властивість "${b}" з "пусто".`, di);
+  }
+  if (a instanceof Map) {
+    return a.get(b);
+  }
+  return a[b];
+}
+
+function мОтре(a, b, di) {
+  if (a == null) {
+    throw new MavkaError(`Неможливо отримати властивість "${b}" з "пусто".`, di);
+  }
+  if (a["чародія_отримати_спеціальну_властивість"]) {
+    return мВикл(a["чародія_отримати_спеціальну_властивість"], [b], di);
   }
   if (a instanceof Map) {
     return a.get(b);
@@ -484,7 +505,7 @@ function мНі(a) {
   return !a;
 }
 
-function мРівн(a, b) {
+function мРівн(a, b, di) {
   if (a == null && b == null) {
     return м_так;
   }
@@ -501,7 +522,7 @@ function мРівн(a, b) {
     return a === b ? м_так : м_ні;
   }
   if (a["чародія_порівняти_чи_рівно"]) {
-    return мВикл(a["чародія_порівняти_чи_рівно"], [b]);
+    return мВикл(a["чародія_порівняти_чи_рівно"], [b], di);
   }
   return a === b ? м_так : м_ні;
 }
@@ -541,43 +562,43 @@ function мЄ(a, b) {
   return м_ні;
 }
 
-function мБілш(a, b) {
+function мБілш(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо порівняти чи більше з "пусто".`);
+    throw new MavkaError(`Неможливо порівняти чи більше з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a > b;
   }
   if (a["чародія_порівняти_чи_більше"]) {
-    return мВикл(a["чародія_порівняти_чи_більше"], [b]);
+    return мВикл(a["чародія_порівняти_чи_більше"], [b], di);
   }
-  throw new Error(`Неможливо порівняти чи більше.`);
+  throw new MavkaError(`Неможливо порівняти чи більше.`, di);
 }
 
-function мБірі(a, b) {
+function мБірі(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо порівняти чи не менше з "пусто".`);
+    throw new MavkaError(`Неможливо порівняти чи не менше з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a >= b;
   }
   if (a["чародія_порівняти_чи_не_менше"]) {
-    return мВикл(a["чародія_порівняти_чи_не_менше"], [b]);
+    return мВикл(a["чародія_порівняти_чи_не_менше"], [b], di);
   }
-  throw new Error(`Неможливо порівняти чи не менше з "пусто".`);
+  throw new MavkaError(`Неможливо порівняти чи не менше з "пусто".`, di);
 }
 
-function мМері(a, b) {
+function мМері(a, b, di) {
   if (a == null || b == null) {
-    throw new Error(`Неможливо порівняти чи не більше з "пусто".`);
+    throw new MavkaError(`Неможливо порівняти чи не більше з "пусто".`, di);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a <= b;
   }
   if (a["чародія_порівняти_чи_не_більше"]) {
-    return мВикл(a["чародія_порівняти_чи_не_більше"], [b]);
+    return мВикл(a["чародія_порівняти_чи_не_більше"], [b], di);
   }
-  throw new Error(`Неможливо порівняти чи не більше з "пусто".`);
+  throw new MavkaError(`Неможливо порівняти чи не більше з "пусто".`, di);
 }
 
 

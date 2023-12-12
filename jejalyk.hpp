@@ -6,8 +6,39 @@
 #include "head.h"
 
 namespace jejalyk {
+    inline std::string wrap_run(std::string head, std::string code) {
+        return R"(
+)" + head + R"(
+try{
+)" + code + R"(
+}catch(e) {
+  if(e) {
+    if(e instanceof MavkaError){
+      if(e.di) {
+        console.log(e.di+": "+e.message);
+      }else{
+        console.log(e.message);
+      }
+    }else{
+      throw e;
+    }
+  }else{
+    throw e;
+  }
+}
+)";
+    }
+
     inline CompilationResult* compile(const std::string& code, CompilationOptions* options) {
         const auto root_scope = new CompilationScope();
+        std::vector<std::string> args = tools::split(options->args, " ");
+        for (const auto& arg: args) {
+            const auto arg_parts = tools::split(arg, "=");
+
+            if (arg_parts[0] == "--інфо-викликів") {
+                root_scope->store_debug = arg_parts[1] == "1";
+            }
+        }
         const auto compilation_result = new CompilationResult();
 
         const auto head = "js \"\"\"" + MAVKA_HEAD_JS + "\"\"\"" + "\n" + MAVKA_HEAD_M;
@@ -36,7 +67,6 @@ namespace jejalyk {
             head_compilation_result->error = head_body_compilation_result->error;
             return head_compilation_result;
         }
-        compilation_result->result = head_body_compilation_result->result;
         for (const auto& [name, value]: head_scope->subjects) {
             root_scope->subjects[name] = value;
         }
@@ -66,7 +96,7 @@ namespace jejalyk {
                 std_compilation_result->error = std_body_compilation_result->error;
                 return std_compilation_result;
             }
-            compilation_result->result = compilation_result->result + "\n" + std_body_compilation_result->result;
+            compilation_result->result = std_body_compilation_result->result;
             for (const auto& [name, value]: std_scope->subjects) {
                 root_scope->subjects[name] = value;
             }
@@ -91,14 +121,19 @@ namespace jejalyk {
             if (body_compilation_result->error) {
                 compilation_result->error = body_compilation_result->error;
             } else {
+                std::string compiled_di;
+                for (const auto di: scope->root()->debug) {
+                    compiled_di += "var " + di.first + "=" + di.second + ";";
+                }
                 std::vector<std::string> compiled_modules;
                 for (const auto module: root_scope->modules) {
                     compiled_modules.push_back(module.second);
                 }
                 const auto compiled_modules_string = tools::implode(compiled_modules, "\n");
-                compilation_result->result = "(async function(){\n" + compiled_modules_string + "\n" +
-                                             compilation_result->result + "\n" + body_compilation_result->result +
-                                             "\n})()";
+                compilation_result->result = wrap_run(
+                    compiled_di + "\n" + head_body_compilation_result->result,
+                    compilation_result->result + "\n" + body_compilation_result->result
+                );
             }
         }
         return compilation_result;
