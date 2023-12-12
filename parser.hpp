@@ -659,6 +659,12 @@ namespace mavka::parser {
             return create_ast_result(negative_node);
         }
 
+        std::any visitNot(MavkaParser::NotContext* context) override {
+            const auto not_node = new ast::NotNode();
+            not_node->value = any_to_ast_result(visitValue(context->n_value))->node;
+            return create_ast_result(not_node);
+        }
+
         std::any visitNested(MavkaParser::NestedContext* context) override {
             return visitExpr(context->n_value);
         }
