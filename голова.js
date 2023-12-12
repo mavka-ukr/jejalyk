@@ -529,15 +529,12 @@ function мЄ(a, b) {
   }
   var aMavkaValue = a[MAVKA];
   if (aMavkaValue) {
-    var bMavkaValue = b[MAVKA];
-    if (bMavkaValue) {
-      var structure = bMavkaValue;
-      while (structure) {
-        if (aMavkaValue === structure) {
-          return м_так;
-        }
-        structure = structure[MAVKA]?.parent;
+    var structure = b;
+    while (structure) {
+      if (aMavkaValue === structure) {
+        return м_так;
       }
+      structure = structure[MAVKA]?.parent;
     }
   }
   return м_ні;
