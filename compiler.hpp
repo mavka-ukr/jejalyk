@@ -473,7 +473,9 @@ namespace jejalyk {
             return node_compilation_result;
         }
 
-        node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ",function()" + body->result + ")";
+        node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + "," + (
+                                              anon_diia_node->async ? "async " : "") + "function()" + body->result +
+                                          ")";
         return node_compilation_result;
     }
 
@@ -996,9 +998,11 @@ namespace jejalyk {
                 node_compilation_result->error = body->error;
                 return node_compilation_result;
             }
-            node_compilation_result->result = varname(diia_node->name) + "=" + MAVKA_DIIA + "(" + "\"" + diia_node->name
+            node_compilation_result->result = varname(diia_node->name) + "=" +
+                                              MAVKA_DIIA + "(" + "\"" + diia_node->name
                                               + "\"" + "," +
-                                              compiled_params + ",function(args)" + body->result + ")";
+                                              compiled_params + "," + (diia_node->async ? "async " : "") +
+                                              "function(args)" + body->result + ")";
         } else {
             diia_scope->assign("я");
             diia_scope->assign("предок");
@@ -1077,7 +1081,8 @@ namespace jejalyk {
             return node_compilation_result;
         }
 
-        node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + ",function()" + body->result + ")";
+        node_compilation_result->result = MAVKA_DIIA + "(null," + compiled_params + "," + (
+                                              function_node->async ? "async " : "") + "function()" + body->result + ")";
         return node_compilation_result;
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "jejalyk",
-  "version": "0.1.20",
+  "version": "0.1.21",
   "type": "module",
   "devDependencies": {
     "prettier": "3.1.0",
