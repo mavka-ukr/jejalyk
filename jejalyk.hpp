@@ -31,6 +31,8 @@ try{
 
     inline CompilationResult* compile(const std::string& code, CompilationOptions* options) {
         const auto root_scope = new CompilationScope();
+        root_scope->store_debug = false;
+        root_scope->allow_js = true;
         std::vector<std::string> args = tools::split(options->args, " ");
         for (const auto& arg: args) {
             const auto arg_parts = tools::split(arg, "=");
@@ -99,6 +101,15 @@ try{
             compilation_result->result = std_body_compilation_result->result;
             for (const auto& [name, value]: std_scope->subjects) {
                 root_scope->subjects[name] = value;
+            }
+        }
+
+        root_scope->allow_js = false;
+        for (const auto& arg: args) {
+            const auto arg_parts = tools::split(arg, "=");
+
+            if (arg_parts[0] == "--розширення") {
+                root_scope->allow_js = arg_parts[1] == "1";
             }
         }
 

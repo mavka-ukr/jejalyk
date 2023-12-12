@@ -22,9 +22,6 @@ namespace jejalyk {
     const std::string MAVKA_MOD = "мОстч"; // мОстч(а, б)
     const std::string MAVKA_DIV_DIV = "мОст2"; // мОст2(а, б)
     const std::string MAVKA_POW = "мСтпн"; // мСтпн(а, б)
-    const std::string MAVKA_AND = "мІ"; // мІ(а, б)
-    const std::string MAVKA_OR = "мАбо"; // мАбо(а, б)
-    const std::string MAVKA_XOR = "мВабо"; // мВабо(а, б)
     const std::string MAVKA_NOT = "мНі"; // мНі(а)
     const std::string MAVKA_BIT_AND = "мДвІ"; // мДвІ(а, б)
     const std::string MAVKA_BIT_OR = "мДАбо"; // мДАбо(а, б)
@@ -79,7 +76,8 @@ namespace jejalyk {
         std::unordered_map<std::string, CompilationSubject *> subjects;
         std::unordered_map<std::string, std::string> modules;
         std::unordered_map<std::string, std::string> debug;
-        bool store_debug = true;
+        bool store_debug = false;
+        bool allow_js = false;
 
         virtual bool has_module(const std::string& name) {
             return root()->modules.contains(name);
@@ -570,21 +568,26 @@ namespace jejalyk {
     inline NodeCompilationResult* compile_as_node(const mavka::ast::AsNode* as_node,
                                                   CompilationScope* scope,
                                                   CompilationOptions* options) {
-        const auto diName = scope->put_debug(options->current_module_path, as_node->start_line,
-                                             as_node->start_column);
+        // const auto diName = scope->put_debug(options->current_module_path, as_node->start_line,
+        //                                      as_node->start_column);
         const auto node_compilation_result = new NodeCompilationResult();
-        const auto left = compile_node(as_node->left, scope, options);
-        if (left->error) {
-            node_compilation_result->error = left->error;
-            return node_compilation_result;
-        }
-        const auto right = compile_node(as_node->right, scope, options);
-        if (right->error) {
-            node_compilation_result->error = right->error;
-            return node_compilation_result;
-        }
-        node_compilation_result->result = MAVKA_AS + "(" + left->result + "," + right->result + "," + diName + ")";
+        node_compilation_result->error = new CompilationError();
+        node_compilation_result->error->line = as_node->start_line;
+        node_compilation_result->error->column = as_node->start_column;
+        node_compilation_result->error->message = "Вказівка \"як\" тимчасово не працює.";
         return node_compilation_result;
+        // const auto left = compile_node(as_node->left, scope, options);
+        // if (left->error) {
+        //     node_compilation_result->error = left->error;
+        //     return node_compilation_result;
+        // }
+        // const auto right = compile_node(as_node->right, scope, options);
+        // if (right->error) {
+        //     node_compilation_result->error = right->error;
+        //     return node_compilation_result;
+        // }
+        // node_compilation_result->result = MAVKA_AS + "(" + left->result + "," + right->result + "," + diName + ")";
+        // return node_compilation_result;
     }
 
     inline NodeCompilationResult* compile_assign_by_identifier_node(
@@ -1102,6 +1105,14 @@ namespace jejalyk {
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        if (!scope->root()->allow_js) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = eval_node->start_line;
+            node_compilation_result->error->column = eval_node->start_column;
+            node_compilation_result->error->message =
+                    "JS-розширення вимкнені. Додайте опцію \"--розширення=1\", щоб увімкнути.";
+            return node_compilation_result;
+        }
         if (tools::instanceof<mavka::ast::StringNode>(eval_node->value)) {
             const auto string_value = dynamic_cast<mavka::ast::StringNode *>(eval_node->value)->value;
             node_compilation_result->result = "/* --- js --- */\n" + string_value + "\n/* --- /js --- */";
@@ -1228,6 +1239,10 @@ namespace jejalyk {
                                                    CompilationScope* scope,
                                                    CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
+        node_compilation_result->error = new CompilationError();
+        node_compilation_result->error->line = node->start_line;
+        node_compilation_result->error->column = node->start_column;
+        node_compilation_result->error->message = "Бог тимчасово не працює.";
         return node_compilation_result;
     }
 
@@ -1410,7 +1425,8 @@ namespace jejalyk {
             node_compilation_result->error = value->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = MAVKA_POST_DECREMENT + "(" + value->result + "," + diName + ")";
+        node_compilation_result->result = MAVKA_POST_DECREMENT + "(" + value->result + ",(v)=>{" + value->result +
+                                          "=v;}," + diName + ")";
         return node_compilation_result;
     }
 
@@ -1425,7 +1441,8 @@ namespace jejalyk {
             node_compilation_result->error = value->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = MAVKA_POST_INCREMENT + "(" + value->result + "," + diName + ")";
+        node_compilation_result->result = MAVKA_POST_INCREMENT + "(" + value->result + ",(v)=>{" + value->result +
+                                          "=v;}," + diName + ")";
         return node_compilation_result;
     }
 
@@ -1440,7 +1457,8 @@ namespace jejalyk {
             node_compilation_result->error = value->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = MAVKA_PRE_DECREMENT + "(" + value->result + "," + diName + ")";
+        node_compilation_result->result = MAVKA_PRE_DECREMENT + "(" + value->result + ",(v)=>{" + value->result +
+                                          "=v;}," + diName + ")";
         return node_compilation_result;
     }
 
@@ -1455,7 +1473,8 @@ namespace jejalyk {
             node_compilation_result->error = value->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = MAVKA_PRE_INCREMENT + "(" + value->result + "," + diName + ")";
+        node_compilation_result->result = MAVKA_PRE_INCREMENT + "(" + value->result + ",(v)=>{" + value->result +
+                                          "=v;}," + diName + ")";
         return node_compilation_result;
     }
 

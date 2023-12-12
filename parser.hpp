@@ -59,6 +59,10 @@ namespace mavka::parser {
             }
             body = processASTBody(body);
             const auto program_node = new ast::ProgramNode();
+            program_node->start_line = context->getStart()->getLine();
+            program_node->start_column = context->getStart()->getCharPositionInLine();
+            program_node->end_line = context->getStop()->getLine();
+            program_node->end_column = context->getStop()->getCharPositionInLine();
             program_node->body = body;
             return create_ast_result(program_node);
         }
@@ -114,6 +118,10 @@ namespace mavka::parser {
 
         std::any visitModule(MavkaParser::ModuleContext* context) override {
             const auto module_node = new ast::ModuleNode();
+            module_node->start_line = context->getStart()->getLine();
+            module_node->start_column = context->getStart()->getCharPositionInLine();
+            module_node->end_line = context->getStop()->getLine();
+            module_node->end_column = context->getStop()->getCharPositionInLine();
             module_node->name = context->m_name->getText();
             if (context->module_body()) {
                 std::any module_body = visitModule_body(context->module_body());
@@ -187,6 +195,10 @@ namespace mavka::parser {
                 );
             }
             const auto structure_node = new ast::StructureNode();
+            structure_node->start_line = context->getStart()->getLine();
+            structure_node->start_column = context->getStart()->getCharPositionInLine();
+            structure_node->end_line = context->getStop()->getLine();
+            structure_node->end_column = context->getStop()->getCharPositionInLine();
             structure_node->name = name;
             if (context->s_parent) {
                 const auto parent = any_to_ast_result(visitSuper_identifiers_chain(context->s_parent))->node;
@@ -228,6 +240,10 @@ namespace mavka::parser {
                 value = any_to_ast_result(visitParam_value(context->sp_value))->node;
             }
             const auto structure_param_node = new ast::StructureParamNode();
+            structure_param_node->start_line = context->getStart()->getLine();
+            structure_param_node->start_column = context->getStart()->getCharPositionInLine();
+            structure_param_node->end_line = context->getStop()->getLine();
+            structure_param_node->end_column = context->getStop()->getCharPositionInLine();
             structure_param_node->name = name;
             structure_param_node->types = types;
             structure_param_node->value = value;
@@ -255,6 +271,10 @@ namespace mavka::parser {
 
         std::any visitMockup_module(MavkaParser::Mockup_moduleContext* context) override {
             const auto mockup_module_node = new ast::MockupModuleNode();
+            mockup_module_node->start_line = context->getStart()->getLine();
+            mockup_module_node->start_column = context->getStart()->getCharPositionInLine();
+            mockup_module_node->end_line = context->getStop()->getLine();
+            mockup_module_node->end_column = context->getStop()->getCharPositionInLine();
             mockup_module_node->name = context->mm_name->getText();
             if (context->mm_elements) {
                 mockup_module_node->elements = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -266,6 +286,10 @@ namespace mavka::parser {
 
         std::any visitMockup_structure(MavkaParser::Mockup_structureContext* context) override {
             const auto mockup_structure_node = new ast::MockupStructureNode();
+            mockup_structure_node->start_line = context->getStart()->getLine();
+            mockup_structure_node->start_column = context->getStart()->getCharPositionInLine();
+            mockup_structure_node->end_line = context->getStop()->getLine();
+            mockup_structure_node->end_column = context->getStop()->getCharPositionInLine();
             mockup_structure_node->name = context->ms_name->getText();
             if (context->ms_elements) {
                 mockup_structure_node->params = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -296,6 +320,10 @@ namespace mavka::parser {
 
         std::any visitMockup_diia(MavkaParser::Mockup_diiaContext* context) override {
             const auto mockup_diia_node = new ast::MockupDiiaNode();
+            mockup_diia_node->start_line = context->getStart()->getLine();
+            mockup_diia_node->start_column = context->getStart()->getCharPositionInLine();
+            mockup_diia_node->end_line = context->getStop()->getLine();
+            mockup_diia_node->end_column = context->getStop()->getCharPositionInLine();
             mockup_diia_node->async = context->md_async != nullptr;
             mockup_diia_node->name = context->md_name->getText();
             if (context->md_params) {
@@ -312,6 +340,10 @@ namespace mavka::parser {
 
         std::any visitMockup_subject(MavkaParser::Mockup_subjectContext* context) override {
             const auto mockup_subject_node = new ast::MockupSubjectNode();
+            mockup_subject_node->start_line = context->getStart()->getLine();
+            mockup_subject_node->start_column = context->getStart()->getCharPositionInLine();
+            mockup_subject_node->end_line = context->getStop()->getLine();
+            mockup_subject_node->end_column = context->getStop()->getCharPositionInLine();
             mockup_subject_node->name = context->ms_name->getText();
             mockup_subject_node->types = std::any_cast<std::vector<ast::ASTNode *>>(visitType_value(context->ms_type));
             return create_ast_result(mockup_subject_node);
@@ -319,6 +351,10 @@ namespace mavka::parser {
 
         std::any visitMockup_object(MavkaParser::Mockup_objectContext* context) override {
             const auto mockup_object_node = new ast::MockupObjectNode();
+            mockup_object_node->start_line = context->getStart()->getLine();
+            mockup_object_node->start_column = context->getStart()->getCharPositionInLine();
+            mockup_object_node->end_line = context->getStop()->getLine();
+            mockup_object_node->end_column = context->getStop()->getCharPositionInLine();
             mockup_object_node->name = context->mo_name->getText();
             if (context->mo_elements) {
                 mockup_object_node->elements = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -330,6 +366,10 @@ namespace mavka::parser {
 
         std::any visitDiia(MavkaParser::DiiaContext* context) override {
             const auto diia_node = new ast::DiiaNode();
+            diia_node->start_line = context->getStart()->getLine();
+            diia_node->start_column = context->getStart()->getCharPositionInLine();
+            diia_node->end_line = context->getStop()->getLine();
+            diia_node->end_column = context->getStop()->getCharPositionInLine();
             diia_node->async = context->d_async != nullptr;
             diia_node->structure = context->d_structure ? context->d_structure->getText() : "";
             diia_node->name = context->d_name->getText();
@@ -351,6 +391,10 @@ namespace mavka::parser {
 
         std::any visitIf(MavkaParser::IfContext* context) override {
             const auto if_node = new ast::IfNode();
+            if_node->start_line = context->getStart()->getLine();
+            if_node->start_column = context->getStart()->getCharPositionInLine();
+            if_node->end_line = context->getStop()->getLine();
+            if_node->end_column = context->getStop()->getCharPositionInLine();
             if_node->condition = any_to_ast_result(visitExpr(context->i_value))->node;
             if (context->i_body) {
                 if_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -367,6 +411,10 @@ namespace mavka::parser {
 
         std::any visitEach(MavkaParser::EachContext* context) override {
             const auto each_node = new ast::EachNode();
+            each_node->start_line = context->getStart()->getLine();
+            each_node->start_column = context->getStart()->getCharPositionInLine();
+            each_node->end_line = context->getStop()->getLine();
+            each_node->end_column = context->getStop()->getCharPositionInLine();
             if (context->e_iterator) {
                 each_node->value = any_to_ast_result(visitExpr(context->e_iterator))->node;
             }
@@ -395,6 +443,10 @@ namespace mavka::parser {
 
         std::any visitFromto_simple(MavkaParser::Fromto_simpleContext* context) override {
             const auto fromto_simple_node = new ast::FromToSimpleNode();
+            fromto_simple_node->start_line = context->getStart()->getLine();
+            fromto_simple_node->start_column = context->getStart()->getCharPositionInLine();
+            fromto_simple_node->end_line = context->getStop()->getLine();
+            fromto_simple_node->end_column = context->getStop()->getCharPositionInLine();
             fromto_simple_node->from = any_to_ast_result(visitFromto_value(context->fs_from))->node;
             fromto_simple_node->to = any_to_ast_result(visitFromto_value(context->fs_to))->node;
             fromto_simple_node->toSymbol = context->fs_to_symbol ? context->fs_to_symbol->getText() : "<=";
@@ -403,6 +455,10 @@ namespace mavka::parser {
 
         std::any visitFromto_complex(MavkaParser::Fromto_complexContext* context) override {
             const auto fromto_complex_node = new ast::FromToComplexNode();
+            fromto_complex_node->start_line = context->getStart()->getLine();
+            fromto_complex_node->start_column = context->getStart()->getCharPositionInLine();
+            fromto_complex_node->end_line = context->getStop()->getLine();
+            fromto_complex_node->end_column = context->getStop()->getCharPositionInLine();
             fromto_complex_node->from = any_to_ast_result(visitFromto_value(context->fc_from))->node;
             fromto_complex_node->to = any_to_ast_result(visitFromto_value(context->fc_to))->node;
             fromto_complex_node->toSymbol = context->fc_to_symbol ? context->fc_to_symbol->getText() : "<=";
@@ -414,11 +470,19 @@ namespace mavka::parser {
         std::any visitFromto_value(MavkaParser::Fromto_valueContext* context) {
             if (jejalyk::tools::instanceof<MavkaParser::Fromto_numberContext>(context)) {
                 const auto number_node = new ast::NumberNode();
+                number_node->start_line = context->getStart()->getLine();
+                number_node->start_column = context->getStart()->getCharPositionInLine();
+                number_node->end_line = context->getStop()->getLine();
+                number_node->end_column = context->getStop()->getCharPositionInLine();
                 number_node->value = dynamic_cast<MavkaParser::Fromto_numberContext *>(context)->NUMBER()->getText();
                 return create_ast_result(number_node);
             }
             if (jejalyk::tools::instanceof<MavkaParser::Fromto_stringContext>(context)) {
                 const auto string_node = new ast::StringNode();
+                string_node->start_line = context->getStart()->getLine();
+                string_node->start_column = context->getStart()->getCharPositionInLine();
+                string_node->end_line = context->getStop()->getLine();
+                string_node->end_column = context->getStop()->getCharPositionInLine();
                 string_node->value = dynamic_cast<MavkaParser::Fromto_stringContext *>(context)->STRING()->getText();
                 if (string_node->value.starts_with(R"(""")")) {
                     string_node->value = string_node->value.substr(3, string_node->value.length() - 6);
@@ -438,6 +502,10 @@ namespace mavka::parser {
 
         std::any visitWhile(MavkaParser::WhileContext* context) override {
             const auto while_node = new ast::WhileNode();
+            while_node->start_line = context->getStart()->getLine();
+            while_node->start_column = context->getStart()->getCharPositionInLine();
+            while_node->end_line = context->getStop()->getLine();
+            while_node->end_column = context->getStop()->getCharPositionInLine();
             while_node->condition = any_to_ast_result(visitExpr(context->w_value))->node;
             if (context->w_body) {
                 while_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -449,6 +517,10 @@ namespace mavka::parser {
 
         std::any visitTry(MavkaParser::TryContext* context) override {
             const auto try_node = new ast::TryNode();
+            try_node->start_line = context->getStart()->getLine();
+            try_node->start_column = context->getStart()->getCharPositionInLine();
+            try_node->end_line = context->getStop()->getLine();
+            try_node->end_column = context->getStop()->getCharPositionInLine();
             try_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
                 visitBody(context->t_body)
             );
@@ -463,8 +535,20 @@ namespace mavka::parser {
             if (jejalyk::tools::instanceof<MavkaParser::Call_parentContext>(context)) {
                 const auto call_parent_context = dynamic_cast<MavkaParser::Call_parentContext *>(context);
                 const auto call_node = new ast::CallNode();
+                call_node->start_line = context->getStart()->getLine();
+                call_node->start_column = context->getStart()->getCharPositionInLine();
+                call_node->end_line = context->getStop()->getLine();
+                call_node->end_column = context->getStop()->getCharPositionInLine();
                 const auto chain_node = new ast::ChainNode();
+                chain_node->start_line = context->getStart()->getLine();
+                chain_node->start_column = context->getStart()->getCharPositionInLine();
+                chain_node->end_line = context->getStop()->getLine();
+                chain_node->end_column = context->getStop()->getCharPositionInLine();
                 const auto identifier_node = new ast::IdentifierNode();
+                identifier_node->start_line = context->getStart()->getLine();
+                identifier_node->start_column = context->getStart()->getCharPositionInLine();
+                identifier_node->end_line = context->getStop()->getLine();
+                identifier_node->end_column = context->getStop()->getCharPositionInLine();
                 identifier_node->name = "предок";
                 chain_node->left = identifier_node;
                 chain_node->right = any_to_ast_result(visitIdentifier(call_parent_context->cp_id))->node;
@@ -584,12 +668,20 @@ namespace mavka::parser {
 
         std::any visitNumber(MavkaParser::NumberContext* context) override {
             const auto number_node = new ast::NumberNode();
+            number_node->start_line = context->getStart()->getLine();
+            number_node->start_column = context->getStart()->getCharPositionInLine();
+            number_node->end_line = context->getStop()->getLine();
+            number_node->end_column = context->getStop()->getCharPositionInLine();
             number_node->value = context->getText();
             return create_ast_result(number_node);
         }
 
         std::any visitString_value(MavkaParser::String_valueContext* context) override {
             const auto string_node = new ast::StringNode();
+            string_node->start_line = context->getStart()->getLine();
+            string_node->start_column = context->getStart()->getCharPositionInLine();
+            string_node->end_line = context->getStop()->getLine();
+            string_node->end_column = context->getStop()->getCharPositionInLine();
             string_node->value = context->getText();
             if (string_node->value.starts_with(R"(""")")) {
                 string_node->value = string_node->value.substr(3, string_node->value.length() - 6);
@@ -601,24 +693,40 @@ namespace mavka::parser {
 
         std::any visitId(MavkaParser::IdContext* context) override {
             const auto identifier_node = new ast::IdentifierNode();
+            identifier_node->start_line = context->getStart()->getLine();
+            identifier_node->start_column = context->getStart()->getCharPositionInLine();
+            identifier_node->end_line = context->getStop()->getLine();
+            identifier_node->end_column = context->getStop()->getCharPositionInLine();
             identifier_node->name = context->getText();
             return create_ast_result(identifier_node);
         }
 
         std::any visitIdentifier(MavkaParser::IdentifierContext* context) override {
             const auto identifier_node = new ast::IdentifierNode();
+            identifier_node->start_line = context->getStart()->getLine();
+            identifier_node->start_column = context->getStart()->getCharPositionInLine();
+            identifier_node->end_line = context->getStop()->getLine();
+            identifier_node->end_column = context->getStop()->getCharPositionInLine();
             identifier_node->name = context->getText();
             return create_ast_result(identifier_node);
         }
 
         std::any visitExtended_identifier(MavkaParser::Extended_identifierContext* context) override {
             const auto identifier_node = new ast::IdentifierNode();
+            identifier_node->start_line = context->getStart()->getLine();
+            identifier_node->start_column = context->getStart()->getCharPositionInLine();
+            identifier_node->end_line = context->getStop()->getLine();
+            identifier_node->end_column = context->getStop()->getCharPositionInLine();
             identifier_node->name = context->getText();
             return create_ast_result(identifier_node);
         }
 
         std::any visitChain(MavkaParser::ChainContext* context) override {
             const auto chain_node = new ast::ChainNode();
+            chain_node->start_line = context->getStart()->getLine();
+            chain_node->start_column = context->getStart()->getCharPositionInLine();
+            chain_node->end_line = context->getStop()->getLine();
+            chain_node->end_column = context->getStop()->getCharPositionInLine();
             chain_node->left = any_to_ast_result(visitValue(context->c_left))->node;
             chain_node->right = any_to_ast_result(visitExtended_identifier(context->c_right))->node;
             return create_ast_result(chain_node);
@@ -626,6 +734,10 @@ namespace mavka::parser {
 
         std::any visitCall(MavkaParser::CallContext* context) override {
             const auto call_node = new ast::CallNode();
+            call_node->start_line = context->getStart()->getLine();
+            call_node->start_column = context->getStart()->getCharPositionInLine();
+            call_node->end_line = context->getStop()->getLine();
+            call_node->end_column = context->getStop()->getCharPositionInLine();
             call_node->value = any_to_ast_result(visitValue(context->c_value))->node;
             if (context->c_args) {
                 call_node->args = std::any_cast<std::vector<ast::ArgNode *>>(
@@ -642,6 +754,10 @@ namespace mavka::parser {
 
         std::any visitGet_element(MavkaParser::Get_elementContext* context) override {
             const auto get_element_node = new ast::GetElementNode();
+            get_element_node->start_line = context->getStart()->getLine();
+            get_element_node->start_column = context->getStart()->getCharPositionInLine();
+            get_element_node->end_line = context->getStop()->getLine();
+            get_element_node->end_column = context->getStop()->getCharPositionInLine();
             get_element_node->value = any_to_ast_result(visitValue(context->ge_left))->node;
             get_element_node->index = any_to_ast_result(visitExpr(context->ge_element))->node;
             return create_ast_result(get_element_node);
@@ -649,48 +765,80 @@ namespace mavka::parser {
 
         std::any visitPositive(MavkaParser::PositiveContext* context) override {
             const auto positive_node = new ast::PositiveNode();
+            positive_node->start_line = context->getStart()->getLine();
+            positive_node->start_column = context->getStart()->getCharPositionInLine();
+            positive_node->end_line = context->getStop()->getLine();
+            positive_node->end_column = context->getStop()->getCharPositionInLine();
             positive_node->value = any_to_ast_result(visitValue(context->p_value))->node;
             return create_ast_result(positive_node);
         }
 
         std::any visitNegative(MavkaParser::NegativeContext* context) override {
             const auto negative_node = new ast::NegativeNode();
+            negative_node->start_line = context->getStart()->getLine();
+            negative_node->start_column = context->getStart()->getCharPositionInLine();
+            negative_node->end_line = context->getStop()->getLine();
+            negative_node->end_column = context->getStop()->getCharPositionInLine();
             negative_node->value = any_to_ast_result(visitValue(context->n_value))->node;
             return create_ast_result(negative_node);
         }
 
         std::any visitPre_decrement(MavkaParser::Pre_decrementContext* context) override {
             const auto pre_decrement_node = new ast::PreDecrementNode();
+            pre_decrement_node->start_line = context->getStart()->getLine();
+            pre_decrement_node->start_column = context->getStart()->getCharPositionInLine();
+            pre_decrement_node->end_line = context->getStop()->getLine();
+            pre_decrement_node->end_column = context->getStop()->getCharPositionInLine();
             pre_decrement_node->value = any_to_ast_result(visitValue(context->pd_value))->node;
             return create_ast_result(pre_decrement_node);
         }
 
         std::any visitPre_increment(MavkaParser::Pre_incrementContext* context) override {
             const auto pre_increment_node = new ast::PreIncrementNode();
+            pre_increment_node->start_line = context->getStart()->getLine();
+            pre_increment_node->start_column = context->getStart()->getCharPositionInLine();
+            pre_increment_node->end_line = context->getStop()->getLine();
+            pre_increment_node->end_column = context->getStop()->getCharPositionInLine();
             pre_increment_node->value = any_to_ast_result(visitValue(context->pi_value))->node;
             return create_ast_result(pre_increment_node);
         }
 
         std::any visitPost_decrement(MavkaParser::Post_decrementContext* context) override {
             const auto post_decrement_node = new ast::PostDecrementNode();
+            post_decrement_node->start_line = context->getStart()->getLine();
+            post_decrement_node->start_column = context->getStart()->getCharPositionInLine();
+            post_decrement_node->end_line = context->getStop()->getLine();
+            post_decrement_node->end_column = context->getStop()->getCharPositionInLine();
             post_decrement_node->value = any_to_ast_result(visitValue(context->pd_value))->node;
             return create_ast_result(post_decrement_node);
         }
 
         std::any visitPost_increment(MavkaParser::Post_incrementContext* context) override {
             const auto post_increment_node = new ast::PostIncrementNode();
+            post_increment_node->start_line = context->getStart()->getLine();
+            post_increment_node->start_column = context->getStart()->getCharPositionInLine();
+            post_increment_node->end_line = context->getStop()->getLine();
+            post_increment_node->end_column = context->getStop()->getCharPositionInLine();
             post_increment_node->value = any_to_ast_result(visitValue(context->pi_value))->node;
             return create_ast_result(post_increment_node);
         }
 
         std::any visitNot(MavkaParser::NotContext* context) override {
             const auto not_node = new ast::NotNode();
+            not_node->start_line = context->getStart()->getLine();
+            not_node->start_column = context->getStart()->getCharPositionInLine();
+            not_node->end_line = context->getStop()->getLine();
+            not_node->end_column = context->getStop()->getCharPositionInLine();
             not_node->value = any_to_ast_result(visitValue(context->n_value))->node;
             return create_ast_result(not_node);
         }
 
         std::any visitBitwise_not(MavkaParser::Bitwise_notContext* context) override {
             const auto bitwise_not_node = new ast::BitwiseNotNode();
+            bitwise_not_node->start_line = context->getStart()->getLine();
+            bitwise_not_node->start_column = context->getStart()->getCharPositionInLine();
+            bitwise_not_node->end_line = context->getStop()->getLine();
+            bitwise_not_node->end_column = context->getStop()->getCharPositionInLine();
             bitwise_not_node->value = any_to_ast_result(visitValue(context->bn_value))->node;
             return create_ast_result(bitwise_not_node);
         }
@@ -701,6 +849,10 @@ namespace mavka::parser {
 
         std::any visitCall_expr(MavkaParser::Call_exprContext* context) override {
             const auto call_expr_node = new ast::CallNode();
+            call_expr_node->start_line = context->getStart()->getLine();
+            call_expr_node->start_column = context->getStart()->getCharPositionInLine();
+            call_expr_node->end_line = context->getStop()->getLine();
+            call_expr_node->end_column = context->getStop()->getCharPositionInLine();
             call_expr_node->value = any_to_ast_result(visitExpr(context->ce_value))->node;
             if (context->ce_args) {
                 call_expr_node->args = std::any_cast<std::vector<ast::ArgNode *>>(
@@ -717,6 +869,10 @@ namespace mavka::parser {
 
         std::any visitAs(MavkaParser::AsContext* context) override {
             const auto as_node = new ast::AsNode();
+            as_node->start_line = context->getStart()->getLine();
+            as_node->start_column = context->getStart()->getCharPositionInLine();
+            as_node->end_line = context->getStop()->getLine();
+            as_node->end_column = context->getStop()->getCharPositionInLine();
             as_node->left = any_to_ast_result(visitValue(context->a_left))->node;
             as_node->right = any_to_ast_result(visitValue(context->a_right))->node;
             return create_ast_result(as_node);
@@ -724,6 +880,10 @@ namespace mavka::parser {
 
         std::any visitArithmetic_mul(MavkaParser::Arithmetic_mulContext* context) override {
             const auto arithmetic_node = new ast::ArithmeticNode();
+            arithmetic_node->start_line = context->getStart()->getLine();
+            arithmetic_node->start_column = context->getStart()->getCharPositionInLine();
+            arithmetic_node->end_line = context->getStop()->getLine();
+            arithmetic_node->end_column = context->getStop()->getCharPositionInLine();
             arithmetic_node->left = any_to_ast_result(visitValue(context->a_left))->node;
             arithmetic_node->right = any_to_ast_result(visitValue(context->a_right))->node;
             arithmetic_node->op = context->a_operation->getText();
@@ -736,6 +896,10 @@ namespace mavka::parser {
 
         std::any visitArithmetic_add(MavkaParser::Arithmetic_addContext* context) override {
             const auto arithmetic_node = new ast::ArithmeticNode();
+            arithmetic_node->start_line = context->getStart()->getLine();
+            arithmetic_node->start_column = context->getStart()->getCharPositionInLine();
+            arithmetic_node->end_line = context->getStop()->getLine();
+            arithmetic_node->end_column = context->getStop()->getCharPositionInLine();
             arithmetic_node->left = any_to_ast_result(visitValue(context->a_left))->node;
             arithmetic_node->right = any_to_ast_result(visitValue(context->a_right))->node;
             arithmetic_node->op = context->a_operation->getText();
@@ -748,6 +912,10 @@ namespace mavka::parser {
 
         std::any visitBitwise(MavkaParser::BitwiseContext* context) override {
             const auto bitwise_node = new ast::BitwiseNode();
+            bitwise_node->start_line = context->getStart()->getLine();
+            bitwise_node->start_column = context->getStart()->getCharPositionInLine();
+            bitwise_node->end_line = context->getStop()->getLine();
+            bitwise_node->end_column = context->getStop()->getCharPositionInLine();
             bitwise_node->left = any_to_ast_result(visitValue(context->b_left))->node;
             bitwise_node->right = any_to_ast_result(visitValue(context->b_right))->node;
             bitwise_node->op = context->b_operation->getText();
@@ -760,6 +928,10 @@ namespace mavka::parser {
 
         std::any visitComparison(MavkaParser::ComparisonContext* context) override {
             const auto comparison_node = new ast::ComparisonNode();
+            comparison_node->start_line = context->getStart()->getLine();
+            comparison_node->start_column = context->getStart()->getCharPositionInLine();
+            comparison_node->end_line = context->getStop()->getLine();
+            comparison_node->end_column = context->getStop()->getCharPositionInLine();
             comparison_node->left = any_to_ast_result(visitValue(context->c_left))->node;
             comparison_node->right = any_to_ast_result(visitValue(context->c_right))->node;
             comparison_node->op = context->c_operation->getText();
@@ -768,6 +940,10 @@ namespace mavka::parser {
 
         std::any visitTest(MavkaParser::TestContext* context) override {
             const auto test_node = new ast::TestNode();
+            test_node->start_line = context->getStart()->getLine();
+            test_node->start_column = context->getStart()->getCharPositionInLine();
+            test_node->end_line = context->getStop()->getLine();
+            test_node->end_column = context->getStop()->getCharPositionInLine();
             test_node->left = any_to_ast_result(visitValue(context->t_left))->node;
             test_node->right = any_to_ast_result(visitValue(context->t_right))->node;
             test_node->op = context->t_operation->getText();
@@ -776,6 +952,10 @@ namespace mavka::parser {
 
         std::any visitTernary(MavkaParser::TernaryContext* context) override {
             const auto ternary_node = new ast::TernaryNode();
+            ternary_node->start_line = context->getStart()->getLine();
+            ternary_node->start_column = context->getStart()->getCharPositionInLine();
+            ternary_node->end_line = context->getStop()->getLine();
+            ternary_node->end_column = context->getStop()->getCharPositionInLine();
             ternary_node->condition = any_to_ast_result(visitValue(context->t_value))->node;
             std::vector<ast::ASTNode *> body;
             if (context->t_positive) {
@@ -792,6 +972,10 @@ namespace mavka::parser {
 
         std::any visitArray(MavkaParser::ArrayContext* context) override {
             const auto array_node = new ast::ArrayNode();
+            array_node->start_line = context->getStart()->getLine();
+            array_node->start_column = context->getStart()->getCharPositionInLine();
+            array_node->end_line = context->getStop()->getLine();
+            array_node->end_column = context->getStop()->getCharPositionInLine();
             if (context->a_elements) {
                 array_node->elements = std::any_cast<std::vector<ast::ASTNode *>>(
                     visitArray_elements(context->a_elements)
@@ -815,6 +999,10 @@ namespace mavka::parser {
 
         std::any visitDictionary(MavkaParser::DictionaryContext* context) override {
             const auto dictionary_node = new ast::DictionaryNode();
+            dictionary_node->start_line = context->getStart()->getLine();
+            dictionary_node->start_column = context->getStart()->getCharPositionInLine();
+            dictionary_node->end_line = context->getStop()->getLine();
+            dictionary_node->end_column = context->getStop()->getCharPositionInLine();
             if (context->d_args) {
                 dictionary_node->elements = std::any_cast<std::unordered_map<std::string, ast::ASTNode *>>(
                     visitDictionary_args(context->d_args)
@@ -843,6 +1031,10 @@ namespace mavka::parser {
 
         std::any visitGod(MavkaParser::GodContext* context) override {
             const auto god_node = new ast::GodNode();
+            god_node->start_line = context->getStart()->getLine();
+            god_node->start_column = context->getStart()->getCharPositionInLine();
+            god_node->end_line = context->getStop()->getLine();
+            god_node->end_column = context->getStop()->getCharPositionInLine();
             std::vector<ast::ASTNode *> elements;
             for (const auto value: context->value()) {
                 const auto value_node = any_to_ast_result(visitValue(value))->node;
@@ -854,12 +1046,20 @@ namespace mavka::parser {
 
         std::any visitWait(MavkaParser::WaitContext* context) override {
             const auto wait_node = new ast::WaitNode();
+            wait_node->start_line = context->getStart()->getLine();
+            wait_node->start_column = context->getStart()->getCharPositionInLine();
+            wait_node->end_line = context->getStop()->getLine();
+            wait_node->end_column = context->getStop()->getCharPositionInLine();
             wait_node->value = any_to_ast_result(visitValue(context->w_value))->node;
             return create_ast_result(wait_node);
         }
 
         std::any visitFunction(MavkaParser::FunctionContext* context) override {
             const auto function_node = new ast::FunctionNode();
+            function_node->start_line = context->getStart()->getLine();
+            function_node->start_column = context->getStart()->getCharPositionInLine();
+            function_node->end_line = context->getStop()->getLine();
+            function_node->end_column = context->getStop()->getCharPositionInLine();
             function_node->async = context->f_async != nullptr;
             if (context->f_params) {
                 function_node->params = std::any_cast<std::vector<ast::ParamNode *>>(
@@ -878,33 +1078,45 @@ namespace mavka::parser {
         }
 
         std::any visitAnonymous_diia(MavkaParser::Anonymous_diiaContext* context) override {
-            const auto function_node = new ast::AnonDiiaNode();
-            function_node->async = context->d_async != nullptr;
+            const auto anon_diia_node = new ast::AnonDiiaNode();
+            anon_diia_node->start_line = context->getStart()->getLine();
+            anon_diia_node->start_column = context->getStart()->getCharPositionInLine();
+            anon_diia_node->end_line = context->getStop()->getLine();
+            anon_diia_node->end_column = context->getStop()->getCharPositionInLine();
+            anon_diia_node->async = context->d_async != nullptr;
             if (context->d_params) {
-                function_node->params = std::any_cast<std::vector<ast::ParamNode *>>(
+                anon_diia_node->params = std::any_cast<std::vector<ast::ParamNode *>>(
                     visitParams(context->d_params)
                 );
             }
             if (context->d_type) {
-                function_node->return_types = std::any_cast<std::vector<ast::ASTNode *>>(
+                anon_diia_node->return_types = std::any_cast<std::vector<ast::ASTNode *>>(
                     visitType_value(context->d_type));
             }
             if (context->d_body) {
-                function_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
+                anon_diia_node->body = std::any_cast<std::vector<ast::ASTNode *>>(
                     visitBody(context->d_body)
                 );
             }
-            return create_ast_result(function_node);
+            return create_ast_result(anon_diia_node);
         }
 
         std::any visitThrow(MavkaParser::ThrowContext* context) override {
             const auto throw_node = new ast::ThrowNode();
+            throw_node->start_line = context->getStart()->getLine();
+            throw_node->start_column = context->getStart()->getCharPositionInLine();
+            throw_node->end_line = context->getStop()->getLine();
+            throw_node->end_column = context->getStop()->getCharPositionInLine();
             throw_node->value = any_to_ast_result(visitExpr(context->t_value))->node;
             return create_ast_result(throw_node);
         }
 
         std::any visitEval(MavkaParser::EvalContext* context) override {
             const auto eval_node = new ast::EvalNode();
+            eval_node->start_line = context->getStart()->getLine();
+            eval_node->start_column = context->getStart()->getCharPositionInLine();
+            eval_node->end_line = context->getStop()->getLine();
+            eval_node->end_column = context->getStop()->getCharPositionInLine();
             eval_node->value = any_to_ast_result(visitValue(context->e_value))->node;
             return create_ast_result(eval_node);
         }
@@ -914,12 +1126,16 @@ namespace mavka::parser {
             if (jejalyk::tools::instanceof<ast::AssignSimpleNode>(assign_node)) {
                 const auto assign_simple_node = dynamic_cast<ast::AssignSimpleNode *>(assign_node);
                 const auto new_assign_simple_node = new ast::AssignSimpleNode();
-                const auto wait_node = new ast::WaitNode();
-                wait_node->value = assign_simple_node->value;
                 new_assign_simple_node->start_line = assign_simple_node->start_line;
                 new_assign_simple_node->start_column = assign_simple_node->start_column;
                 new_assign_simple_node->end_line = assign_simple_node->end_line;
                 new_assign_simple_node->end_column = assign_simple_node->end_column;
+                const auto wait_node = new ast::WaitNode();
+                wait_node->start_line = assign_simple_node->start_line;
+                wait_node->start_column = assign_simple_node->start_column;
+                wait_node->end_line = assign_simple_node->end_line;
+                wait_node->end_column = assign_simple_node->end_column;
+                wait_node->value = assign_simple_node->value;
                 new_assign_simple_node->op = assign_simple_node->op;
                 new_assign_simple_node->name = assign_simple_node->name;
                 new_assign_simple_node->value = wait_node;
@@ -928,12 +1144,16 @@ namespace mavka::parser {
             if (jejalyk::tools::instanceof<ast::AssignByIdentifierNode>(assign_node)) {
                 const auto assign_by_identifier_node = dynamic_cast<ast::AssignByIdentifierNode *>(assign_node);
                 const auto new_assign_by_identifier_node = new ast::AssignByIdentifierNode();
-                const auto wait_node = new ast::WaitNode();
-                wait_node->value = assign_by_identifier_node->value;
                 new_assign_by_identifier_node->start_line = assign_by_identifier_node->start_line;
                 new_assign_by_identifier_node->start_column = assign_by_identifier_node->start_column;
                 new_assign_by_identifier_node->end_line = assign_by_identifier_node->end_line;
                 new_assign_by_identifier_node->end_column = assign_by_identifier_node->end_column;
+                const auto wait_node = new ast::WaitNode();
+                wait_node->start_line = assign_by_identifier_node->start_line;
+                wait_node->start_column = assign_by_identifier_node->start_column;
+                wait_node->end_line = assign_by_identifier_node->end_line;
+                wait_node->end_column = assign_by_identifier_node->end_column;
+                wait_node->value = assign_by_identifier_node->value;
                 new_assign_by_identifier_node->op = assign_by_identifier_node->op;
                 new_assign_by_identifier_node->left = assign_by_identifier_node->left;
                 new_assign_by_identifier_node->identifier = assign_by_identifier_node->identifier;
@@ -943,12 +1163,16 @@ namespace mavka::parser {
             if (jejalyk::tools::instanceof<ast::AssignByElementNode>(assign_node)) {
                 const auto assign_by_element_node = dynamic_cast<ast::AssignByElementNode *>(assign_node);
                 const auto new_assign_by_element_node = new ast::AssignByElementNode();
-                const auto wait_node = new ast::WaitNode();
-                wait_node->value = assign_by_element_node->value;
                 new_assign_by_element_node->start_line = assign_by_element_node->start_line;
                 new_assign_by_element_node->start_column = assign_by_element_node->start_column;
                 new_assign_by_element_node->end_line = assign_by_element_node->end_line;
                 new_assign_by_element_node->end_column = assign_by_element_node->end_column;
+                const auto wait_node = new ast::WaitNode();
+                wait_node->start_line = assign_by_element_node->start_line;
+                wait_node->start_column = assign_by_element_node->start_column;
+                wait_node->end_line = assign_by_element_node->end_line;
+                wait_node->end_column = assign_by_element_node->end_column;
+                wait_node->value = assign_by_element_node->value;
                 new_assign_by_element_node->op = assign_by_element_node->op;
                 new_assign_by_element_node->left = assign_by_element_node->left;
                 new_assign_by_element_node->element = assign_by_element_node->element;
@@ -973,6 +1197,10 @@ namespace mavka::parser {
 
         std::any visitAssign_simple(MavkaParser::Assign_simpleContext* context) override {
             const auto assign_simple_node = new ast::AssignSimpleNode();
+            assign_simple_node->start_line = context->getStart()->getLine();
+            assign_simple_node->start_column = context->getStart()->getCharPositionInLine();
+            assign_simple_node->end_line = context->getStop()->getLine();
+            assign_simple_node->end_column = context->getStop()->getCharPositionInLine();
             assign_simple_node->name = context->as_identifier->ID()->getText();
             if (context->as_type) {
                 assign_simple_node->types = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -985,6 +1213,10 @@ namespace mavka::parser {
 
         std::any visitAssign_by_identifier(MavkaParser::Assign_by_identifierContext* context) override {
             const auto assign_by_identifier_node = new ast::AssignByIdentifierNode();
+            assign_by_identifier_node->start_line = context->getStart()->getLine();
+            assign_by_identifier_node->start_column = context->getStart()->getCharPositionInLine();
+            assign_by_identifier_node->end_line = context->getStop()->getLine();
+            assign_by_identifier_node->end_column = context->getStop()->getCharPositionInLine();
             assign_by_identifier_node->left = any_to_ast_result(visitSuper_identifiers_chain(context->abi_left))->node;
             assign_by_identifier_node->identifier = context->abi_identifier->getText();
             assign_by_identifier_node->op = context->assign_symbol()->getText();
@@ -994,6 +1226,10 @@ namespace mavka::parser {
 
         std::any visitAssign_by_element(MavkaParser::Assign_by_elementContext* context) override {
             const auto assign_by_element_node = new ast::AssignByElementNode();
+            assign_by_element_node->start_line = context->getStart()->getLine();
+            assign_by_element_node->start_column = context->getStart()->getCharPositionInLine();
+            assign_by_element_node->end_line = context->getStop()->getLine();
+            assign_by_element_node->end_column = context->getStop()->getCharPositionInLine();
             assign_by_element_node->left = any_to_ast_result(visitSuper_identifiers_chain(context->abe_left))->node;
             assign_by_element_node->element = any_to_ast_result(visitExpr(context->abe_index))->node;
             assign_by_element_node->op = context->assign_symbol()->getText();
@@ -1031,6 +1267,10 @@ namespace mavka::parser {
 
         std::any visitTake_module(MavkaParser::Take_moduleContext* context) override {
             const auto take_module_node = new ast::TakeModuleNode();
+            take_module_node->start_line = context->getStart()->getLine();
+            take_module_node->start_column = context->getStart()->getCharPositionInLine();
+            take_module_node->end_line = context->getStop()->getLine();
+            take_module_node->end_column = context->getStop()->getCharPositionInLine();
             take_module_node->relative = context->tm_relative != nullptr;
             take_module_node->name = context->tm_elements_chain->getText();
             take_module_node->as = context->tm_as ? context->tm_as->getText() : "";
@@ -1044,6 +1284,10 @@ namespace mavka::parser {
 
         std::any visitTake_remote(MavkaParser::Take_remoteContext* context) override {
             const auto take_pak_node = new ast::TakePakNode();
+            take_pak_node->start_line = context->getStart()->getLine();
+            take_pak_node->start_column = context->getStart()->getCharPositionInLine();
+            take_pak_node->end_line = context->getStop()->getLine();
+            take_pak_node->end_column = context->getStop()->getCharPositionInLine();
             take_pak_node->name = context->tr_url->getText();
             if (take_pak_node->name.starts_with(R"(""")")) {
                 take_pak_node->name = take_pak_node->name.substr(3, take_pak_node->name.length() - 6);
@@ -1056,6 +1300,10 @@ namespace mavka::parser {
 
         std::any visitGive(MavkaParser::GiveContext* context) override {
             const auto give_node = new ast::GiveNode();
+            give_node->start_line = context->getStart()->getLine();
+            give_node->start_column = context->getStart()->getCharPositionInLine();
+            give_node->end_line = context->getStop()->getLine();
+            give_node->end_column = context->getStop()->getCharPositionInLine();
             for (const auto give_element: context->give_element()) {
                 const auto ast_result = any_to_ast_result(visitGive_element(give_element));
                 const auto give_element_node = dynamic_cast<ast::GiveElementNode *>(ast_result->node);
@@ -1066,6 +1314,10 @@ namespace mavka::parser {
 
         std::any visitGive_element(MavkaParser::Give_elementContext* context) override {
             const auto give_element_node = new ast::GiveElementNode();
+            give_element_node->start_line = context->getStart()->getLine();
+            give_element_node->start_column = context->getStart()->getCharPositionInLine();
+            give_element_node->end_line = context->getStop()->getLine();
+            give_element_node->end_column = context->getStop()->getCharPositionInLine();
             give_element_node->name = context->ge_name->getText();
             if (context->ge_as) {
                 give_element_node->as = context->ge_as->getText();
@@ -1082,6 +1334,10 @@ namespace mavka::parser {
             }
             if (context->p_variadic) {
                 const auto param_node = new ast::ParamNode();
+                param_node->start_line = context->getStart()->getLine();
+                param_node->start_column = context->getStart()->getCharPositionInLine();
+                param_node->end_line = context->getStop()->getLine();
+                param_node->end_column = context->getStop()->getCharPositionInLine();
                 param_node->name = context->p_variadic_name->getText();
                 if (context->p_variadic_type) {
                     param_node->types = std::any_cast<std::vector<ast::ASTNode *>>(
@@ -1128,6 +1384,10 @@ namespace mavka::parser {
         std::any visitParam_value_string(MavkaParser::Param_value_stringContext* context) override {
             if (context->STRING()) {
                 const auto string_node = new ast::StringNode();
+                string_node->start_line = context->getStart()->getLine();
+                string_node->start_column = context->getStart()->getCharPositionInLine();
+                string_node->end_line = context->getStop()->getLine();
+                string_node->end_column = context->getStop()->getCharPositionInLine();
                 string_node->value = context->STRING()->getText();
                 if (string_node->value.starts_with(R"(""")")) {
                     string_node->value = string_node->value.substr(3, string_node->value.length() - 6);
@@ -1137,6 +1397,10 @@ namespace mavka::parser {
                 return create_ast_result(string_node);
             } else if (context->STRING_MULTILINE()) {
                 const auto string_node = new ast::StringNode();
+                string_node->start_line = context->getStart()->getLine();
+                string_node->start_column = context->getStart()->getCharPositionInLine();
+                string_node->end_line = context->getStop()->getLine();
+                string_node->end_column = context->getStop()->getCharPositionInLine();
                 string_node->value = context->STRING_MULTILINE()->getText();
                 if (string_node->value.starts_with(R"(""")")) {
                     string_node->value = string_node->value.substr(3, string_node->value.length() - 6);
@@ -1150,23 +1414,39 @@ namespace mavka::parser {
 
         std::any visitParam_value_number(MavkaParser::Param_value_numberContext* context) override {
             const auto number_node = new ast::NumberNode();
+            number_node->start_line = context->getStart()->getLine();
+            number_node->start_column = context->getStart()->getCharPositionInLine();
+            number_node->end_line = context->getStop()->getLine();
+            number_node->end_column = context->getStop()->getCharPositionInLine();
             number_node->value = context->NUMBER()->getText();
             return create_ast_result(number_node);
         }
 
         std::any visitParam_value_identifier(MavkaParser::Param_value_identifierContext* context) override {
             const auto identifier_node = new ast::IdentifierNode();
+            identifier_node->start_line = context->getStart()->getLine();
+            identifier_node->start_column = context->getStart()->getCharPositionInLine();
+            identifier_node->end_line = context->getStop()->getLine();
+            identifier_node->end_column = context->getStop()->getCharPositionInLine();
             identifier_node->name = context->identifier()->getText();
             return create_ast_result(identifier_node);
         }
 
         std::any visitParam_value_empty_dictionary(MavkaParser::Param_value_empty_dictionaryContext* context) override {
             const auto dictionary_node = new ast::DictionaryNode();
+            dictionary_node->start_line = context->getStart()->getLine();
+            dictionary_node->start_column = context->getStart()->getCharPositionInLine();
+            dictionary_node->end_line = context->getStop()->getLine();
+            dictionary_node->end_column = context->getStop()->getCharPositionInLine();
             return create_ast_result(dictionary_node);
         }
 
         std::any visitParam_value_empty_list(MavkaParser::Param_value_empty_listContext* context) override {
             const auto array_node = new ast::ArrayNode();
+            array_node->start_line = context->getStart()->getLine();
+            array_node->start_column = context->getStart()->getCharPositionInLine();
+            array_node->end_line = context->getStop()->getLine();
+            array_node->end_column = context->getStop()->getCharPositionInLine();
             return create_ast_result(array_node);
         }
 
@@ -1175,6 +1455,10 @@ namespace mavka::parser {
                 return visitIdentifier(context->ic_identifier);
             }
             const auto chain_node = new ast::ChainNode();
+            chain_node->start_line = context->getStart()->getLine();
+            chain_node->start_column = context->getStart()->getCharPositionInLine();
+            chain_node->end_line = context->getStop()->getLine();
+            chain_node->end_column = context->getStop()->getCharPositionInLine();
             chain_node->left = any_to_ast_result(visitIdentifiers_chain(context->ic_left))->node;
             chain_node->right = any_to_ast_result(visitExtended_identifier(context->ic_right))->node;
             return create_ast_result(chain_node);
@@ -1188,12 +1472,20 @@ namespace mavka::parser {
             if (context->sic_right) {
                 const auto right = any_to_ast_result(visitExtended_identifier(context->sic_right))->node;
                 const auto chain_node = new ast::ChainNode();
+                chain_node->start_line = context->getStart()->getLine();
+                chain_node->start_column = context->getStart()->getCharPositionInLine();
+                chain_node->end_line = context->getStop()->getLine();
+                chain_node->end_column = context->getStop()->getCharPositionInLine();
                 chain_node->left = left;
                 chain_node->right = right;
                 return create_ast_result(chain_node);
             }
             const auto index = any_to_ast_result(visitExpr(context->sic_index))->node;
             const auto get_element_node = new ast::GetElementNode();
+            get_element_node->start_line = context->getStart()->getLine();
+            get_element_node->start_column = context->getStart()->getCharPositionInLine();
+            get_element_node->end_line = context->getStop()->getLine();
+            get_element_node->end_column = context->getStop()->getCharPositionInLine();
             get_element_node->value = left;
             get_element_node->index = index;
             return create_ast_result(get_element_node);
@@ -1221,6 +1513,10 @@ namespace mavka::parser {
 
         std::any visitArg(MavkaParser::ArgContext* context, int index) {
             const auto arg_node = new ast::ArgNode();
+            arg_node->start_line = context->getStart()->getLine();
+            arg_node->start_column = context->getStart()->getCharPositionInLine();
+            arg_node->end_line = context->getStop()->getLine();
+            arg_node->end_column = context->getStop()->getCharPositionInLine();
             arg_node->index = index;
             arg_node->value = any_to_ast_result(visitExpr(context->a_value))->node;
             arg_node->spread = context->a_spread != nullptr;
@@ -1239,6 +1535,10 @@ namespace mavka::parser {
 
         std::any visitNamed_arg(MavkaParser::Named_argContext* context, int index) {
             const auto arg_node = new ast::ArgNode();
+            arg_node->start_line = context->getStart()->getLine();
+            arg_node->start_column = context->getStart()->getCharPositionInLine();
+            arg_node->end_line = context->getStop()->getLine();
+            arg_node->end_column = context->getStop()->getCharPositionInLine();
             arg_node->index = index;
             arg_node->name = context->na_name->getText();
             arg_node->value = any_to_ast_result(visitExpr(context->na_value))->node;
@@ -1294,6 +1594,10 @@ namespace mavka::parser {
 
         std::any visitReturn_body_line(MavkaParser::Return_body_lineContext* context) override {
             const auto return_node = new ast::ReturnNode();
+            return_node->start_line = context->getStart()->getLine();
+            return_node->start_column = context->getStart()->getCharPositionInLine();
+            return_node->end_line = context->getStop()->getLine();
+            return_node->end_column = context->getStop()->getCharPositionInLine();
             return_node->value = any_to_ast_result(visitExpr(context->rbl_value))->node;
             return create_ast_result(return_node);
         }
