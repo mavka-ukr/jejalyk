@@ -22,27 +22,27 @@
 #include <string>
 #include "jejalyk.hpp"
 
-std::string get_module_name(bool relative, std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_module_name(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_module_path(bool relative, std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_module_path(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_module_code(bool relative, std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_module_code(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_remote_module_name(std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_remote_module_name(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_remote_module_path(std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_remote_module_path(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
-std::string get_remote_module_code(std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_remote_module_code(std::string module, jejalyk::CompilationOptions* options) {
     // ...
 }
 
@@ -85,7 +85,7 @@ global.mavka_compilation_options = {
   root_module_path: "",
   current_module_path: "",
   get_module_name: async (relative, module, options) => {
-    return "";
+    return { error: "", result: "", builtin: false };
   },
   // ...
 };
@@ -108,7 +108,7 @@ Module().then(async (jejalyk) => {
     root_module_path: "",
     current_module_path: "",
     get_module_name: async (relative, module, options) => {
-      return "";
+      return { error: "", result: "", builtin: false };
     },
     // ...
   };

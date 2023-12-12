@@ -21,46 +21,54 @@ val compilation_error_to_val(jejalyk::CompilationError* error) {
     return error_val;
 }
 
-std::string get_module_name(bool relative, std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* val_to_get_module_result(val result) {
+    const auto get_module_result = new jejalyk::GetModuleResult();
+    get_module_result->error = result["error"].as<std::string>();
+    get_module_result->result = result["result"].as<std::string>();
+    get_module_result->builtin = result["buitlin"].as<bool>();
+    return get_module_result;
+}
+
+jejalyk::GetModuleResult* get_module_name(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     const auto mco = val::global("mavka_compilation_options");
     const auto mco_module_name = mco["get_module_name"];
     const auto answer = mco_module_name(relative, module, compilation_options_to_val(options)).await();
-    return answer.as<std::string>();
+    return val_to_get_module_result(answer);
 }
 
-std::string get_module_path(bool relative, std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_module_path(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     const auto mco = val::global("mavka_compilation_options");
     const auto mco_module_name = mco["get_module_path"];
     const auto answer = mco_module_name(relative, module, compilation_options_to_val(options)).await();
-    return answer.as<std::string>();
+    return val_to_get_module_result(answer);
 }
 
-std::string get_module_code(bool relative, std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_module_code(bool relative, std::string module, jejalyk::CompilationOptions* options) {
     const auto mco = val::global("mavka_compilation_options");
     const auto mco_module_name = mco["get_module_code"];
     const auto answer = mco_module_name(relative, module, compilation_options_to_val(options)).await();
-    return answer.as<std::string>();
+    return val_to_get_module_result(answer);
 }
 
-std::string get_remote_module_name(std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_remote_module_name(std::string module, jejalyk::CompilationOptions* options) {
     const auto mco = val::global("mavka_compilation_options");
     const auto mco_module_name = mco["get_remote_module_name"];
     const auto answer = mco_module_name(module, compilation_options_to_val(options)).await();
-    return answer.as<std::string>();
+    return val_to_get_module_result(answer);
 }
 
-std::string get_remote_module_path(std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_remote_module_path(std::string module, jejalyk::CompilationOptions* options) {
     const auto mco = val::global("mavka_compilation_options");
     const auto mco_module_name = mco["get_remote_module_path"];
     const auto answer = mco_module_name(module, compilation_options_to_val(options)).await();
-    return answer.as<std::string>();
+    return val_to_get_module_result(answer);
 }
 
-std::string get_remote_module_code(std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_remote_module_code(std::string module, jejalyk::CompilationOptions* options) {
     const auto mco = val::global("mavka_compilation_options");
     const auto mco_module_name = mco["get_remote_module_code"];
     const auto answer = mco_module_name(module, compilation_options_to_val(options)).await();
-    return answer.as<std::string>();
+    return val_to_get_module_result(answer);
 }
 
 val compile(std::string code) {

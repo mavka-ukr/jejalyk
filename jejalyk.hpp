@@ -31,14 +31,15 @@ try{
 
     inline CompilationResult* compile(const std::string& code, CompilationOptions* options) {
         const auto root_scope = new CompilationScope();
-        root_scope->store_debug = false;
-        root_scope->allow_js = true;
         std::vector<std::string> args = tools::split(options->args, " ");
         for (const auto& arg: args) {
             const auto arg_parts = tools::split(arg, "=");
 
             if (arg_parts[0] == "--інфо-викликів") {
                 root_scope->store_debug = arg_parts[1] == "1";
+            }
+            if (arg_parts[0] == "--розширення") {
+                options->allow_js = arg_parts[1] == "1";
             }
         }
         const auto compilation_result = new CompilationResult();
@@ -57,10 +58,12 @@ try{
         const auto head_compilation_result = new CompilationResult();
         const auto head_scope = new CompilationScope();
         head_scope->parent = root_scope;
+        const auto head_options = options->clone();
+        head_options->allow_js = true;
         const auto head_body_compilation_result = jejalyk::compile_body(
             head_parser_result->program_node->body,
             head_scope,
-            options,
+            head_options,
             false
         );
         if (head_body_compilation_result->error) {
@@ -86,10 +89,12 @@ try{
             const auto std_compilation_result = new CompilationResult();
             const auto std_scope = new CompilationScope();
             std_scope->parent = root_scope;
+            const auto std_options = options->clone();
+            std_options->allow_js = true;
             const auto std_body_compilation_result = jejalyk::compile_body(
                 std_parser_result->program_node->body,
                 std_scope,
-                options,
+                std_options,
                 false
             );
             if (std_body_compilation_result->error) {
@@ -101,15 +106,6 @@ try{
             compilation_result->result = std_body_compilation_result->result;
             for (const auto& [name, value]: std_scope->subjects) {
                 root_scope->subjects[name] = value;
-            }
-        }
-
-        root_scope->allow_js = false;
-        for (const auto& arg: args) {
-            const auto arg_parts = tools::split(arg, "=");
-
-            if (arg_parts[0] == "--розширення") {
-                root_scope->allow_js = arg_parts[1] == "1";
             }
         }
 

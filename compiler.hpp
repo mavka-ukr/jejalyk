@@ -77,7 +77,6 @@ namespace jejalyk {
         std::unordered_map<std::string, std::string> modules;
         std::unordered_map<std::string, std::string> debug;
         bool store_debug = false;
-        bool allow_js = false;
 
         virtual bool has_module(const std::string& name) {
             return root()->modules.contains(name);
@@ -186,6 +185,13 @@ namespace jejalyk {
     class CompilationResult : public NodeCompilationResult {
     };
 
+    class GetModuleResult {
+    public:
+        std::string error;
+        std::string result;
+        bool builtin = false;
+    };
+
     class CompilationOptions {
     public:
         CompilationOptions* parent = nullptr;
@@ -194,18 +200,19 @@ namespace jejalyk {
         std::string std_code;
         std::string args;
         int body_depth = 0;
+        bool allow_js = false;
 
-        std::string (*get_module_name)(bool, std::string, CompilationOptions*) = nullptr;
+        GetModuleResult* (*get_module_name)(bool, std::string, CompilationOptions*) = nullptr;
 
-        std::string (*get_module_path)(bool, std::string, CompilationOptions*) = nullptr;
+        GetModuleResult* (*get_module_path)(bool, std::string, CompilationOptions*) = nullptr;
 
-        std::string (*get_module_code)(bool, std::string, CompilationOptions*) = nullptr;
+        GetModuleResult* (*get_module_code)(bool, std::string, CompilationOptions*) = nullptr;
 
-        std::string (*get_remote_module_name)(std::string, CompilationOptions*) = nullptr;
+        GetModuleResult* (*get_remote_module_name)(std::string, CompilationOptions*) = nullptr;
 
-        std::string (*get_remote_module_path)(std::string, CompilationOptions*) = nullptr;
+        GetModuleResult* (*get_remote_module_path)(std::string, CompilationOptions*) = nullptr;
 
-        std::string (*get_remote_module_code)(std::string, CompilationOptions*) = nullptr;
+        GetModuleResult* (*get_remote_module_code)(std::string, CompilationOptions*) = nullptr;
 
         CompilationOptions* clone() {
             const auto clone = new CompilationOptions();
@@ -214,6 +221,7 @@ namespace jejalyk {
             clone->current_module_path = current_module_path;
             clone->std_code = std_code;
             clone->body_depth = body_depth;
+            clone->allow_js = allow_js;
             clone->get_module_name = get_module_name;
             clone->get_module_path = get_module_path;
             clone->get_module_code = get_module_code;
@@ -1105,7 +1113,7 @@ namespace jejalyk {
                                                     CompilationScope* scope,
                                                     CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-        if (!scope->root()->allow_js) {
+        if (!options->allow_js) {
             node_compilation_result->error = new CompilationError();
             node_compilation_result->error->line = eval_node->start_line;
             node_compilation_result->error->column = eval_node->start_column;
@@ -1617,8 +1625,22 @@ namespace jejalyk {
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-        const auto module_name = options->get_module_name(take_module_node->relative, take_module_node->name, options);
-        const auto module_path = options->get_module_path(take_module_node->relative, take_module_node->name, options);
+        const auto module_name_result = options->get_module_name(take_module_node->relative, take_module_node->name, options);
+        if (!module_name_result->error.empty()) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = take_module_node->start_line;
+            node_compilation_result->error->column = take_module_node->start_column;
+            return node_compilation_result;
+        }
+        const auto module_name = module_name_result->result;
+        const auto module_path_result = options->get_module_path(take_module_node->relative, take_module_node->name, options);
+        if (!module_path_result->error.empty()) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = take_module_node->start_line;
+            node_compilation_result->error->column = take_module_node->start_column;
+            return node_compilation_result;
+        }
+        const auto module_path = module_path_result->result;
         const std::hash<std::string> hash_fn;
         const auto temp_module_name = "module_" + module_name + "_" + std::to_string(hash_fn(module_path));
         const auto init_module_code = "await init_" + temp_module_name + "();\n" + varname(module_name) + "=" +
@@ -1630,11 +1652,18 @@ namespace jejalyk {
         scope->set_module(module_path, "");
         const auto scope_compilation_options = options->clone();
         scope_compilation_options->current_module_path = module_path;
-        const auto module_code = options->get_module_code(
+        const auto module_code_result = options->get_module_code(
             take_module_node->relative,
             take_module_node->name,
             scope_compilation_options
         );
+        if (!module_code_result->error.empty()) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = take_module_node->start_line;
+            node_compilation_result->error->column = take_module_node->start_column;
+            return node_compilation_result;
+        }
+        const auto module_code = module_code_result->result;
         scope->assign(module_name);
         const auto module_parser_result = mavka::parser::parse(module_code);
         if (module_parser_result->error) {
@@ -1673,8 +1702,22 @@ namespace jejalyk {
                                                         CompilationScope* scope,
                                                         CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-        const auto module_name = options->get_remote_module_name(take_pak_node->name, options);
-        const auto module_path = options->get_remote_module_path(take_pak_node->name, options);
+        const auto module_name_result = options->get_remote_module_name(take_pak_node->name, options);
+        if (!module_name_result->error.empty()) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = take_pak_node->start_line;
+            node_compilation_result->error->column = take_pak_node->start_column;
+            return node_compilation_result;
+        }
+        const auto module_name = module_name_result->result;
+        const auto module_path_result = options->get_remote_module_path(take_pak_node->name, options);
+        if (!module_path_result->error.empty()) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = take_pak_node->start_line;
+            node_compilation_result->error->column = take_pak_node->start_column;
+            return node_compilation_result;
+        }
+        const auto module_path = module_path_result->result;
         const std::hash<std::string> hash_fn;
         const auto temp_module_name = "module_" + module_name + "_" + std::to_string(hash_fn(module_path));
         const auto init_module_code = "await init_" + temp_module_name + "();\n" + varname(module_name) + "=" +
@@ -1685,12 +1728,22 @@ namespace jejalyk {
         }
         scope->set_module(module_path, "");
         const auto scope_compilation_options = options->clone();
+        if (module_name_result->builtin) {
+            scope_compilation_options->allow_js = true;
+        }
         scope_compilation_options->root_module_path = module_path;
         scope_compilation_options->current_module_path = module_path;
-        const auto module_code = options->get_remote_module_code(
+        const auto module_code_result = options->get_remote_module_code(
             take_pak_node->name,
             scope_compilation_options
         );
+        if (!module_code_result->error.empty()) {
+            node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->line = take_pak_node->start_line;
+            node_compilation_result->error->column = take_pak_node->start_column;
+            return node_compilation_result;
+        }
+        const auto module_code = module_code_result->result;
         scope->assign(module_name);
         const auto module_parser_result = mavka::parser::parse(module_code);
         if (module_parser_result->error) {
