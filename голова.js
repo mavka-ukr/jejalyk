@@ -536,7 +536,7 @@ function мЄ(a, b) {
         if (aMavkaValue === structure) {
           return м_так;
         }
-        structure = structure[MAVKA].parent;
+        structure = structure[MAVKA]?.parent;
       }
     }
   }
