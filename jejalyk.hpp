@@ -132,7 +132,7 @@ try{
                 const auto compiled_modules_string = tools::implode(compiled_modules, "\n");
                 compilation_result->result = wrap_run(
                     compiled_di + "\n" + head_body_compilation_result->result,
-                    compilation_result->result + "\n" + body_compilation_result->result
+                    compilation_result->result + "\n" + compiled_modules_string + "\n" + body_compilation_result->result
                 );
             }
         }
