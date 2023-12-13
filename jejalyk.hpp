@@ -6,18 +6,19 @@
 #include "head.h"
 
 namespace jejalyk {
-    inline std::string wrap_run(std::string head, std::string code) {
+    inline std::string wrap_run(std::string head, std::string std, std::string code) {
         return R"(
 )" + head + R"(
+)" + std + R"(
 try{
 )" + code + R"(
 }catch(e) {
   if(e) {
-    if(e instanceof MavkaError){
+    if(e instanceof ПомилкаМавки){
       if(e.di) {
-        console.log(e.di+": "+e.message);
+        м_друк(e.di+":",e.value);
       }else{
-        console.log(e.message);
+        м_друк(e.value);
       }
     }else{
       throw e;
@@ -142,7 +143,8 @@ try{
                 const auto compiled_modules_string = tools::implode(compiled_modules, "\n");
                 compilation_result->result = wrap_run(
                     compiled_di + "\n" + head_body_compilation_result->result,
-                    compilation_result->result + "\n" + compiled_modules_string + "\n" + body_compilation_result->result
+                    compilation_result->result,
+                    compiled_modules_string + "\n" + body_compilation_result->result
                 );
             }
         }

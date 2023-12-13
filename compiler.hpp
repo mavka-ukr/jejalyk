@@ -1636,7 +1636,8 @@ namespace jejalyk {
                                                            CompilationScope* scope,
                                                            CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
-        const auto module_name_result = options->get_module_name(take_module_node->relative, take_module_node->name, options);
+        const auto module_name_result = options->get_module_name(take_module_node->relative, take_module_node->name,
+                                                                 options);
         if (!module_name_result->error.empty()) {
             node_compilation_result->error = new CompilationError();
             node_compilation_result->error->path = options->current_module_path;
@@ -1646,7 +1647,8 @@ namespace jejalyk {
             return node_compilation_result;
         }
         const auto module_name = module_name_result->result;
-        const auto module_path_result = options->get_module_path(take_module_node->relative, take_module_node->name, options);
+        const auto module_path_result = options->get_module_path(take_module_node->relative, take_module_node->name,
+                                                                 options);
         if (!module_path_result->error.empty()) {
             node_compilation_result->error = new CompilationError();
             node_compilation_result->error->path = options->current_module_path;
@@ -1860,13 +1862,15 @@ namespace jejalyk {
     inline NodeCompilationResult* compile_throw_node(const mavka::ast::ThrowNode* throw_node,
                                                      CompilationScope* scope,
                                                      CompilationOptions* options) {
+        const auto diName = scope->put_debug(options->current_module_path, throw_node->start_line,
+                                     throw_node->start_column);
         const auto node_compilation_result = new NodeCompilationResult();
         const auto value = compile_node(throw_node->value, scope, options);
         if (value->error) {
             node_compilation_result->error = value->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = "throw " + value->result;
+        node_compilation_result->result = "throw new ПомилкаМавки(" + value->result + "," + diName + ")";
         return node_compilation_result;
     }
 
@@ -1876,20 +1880,32 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         const auto try_scope = new CompilationMicroScope();
         try_scope->parent = scope;
-        const auto body = compile_body(try_node->body, try_scope, options, true);
+        const auto body = compile_body(try_node->body, try_scope, options, false);
         if (body->error) {
             node_compilation_result->error = body->error;
             return node_compilation_result;
         }
+        scope->assign(try_node->name);
         const auto catch_scope = new CompilationMicroScope();
         catch_scope->parent = scope;
-        const auto catch_body = compile_body(try_node->catch_body, catch_scope, options, true);
+        const auto catch_body = compile_body(try_node->catch_body, catch_scope, options, false);
         if (catch_body->error) {
             node_compilation_result->error = catch_body->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = "try" + body->result + "catch(" + varname(try_node->name) + ")" +
-                                          catch_body->result + "";
+        node_compilation_result->result = R"(
+try {
+)" + body->result + R"(
+}catch(e){
+if(e){
+if(e instanceof ПомилкаМавки){
+e=e.value;
+}
+}
+)" + varname(try_node->name) + R"(=e;
+)" + catch_body->result + R"(
+}
+)";
         return node_compilation_result;
     }
 
