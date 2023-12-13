@@ -14,7 +14,7 @@ try{
 )" + code + R"(
 }catch(e) {
   if(e) {
-    if(e instanceof ПомилкаМавки){
+    if(e instanceof Падіння){
       if(e.di) {
         м_друк(e.di+":",e.value);
       }else{

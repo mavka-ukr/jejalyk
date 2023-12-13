@@ -1870,7 +1870,7 @@ namespace jejalyk {
             node_compilation_result->error = value->error;
             return node_compilation_result;
         }
-        node_compilation_result->result = "throw new ПомилкаМавки(" + value->result + "," + diName + ")";
+        node_compilation_result->result = "throw new Падіння(" + value->result + "," + diName + ")";
         return node_compilation_result;
     }
 
@@ -1898,7 +1898,7 @@ try {
 )" + body->result + R"(
 }catch(e){
 if(e){
-if(e instanceof ПомилкаМавки){
+if(e instanceof Падіння){
 e=e.value;
 }
 }
