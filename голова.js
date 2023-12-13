@@ -1,7 +1,7 @@
 class Падіння {
-  constructor(value, di) {
-    this.value = value;
-    this.di = di;
+  constructor(значення, ді) {
+    this.значення = значення;
+    this.ді = ді;
   }
 }
 

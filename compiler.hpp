@@ -1899,7 +1899,7 @@ try {
 }catch(e){
 if(e){
 if(e instanceof Падіння){
-e=e.value;
+e=e.значення;
 }
 }
 )" + varname(try_node->name) + R"(=e;

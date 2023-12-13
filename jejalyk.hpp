@@ -15,10 +15,10 @@ try{
 }catch(e) {
   if(e) {
     if(e instanceof Падіння){
-      if(e.di) {
-        м_друк(e.di+":",e.value);
+      if(e.ді) {
+        м_друк(e.ді+":",e.значення);
       }else{
-        м_друк(e.value);
+        м_друк(e.значення);
       }
     }else{
       throw e;
