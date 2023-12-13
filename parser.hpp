@@ -1004,7 +1004,7 @@ namespace mavka::parser {
             dictionary_node->end_line = context->getStop()->getLine();
             dictionary_node->end_column = context->getStop()->getCharPositionInLine();
             if (context->d_args) {
-                dictionary_node->elements = std::any_cast<std::unordered_map<std::string, ast::ASTNode *>>(
+                dictionary_node->elements = std::any_cast<std::vector<ast::DictionaryElementNode *>>(
                     visitDictionary_args(context->d_args)
                 );
             }
@@ -1012,17 +1012,44 @@ namespace mavka::parser {
         }
 
         std::any visitDictionary_args(MavkaParser::Dictionary_argsContext* context) override {
-            std::unordered_map<std::string, ast::ASTNode *> elements;
+            std::vector<ast::DictionaryElementNode *> elements;
             for (const auto dictionary_arg: context->dictionary_arg()) {
                 const auto value = any_to_ast_result(visitExpr(dictionary_arg->da_value))->node;
                 if (dictionary_arg->da_name_id) {
-                    elements[dictionary_arg->da_name_id->getText()] = value;
+                    const auto dictionary_element_node = new ast::DictionaryElementNode();
+                    dictionary_element_node->start_line = dictionary_arg->getStart()->getLine();
+                    dictionary_element_node->start_column = dictionary_arg->getStart()->
+                            getCharPositionInLine();
+                    dictionary_element_node->end_line = dictionary_arg->getStop()->getLine();
+                    dictionary_element_node->end_column = dictionary_arg->getStop()->
+                            getCharPositionInLine();
+                    dictionary_element_node->key = dictionary_arg->da_name_id->getText();
+                    dictionary_element_node->value = value;
+                    elements.push_back(dictionary_element_node);
                 } else if (dictionary_arg->da_name_string) {
                     const auto name_string = dictionary_arg->da_name_string->getText();
                     if (name_string.starts_with(R"(""")")) {
-                        elements[name_string.substr(3, name_string.length() - 6)] = value;
+                        const auto dictionary_element_node = new ast::DictionaryElementNode();
+                        dictionary_element_node->start_line = dictionary_arg->getStart()->getLine();
+                        dictionary_element_node->start_column = dictionary_arg->getStart()->
+                                getCharPositionInLine();
+                        dictionary_element_node->end_line = dictionary_arg->getStop()->getLine();
+                        dictionary_element_node->end_column = dictionary_arg->getStop()->
+                                getCharPositionInLine();
+                        dictionary_element_node->key = name_string.substr(3, name_string.length() - 6);
+                        dictionary_element_node->value = value;
+                        elements.push_back(dictionary_element_node);
                     } else {
-                        elements[name_string.substr(1, name_string.length() - 2)] = value;
+                        const auto dictionary_element_node = new ast::DictionaryElementNode();
+                        dictionary_element_node->start_line = dictionary_arg->getStart()->getLine();
+                        dictionary_element_node->start_column = dictionary_arg->getStart()->
+                                getCharPositionInLine();
+                        dictionary_element_node->end_line = dictionary_arg->getStop()->getLine();
+                        dictionary_element_node->end_column = dictionary_arg->getStop()->
+                                getCharPositionInLine();
+                        dictionary_element_node->key = name_string.substr(1, name_string.length() - 2);
+                        dictionary_element_node->value = value;
+                        elements.push_back(dictionary_element_node);
                     }
                 }
             }
@@ -1658,12 +1685,14 @@ namespace mavka::parser {
         } catch (const antlr4::RecognitionException& e) {
             const auto parser_result = new MavkaParserResult();
             const auto parser_error = new MavkaParserError();
-            // I hate antlr4 and wasm with all of my heart
+            // wasm cannot properly handle antlr4 exceptions
+            // do not handle it for now
+            // todo: fix it
             // try {
-                // parser_error->line = e.getOffendingToken()->getLine();
-                // parser_error->column = e.getOffendingToken()->getCharPositionInLine();
+            // parser_error->line = e.getOffendingToken()->getLine();
+            // parser_error->column = e.getOffendingToken()->getCharPositionInLine();
             // } catch (...) {
-                // ignore
+            // ignore
             // }
             parser_error->message = "Помилка парсингу.";
             parser_result->error = parser_error;

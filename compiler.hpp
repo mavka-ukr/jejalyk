@@ -74,9 +74,9 @@ namespace jejalyk {
         virtual ~CompilationScope() = default;
 
         CompilationScope* parent = nullptr;
-        std::unordered_map<std::string, CompilationSubject *> subjects;
-        std::unordered_map<std::string, std::string> modules;
-        std::unordered_map<std::string, std::string> debug;
+        std::map<std::string, CompilationSubject *> subjects;
+        std::map<std::string, std::string> modules;
+        std::map<std::string, std::string> debug;
         bool store_debug = false;
 
         virtual bool has_module(const std::string& name) {
@@ -1096,6 +1096,9 @@ namespace jejalyk {
         const auto each_scope = new CompilationMicroScope();
         each_scope->parent = scope;
         each_scope->assign(each_node->name);
+        if (!each_node->keyName.empty()) {
+            each_scope->assign(each_node->keyName);
+        }
         const auto body = compile_body(each_node->body, each_scope, options, true);
         if (body->error) {
             node_compilation_result->error = body->error;
@@ -1106,7 +1109,6 @@ namespace jejalyk {
                     "for(" + varname(each_node->name) + " of " + MAVKA_VALUES_ITERATOR + "(" + value->result
                     + "," + diName + "))" + body->result + "";
         } else {
-            each_scope->assign(each_node->keyName);
             node_compilation_result->result =
                     "for([" + varname(each_node->keyName) + "," + varname(each_node->name) +
                     "] of " + MAVKA_ENTRIES_ITERATOR + "(" + value->result
@@ -1501,12 +1503,12 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         std::vector<std::string> compiled_elements;
         for (const auto& element: dictionary_node->elements) {
-            const auto value = compile_node(element.second, scope, options);
+            const auto value = compile_node(element->value, scope, options);
             if (value->error) {
                 node_compilation_result->error = value->error;
                 return node_compilation_result;
             }
-            compiled_elements.push_back("[\"" + element.first + "\"," + value->result + "]");
+            compiled_elements.push_back("[\"" + element->key + "\"," + value->result + "]");
         }
         node_compilation_result->result = "new Map([" + tools::implode(compiled_elements, ",") + "])";
         return node_compilation_result;
@@ -1659,8 +1661,9 @@ namespace jejalyk {
         }
         const auto module_path = module_path_result->result;
         const std::hash<std::string> hash_fn;
+        const auto module_variable_name = take_module_node->as.empty() ? module_name : take_module_node->as;
         const auto temp_module_name = "module_" + module_name + "_" + std::to_string(hash_fn(module_path));
-        const auto init_module_code = "await init_" + temp_module_name + "();\n" + varname(module_name) + "=" +
+        const auto init_module_code = "await init_" + temp_module_name + "();\n" + varname(module_variable_name) + "=" +
                                       temp_module_name;
         if (scope->has_module(module_path)) {
             node_compilation_result->result = init_module_code;
@@ -1683,7 +1686,11 @@ namespace jejalyk {
             return node_compilation_result;
         }
         const auto module_code = module_code_result->result;
-        scope->assign(module_name);
+        if (take_module_node->as.empty()) {
+            scope->assign(module_name);
+        } else {
+            scope->assign(take_module_node->as);
+        }
         const auto module_parser_result = mavka::parser::parse(module_code);
         if (module_parser_result->error) {
             node_compilation_result->error = new CompilationError();
@@ -1742,10 +1749,11 @@ namespace jejalyk {
             node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
+        const auto module_variable_name = take_pak_node->as.empty() ? module_name : take_pak_node->as;
         const auto module_path = module_path_result->result;
         const std::hash<std::string> hash_fn;
         const auto temp_module_name = "module_" + module_name + "_" + std::to_string(hash_fn(module_path));
-        const auto init_module_code = "await init_" + temp_module_name + "();\n" + varname(module_name) + "=" +
+        const auto init_module_code = "await init_" + temp_module_name + "();\n" + varname(module_variable_name) + "=" +
                                       temp_module_name;
         if (scope->has_module(module_path)) {
             node_compilation_result->result = init_module_code;
@@ -1771,7 +1779,11 @@ namespace jejalyk {
             return node_compilation_result;
         }
         const auto module_code = module_code_result->result;
-        scope->assign(module_name);
+        if (take_pak_node->as.empty()) {
+            scope->assign(module_name);
+        } else {
+            scope->assign(take_pak_node->as);
+        }
         const auto module_parser_result = mavka::parser::parse(module_code);
         if (module_parser_result->error) {
             node_compilation_result->error = new CompilationError();
@@ -1863,7 +1875,7 @@ namespace jejalyk {
                                                      CompilationScope* scope,
                                                      CompilationOptions* options) {
         const auto diName = scope->put_debug(options->current_module_path, throw_node->start_line,
-                                     throw_node->start_column);
+                                             throw_node->start_column);
         const auto node_compilation_result = new NodeCompilationResult();
         const auto value = compile_node(throw_node->value, scope, options);
         if (value->error) {

@@ -149,11 +149,19 @@ namespace mavka::ast {
         std::string TYPE = "ContinueNode";
     };
 
+    class DictionaryElementNode final : public ASTNode {
+    public:
+        std::string TYPE = "DictionaryElementNode";
+
+        std::string key;
+        ASTNode* value;
+    };
+
     class DictionaryNode final : public ASTNode {
     public:
         std::string TYPE = "DictionaryNode";
 
-        std::unordered_map<std::string, ASTNode *> elements;
+        std::vector<DictionaryElementNode *> elements;
     };
 
     class DiiaNode final : public ASTNode {
