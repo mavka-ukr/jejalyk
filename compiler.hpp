@@ -241,7 +241,8 @@ namespace jejalyk {
                                         CompilationScope* scope,
                                         CompilationOptions* options,
                                         const bool wrap = true,
-                                        const std::string& before = "");
+                                        const std::string& before = "",
+                                        const bool handle_return = false);
 
     NodeCompilationResult* compile_params(std::vector<mavka::ast::ParamNode *> params,
                                           CompilationScope* scope,
@@ -1030,7 +1031,7 @@ namespace jejalyk {
                 }
             }
         }
-        const auto body_compilation_result = compile_body(body, scope, options, wrap, tools::implode(before, ";\n"));
+        const auto body_compilation_result = compile_body(body, scope, options, wrap, tools::implode(before, ";\n"), true);
         if (body_compilation_result->error) {
             node_compilation_result->error = body_compilation_result->error;
             return node_compilation_result;
@@ -2208,12 +2209,34 @@ e=e.значення;
                                                CompilationScope* scope,
                                                CompilationOptions* options,
                                                const bool wrap,
-                                               const std::string& before) {
+                                               const std::string& before,
+                                               const bool handle_return) {
         const auto options_clone = options->clone();
         options_clone->body_depth = options->body_depth + 1;
         const auto node_compilation_result = new NodeCompilationResult();
         std::vector<std::string> compiled_body;
+        size_t i = 0;
         for (const auto node: body) {
+            if (i == body.size() - 1 && handle_return) {
+                if (!tools::instanceof<mavka::ast::ReturnNode>(node) &&
+                    !tools::instanceof<mavka::ast::EachNode>(node) &&
+                    !tools::instanceof<mavka::ast::WhileNode>(node) &&
+                    !tools::instanceof<mavka::ast::IfNode>(node) &&
+                    !tools::instanceof<mavka::ast::BreakNode>(node) &&
+                    !tools::instanceof<mavka::ast::ContinueNode>(node)
+                ) {
+                    const auto node_compilation_result = compile_node(node, scope, options_clone);
+                    if (node_compilation_result->error) {
+                        node_compilation_result->error = node_compilation_result->error;
+                        return node_compilation_result;
+                    }
+                    if (node_compilation_result->result.empty()) {
+                        continue;
+                    }
+                    compiled_body.push_back("return " + node_compilation_result->result);
+                    break;
+                }
+            }
             const auto item_node_compilation_result = compile_node(node, scope, options_clone);
             if (item_node_compilation_result->error) {
                 item_node_compilation_result->error = item_node_compilation_result->error;
@@ -2223,6 +2246,7 @@ e=e.значення;
                 continue;
             }
             compiled_body.push_back(item_node_compilation_result->result);
+            i++;
         }
         if (!before.empty()) {
             compiled_body.insert(compiled_body.begin(), before);

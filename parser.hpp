@@ -23,6 +23,29 @@ namespace mavka::parser {
         return ast_result;
     }
 
+    inline std::string process_number(std::string number) {
+        auto number_copy = std::string(number);
+        if (number_copy.find("ш") != std::string::npos) {
+            jejalyk::tools::replace_all(number_copy, "ш", "x");
+            jejalyk::tools::replace_all(number_copy, "Ш", "X");
+            jejalyk::tools::replace_all(number_copy, "а", "а");
+            jejalyk::tools::replace_all(number_copy, "А", "A");
+            jejalyk::tools::replace_all(number_copy, "б", "b");
+            jejalyk::tools::replace_all(number_copy, "Б", "B");
+            jejalyk::tools::replace_all(number_copy, "в", "c");
+            jejalyk::tools::replace_all(number_copy, "В", "C");
+            jejalyk::tools::replace_all(number_copy, "г", "d");
+            jejalyk::tools::replace_all(number_copy, "Г", "D");
+            jejalyk::tools::replace_all(number_copy, "ґ", "e");
+            jejalyk::tools::replace_all(number_copy, "Ґ", "E");
+            jejalyk::tools::replace_all(number_copy, "д", "f");
+            jejalyk::tools::replace_all(number_copy, "Д", "F");
+        } else {
+            jejalyk::tools::replace_all(number_copy, "д", "b");
+        }
+        return number_copy;
+    }
+
     inline std::vector<ast::ASTNode *> processASTBody(const std::vector<ast::ASTNode *>& body) {
         std::vector<ast::ASTNode *> result;
         for (auto& item: body) {
@@ -474,7 +497,7 @@ namespace mavka::parser {
                 number_node->start_column = context->getStart()->getCharPositionInLine();
                 number_node->end_line = context->getStop()->getLine();
                 number_node->end_column = context->getStop()->getCharPositionInLine();
-                number_node->value = dynamic_cast<MavkaParser::Fromto_numberContext *>(context)->NUMBER()->getText();
+                number_node->value = process_number(dynamic_cast<MavkaParser::Fromto_numberContext *>(context)->NUMBER()->getText());
                 return create_ast_result(number_node);
             }
             if (jejalyk::tools::instanceof<MavkaParser::Fromto_stringContext>(context)) {
@@ -672,7 +695,7 @@ namespace mavka::parser {
             number_node->start_column = context->getStart()->getCharPositionInLine();
             number_node->end_line = context->getStop()->getLine();
             number_node->end_column = context->getStop()->getCharPositionInLine();
-            number_node->value = context->getText();
+            number_node->value = process_number(context->getText());
             return create_ast_result(number_node);
         }
 
@@ -1445,7 +1468,7 @@ namespace mavka::parser {
             number_node->start_column = context->getStart()->getCharPositionInLine();
             number_node->end_line = context->getStop()->getLine();
             number_node->end_column = context->getStop()->getCharPositionInLine();
-            number_node->value = context->NUMBER()->getText();
+            number_node->value = process_number(context->NUMBER()->getText());
             return create_ast_result(number_node);
         }
 

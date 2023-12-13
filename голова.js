@@ -78,10 +78,120 @@ Object.defineProperty(м_текст.prototype, "довжина", {
     return this.length;
   },
 });
+Object.defineProperty(м_текст.prototype, "символ", {
+  get() {
+    return мДія("символ", [], (args) => {
+      return this.charAt(args[0] ?? args["позиція"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "код_символу", {
+  get() {
+    return мДія("код_символу", [], (args) => {
+      return this.charCodeAt(args[0] ?? args["позиція"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "позиція", {
+  get() {
+    return мДія("позиція", [], (args) => {
+      return this.indexOf(args[0] ?? args["позиція"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "повторити", {
+  get() {
+    return мДія("повторити", [], (args) => {
+      return this.repeat(args[0] ?? args["кількість"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "замінити", {
+  get() {
+    return мДія("замінити", [], (args) => {
+      return this.replaceAll(args[0] ?? args["старе_значення"], args[1] ?? args["нове_значення"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "замінити_перше", {
+  get() {
+    return мДія("замінити_перше", [], (args) => {
+      return this.replace(args[0] ?? args["старе_значення"], args[1] ?? args["нове_значення"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "зрізати", {
+  get() {
+    return мДія("зрізати", [], (args) => {
+      return this.substring(args[0] ?? args["від"], args[1] ?? args["до"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "приєднати", {
+  get() {
+    return мДія("приєднати", [], (args, di) => {
+      var value = (args[0] ?? args["значення"])
+        .map((v) => мВикл(м_текст.чародія_перетворити_на_текст, [v], di))
+        .join("");
+      return this.concat(value);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "розділити", {
+  get() {
+    return мДія("розділити", [], (args) => {
+      return this.split(args[0] ?? args["роздільник"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "починається_з", {
+  get() {
+    return мДія("починається_з", [], (args) => {
+      return this.startsWith(args[0] ?? args["значення"]);
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "закінчується_на", {
+  get() {
+    return мДія("закінчується_на", [], (args) => {
+      return this.endsWith(args[0] ?? args["значення"]);
+    });
+  },
+});
 Object.defineProperty(м_текст.prototype, "обрізати", {
   get() {
     return мДія("обрізати", [], () => {
       return this.trim();
+    });
+  },
+});
+Object.defineProperty(м_текст.prototype, "обтяти", {
+  get() {
+    return мДія("обтяти", [], () => {
+      // todo: fix it
+      var lineNumberWhereSmallestIndentationIs = 0;
+      var lines = this.split("\n");
+      var smallestIndentation = Infinity;
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) {
+          continue;
+        }
+        const indentation = line.match(/^\s*/)[0].length;
+        if (indentation < smallestIndentation) {
+          smallestIndentation = indentation;
+          lineNumberWhereSmallestIndentationIs = i;
+        }
+      }
+      const result = [];
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.trim()) {
+          continue;
+        }
+        result.push(line.slice(smallestIndentation));
+      }
+      return result.join("\n");
     });
   },
 });
@@ -111,6 +221,97 @@ Object.defineProperty(м_список.prototype, "додати", {
     return мДія("додати", [], (args) => {
       this.push(...Object.values(args));
       return this;
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "забрати", {
+  get() {
+    return мДія("забрати", [], () => {
+      return this.pop();
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "отримати", {
+  get() {
+    return мДія("отримати", [], (args) => {
+      return this[args[0] ?? args["позиція"]];
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "сортувати", {
+  get() {
+    return мДія("сортувати", [], (args, di) => {
+      return this.sort((args[0] ?? args["д"]) ? (a, b) => мВикл(args[0] ?? args["д"], [a, b], di) : undefined);
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "фільтрувати", {
+  get() {
+    return мДія("фільтрувати", [], (args, di) => {
+      return this.filter((a) => мВикл(args[0] ?? args["д"], [a], di));
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "знайти", {
+  get() {
+    return мДія("знайти", [], (args, di) => {
+      return this.find((a) => мВикл(args[0] ?? args["д"], [a], di));
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "знайти_позицію", {
+  get() {
+    return мДія("знайти_позицію", [], (args, di) => {
+      return this.findIndex((a) => мВикл(args[0] ?? args["д"], [a], di));
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "перетворити", {
+  get() {
+    return мДія("перетворити", [], (args, di) => {
+      return this.map((a) => мВикл(args[0] ?? args["д"], [a], di));
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "заповнити", {
+  get() {
+    return мДія("заповнити", [], (args) => {
+      return this.fill(args[0] ?? args["значення"]);
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "злити", {
+  get() {
+    return мДія("злити", [], (args) => {
+      return this.concat(args[0] ?? args["значення"]);
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "зʼєднати", {
+  get() {
+    return мДія("зʼєднати", [], (args, di) => {
+      return this.map((v) => мВикл(м_текст.чародія_перетворити_на_текст, [v], di)).join(args[0] ?? args["роздільник"]);
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "обернути", {
+  get() {
+    return мДія("обернути", [], () => {
+      return this.reverse();
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "зрізати", {
+  get() {
+    return мДія("зрізати", [], (args) => {
+      return this.slice(args[0] ?? args["від"], args[1] ?? args["до"]);
+    });
+  },
+});
+Object.defineProperty(м_список.prototype, "скоротити", {
+  get() {
+    return мДія("скоротити", [], (args, di) => {
+      return this.reduce((a, b) => мВикл(args[0] ?? args["д"], [a, b], di), args[1] ?? args["початкове_значення"]);
     });
   },
 });
