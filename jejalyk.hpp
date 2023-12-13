@@ -50,6 +50,7 @@ try{
         if (head_parser_result->error) {
             const auto head_compilation_result = new CompilationResult();
             head_compilation_result->error = new CompilationError();
+            // head_compilation_result->error->path = "[ГОЛОВА]";
             head_compilation_result->error->line = head_parser_result->error->line;
             head_compilation_result->error->column = head_parser_result->error->column;
             head_compilation_result->error->message = "[ВАДА В ГОЛОВІ :(] " + head_parser_result->error->message;
@@ -81,6 +82,7 @@ try{
             if (std_parser_result->error) {
                 const auto std_compilation_result = new CompilationResult();
                 std_compilation_result->error = new CompilationError();
+                // std_compilation_result->error->path = "[STD]";
                 std_compilation_result->error->line = std_parser_result->error->line;
                 std_compilation_result->error->column = std_parser_result->error->column;
                 std_compilation_result->error->message = "[ВАДА В STD] " + std_parser_result->error->message;
@@ -112,6 +114,7 @@ try{
         const auto parser_result = mavka::parser::parse(code);
         if (parser_result->error) {
             compilation_result->error = new CompilationError();
+            compilation_result->error->path = options->current_module_path;
             compilation_result->error->line = parser_result->error->line;
             compilation_result->error->column = parser_result->error->column;
             compilation_result->error->message = parser_result->error->message;

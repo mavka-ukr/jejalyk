@@ -1612,18 +1612,64 @@ namespace mavka::parser {
 
     class MavkaParserErrorListener final : public antlr4::BaseErrorListener {
     public:
-        void syntaxError(antlr4::Recognizer* recognizer,
-                         antlr4::Token* offendingSymbol,
-                         size_t line,
-                         size_t charPositionInLine,
-                         const std::string& msg,
-                         std::exception_ptr e) override {
+        void syntaxError(antlr4::Recognizer* recognizer, antlr4::Token* offendingSymbol, size_t line,
+                         size_t charPositionInLine, const std::string& msg, std::exception_ptr e) override {
             const auto error = new MavkaParserError();
             error->line = line;
             error->column = charPositionInLine;
-            error->message = msg;
+            error->message = "syntaxError";
             throw *error;
         }
+
+        // void reportAmbiguity(antlr4::Parser* recognizer, const antlr4::dfa::DFA& dfa, size_t startIndex,
+        //                      size_t stopIndex, bool exact, const antlrcpp::BitSet& ambigAlts,
+        //                      antlr4::atn::ATNConfigSet* configs) override {
+        //     const auto error = new MavkaParserError();
+        //     error->line = recognizer->getContext()->getStart()->getLine();
+        //     error->column = recognizer->getContext()->getStart()->getLine();
+        //     error->message = "reportContextSensitivity";
+        //     throw *error;
+        // }
+        //
+        // void reportAttemptingFullContext(antlr4::Parser* recognizer, const antlr4::dfa::DFA& dfa, size_t startIndex,
+        //                                  size_t stopIndex, const antlrcpp::BitSet& conflictingAlts,
+        //                                  antlr4::atn::ATNConfigSet* configs) override {
+        //     const auto error = new MavkaParserError();
+        //     error->line = recognizer->getContext()->getStart()->getLine();
+        //     error->column = recognizer->getContext()->getStart()->getLine();
+        //     error->message = "reportAttemptingFullContext";
+        //     throw *error;
+        // }
+        //
+        // void reportContextSensitivity(antlr4::Parser* recognizer, const antlr4::dfa::DFA& dfa, size_t startIndex,
+        //                               size_t stopIndex, size_t prediction,
+        //                               antlr4::atn::ATNConfigSet* configs) override {
+        //     const auto error = new MavkaParserError();
+        //     error->line = recognizer->getContext()->getStart()->getLine();
+        //     error->column = recognizer->getContext()->getStart()->getLine();
+        //     error->message = "reportContextSensitivity";
+        //     throw *error;
+        // }
+    };
+
+    class MavkaParserErrorHandler : public antlr4::BailErrorStrategy {
+    public:
+        // void reportError(antlr4::Parser* recognizer, const antlr4::RecognitionException& e) override {
+        //     std::cout << "watafak" << std::endl;
+        // }
+
+        // void recover(antlr4::Parser* recognizer, std::exception_ptr e) override {
+        //     std::cout << "watafak2" << std::endl;
+        // }
+        //
+        // antlr4::Token* recoverInline(antlr4::Parser* recognizer) override {
+        //     std::cout << "watafak3" << std::endl;
+        //     return nullptr;
+        // }
+        //
+        // void sync(antlr4::Parser* recognizer) override {
+        //     std::cout << "watafak4" << std::endl;
+        // }
     };
 
     class MavkaParserResult {
@@ -1633,6 +1679,8 @@ namespace mavka::parser {
     };
 
     MavkaParserResult* parse(std::string code) {
+        const auto error_handler = new MavkaParserErrorHandler();
+
         try {
             antlr4::ANTLRInputStream input(code);
 
@@ -1645,6 +1693,8 @@ namespace mavka::parser {
 
             const auto parser_error_listener = new MavkaParserErrorListener();
             MavkaParser parser(&tokens);
+            parser.setErrorHandler(std::shared_ptr<MavkaParserErrorHandler>(error_handler));
+            parser.removeParseListeners();
             parser.removeErrorListeners();
             parser.addErrorListener(parser_error_listener);
 
@@ -1657,26 +1707,18 @@ namespace mavka::parser {
             const auto parser_result = new MavkaParserResult();
             parser_result->program_node = program_node;
             return parser_result;
-        } catch (MavkaParserError& parser_error) {
-            const auto parser_result = new MavkaParserResult();
-            parser_result->error = &parser_error;
-            return parser_result;
-        } catch (antlr4::RuntimeException& e) {
+        } catch (antlr4::RecognitionException& e) {
             const auto parser_result = new MavkaParserResult();
             const auto parser_error = new MavkaParserError();
-            parser_error->message = e.what();
-            parser_result->error = parser_error;
-            return parser_result;
-        } catch (std::exception& e) {
-            const auto parser_result = new MavkaParserResult();
-            const auto parser_error = new MavkaParserError();
-            parser_error->message = e.what();
+            parser_error->line = e.getOffendingToken()->getLine();
+            parser_error->column = e.getOffendingToken()->getCharPositionInLine();
+            parser_error->message = "Помилка парсингу.";
             parser_result->error = parser_error;
             return parser_result;
         } catch (...) {
             const auto parser_result = new MavkaParserResult();
             const auto parser_error = new MavkaParserError();
-            parser_error->message = "parser error";
+            parser_error->message = "Помилка парсингу";
             parser_result->error = parser_error;
             return parser_result;
         }

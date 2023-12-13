@@ -58,6 +58,7 @@ namespace jejalyk {
 
     class CompilationError {
     public:
+        std::string path;
         size_t line{};
         size_t column{};
         std::string message;
@@ -549,6 +550,7 @@ namespace jejalyk {
                                               "," + diName + ")";
         } else {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = arithmetic_node->start_line;
             node_compilation_result->error->column = arithmetic_node->start_column;
             node_compilation_result->error->message = "unsupported arithmetic operation: " + arithmetic_node->op;
@@ -580,6 +582,7 @@ namespace jejalyk {
         //                                      as_node->start_column);
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->error = new CompilationError();
+        node_compilation_result->error->path = options->current_module_path;
         node_compilation_result->error->line = as_node->start_line;
         node_compilation_result->error->column = as_node->start_column;
         node_compilation_result->error->message = "Вказівка \"як\" тимчасово не працює.";
@@ -813,6 +816,7 @@ namespace jejalyk {
                     MAVKA_BIT_RSHIFT + "(" + compiled_left->result + "," + compiled_right->result + "," + diName + ")";
         } else {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = bitwise_node->start_line;
             node_compilation_result->error->column = bitwise_node->start_column;
             node_compilation_result->error->message = "unsupported bitwise operation: " + bitwise_node->op;
@@ -875,6 +879,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         if (arg_node->spread) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = arg_node->start_line;
             node_compilation_result->error->column = arg_node->start_column;
             node_compilation_result->error->message = "Оператор розгортання не підтримується в аргументах.";
@@ -972,6 +977,7 @@ namespace jejalyk {
                     ")";
         } else {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = comparison_node->start_line;
             node_compilation_result->error->column = comparison_node->start_column;
             node_compilation_result->error->message = "unsupported comparison operation: " + comparison_node->op;
@@ -1115,6 +1121,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         if (!options->allow_js) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = eval_node->start_line;
             node_compilation_result->error->column = eval_node->start_column;
             node_compilation_result->error->message =
@@ -1248,6 +1255,7 @@ namespace jejalyk {
                                                    CompilationOptions* options) {
         const auto node_compilation_result = new NodeCompilationResult();
         node_compilation_result->error = new CompilationError();
+        node_compilation_result->error->path = options->current_module_path;
         node_compilation_result->error->line = node->start_line;
         node_compilation_result->error->column = node->start_column;
         node_compilation_result->error->message = "Бог тимчасово не працює.";
@@ -1260,6 +1268,7 @@ namespace jejalyk {
         const auto node_compilation_result = new NodeCompilationResult();
         if (!scope->has(identifier_node->name)) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = identifier_node->start_line;
             node_compilation_result->error->column = identifier_node->start_column;
             node_compilation_result->error->message = "Субʼєкт \"" + identifier_node->name + "\" не визначено.";
@@ -1528,6 +1537,7 @@ namespace jejalyk {
                 tools::safe_substr(string_node->value, i - 1, 1) == "\\" &&
                 tools::safe_substr(string_node->value, i - 2, 1) != "\\") {
                 node_compilation_result->error = new CompilationError();
+                node_compilation_result->error->path = options->current_module_path;
                 node_compilation_result->error->line = string_node->start_line;
                 node_compilation_result->error->column = string_node->start_column + i;
                 node_compilation_result->error->message = "Числа не підтримуються в рядках.";
@@ -1553,6 +1563,7 @@ namespace jejalyk {
                 const auto parser_result = mavka::parser::parse(current_part);
                 if (parser_result->error) {
                     node_compilation_result->error = new CompilationError();
+                    node_compilation_result->error->path = options->current_module_path;
                     node_compilation_result->error->line = parser_result->error->line;
                     node_compilation_result->error->column = parser_result->error->column;
                     node_compilation_result->error->message = parser_result->error->message;
@@ -1628,16 +1639,20 @@ namespace jejalyk {
         const auto module_name_result = options->get_module_name(take_module_node->relative, take_module_node->name, options);
         if (!module_name_result->error.empty()) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = take_module_node->start_line;
             node_compilation_result->error->column = take_module_node->start_column;
+            node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
         const auto module_name = module_name_result->result;
         const auto module_path_result = options->get_module_path(take_module_node->relative, take_module_node->name, options);
         if (!module_path_result->error.empty()) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = take_module_node->start_line;
             node_compilation_result->error->column = take_module_node->start_column;
+            node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
         const auto module_path = module_path_result->result;
@@ -1659,8 +1674,10 @@ namespace jejalyk {
         );
         if (!module_code_result->error.empty()) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = take_module_node->start_line;
             node_compilation_result->error->column = take_module_node->start_column;
+            node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
         const auto module_code = module_code_result->result;
@@ -1668,9 +1685,11 @@ namespace jejalyk {
         const auto module_parser_result = mavka::parser::parse(module_code);
         if (module_parser_result->error) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = module_parser_result->error->line;
             node_compilation_result->error->column = module_parser_result->error->column;
             node_compilation_result->error->message = module_parser_result->error->message;
+            node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
         const auto module_scope = new CompilationScope();
@@ -1705,16 +1724,20 @@ namespace jejalyk {
         const auto module_name_result = options->get_remote_module_name(take_pak_node->name, options);
         if (!module_name_result->error.empty()) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = take_pak_node->start_line;
             node_compilation_result->error->column = take_pak_node->start_column;
+            node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
         const auto module_name = module_name_result->result;
         const auto module_path_result = options->get_remote_module_path(take_pak_node->name, options);
         if (!module_path_result->error.empty()) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = take_pak_node->start_line;
             node_compilation_result->error->column = take_pak_node->start_column;
+            node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
         const auto module_path = module_path_result->result;
@@ -1739,8 +1762,10 @@ namespace jejalyk {
         );
         if (!module_code_result->error.empty()) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = take_pak_node->start_line;
             node_compilation_result->error->column = take_pak_node->start_column;
+            node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
         const auto module_code = module_code_result->result;
@@ -1748,9 +1773,11 @@ namespace jejalyk {
         const auto module_parser_result = mavka::parser::parse(module_code);
         if (module_parser_result->error) {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = module_parser_result->error->line;
             node_compilation_result->error->column = module_parser_result->error->column;
             node_compilation_result->error->message = module_parser_result->error->message;
+            node_compilation_result->error->message = module_name_result->error;
             return node_compilation_result;
         }
         const auto module_scope = new CompilationScope();
@@ -1822,6 +1849,7 @@ namespace jejalyk {
             node_compilation_result->result = "(" + left->result + ")||(" + right->result + ")";
         } else {
             node_compilation_result->error = new CompilationError();
+            node_compilation_result->error->path = options->current_module_path;
             node_compilation_result->error->line = test_node->start_line;
             node_compilation_result->error->column = test_node->start_column;
             node_compilation_result->error->message = "unsupported test operation: " + test_node->op;

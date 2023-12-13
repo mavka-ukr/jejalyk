@@ -15,6 +15,7 @@ val compilation_options_to_val(jejalyk::CompilationOptions* options) {
 
 val compilation_error_to_val(jejalyk::CompilationError* error) {
     const auto error_val = val::object();
+    error_val.set(std::string("path"), error->path);
     error_val.set(std::string("line"), error->line);
     error_val.set(std::string("column"), error->column);
     error_val.set(std::string("message"), std::string(error->message));
@@ -25,7 +26,7 @@ jejalyk::GetModuleResult* val_to_get_module_result(val result) {
     const auto get_module_result = new jejalyk::GetModuleResult();
     get_module_result->error = result["error"].as<std::string>();
     get_module_result->result = result["result"].as<std::string>();
-    get_module_result->builtin = result["buitlin"].as<bool>();
+    get_module_result->builtin = result["builtin"].as<bool>();
     return get_module_result;
 }
 
