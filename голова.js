@@ -66,6 +66,12 @@ var м_текст = String;
     return mavka_utf8Decoder.decode(value);
   }
   if (value[MAVKA]) {
+    if (value[MAVKA].tdiia) {
+      return `<дія ${value[MAVKA].name}>`;
+    }
+    if (value[MAVKA].tstructure) {
+      return `<структура ${value[MAVKA].name}>`;
+    }
     return "<обʼєкт>";
   }
   return "<портал>";
@@ -357,10 +363,68 @@ function мТипТ(value) {
   if (value instanceof Uint8Array) {
     return "байти";
   }
-  if (value[MAVKA] && value[MAVKA].structure) {
-    return value[MAVKA].structure[MAVKA].name;
+  if (value[MAVKA]) {
+    if (value[MAVKA].tdiia) {
+      return `<дія ${value[MAVKA].name}>`;
+    }
+    if (value[MAVKA].tstructure) {
+      return `<структура ${value[MAVKA].name}>`;
+    }
+    if (value[MAVKA].structure) {
+      return value[MAVKA].structure[MAVKA].name;
+    }
   }
   return "портал";
+}
+
+function __мГТкс__(...args) {
+  const convert = (v, depth = 0) => {
+    if (v == null) {
+      return "пусто";
+    }
+    if (typeof v === "boolean") {
+      return v ? "так" : "ні";
+    }
+    if (typeof v === "number") {
+      return String(v);
+    }
+    if (typeof v === "string") {
+      if (depth === 0) {
+        return v;
+      }
+      return `"${v}"`;
+    }
+    if (v instanceof Array) {
+      return `[${v.map((v) => convert(v, depth + 1)).join(", ")}]`;
+    }
+    if (v instanceof Map) {
+      const entries = [...v.entries()].map(([k, v]) => `${convert(k, depth + 1)}=${convert(v, depth + 1)}`);
+      return `(${entries.join(", ")})`;
+    }
+    if (v instanceof Uint8Array) {
+      return `<байти ${v.length}>`;
+    }
+    if (v[MAVKA]) {
+      if (v[MAVKA].tdiia) {
+        return `<дія ${v[MAVKA].name}>`;
+      }
+      if (v[MAVKA].tstructure) {
+        return `<структура ${v[MAVKA].name}>`;
+      }
+      if (v[MAVKA].structure) {
+        const entries = Object.entries(v).map(([k, v]) => `${convert(k, depth + 1)}=${convert(v, depth + 1)}`);
+        return `${v[MAVKA].structure[MAVKA].name}(${entries})`;
+      }
+    }
+    return "<портал>";
+  };
+  return args.map((v) => convert(v, 0)).join(" ");
+}
+
+if (typeof window !== "undefined") {
+  window.__мГТкс__ = __мГТкс__;
+} else if (typeof global !== "undefined") {
+  global.__мГТкс__ = __мГТкс__;
 }
 
 function мДія(name, params, fn) {
@@ -368,6 +432,7 @@ function мДія(name, params, fn) {
     return fn(args);
   };
   diiaValue[MAVKA] = Object.create(null);
+  diiaValue[MAVKA].tdiia = true;
   diiaValue[MAVKA].name = name;
   diiaValue[MAVKA].params = params;
   diiaValue[MAVKA].perform = fn;
@@ -377,6 +442,7 @@ function мДія(name, params, fn) {
 function мСтрк(name, params, parent, di) {
   var structureValue = Object.create(null);
   structureValue[MAVKA] = Object.create(null);
+  structureValue[MAVKA].tstructure = true;
   structureValue[MAVKA].name = name;
   structureValue[MAVKA].params = parent ? [...params, ...parent[MAVKA].params] : params;
   for (const param of structureValue[MAVKA].params) {
