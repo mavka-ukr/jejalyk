@@ -1,9 +1,19 @@
+function _Г(k, v) {
+  if (typeof window === "undefined") {
+    global[k] = v;
+  } else {
+    window[k] = v;
+  }
+}
+
 class Падіння {
   constructor(значення, ді) {
     this.значення = значення;
     this.ді = ді;
   }
 }
+
+_Г("Падіння", Падіння);
 
 var MAVKA = Symbol("мавка");
 
@@ -377,7 +387,7 @@ function мТипТ(value) {
   return "портал";
 }
 
-function __мГТкс__(...args) {
+function мГТкс(value) {
   const convert = (v, depth = 0) => {
     if (v == null) {
       return "пусто";
@@ -418,14 +428,10 @@ function __мГТкс__(...args) {
     }
     return "<портал>";
   };
-  return args.map((v) => convert(v, 0)).join(" ");
+  return convert(value, 0);
 }
 
-if (typeof window !== "undefined") {
-  window.__мГТкс__ = __мГТкс__;
-} else if (typeof global !== "undefined") {
-  global.__мГТкс__ = __мГТкс__;
-}
+_Г("мГТкс", мГТкс);
 
 function мДія(name, params, fn) {
   var diiaValue = function(...args) {
