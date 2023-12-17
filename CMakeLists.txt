@@ -5,12 +5,23 @@ set(CMAKE_CXX_STANDARD 20)
 
 add_subdirectory(syntax)
 
-#add_executable(jejalyk jejalyk_bin.cpp)
-add_executable(jejalyk_node jejalyk_wasm.cpp)
-add_executable(jejalyk_web jejalyk_wasm.cpp)
-#add_executable(optimized_jejalyk jejalyk_bin.cpp)
-add_executable(optimized_jejalyk_node jejalyk_wasm.cpp)
-add_executable(optimized_jejalyk_web jejalyk_wasm.cpp)
+set(JEJALYK_COMPILER_SRC
+        compiler/common.h
+        compiler/CompilationError.h
+        compiler/CompilationScope.h
+        compiler/CompilationSubject.h
+        compiler/CompilationScope.cpp
+        compiler/CompilationResult.h
+        compiler/CompilationOptions.h
+        compiler/CompilationOptions.cpp
+        compiler/common.cpp)
+
+#add_executable(jejalyk jejalyk_bin.cpp ${JEJALYK_COMPILER_SRC})
+add_executable(jejalyk_node jejalyk_wasm.cpp ${JEJALYK_COMPILER_SRC})
+add_executable(jejalyk_web jejalyk_wasm.cpp ${JEJALYK_COMPILER_SRC})
+#add_executable(optimized_jejalyk jejalyk_bin.cpp ${JEJALYK_COMPILER_SRC})
+add_executable(optimized_jejalyk_node jejalyk_wasm.cpp ${JEJALYK_COMPILER_SRC})
+add_executable(optimized_jejalyk_web jejalyk_wasm.cpp ${JEJALYK_COMPILER_SRC})
 
 #target_link_libraries(jejalyk mavka_syntax)
 target_link_libraries(jejalyk_node mavka_syntax)
