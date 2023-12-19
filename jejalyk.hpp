@@ -1,8 +1,15 @@
 #pragma once
 
+#ifndef JEJALYK_H
+#define JEJALYK_H
+
 #include <string>
-#include "parser.hpp"
-#include "compiler.hpp"
+#include "compiler/instructions/compile_body.h"
+#include "compiler/CompilationResult.h"
+#include "compiler/CompilationScope.h"
+#include "compiler/CompilationOptions.h"
+#include "parser.h"
+#include "tools.h"
 #include "head.h"
 
 namespace jejalyk {
@@ -151,3 +158,4 @@ try{
         return compilation_result;
     }
 }
+#endif //JEJALYK_H

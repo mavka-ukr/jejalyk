@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef COMPILATION_RESULT_H
+#define COMPILATION_RESULT_H
+
 #include <string>
 
 #include "CompilationError.h"
@@ -14,3 +17,4 @@ namespace jejalyk {
     class CompilationResult : public NodeCompilationResult {
     };
 }
+#endif //COMPILATION_RESULT_H

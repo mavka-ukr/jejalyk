@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef COMPILATION_SCOPE_H
+#define COMPILATION_SCOPE_H
+
 #include <map>
 #include <string>
 
@@ -53,3 +57,4 @@ namespace jejalyk {
         virtual CompilationScope* root() override;
     };
 }
+#endif //COMPILATION_SCOPE_H

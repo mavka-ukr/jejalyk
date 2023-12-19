@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef COMPILE_H
+#define COMPILE_H
+
 #include <string>
 
 namespace jejalyk {
@@ -52,3 +55,4 @@ namespace jejalyk {
 
     std::string varname(const std::string& name);
 }
+#endif //COMPILE_H

@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef COMPILATION_OPTIONS_H
+#define COMPILATION_OPTIONS_H
+
 #include <string>
 
 namespace jejalyk {
@@ -35,3 +38,4 @@ namespace jejalyk {
         CompilationOptions* clone();
     };
 }
+#endif //COMPILATION_OPTIONS_H
