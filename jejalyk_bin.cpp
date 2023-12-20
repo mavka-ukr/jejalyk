@@ -5,15 +5,17 @@
 
 int main() {
   const auto code = R"(
+структура текст
+кінець
+
 структура число
 кінець
 
 структура А
   а текст
-  б число
-  в Структура
-  г А
 кінець
+
+а = А("2")
 )";
   const auto parser_result = mavka::parser::parse(code);
   if (parser_result->error) {

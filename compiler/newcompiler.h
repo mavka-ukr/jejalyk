@@ -15,14 +15,11 @@ namespace newcompiler {
   class Result;
   class CompilationResult;
   class ObjectResult;
-  class StructureParamsResult;
-  class DiiaParamsResult;
+  class ParamsResult;
   class Scope;
   class Subject;
   class Object;
-  class StructureParam;
-  class StructureMethod;
-  class DiiaParam;
+  class Param;
 
   class Options {
    public:
@@ -55,16 +52,10 @@ namespace newcompiler {
     Object* value;
   };
 
-  class StructureParamsResult {
+  class ParamsResult {
    public:
     Error* error;
-    std::vector<StructureParam*> params;
-  };
-
-  class DiiaParamsResult {
-   public:
-    Error* error;
-    std::vector<DiiaParam*> params;
+    std::vector<Param*> params;
   };
 
   inline Result* create_result_error(const std::string& message) {
@@ -91,7 +82,7 @@ namespace newcompiler {
     virtual Result* define_structure(mavka::ast::StructureNode* structure_node);
     virtual Result* compile_types(std::vector<mavka::ast::ASTNode*> types);
     virtual Result* compile_node(mavka::ast::ASTNode* node);
-    virtual StructureParamsResult* compile_structure_params(
+    virtual ParamsResult* compile_structure_params(
         const std::vector<mavka::ast::StructureParamNode*>& params);
     // virtual Result* define_diia(mavka::ast::DiiaNode* diia_node, Scope*
     // scope); virtual Result* define_module(mavka::ast::ModuleNode* diia_node,
@@ -114,26 +105,15 @@ namespace newcompiler {
     Result* call(std::vector<Subject*> args, Scope* scope);
     ObjectResult* create_instance();
     bool is_structure();
+    bool instance_of_subject(Subject* value);
+    Subject* create_all_instances();
   };
 
-  class StructureParam {
+  class Param {
    public:
     int index;
     std::string name;
     Subject* types;
-    Subject* value;
-  };
-
-  class StructureMethod {
-   public:
-    Subject* diia;
-  };
-
-  class DiiaParam {
-   public:
-    int index;
-    std::string name;
-    Subject* type;
     Subject* value;
     bool variadic;
   };
@@ -148,28 +128,88 @@ namespace newcompiler {
     Object* structure;
     std::map<std::string, Subject*> properties;
 
-    Subject* structure_parent;
-    std::vector<StructureParam*> structure_params;
-    std::vector<StructureMethod*> structure_methods;
+    Object* structure_parent;
+    std::vector<Param*> structure_params;
 
-    std::vector<DiiaParam*> diia_params;
+    std::vector<Param*> diia_params;
     Subject* diia_return;
 
     Result* get(std::string name, Scope* scope);
     Result* set(std::string name, Subject* value, Scope* scope);
     Result* call(std::vector<Subject*> args, Scope* scope);
+    bool instance_of(Object* type);
+    bool instance_of_subject(Subject* value);
+    Object* create_instance();
+    bool is_structure();
   };
 
   CompilationResult* compile(mavka::ast::ProgramNode* program_node);
+
+  inline Result* Object::call(std::vector<Subject*> args, Scope* scope) {
+    if (this->properties.contains("чародія_викликати")) {
+      const auto diia_subject = this->properties["чародія_викликати"];
+      return diia_subject->call(args, scope);
+    }
+    if (this->type != DIIA) {
+      return create_result_error("Неможливо викликати не дію.");
+    }
+    for (const auto param : this->diia_params) {
+      if (args.size() <= param->index) {
+        return create_result_error("Недостатньо аргументів для виклику.");
+      }
+      const auto arg = args[param->index];
+      if (!arg->instance_of_subject(param->types)) {
+        return create_result_error("Неправильний тип аргументу \"" +
+                                   param->name + "\".");
+      }
+    }
+    const auto return_subject = this->diia_return->create_all_instances();
+    return create_result_value(return_subject);
+  }
+
+  inline bool Object::instance_of(Object* type) {
+    Object* structure = this->structure;
+    while (structure != nullptr) {
+      if (structure == type) {
+        return true;
+      }
+      structure = structure->structure_parent;
+    }
+    return false;
+  }
+
+  inline bool Object::instance_of_subject(Subject* value) {
+    for (const auto type : value->types) {
+      if (this->instance_of(type)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  inline Object* Object::create_instance() {
+    const auto object = new Object();
+    object->type = OBJECT;
+    object->structure = this;
+    return object;
+  }
+
+  inline bool Object::is_structure() {
+    return this->type == STRUCTURE;
+  }
+
+  inline Result* Subject::call(std::vector<Subject*> args, Scope* scope) {
+    if (this->types.size() == 1) {
+      return this->types[0]->call(args, scope);
+    }
+    return create_result_error("Неможливо викликати.");
+  }
 
   inline ObjectResult* Subject::create_instance() {
     const auto result = new ObjectResult();
 
     if (this->types.size() == 1) {
-      const auto object = new Object();
-      object->type = Object::OBJECT;
-      object->structure = this->types[0];
-      result->value = object;
+      result->value = this->types[0]->create_instance();
       return result;
     }
 
@@ -181,9 +221,27 @@ namespace newcompiler {
 
   inline bool Subject::is_structure() {
     if (this->types.size() == 1) {
-      return this->types[0]->type == Object::STRUCTURE;
+      return this->types[0]->is_structure();
     }
     return false;
+  }
+
+  inline bool Subject::instance_of_subject(Subject* value) {
+    for (const auto type : this->types) {
+      if (type->instance_of_subject(value)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  inline Subject* Subject::create_all_instances() {
+    const auto subject = new Subject();
+    for (const auto type : this->types) {
+      const auto instance = type->create_instance();
+      subject->types.push_back(instance);
+    }
+    return subject;
   }
 
   inline bool Scope::has_local(const std::string name) {
@@ -237,6 +295,10 @@ namespace newcompiler {
       return result;
     }
 
+    result->value = new Subject();
+    result->value->types.push_back(structure_instance_result->value);
+    this->subjects.insert_or_assign(structure_node->name, result->value);
+
     structure_instance_result->value->type = Object::STRUCTURE;
 
     const auto structure_params_result =
@@ -256,20 +318,29 @@ namespace newcompiler {
         result->error = structure_parent_result->error;
         return result;
       }
+      if (!structure_parent_result->value->is_structure()) {
+        return create_result_error(
+            "Тип батьківської структури не є структурою.");
+      }
       structure_instance_result->value->structure_parent =
-          structure_parent_result->value;
+          structure_parent_result->value->types[0];
     }
 
-    result->value = new Subject();
-    result->value->types.push_back(structure_instance_result->value);
-
-    this->subjects.insert_or_assign(structure_node->name, result->value);
+    const auto constructor_diia = new Object();
+    constructor_diia->type = Object::DIIA;
+    constructor_diia->diia_params = structure_params_result->params;
+    constructor_diia->diia_return = result->value;
+    const auto constructor_diia_subject = new Subject();
+    constructor_diia_subject->types.push_back(constructor_diia);
+    structure_instance_result->value->properties["чародія_викликати"] =
+        constructor_diia_subject;
 
     return result;
   }
 
   inline Result* Scope::compile_types(std::vector<mavka::ast::ASTNode*> types) {
     const auto result = new Result();
+    result->value = new Subject();
     for (const auto type : types) {
       const auto compiled_type = this->compile_node(type);
       if (compiled_type->error) {
@@ -279,12 +350,13 @@ namespace newcompiler {
       if (!compiled_type->value->is_structure()) {
         return create_result_error("Тип параметра не є структурою.");
       }
+      result->value->types.push_back(compiled_type->value->types[0]);
     }
     return result;
   }
 
   inline Result* Scope::compile_node(mavka::ast::ASTNode* node) {
-    if (jejalyk::tools:: instanceof <mavka::ast::IdentifierNode>(node)) {
+    if (jejalyk::tools::instance_of<mavka::ast::IdentifierNode>(node)) {
       const auto identifier_node =
           dynamic_cast<mavka::ast::IdentifierNode*>(node);
       const auto subject = this->get(identifier_node->name);
@@ -294,45 +366,128 @@ namespace newcompiler {
       }
       return create_result_value(subject);
     }
-    if (jejalyk::tools:: instanceof <mavka::ast::StructureNode>(node)) {
+
+    if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
       const auto structure_node =
           dynamic_cast<mavka::ast::StructureNode*>(node);
       return this->define_structure(structure_node);
     }
-    return create_result_value(nullptr);
+
+    if (jejalyk::tools::instance_of<mavka::ast::AssignSimpleNode>(node)) {
+      const auto assign_simple_node =
+          dynamic_cast<mavka::ast::AssignSimpleNode*>(node);
+      if (assign_simple_node->types.empty()) {
+        if (!this->has_local(assign_simple_node->name)) {
+          const auto subject = new Subject();
+          const auto compiled_value =
+              this->compile_node(assign_simple_node->value);
+          if (compiled_value->error) {
+            return compiled_value;
+          }
+          this->subjects.insert_or_assign(assign_simple_node->name, subject);
+          return create_result_value(subject);
+        }
+        return create_result_value(this->get(assign_simple_node->name));
+      } else {
+        if (this->has_local(assign_simple_node->name)) {
+          return create_result_error("Субʼєкт \"" + assign_simple_node->name +
+                                     "\" вже визначено.");
+        }
+
+        const auto compiled_types =
+            this->compile_types(assign_simple_node->types);
+        if (compiled_types->error) {
+          return compiled_types;
+        }
+        this->subjects.insert_or_assign(assign_simple_node->name,
+                                        compiled_types->value);
+      }
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::NumberNode>(node)) {
+      const auto number_node = dynamic_cast<mavka::ast::NumberNode*>(node);
+      const auto number_structure = this->root()->get("число");
+      if (number_structure == nullptr) {
+        return create_result_error("[BUG] Субʼєкт \"число\" не знайдено.");
+      }
+      const auto number_instance_result = number_structure->create_instance();
+      if (number_instance_result->error) {
+        return create_result_error(number_instance_result->error->message);
+      }
+      const auto number_instance_subject = new Subject();
+      number_instance_subject->types.push_back(number_instance_result->value);
+      return create_result_value(number_instance_subject);
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::StringNode>(node)) {
+      const auto string_node = dynamic_cast<mavka::ast::StringNode*>(node);
+      const auto text_structure = this->root()->get("текст");
+      if (text_structure == nullptr) {
+        return create_result_error("[BUG] Субʼєкт \"текст\" не знайдено.");
+      }
+      const auto text_instance_result = text_structure->create_instance();
+      if (text_instance_result->error) {
+        return create_result_error(text_instance_result->error->message);
+      }
+      const auto text_instance_subject = new Subject();
+      text_instance_subject->types.push_back(text_instance_result->value);
+      return create_result_value(text_instance_subject);
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::CallNode>(node)) {
+      const auto call_node = dynamic_cast<mavka::ast::CallNode*>(node);
+      const auto compiled_value = this->compile_node(call_node->value);
+      if (compiled_value->error) {
+        return compiled_value;
+      }
+      std::vector<Subject*> compiled_args;
+      for (const auto arg : call_node->args) {
+        if (!arg->name.empty()) {
+          throw std::runtime_error("Named args not implemented");
+        }
+        const auto compiled_arg = this->compile_node(arg->value);
+        if (compiled_arg->error) {
+          return compiled_arg;
+        }
+        compiled_args.push_back(compiled_arg->value);
+      }
+      return compiled_value->value->call(compiled_args, this);
+    }
+
+    throw std::runtime_error("Node not implemented");
   }
 
-  inline StructureParamsResult* Scope::compile_structure_params(
+  inline ParamsResult* Scope::compile_structure_params(
       const std::vector<mavka::ast::StructureParamNode*>& params) {
-    const auto result = new StructureParamsResult();
+    const auto result = new ParamsResult();
 
     for (int i = 0; i < params.size(); ++i) {
-      const auto param = params[i];
-      const auto structure_param = new StructureParam();
-      structure_param->index = i;
-      structure_param->name = param->name;
+      const auto param_node = params[i];
+      const auto param = new Param();
+      param->index = i;
+      param->name = param_node->name;
 
-      if (!param->types.empty()) {
-        const auto types_result = this->compile_types(param->types);
+      if (!param_node->types.empty()) {
+        const auto types_result = this->compile_types(param_node->types);
         if (types_result->error) {
           result->error = types_result->error;
           return result;
         }
-        structure_param->types = types_result->value;
+        param->types = types_result->value;
       } else {
-        structure_param->types = new Subject();
+        param->types = new Subject();
       }
 
-      if (param->value) {
-        const auto param_value_result = this->compile_node(param->value);
+      if (param_node->value) {
+        const auto param_value_result = this->compile_node(param_node->value);
         if (param_value_result->error) {
           result->error = param_value_result->error;
           return result;
         }
-        structure_param->value = param_value_result->value;
+        param->value = param_value_result->value;
       }
 
-      result->params.push_back(structure_param);
+      result->params.push_back(param);
     }
 
     return result;
