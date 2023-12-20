@@ -5,6 +5,9 @@
 
 int main() {
   const auto code = R"(
+структура Дія
+кінець
+
 структура текст
 кінець
 
@@ -16,7 +19,10 @@ int main() {
   б обʼєкт
 кінець
 
-а число = А
+дія привіт(а число) число
+кінець
+
+лол число = привіт(2)
 )";
   const auto parser_result = mavka::parser::parse(code);
   if (parser_result->error) {

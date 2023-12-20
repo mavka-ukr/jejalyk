@@ -80,13 +80,13 @@ namespace newcompiler {
     virtual bool has_local(std::string name);
     virtual bool has(std::string name);
     virtual Result* define_structure(mavka::ast::StructureNode* structure_node);
+    virtual Result* define_diia(mavka::ast::DiiaNode* diia_node);
     virtual Result* compile_types(std::vector<mavka::ast::ASTNode*> types,
                                   std::string error_message);
     virtual Result* compile_node(mavka::ast::ASTNode* node);
-    virtual ParamsResult* compile_structure_params(
-        const std::vector<mavka::ast::StructureParamNode*>& params);
-    // virtual Result* define_diia(mavka::ast::DiiaNode* diia_node, Scope*
-    // scope); virtual Result* define_module(mavka::ast::ModuleNode* diia_node,
+    virtual ParamsResult* compile_params(
+        const std::vector<mavka::ast::ParamNode*>& params);
+    // virtual Result* define_module(mavka::ast::ModuleNode* diia_node,
     // Scope* scope);
     // virtual Result* take_module(mavka::ast::TakeModuleNode* diia_node,
     // Scope* scope);
@@ -326,7 +326,7 @@ namespace newcompiler {
     structure_instance_result->value->type = Object::STRUCTURE;
 
     const auto structure_params_result =
-        this->compile_structure_params(structure_node->params);
+        this->compile_params(structure_node->params);
     if (structure_params_result->error) {
       result->error = structure_params_result->error;
       return result;
@@ -371,6 +371,61 @@ namespace newcompiler {
     return result;
   }
 
+  inline Result* Scope::define_diia(mavka::ast::DiiaNode* diia_node) {
+    if (this->has_local(diia_node->name)) {
+      return create_result_error("Субʼєкт \"" + diia_node->name +
+                                 "\" вже визначено.");
+    }
+
+    if (!diia_node->structure.empty()) {
+      return create_result_error("Diia structure not implemented.");
+    }
+
+    const auto result = new Result();
+
+    const auto diia_structure = this->root()->get("Дія");
+    if (diia_structure == nullptr) {
+      result->error = new Error();
+      result->error->message = "[BUG] Субʼєкт \"Дія\" не знайдено.";
+      return result;
+    }
+
+    const auto diia_instance_result = diia_structure->create_instance();
+    if (diia_instance_result->error) {
+      result->error = diia_instance_result->error;
+      return result;
+    }
+
+    result->value = new Subject();
+    result->value->types.push_back(diia_instance_result->value);
+    this->subjects.insert_or_assign(diia_node->name, result->value);
+
+    diia_instance_result->value->type = Object::DIIA;
+
+    const auto diia_params_result = this->compile_params(diia_node->params);
+    if (diia_params_result->error) {
+      result->error = diia_params_result->error;
+      return result;
+    }
+
+    diia_instance_result->value->diia_params = diia_params_result->params;
+
+    if (diia_node->return_types.empty()) {
+      diia_instance_result->value->diia_return = new Subject();
+    } else {
+      const auto compiled_return_types = this->compile_types(
+          diia_node->return_types,
+          "Тип повернення дії \"" + diia_node->name + "\" не є структурою.");
+      if (compiled_return_types->error) {
+        result->error = compiled_return_types->error;
+        return result;
+      }
+      diia_instance_result->value->diia_return = compiled_return_types->value;
+    }
+
+    return result;
+  }
+
   inline Result* Scope::compile_types(std::vector<mavka::ast::ASTNode*> types,
                                       std::string error_message) {
     const auto result = new Result();
@@ -405,6 +460,11 @@ namespace newcompiler {
       const auto structure_node =
           dynamic_cast<mavka::ast::StructureNode*>(node);
       return this->define_structure(structure_node);
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::DiiaNode>(node)) {
+      const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node);
+      return this->define_diia(diia_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::AssignSimpleNode>(node)) {
@@ -520,8 +580,8 @@ namespace newcompiler {
     throw std::runtime_error("Node not implemented");
   }
 
-  inline ParamsResult* Scope::compile_structure_params(
-      const std::vector<mavka::ast::StructureParamNode*>& params) {
+  inline ParamsResult* Scope::compile_params(
+      const std::vector<mavka::ast::ParamNode*>& params) {
     const auto result = new ParamsResult();
 
     for (int i = 0; i < params.size(); ++i) {
