@@ -80,7 +80,8 @@ namespace newcompiler {
     virtual bool has_local(std::string name);
     virtual bool has(std::string name);
     virtual Result* define_structure(mavka::ast::StructureNode* structure_node);
-    virtual Result* compile_types(std::vector<mavka::ast::ASTNode*> types);
+    virtual Result* compile_types(std::vector<mavka::ast::ASTNode*> types,
+                                  std::string error_message);
     virtual Result* compile_node(mavka::ast::ASTNode* node);
     virtual ParamsResult* compile_structure_params(
         const std::vector<mavka::ast::StructureParamNode*>& params);
@@ -105,6 +106,7 @@ namespace newcompiler {
     Result* call(std::vector<Subject*> args, Scope* scope);
     ObjectResult* create_instance();
     bool is_structure();
+    bool is_any_structure(Scope* scope);
     bool instance_of_subject(Subject* value);
     Subject* create_all_instances();
   };
@@ -188,6 +190,9 @@ namespace newcompiler {
   }
 
   inline Object* Object::create_instance() {
+    if (!this->is_structure()) {
+      return nullptr;
+    }
     const auto object = new Object();
     object->type = OBJECT;
     object->structure = this;
@@ -210,6 +215,10 @@ namespace newcompiler {
 
     if (this->types.size() == 1) {
       result->value = this->types[0]->create_instance();
+      if (result->value == nullptr) {
+        result->error = new Error();
+        result->error->message = "[BUG] Неможливо створити екземпляр субʼєкта.";
+      }
       return result;
     }
 
@@ -226,7 +235,22 @@ namespace newcompiler {
     return false;
   }
 
+  inline bool Subject::is_any_structure(Scope* scope) {
+    if (this->types.size() == 1) {
+      const auto structure_structure = scope->root()->get("Структура");
+      if (structure_structure == nullptr) {
+        return false;
+      }
+      return this->types[0]->is_structure() ||
+             this->types[0]->instance_of_subject(structure_structure);
+    }
+    return false;
+  }
+
   inline bool Subject::instance_of_subject(Subject* value) {
+    if (value->types.empty()) {
+      return true;
+    }
     for (const auto type : this->types) {
       if (type->instance_of_subject(value)) {
         return true;
@@ -318,12 +342,21 @@ namespace newcompiler {
         result->error = structure_parent_result->error;
         return result;
       }
-      if (!structure_parent_result->value->is_structure()) {
+      if (!structure_parent_result->value->is_any_structure(this)) {
         return create_result_error(
             "Тип батьківської структури не є структурою.");
       }
       structure_instance_result->value->structure_parent =
           structure_parent_result->value->types[0];
+    } else {
+      const auto object_structure = this->root()->get("обʼєкт");
+      if (object_structure == nullptr) {
+        result->error = new Error();
+        result->error->message = "[BUG] Субʼєкт \"обʼєкт\" не знайдено.";
+        return result;
+      }
+      structure_instance_result->value->structure_parent =
+          object_structure->types[0];
     }
 
     const auto constructor_diia = new Object();
@@ -338,7 +371,8 @@ namespace newcompiler {
     return result;
   }
 
-  inline Result* Scope::compile_types(std::vector<mavka::ast::ASTNode*> types) {
+  inline Result* Scope::compile_types(std::vector<mavka::ast::ASTNode*> types,
+                                      std::string error_message) {
     const auto result = new Result();
     result->value = new Subject();
     for (const auto type : types) {
@@ -347,8 +381,8 @@ namespace newcompiler {
         result->error = compiled_type->error;
         return result;
       }
-      if (!compiled_type->value->is_structure()) {
-        return create_result_error("Тип параметра не є структурою.");
+      if (!compiled_type->value->is_any_structure(this)) {
+        return create_result_error(error_message);
       }
       result->value->types.push_back(compiled_type->value->types[0]);
     }
@@ -377,17 +411,30 @@ namespace newcompiler {
       const auto assign_simple_node =
           dynamic_cast<mavka::ast::AssignSimpleNode*>(node);
       if (assign_simple_node->types.empty()) {
+        const auto compiled_value =
+            this->compile_node(assign_simple_node->value);
+        if (compiled_value->error) {
+          return compiled_value;
+        }
+
         if (!this->has_local(assign_simple_node->name)) {
           const auto subject = new Subject();
-          const auto compiled_value =
-              this->compile_node(assign_simple_node->value);
-          if (compiled_value->error) {
-            return compiled_value;
-          }
           this->subjects.insert_or_assign(assign_simple_node->name, subject);
           return create_result_value(subject);
         }
-        return create_result_value(this->get(assign_simple_node->name));
+
+        const auto subject = this->get(assign_simple_node->name);
+        if (subject == nullptr) {
+          return create_result_error("[BUG] Субʼєкт \"" +
+                                     assign_simple_node->name +
+                                     "\" не визначено.");
+        }
+        if (!compiled_value->value->instance_of_subject(subject)) {
+          return create_result_error("Неправильний тип значення субʼєкта \"" +
+                                     assign_simple_node->name + "\".");
+        }
+
+        return create_result_value(subject);
       } else {
         if (this->has_local(assign_simple_node->name)) {
           return create_result_error("Субʼєкт \"" + assign_simple_node->name +
@@ -395,12 +442,28 @@ namespace newcompiler {
         }
 
         const auto compiled_types =
-            this->compile_types(assign_simple_node->types);
+            this->compile_types(assign_simple_node->types,
+                                "Тип субʼєкта \"" + assign_simple_node->name +
+                                    "\" не є структурою.");
         if (compiled_types->error) {
           return compiled_types;
         }
+
+        const auto compiled_value =
+            this->compile_node(assign_simple_node->value);
+        if (compiled_value->error) {
+          return compiled_value;
+        }
+        if (!compiled_value->value->instance_of_subject(
+                compiled_types->value)) {
+          return create_result_error("Неправильний тип значення субʼєкта \"" +
+                                     assign_simple_node->name + "\".");
+        }
+
         this->subjects.insert_or_assign(assign_simple_node->name,
                                         compiled_types->value);
+
+        return create_result_value(compiled_types->value);
       }
     }
 
@@ -468,7 +531,9 @@ namespace newcompiler {
       param->name = param_node->name;
 
       if (!param_node->types.empty()) {
-        const auto types_result = this->compile_types(param_node->types);
+        const auto types_result = this->compile_types(
+            param_node->types,
+            "Тип параметра \"" + param->name + "\" не є структурою.");
         if (types_result->error) {
           result->error = types_result->error;
           return result;
@@ -498,11 +563,21 @@ namespace newcompiler {
 
     const auto scope = new Scope();
 
+    const auto object = new Object();
+    object->type = Object::STRUCTURE;
+    const auto object_subject = new Subject();
+    object_subject->types.push_back(object);
+    scope->subjects.insert_or_assign("обʼєкт", object_subject);
+
     const auto structure_structure = new Object();
     structure_structure->type = Object::STRUCTURE;
+    structure_structure->structure = object;
+    structure_structure->structure_parent = object;
     const auto structure_structure_subject = new Subject();
     structure_structure_subject->types.push_back(structure_structure);
     scope->subjects.insert_or_assign("Структура", structure_structure_subject);
+
+    object->structure = structure_structure;
 
     for (const auto node : program_node->body) {
       const auto compiled_node = scope->compile_node(node);

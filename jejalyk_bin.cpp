@@ -13,13 +13,15 @@ int main() {
 
 структура А
   а текст
+  б обʼєкт
 кінець
 
-а = А("2")
+а число = А
 )";
   const auto parser_result = mavka::parser::parse(code);
   if (parser_result->error) {
     std::cout << parser_result->error->message << std::endl;
+    return 1;
   }
   const auto result = newcompiler::compile(parser_result->program_node);
   if (result->error) {
