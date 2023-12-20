@@ -5,7 +5,7 @@
 #include "../compile.h"
 
 namespace jejalyk {
-  NodeCompilationResult* compile_params(
+  DiiaParamsCompilationResult* compile_params(
       std::vector<mavka::ast::ParamNode*> params,
       CompilationScope* scope,
       CompilationOptions* options,

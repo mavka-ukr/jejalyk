@@ -174,6 +174,10 @@ namespace jejalyk {
           }
         }
       }
+      if (this->diia_return_type) {
+        node_compilation_result->subject =
+            this->diia_return_type->create_instances();
+      }
     } else {
       const auto diia = this->get("чародія_викликати", scope, options);
       if (diia->error) {
@@ -241,6 +245,17 @@ namespace jejalyk {
       }
     }
     return false;
+  }
+
+  CompilationSubject* CompilationSubject::create_instances() {
+    std::vector<CompilationObject*> instances;
+    for (const auto type : this->types) {
+      const auto instance = type->create_instance();
+      instances.push_back(instance);
+    }
+    const auto subject = new CompilationSubject();
+    subject->types = instances;
+    return subject;
   }
 
   CompilationOptions* CompilationOptions::clone() {

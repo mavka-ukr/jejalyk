@@ -136,7 +136,7 @@ namespace jejalyk {
     std::string name;
     CompilationSubject* subject;
     CompilationSubject* value;
-    bool spread;
+    bool variadic;
   };
 
   class CompilationObjectStructureParam {
@@ -157,7 +157,7 @@ namespace jejalyk {
       diia_param->name = param->name;
       diia_param->subject = param->subject;
       diia_param->value = param->value;
-      diia_param->spread = false;
+      diia_param->variadic = false;
       diia_params.push_back(diia_param);
     }
     return diia_params;
@@ -236,6 +236,7 @@ namespace jejalyk {
         CompilationOptions* options);
 
     virtual bool is_subject(CompilationSubject* subject);
+    virtual CompilationSubject* create_instances();
   };
 
   class NodeCompilationResult {
@@ -250,6 +251,11 @@ namespace jejalyk {
   class StructureParamsCompilationResult : public NodeCompilationResult {
    public:
     std::vector<CompilationObjectStructureParam*> structure_params;
+  };
+
+  class DiiaParamsCompilationResult : public NodeCompilationResult {
+   public:
+    std::vector<CompilationObjectDiiaParam*> diia_params;
   };
 
   class GetModuleResult {
@@ -338,7 +344,8 @@ namespace jejalyk {
     return subject;
   }
 
-  inline CompilationSubject* create_list_instance_subject(CompilationScope* scope) {
+  inline CompilationSubject* create_list_instance_subject(
+      CompilationScope* scope) {
     const auto list_structure = scope->root()->get("список");
     const auto subject = new CompilationSubject();
     const auto instance = list_structure->types[0]->create_instance();
@@ -346,10 +353,26 @@ namespace jejalyk {
     return subject;
   }
 
-  inline CompilationSubject* create_dictionary_instance_subject(CompilationScope* scope) {
-    const auto dictionary_structure = scope->root()->get("список");
+  inline CompilationSubject* create_dictionary_instance_subject(
+      CompilationScope* scope) {
+    const auto dictionary_structure = scope->root()->get("словник");
     const auto subject = new CompilationSubject();
     const auto instance = dictionary_structure->types[0]->create_instance();
+    subject->types.push_back(instance);
+    return subject;
+  }
+
+  inline CompilationSubject* create_diia_instance_subject(
+    std::string name,
+    std::vector<CompilationObjectDiiaParam*> params,
+    CompilationSubject* return_type,
+    CompilationScope* scope) {
+    const auto diia_structure = scope->root()->get("Дія");
+    const auto subject = new CompilationSubject();
+    const auto instance = diia_structure->types[0]->create_instance();
+    instance->type = CompilationObject::DIIA;
+    instance->diia_params = params;
+    instance->diia_return_type = return_type;
     subject->types.push_back(instance);
     return subject;
   }

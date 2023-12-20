@@ -15,10 +15,6 @@ namespace jejalyk {
     const auto node_compilation_result = new NodeCompilationResult();
 
     const std::string name = structure_node->name;
-    std::any* parent_compilation_type_structure = nullptr;
-    std::vector<CompilationObjectStructureParam*> compilation_structure_params;
-    // todo: parent
-    // todo: params
 
     if (scope->has_local(name)) {
       node_compilation_result->error = compilation_error_from_message(
@@ -31,9 +27,6 @@ namespace jejalyk {
     if (compiled_params->error) {
       node_compilation_result->error = compiled_params->error;
       return node_compilation_result;
-    }
-    for (const auto& param : compiled_params->structure_params) {
-      compilation_structure_params.push_back(param);
     }
 
     std::string parent = "undefined";
@@ -53,14 +46,15 @@ namespace jejalyk {
 
     const auto structure_compilation_type = new CompilationObject();
     structure_compilation_type->type = CompilationObject::STRUCTURE;
-    structure_compilation_type->structure_params = compilation_structure_params;
+    structure_compilation_type->structure_params =
+        compiled_params->structure_params;
     const auto compilation_subject = new CompilationSubject();
     compilation_subject->types.push_back(structure_compilation_type);
     const auto constructor_diia = new CompilationObject();
     constructor_diia->type = CompilationObject::DIIA;
     constructor_diia->diia_params =
         compilation_object_structure_params_to_diia_params(
-            compilation_structure_params);
+            compiled_params->structure_params);
     constructor_diia->diia_return_type = compilation_subject;
     const auto constructor_diia_compilation_subject = new CompilationSubject();
     constructor_diia_compilation_subject->types.push_back(constructor_diia);
