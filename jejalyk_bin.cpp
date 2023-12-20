@@ -12,6 +12,7 @@ int main() {
   а текст
   б число
   в Структура
+  г А
 кінець
 )";
   const auto parser_result = mavka::parser::parse(code);
