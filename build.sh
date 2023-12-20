@@ -21,13 +21,13 @@ echo "std::string MAVKA_HEAD_JS = R\"($MAVKA_HEAD_JS)\";
 std::string MAVKA_HEAD_M = R\"($MAVKA_HEAD_M)\";
 " >head.h
 
-#if [ "$TARGET" = "bin" ] || [ "$TARGET" = "all" ]; then
-#    mkdir -p build
-#    cd build
-#    cmake ..
-#    make -j4 jejalyk
-#    cd ..
-#fi
+if [ "$TARGET" = "bin" ] || [ "$TARGET" = "all" ]; then
+    mkdir -p build
+    cd build
+    cmake ..
+    make -j4 jejalyk
+    cd ..
+fi
 
 if [ "$TARGET" = "node" ] || [ "$TARGET" = "all" ]; then
     mkdir -p build
@@ -45,13 +45,13 @@ if [ "$TARGET" = "web" ] || [ "$TARGET" = "all" ]; then
     cd ..
 fi
 
-#if [ "$TARGET" = "Obin" ] || [ "$TARGET" = "Oall" ]; then
-#    mkdir -p build
-#    cd build
-#    cmake ..
-#    make -j4 optimized_jejalyk
-#    cd ..
-#fi
+if [ "$TARGET" = "Obin" ] || [ "$TARGET" = "Oall" ]; then
+    mkdir -p build
+    cd build
+    cmake ..
+    make -j4 optimized_jejalyk
+    cd ..
+fi
 
 if [ "$TARGET" = "Onode" ] || [ "$TARGET" = "Oall" ]; then
     mkdir -p build
