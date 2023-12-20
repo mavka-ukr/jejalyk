@@ -2,14 +2,14 @@
 #define COMPILE_GIVE_NODE_H
 
 #include "../../ast.h"
-#include "../CompilationResult.h"
-#include "../CompilationScope.h"
-#include "../CompilationOptions.h"
+#include "../compile.h"
 
 namespace jejalyk {
-    NodeCompilationResult* compile_give_node(const mavka::ast::GiveNode* give_node,
-                                             CompilationScope* scope,
-                                             CompilationOptions* options);
+  NodeCompilationResult* compile_give_node(
+      const mavka::ast::GiveNode* give_node,
+      CompilationScope* scope,
+      CompilationOptions* options,
+      CompilationState* state);
 }
 
-#endif //COMPILE_GIVE_NODE_H
+#endif  // COMPILE_GIVE_NODE_H

@@ -2,14 +2,13 @@
 #define COMPILE_TYPES_H
 
 #include "../../ast.h"
-#include "../CompilationResult.h"
-#include "../CompilationScope.h"
-#include "../CompilationOptions.h"
+#include "../compile.h"
 
 namespace jejalyk {
-    // TypesCompilationResult* compile_types(std::vector<mavka::ast::ASTNode *> types,
-    //                                       CompilationScope* scope,
-    //                                       CompilationOptions* options);
+  CompilationResult* compile_types(std::vector<mavka::ast::ASTNode*> types,
+                                   CompilationScope* scope,
+                                   CompilationOptions* options,
+                                   CompilationState* state);
 }
 
-#endif //COMPILE_TYPES_H
+#endif  // COMPILE_TYPES_H

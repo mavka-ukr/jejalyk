@@ -2,14 +2,14 @@
 #define COMPILE_ARITHMETIC_NODE_H
 
 #include "../../ast.h"
-#include "../CompilationResult.h"
-#include "../CompilationScope.h"
-#include "../CompilationOptions.h"
+#include "../compile.h"
 
 namespace jejalyk {
-    NodeCompilationResult* compile_arithmetic_node(const mavka::ast::ArithmeticNode* arithmetic_node,
-                                                   CompilationScope* scope,
-                                                   CompilationOptions* options);
+  NodeCompilationResult* compile_arithmetic_node(
+      const mavka::ast::ArithmeticNode* arithmetic_node,
+      CompilationScope* scope,
+      CompilationOptions* options,
+      CompilationState* state);
 }
 
-#endif //COMPILE_ARITHMETIC_NODE_H
+#endif  // COMPILE_ARITHMETIC_NODE_H

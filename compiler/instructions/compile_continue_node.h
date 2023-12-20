@@ -2,14 +2,14 @@
 #define COMPILE_CONTINUE_NODE_H
 
 #include "../../ast.h"
-#include "../CompilationResult.h"
-#include "../CompilationScope.h"
-#include "../CompilationOptions.h"
+#include "../compile.h"
 
 namespace jejalyk {
-    NodeCompilationResult* compile_continue_node(mavka::ast::ContinueNode* continue_node,
-                                                 CompilationScope* scope,
-                                                 CompilationOptions* options);
+  NodeCompilationResult* compile_continue_node(
+      mavka::ast::ContinueNode* continue_node,
+      CompilationScope* scope,
+      CompilationOptions* options,
+      CompilationState* state);
 }
 
-#endif //COMPILE_CONTINUE_NODE_H
+#endif  // COMPILE_CONTINUE_NODE_H

@@ -6,13 +6,6 @@ set(CMAKE_CXX_STANDARD 20)
 add_subdirectory(syntax)
 
 set(JEJALYK_COMPILER_SRC
-        compiler/CompilationError.h
-        compiler/CompilationOptions.cpp
-        compiler/CompilationOptions.h
-        compiler/CompilationResult.h
-        compiler/CompilationScope.cpp
-        compiler/CompilationScope.h
-        compiler/CompilationSubject.h
         compiler/instructions/compile_anon_diia_node.cpp
         compiler/instructions/compile_anon_diia_node.h
         compiler/instructions/compile_arg_node.cpp
