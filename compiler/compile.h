@@ -115,6 +115,9 @@ namespace jejalyk {
 
   class CompilationMicroScope final : public CompilationScope {
    public:
+    virtual CompilationError* define(const std::string& name,
+                                     CompilationSubject* subject) override;
+
     virtual CompilationError* assign(const std::string& name,
                                      CompilationSubject* subject) override;
 
@@ -171,7 +174,7 @@ namespace jejalyk {
     static const int DIIA = 1;
     static const int STRUCTURE = 2;
 
-    int type;  // 0 - object, 1 - diia, 2 - structure
+    int type;
     CompilationObject* structure;
     std::map<std::string, CompilationSubject*> properties;
 

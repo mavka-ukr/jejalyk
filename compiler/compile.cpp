@@ -50,7 +50,6 @@ namespace jejalyk {
       return compilation_error_from_message(
           "Неможливо перевизначити субʼєкт \"" + name + "\".");
     }
-    subjects.insert_or_assign(name, subject);
     return nullptr;
   }
 
@@ -72,61 +71,69 @@ namespace jejalyk {
   }
 
   CompilationSubject* CompilationScope::get(const std::string& name) const {
-    if (const auto subject = get_local(name)) {
+    if (const auto subject = this->get_local(name)) {
       return subject;
     }
-    if (parent) {
-      return parent->get(name);
+    if (this->parent) {
+      return this->parent->get(name);
     }
     return nullptr;
   }
 
   bool CompilationScope::has(const std::string& name) const {
-    if (has_local(name)) {
+    if (this->has_local(name)) {
       return true;
     }
-    if (parent) {
-      return parent->has(name);
+    if (this->parent) {
+      return this->parent->has(name);
     }
     return false;
   }
 
   CompilationScope* CompilationScope::root() {
-    if (parent) {
-      return parent->root();
+    if (this->parent) {
+      return this->parent->root();
     }
     return this;
   }
 
+  CompilationError* CompilationMicroScope::define(const std::string& name,
+                                                  CompilationSubject* subject) {
+    return this->parent->define(name, subject);
+  }
+
   CompilationError* CompilationMicroScope::assign(const std::string& name,
                                                   CompilationSubject* subject) {
-    return parent->assign(name, subject);
+    return this->parent->assign(name, subject);
   }
 
   CompilationSubject* CompilationMicroScope::get(
       const std::string& name) const {
-    return parent->get(name);
+    return this->parent->get(name);
   }
 
   CompilationSubject* CompilationMicroScope::get_local(
       const std::string& name) const {
-    return parent->get_local(name);
+    return this->parent->get_local(name);
   }
 
   bool CompilationMicroScope::has_local(const std::string& name) const {
-    return parent->has_local(name);
+    return this->parent->has_local(name);
   }
 
   bool CompilationMicroScope::has(const std::string& name) const {
-    return parent->has(name);
+    return this->parent->has(name);
   }
 
   CompilationScope* CompilationMicroScope::root() {
-    return parent->root();
+    return this->parent->root();
   }
 
   bool CompilationSubject::can_set(CompilationSubject* subject) {
-    return true;
+    if (this->types.empty()) {
+      return true;
+    }
+    return subject->is_subject(this);
   }
 
   NodeCompilationResult* CompilationObject::get(std::string name,

@@ -53,8 +53,9 @@ namespace jejalyk {
           (diia_node->async ? "async " : "") + "function(args)" + body->result +
           ")";
     } else {
-      diia_scope->assign("я", nullptr);
-      diia_scope->assign("предок", nullptr);
+      const auto structure_subject = scope->get(diia_node->structure);
+      diia_scope->define("я", structure_subject);
+      diia_scope->define("предок", nullptr);
       const auto body =
           compile_diia_body(diia_node->body, diia_node->params, diia_scope,
                             options, state, true, true);

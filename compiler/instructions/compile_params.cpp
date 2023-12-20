@@ -16,7 +16,7 @@ namespace jejalyk {
     for (int i = 0; i < params.size(); ++i) {
       const auto param = params[i];
       const auto param_name = param->name;
-      scope->assign(param_name, nullptr);
+      scope->define(param_name, new CompilationSubject());
       std::string compiled_param_type = "undefined";
       std::string compiled_param_value = "undefined";
       const auto type_compilation_result =

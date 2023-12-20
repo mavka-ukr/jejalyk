@@ -134,6 +134,7 @@ set(JEJALYK_COMPILER_SRC
         parser.h
         tools.cpp
         tools.h
+        compiler/newcompiler.h
 )
 
 #add_executable(jejalyk jejalyk_bin.cpp ${JEJALYK_COMPILER_SRC})

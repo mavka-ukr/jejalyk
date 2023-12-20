@@ -21,9 +21,9 @@ NodeCompilationResult* compile_each_node(const mavka::ast::EachNode* each_node,
   }
   const auto each_scope = new CompilationMicroScope();
   each_scope->parent = scope;
-  each_scope->assign(each_node->name, nullptr);
+  each_scope->define(each_node->name, new CompilationSubject());
   if (!each_node->keyName.empty()) {
-    each_scope->assign(each_node->keyName, nullptr);
+    each_scope->define(each_node->keyName, new CompilationSubject());
   }
   const auto body =
       compile_body(each_node->body, each_scope, options, state, true);
