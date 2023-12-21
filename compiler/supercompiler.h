@@ -352,6 +352,15 @@ namespace supercompiler {
       return success(array_subject);
     }
 
+    if (jejalyk::tools::instance_of<mavka::ast::DictionaryNode>(node)) {
+      const auto dictionary_node = dynamic_cast<mavka::ast::DictionaryNode*>(node);
+      const auto dictionary_structure = this->get("словник");
+      const auto dictionary = dictionary_structure->types[0]->create_instance();
+      const auto dictionary_subject = new Subject();
+      dictionary_subject->types.push_back(dictionary);
+      return success(dictionary_subject);
+    }
+
     if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
       const auto structure_node =
           dynamic_cast<mavka::ast::StructureNode*>(node);
