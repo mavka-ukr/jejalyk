@@ -86,6 +86,8 @@ namespace supercompiler {
     virtual Result* set_element(Subject* element, Subject* value, Scope* scope);
     virtual bool has(std::string name);
     virtual Result* call(std::vector<Subject*> args, Scope* scope);
+    virtual Result* call_named(std::map<std::string, Subject*> args,
+                               Scope* scope);
     virtual Result* get_element(Subject* value, Scope* scope);
     virtual bool is_diia(Scope* scope);
     virtual Result* plus(Subject* value, Scope* scope);
@@ -104,6 +106,8 @@ namespace supercompiler {
     virtual bool check_types(Subject* value);
     virtual bool instance_of(Subject* value);
     virtual Result* call(std::vector<Subject*> args, Scope* scope);
+    virtual Result* call_named(std::map<std::string, Subject*> args,
+                               Scope* scope);
     virtual Result* set(std::string name, Subject* value);
     virtual Result* set_element(Subject* element, Subject* value, Scope* scope);
     virtual Subject* get(std::string name);
@@ -115,7 +119,7 @@ namespace supercompiler {
     virtual Result* divide(Subject* value, Scope* scope);
     virtual Result* divdiv(Subject* value, Scope* scope);
     virtual Result* pow(Subject* value, Scope* scope);
-    std::string types_string();
+    virtual std::string types_string();
   };
 
   class Param {
@@ -366,15 +370,24 @@ namespace supercompiler {
         return value_result;
       }
       std::vector<Subject*> args;
+      std::map<std::string, Subject*> named_args;
       for (const auto arg_node : call_node->args) {
         if (!arg_node->name.empty()) {
-          throw std::runtime_error("Named args not implemented");
+          const auto arg_result = this->compile_node(arg_node->value);
+          if (arg_result->error) {
+            return arg_result;
+          }
+          named_args.insert_or_assign(arg_node->name, arg_result->value);
+        } else {
+          const auto arg_result = this->compile_node(arg_node->value);
+          if (arg_result->error) {
+            return arg_result;
+          }
+          args.push_back(arg_result->value);
         }
-        const auto arg_result = this->compile_node(arg_node->value);
-        if (arg_result->error) {
-          return arg_result;
-        }
-        args.push_back(arg_result->value);
+      }
+      if (!named_args.empty()) {
+        return value_result->value->call_named(named_args, this);
       }
       return value_result->value->call(args, this);
     }
@@ -612,9 +625,9 @@ namespace supercompiler {
       }
     }
 
-    if (structure_object->structure_methods.contains("чародія_викликати")) {
+    if (structure_object->structure_methods.contains("чародія_створити")) {
       structure_object->properties["чародія_викликати"] =
-          structure_object->structure_methods["чародія_викликати"];
+          structure_object->structure_methods["чародія_створити"];
     } else {
       const auto constructor_diia = new Object();
       const auto diia_structure_subject = this->get("Дія");
@@ -845,6 +858,32 @@ namespace supercompiler {
                  "\".");
   }
 
+  inline Result* Object::call_named(std::map<std::string, Subject*> args,
+                                    Scope* scope) {
+    if (this->has("чародія_викликати")) {
+      if (const auto magic_diia = this->get("чародія_викликати")) {
+        return magic_diia->call_named(args, scope);
+      }
+    }
+    if (this->is_diia(scope)) {
+      for (const auto param : this->diia_params) {
+        if (!args.contains(param->name)) {
+          if (!param->value) {
+            return error("Аргумент \"" + param->name + "\" не вказано.");
+          }
+        }
+        const auto arg = args[param->name];
+        if (!arg->check_types(param->types)) {
+          return error("Аргумент \"" + param->name +
+                       "\" не відповідає його типу.");
+        }
+      }
+      return success(this->diia_return);
+    }
+    return error("Неможливо викликати \"" + this->structure->structure_name +
+                 "\".");
+  }
+
   inline Result* Object::get_element(Subject* value, Scope* scope) {
     if (!this->has("чародія_отримати_спеціальну_властивість")) {
       return error("unsupported get element");
@@ -861,14 +900,16 @@ namespace supercompiler {
     if (this->has("чародія_додати")) {
       return this->get("чародія_додати")->call({value}, scope);
     }
-    return error("unsupported plus");
+    return error("Неможливо додати \"" + this->structure->structure_name +
+                 "\" і " + value->types_string() + ".");
   }
 
   inline Result* Object::minus(Subject* value, Scope* scope) {
     if (this->has("чародія_відняти")) {
       return this->get("чародія_відняти")->call({value}, scope);
     }
-    return error("unsupported minus");
+    return error("Неможливо відняти \"" + this->structure->structure_name +
+                 "\" і " + value->types_string() + ".");
   }
 
   inline Result* Object::multiply(Subject* value, Scope* scope) {
@@ -876,7 +917,7 @@ namespace supercompiler {
       return this->get("чародія_помножити")->call({value}, scope);
     }
     return error("Неможливо помножити \"" + this->structure->structure_name +
-                 "\" на " + value->types_string() + ".");
+                 "\" і " + value->types_string() + ".");
   }
 
   inline Result* Object::divide(Subject* value, Scope* scope) {
@@ -935,7 +976,7 @@ namespace supercompiler {
       return true;
     }
     if (this->types.empty()) {
-      return false;
+      return true;
     }
     if (value->types.empty()) {
       return true;
@@ -967,6 +1008,17 @@ namespace supercompiler {
     }
     if (this->types.size() == 1) {
       return this->types[0]->call(args, scope);
+    }
+    return error("Неможливо викликати.");
+  }
+
+  inline Result* Subject::call_named(std::map<std::string, Subject*> args,
+                                     Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
+    if (this->types.size() == 1) {
+      return this->types[0]->call_named(args, scope);
     }
     return error("Неможливо викликати.");
   }
