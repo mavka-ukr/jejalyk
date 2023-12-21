@@ -93,6 +93,7 @@ namespace supercompiler {
     virtual Result* multiply(Subject* value, Scope* scope);
     virtual Result* divide(Subject* value, Scope* scope);
     virtual Result* divdiv(Subject* value, Scope* scope);
+    virtual Result* pow(Subject* value, Scope* scope);
   };
 
   class Subject {
@@ -113,6 +114,7 @@ namespace supercompiler {
     virtual Result* multiply(Subject* value, Scope* scope);
     virtual Result* divide(Subject* value, Scope* scope);
     virtual Result* divdiv(Subject* value, Scope* scope);
+    virtual Result* pow(Subject* value, Scope* scope);
     std::string types_string();
   };
 
@@ -416,6 +418,9 @@ namespace supercompiler {
       }
       if (arithmetic_node->op == "//") {
         return left_result->value->divdiv(right_result->value, this);
+      }
+      if (arithmetic_node->op == "**") {
+        return left_result->value->pow(right_result->value, this);
       }
     }
 
@@ -867,6 +872,15 @@ namespace supercompiler {
                  value->types_string() + ".");
   }
 
+  inline Result* Object::pow(Subject* value, Scope* scope) {
+    if (this->has("чародія_піднести_до_степеня")) {
+      return this->get("чародія_піднести_до_степеня")->call({value}, scope);
+    }
+    return error("Неможливо чародія_піднести_до_степеня \"" +
+                 this->structure->structure_name + "\" на " +
+                 value->types_string() + ".");
+  }
+
   inline bool Subject::is_structure(Scope* scope) {
     if (this->types.size() == 1) {
       const auto structure_structure_subject = scope->get("Структура");
@@ -933,6 +947,9 @@ namespace supercompiler {
   }
 
   inline Result* Subject::set(std::string name, Subject* value) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
     if (this->types.size() == 1) {
       return this->types[0]->set(name, value);
     }
@@ -942,6 +959,9 @@ namespace supercompiler {
   inline Result* Subject::set_element(Subject* element,
                                       Subject* value,
                                       Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
     if (this->types.size() == 1) {
       return this->types[0]->set_element(element, value, scope);
     }
@@ -1026,6 +1046,16 @@ namespace supercompiler {
       return this->types[0]->divdiv(value, scope);
     }
     return error("Неможливо divdiv.");
+  }
+
+  inline Result* Subject::pow(Subject* value, Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
+    if (this->types.size() == 1) {
+      return this->types[0]->pow(value, scope);
+    }
+    return error("Неможливо піднести до степеня.");
   }
 
   inline std::string Subject::types_string() {
