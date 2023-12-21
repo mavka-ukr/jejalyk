@@ -91,6 +91,8 @@ namespace supercompiler {
     virtual Result* plus(Subject* value, Scope* scope);
     virtual Result* minus(Subject* value, Scope* scope);
     virtual Result* multiply(Subject* value, Scope* scope);
+    virtual Result* divide(Subject* value, Scope* scope);
+    virtual Result* divdiv(Subject* value, Scope* scope);
   };
 
   class Subject {
@@ -109,6 +111,9 @@ namespace supercompiler {
     virtual Result* plus(Subject* value, Scope* scope);
     virtual Result* minus(Subject* value, Scope* scope);
     virtual Result* multiply(Subject* value, Scope* scope);
+    virtual Result* divide(Subject* value, Scope* scope);
+    virtual Result* divdiv(Subject* value, Scope* scope);
+    std::string types_string();
   };
 
   class Param {
@@ -406,6 +411,12 @@ namespace supercompiler {
       if (arithmetic_node->op == "*") {
         return left_result->value->multiply(right_result->value, this);
       }
+      if (arithmetic_node->op == "/") {
+        return left_result->value->divide(right_result->value, this);
+      }
+      if (arithmetic_node->op == "//") {
+        return left_result->value->divdiv(right_result->value, this);
+      }
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ReturnNode>(node)) {
@@ -571,18 +582,23 @@ namespace supercompiler {
       }
     }
 
-    const auto constructor_diia = new Object();
-    const auto diia_structure_subject = this->get("Дія");
-    constructor_diia->structure = diia_structure_subject->types[0];
-    constructor_diia->diia_params = structure_object->structure_params;
-    const auto structure_type_subject = new Subject();
-    structure_type_subject->types.push_back(
-        structure_object->create_instance());
-    constructor_diia->diia_return = structure_type_subject;
-    const auto constructor_diia_subject = new Subject();
-    constructor_diia_subject->types.push_back(constructor_diia);
-    structure_object->properties["чародія_викликати"] =
-        constructor_diia_subject;
+    if (structure_object->structure_methods.contains("чародія_викликати")) {
+      structure_object->properties["чародія_викликати"] =
+          structure_object->structure_methods["чародія_викликати"];
+    } else {
+      const auto constructor_diia = new Object();
+      const auto diia_structure_subject = this->get("Дія");
+      constructor_diia->structure = diia_structure_subject->types[0];
+      constructor_diia->diia_params = structure_object->structure_params;
+      const auto structure_type_subject = new Subject();
+      structure_type_subject->types.push_back(
+          structure_object->create_instance());
+      constructor_diia->diia_return = structure_type_subject;
+      const auto constructor_diia_subject = new Subject();
+      constructor_diia_subject->types.push_back(constructor_diia);
+      structure_object->properties["чародія_викликати"] =
+          constructor_diia_subject;
+    }
 
     return success(structure_subject);
   }
@@ -687,16 +703,31 @@ namespace supercompiler {
     instance->structure = this;
     instance->type = OBJECT;
     for (const auto param : this->structure_params) {
-      instance->properties.insert_or_assign(param->name, param->types);
+      // instance->properties.insert_or_assign(param->name, param->types);
     }
     for (const auto method : this->structure_methods) {
-      instance->properties.insert_or_assign(method.first, method.second);
+      // instance->properties.insert_or_assign(method.first, method.second);
     }
     return instance;
   }
 
   inline Subject* Object::get(std::string name) {
-    return this->properties.find(name)->second;
+    for (const auto prop : this->properties) {
+      if (prop.first == name) {
+        return prop.second;
+      }
+    }
+    for (const auto param : this->structure->structure_params) {
+      if (param->name == name) {
+        return param->types;
+      }
+    }
+    for (const auto method : this->structure->structure_methods) {
+      if (method.first == name) {
+        return method.second;
+      }
+    }
+    return nullptr;
   }
 
   inline Result* Object::set(std::string name, Subject* value) {
@@ -724,21 +755,31 @@ namespace supercompiler {
     if (!this->has("чародія_змінити_спеціальну_властивість")) {
       return error("unsupported set element");
     }
-    const auto set_element_result =
-        this->get("чародія_змінити_спеціальну_властивість")
-            ->call({element, value}, scope);
-    if (set_element_result->error) {
-      return set_element_result;
-    }
-    return set_element_result;
+    return this->get("чародія_змінити_спеціальну_властивість")
+        ->call({element, value}, scope);
   }
 
   inline bool Object::has(std::string name) {
-    return this->properties.contains(name);
+    for (const auto prop : this->properties) {
+      if (prop.first == name) {
+        return true;
+      }
+    }
+    for (const auto param : this->structure->structure_params) {
+      if (param->name == name) {
+        return true;
+      }
+    }
+    for (const auto method : this->structure->structure_methods) {
+      if (method.first == name) {
+        return true;
+      }
+    }
+    return false;
   }
 
   inline Result* Object::call(std::vector<Subject*> args, Scope* scope) {
-    if (this->properties.contains("чародія_викликати")) {
+    if (this->has("чародія_викликати")) {
       if (const auto magic_diia = this->get("чародія_викликати")) {
         return magic_diia->call(args, scope);
       }
@@ -770,11 +811,16 @@ namespace supercompiler {
       }
       return success(this->diia_return);
     }
-    return error("unsupported call");
+    return error("Неможливо викликати \"" + this->structure->structure_name +
+                 "\".");
   }
 
   inline Result* Object::get_element(Subject* value, Scope* scope) {
-    return error("unsupported get element");
+    if (!this->has("чародія_отримати_спеціальну_властивість")) {
+      return error("unsupported get element");
+    }
+    return this->get("чародія_отримати_спеціальну_властивість")
+        ->call({value}, scope);
   }
 
   inline bool Object::is_diia(Scope* scope) {
@@ -799,7 +845,26 @@ namespace supercompiler {
     if (this->has("чародія_помножити")) {
       return this->get("чародія_помножити")->call({value}, scope);
     }
-    return error("unsupported multiply");
+    return error("Неможливо помножити \"" + this->structure->structure_name +
+                 "\" на " + value->types_string() + ".");
+  }
+
+  inline Result* Object::divide(Subject* value, Scope* scope) {
+    if (this->has("чародія_поділити")) {
+      return this->get("чародія_поділити")->call({value}, scope);
+    }
+    return error("Неможливо поділити \"" + this->structure->structure_name +
+                 "\" на " + value->types_string() + ".");
+  }
+
+  inline Result* Object::divdiv(Subject* value, Scope* scope) {
+    if (this->has("чародія_поділити_за_модулем_частка")) {
+      return this->get("чародія_поділити_за_модулем_частка")
+          ->call({value}, scope);
+    }
+    return error("Неможливо чародія_поділити_за_модулем_частка \"" +
+                 this->structure->structure_name + "\" на " +
+                 value->types_string() + ".");
   }
 
   inline bool Subject::is_structure(Scope* scope) {
@@ -858,6 +923,9 @@ namespace supercompiler {
   }
 
   inline Result* Subject::call(std::vector<Subject*> args, Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
     if (this->types.size() == 1) {
       return this->types[0]->call(args, scope);
     }
@@ -881,6 +949,9 @@ namespace supercompiler {
   }
 
   inline Subject* Subject::get(std::string name) {
+    if (this->types.empty()) {
+      return new Subject();
+    }
     if (this->types.size() == 1) {
       return this->types[0]->get(name);
     }
@@ -888,6 +959,9 @@ namespace supercompiler {
   }
 
   inline Result* Subject::get_element(Subject* value, Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
     if (this->types.size() == 1) {
       return this->types[0]->get_element(value, scope);
     }
@@ -895,6 +969,9 @@ namespace supercompiler {
   }
 
   inline bool Subject::has(std::string name) {
+    if (this->types.empty()) {
+      return true;
+    }
     if (this->types.size() == 1) {
       return this->types[0]->has(name);
     }
@@ -902,6 +979,9 @@ namespace supercompiler {
   }
 
   inline Result* Subject::plus(Subject* value, Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
     if (this->types.size() == 1) {
       return this->types[0]->plus(value, scope);
     }
@@ -909,6 +989,9 @@ namespace supercompiler {
   }
 
   inline Result* Subject::minus(Subject* value, Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
     if (this->types.size() == 1) {
       return this->types[0]->minus(value, scope);
     }
@@ -916,10 +999,41 @@ namespace supercompiler {
   }
 
   inline Result* Subject::multiply(Subject* value, Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
     if (this->types.size() == 1) {
       return this->types[0]->multiply(value, scope);
     }
     return error("Неможливо помножити.");
+  }
+
+  inline Result* Subject::divide(Subject* value, Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
+    if (this->types.size() == 1) {
+      return this->types[0]->divide(value, scope);
+    }
+    return error("Неможливо поділити.");
+  }
+
+  inline Result* Subject::divdiv(Subject* value, Scope* scope) {
+    if (this->types.empty()) {
+      return success(new Subject());
+    }
+    if (this->types.size() == 1) {
+      return this->types[0]->divdiv(value, scope);
+    }
+    return error("Неможливо divdiv.");
+  }
+
+  inline std::string Subject::types_string() {
+    std::vector<std::string> types;
+    for (const auto type : this->types) {
+      types.push_back("\"" + type->structure->structure_name + "\"");
+    }
+    return jejalyk::tools::implode(types, " або ");
   }
 
   inline Param* Param::clone() {
