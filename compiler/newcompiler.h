@@ -109,6 +109,8 @@ namespace newcompiler {
     bool is_any_structure(Scope* scope);
     bool instance_of_subject(Subject* value);
     Subject* create_all_instances();
+    std::string as_structure_name();
+    std::string as_inner_structure_name();
   };
 
   class Param {
@@ -130,9 +132,11 @@ namespace newcompiler {
     Object* structure;
     std::map<std::string, Subject*> properties;
 
+    std::string structure_name;
     Object* structure_parent;
     std::vector<Param*> structure_params;
 
+    std::string diia_name;
     std::vector<Param*> diia_params;
     Subject* diia_return;
 
@@ -143,6 +147,7 @@ namespace newcompiler {
     bool instance_of_subject(Subject* value);
     Object* create_instance();
     bool is_structure();
+    std::string as_structure_name();
   };
 
   CompilationResult* compile(mavka::ast::ProgramNode* program_node);
@@ -161,8 +166,10 @@ namespace newcompiler {
       }
       const auto arg = args[param->index];
       if (!arg->instance_of_subject(param->types)) {
-        return create_result_error("Неправильний тип аргументу \"" +
-                                   param->name + "\".");
+        return create_result_error(
+            "Неправильний тип аргументу \"" + param->name + "\": очікується " +
+            param->types->as_structure_name() + ", отримано " +
+            arg->as_inner_structure_name() + ".");
       }
     }
     const auto return_subject = this->diia_return->create_all_instances();
@@ -201,6 +208,13 @@ namespace newcompiler {
 
   inline bool Object::is_structure() {
     return this->type == STRUCTURE;
+  }
+
+  inline std::string Object::as_structure_name() {
+    if (this->structure != nullptr) {
+      return this->structure->structure_name;
+    }
+    return "[BUG]";
   }
 
   inline Result* Subject::call(std::vector<Subject*> args, Scope* scope) {
@@ -268,6 +282,28 @@ namespace newcompiler {
     return subject;
   }
 
+  inline std::string Subject::as_structure_name() {
+    if (this->types.empty()) {
+      return "щось";
+    }
+    std::vector<std::string> result;
+    for (const auto type : this->types) {
+      result.push_back(type->structure_name);
+    }
+    return jejalyk::tools::implode(result, " або ");
+  }
+
+  inline std::string Subject::as_inner_structure_name() {
+    if (this->types.empty()) {
+      return "щось";
+    }
+    std::vector<std::string> result;
+    for (const auto type : this->types) {
+      result.push_back(type->as_structure_name());
+    }
+    return jejalyk::tools::implode(result, " або ");
+  }
+
   inline bool Scope::has_local(const std::string name) {
     return this->subjects.contains(name);
   }
@@ -319,8 +355,10 @@ namespace newcompiler {
       return result;
     }
 
+    structure_instance_result->value->structure_name = structure_node->name;
+
     result->value = new Subject();
-    result->value->types.push_back(structure_instance_result->value);
+    result->value->types.push_back(structure_structure->types[0]);
     this->subjects.insert_or_assign(structure_node->name, result->value);
 
     structure_instance_result->value->type = Object::STRUCTURE;
@@ -396,6 +434,8 @@ namespace newcompiler {
       return result;
     }
 
+    diia_instance_result->value->diia_name = diia_node->name;
+
     result->value = new Subject();
     result->value->types.push_back(diia_instance_result->value);
     this->subjects.insert_or_assign(diia_node->name, result->value);
@@ -453,7 +493,7 @@ namespace newcompiler {
         return create_result_error("Субʼєкт \"" + identifier_node->name +
                                    "\" не визначено.");
       }
-      return create_result_value(subject);
+      return create_result_value(subject->create_all_instances());
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
@@ -490,8 +530,11 @@ namespace newcompiler {
                                      "\" не визначено.");
         }
         if (!compiled_value->value->instance_of_subject(subject)) {
-          return create_result_error("Неправильний тип значення субʼєкта \"" +
-                                     assign_simple_node->name + "\".");
+          return create_result_error(
+              "Неправильний тип значення субʼєкта \"" +
+              assign_simple_node->name + "\": очікується " +
+              subject->as_structure_name() + ", отримано " +
+              compiled_value->value->as_inner_structure_name() + ".");
         }
 
         return create_result_value(subject);
@@ -516,8 +559,11 @@ namespace newcompiler {
         }
         if (!compiled_value->value->instance_of_subject(
                 compiled_types->value)) {
-          return create_result_error("Неправильний тип значення субʼєкта \"" +
-                                     assign_simple_node->name + "\".");
+          return create_result_error(
+              "Неправильний тип значення субʼєкта \"" +
+              assign_simple_node->name + "\": очікується " +
+              compiled_types->value->as_structure_name() + ", отримано " +
+              compiled_value->value->as_inner_structure_name() + ".");
         }
 
         this->subjects.insert_or_assign(assign_simple_node->name,
@@ -625,19 +671,32 @@ namespace newcompiler {
 
     const auto object = new Object();
     object->type = Object::STRUCTURE;
-    const auto object_subject = new Subject();
-    object_subject->types.push_back(object);
-    scope->subjects.insert_or_assign("обʼєкт", object_subject);
+    object->structure_name = "обʼєкт";
 
     const auto structure_structure = new Object();
     structure_structure->type = Object::STRUCTURE;
     structure_structure->structure = object;
+    structure_structure->structure_name = "Структура";
     structure_structure->structure_parent = object;
-    const auto structure_structure_subject = new Subject();
-    structure_structure_subject->types.push_back(structure_structure);
-    scope->subjects.insert_or_assign("Структура", structure_structure_subject);
+
+    const auto empty_structure = new Object();
+    empty_structure->type = Object::STRUCTURE;
+    empty_structure->structure = empty_structure;
+    empty_structure->structure_name = "пусто";
 
     object->structure = structure_structure;
+
+    const auto object_structure_structure = new Subject();
+    object_structure_structure->types.push_back(structure_structure);
+    scope->subjects.insert_or_assign("обʼєкт", object_structure_structure);
+
+    const auto structure_structure_structure = new Subject();
+    structure_structure_structure->types.push_back(structure_structure);
+    scope->subjects.insert_or_assign("Структура", structure_structure_structure);
+
+    const auto empty_structure_structure = new Subject();
+    empty_structure_structure->types.push_back(structure_structure);
+    scope->subjects.insert_or_assign("пусто", empty_structure_structure);
 
     for (const auto node : program_node->body) {
       const auto compiled_node = scope->compile_node(node);

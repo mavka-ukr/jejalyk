@@ -135,6 +135,8 @@ set(JEJALYK_COMPILER_SRC
         tools.cpp
         tools.h
         compiler/newcompiler.h
+        compiler/xcompiler.h
+        compiler/supercompiler.h
 )
 
 add_executable(jejalyk jejalyk_bin.cpp
