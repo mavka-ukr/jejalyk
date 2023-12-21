@@ -42,6 +42,7 @@ namespace supercompiler {
   class Scope {
    public:
     std::map<std::string, Subject*> variables;
+    std::vector<mavka::ast::ASTNode*>* body;
 
     virtual bool has(std::string name);
     virtual Subject* get(std::string name);
@@ -68,6 +69,7 @@ namespace supercompiler {
     std::string structure_name;
     Object* structure_parent;
     std::vector<Param*> structure_params;
+    std::map<std::string, Subject*> structure_methods;
 
     std::string diia_name;
     std::vector<Param*> diia_params;
@@ -78,6 +80,7 @@ namespace supercompiler {
     Result* set(std::string name, Subject* value);
     bool has(std::string name);
     Result* call(std::vector<Subject*> args, Scope* scope);
+    Result* get_element(Subject* value, Scope* scope);
     bool is_diia(Scope* scope);
   };
 
@@ -90,6 +93,9 @@ namespace supercompiler {
     virtual bool instance_of(Subject* value);
     virtual Result* call(std::vector<Subject*> args, Scope* scope);
     virtual Result* set(std::string name, Subject* value);
+    virtual Subject* get(std::string name);
+    virtual Result* get_element(Subject* value, Scope* scope);
+    bool has(std::string name);
   };
 
   class Param {
@@ -136,6 +142,37 @@ namespace supercompiler {
       }
       const auto subject = this->get(identifier_node->name);
       return success(subject);
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::ChainNode>(node)) {
+      const auto chain_node = dynamic_cast<mavka::ast::ChainNode*>(node);
+
+      const auto left_result = this->compile_node(chain_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+
+      if (jejalyk::tools::instance_of<mavka::ast::IdentifierNode>(
+              chain_node->right)) {
+        const auto right_identifier_node =
+            dynamic_cast<mavka::ast::IdentifierNode*>(chain_node->right);
+
+        if (!left_result->value->has(right_identifier_node->name)) {
+          return error("Властивість \"" + right_identifier_node->name +
+                       "\" не визначено.");
+        }
+
+        const auto subject =
+            left_result->value->get(right_identifier_node->name);
+        return success(subject);
+      } else {
+        const auto right_result = this->compile_node(chain_node->right);
+        if (right_result->error) {
+          return right_result;
+        }
+
+        return left_result->value->get_element(right_result->value, this);
+      }
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::AssignSimpleNode>(node)) {
@@ -391,6 +428,25 @@ namespace supercompiler {
 
     structure_object->structure_params = params_result->value;
 
+    for (int i = 0; i < this->body->size(); ++i) {
+      const auto inner_node = this->body->at(i);
+      if (!inner_node) {
+        continue;
+      }
+
+      if (jejalyk::tools::instance_of<mavka::ast::DiiaNode>(inner_node)) {
+        const auto inner_diia_node =
+            dynamic_cast<mavka::ast::DiiaNode*>(inner_node);
+        if (inner_diia_node->structure == structure_node->name) {
+          const auto compiled_inner_node = this->compile_node(inner_node);
+          if (compiled_inner_node->error) {
+            return compiled_inner_node;
+          }
+          this->body->at(i) = nullptr;
+        }
+      }
+    }
+
     const auto constructor_diia = new Object();
     const auto diia_structure_subject = this->get("Дія");
     constructor_diia->structure = diia_structure_subject->types[0];
@@ -416,7 +472,26 @@ namespace supercompiler {
     const auto diia_subject = new Subject();
     diia_subject->types.push_back(diia_object);
 
-    this->variables.insert_or_assign(diia_node->name, diia_subject);
+    if (diia_node->structure.empty()) {
+      this->variables.insert_or_assign(diia_node->name, diia_subject);
+    } else {
+      if (!this->has_local(diia_node->structure)) {
+        return error("Структуру \"" + diia_node->structure +
+                     "\" не визначено.");
+      }
+      const auto structure_subject = this->get(diia_node->structure);
+      if (!structure_subject->is_structure(this)) {
+        return error("\"" + diia_node->structure + "\" не є структурою.");
+      }
+      const auto structure_object = structure_subject->types[0];
+      if (structure_object->structure_methods.contains(diia_node->name)) {
+        return error("Дію \"" + diia_node->name +
+                     "\" вже визначено для структури \"" +
+                     diia_node->structure + "\".");
+      }
+      structure_object->structure_methods.insert_or_assign(diia_node->name,
+                                                           diia_subject);
+    }
 
     const auto params_result = this->compile_params(diia_node->params);
     if (params_result->error) {
@@ -447,6 +522,9 @@ namespace supercompiler {
     instance->type = OBJECT;
     for (const auto param : this->structure_params) {
       instance->properties.insert_or_assign(param->name, param->types);
+    }
+    for (const auto method : this->structure_methods) {
+      instance->properties.insert_or_assign(method.first, method.second);
     }
     return instance;
   }
@@ -512,6 +590,10 @@ namespace supercompiler {
       return success(this->diia_return);
     }
     return error("unsupported call");
+  }
+
+  inline Result* Object::get_element(Subject* value, Scope* scope) {
+    return error("unsupported get element");
   }
 
   inline bool Object::is_diia(Scope* scope) {
@@ -587,6 +669,27 @@ namespace supercompiler {
     return error("Неможливо встановити.");
   }
 
+  inline Subject* Subject::get(std::string name) {
+    if (this->types.size() == 1) {
+      return this->types[0]->get(name);
+    }
+    return nullptr;
+  }
+
+  inline Result* Subject::get_element(Subject* value, Scope* scope) {
+    if (this->types.size() == 1) {
+      return this->types[0]->get_element(value, scope);
+    }
+    return error("Неможливо отримати елемент.");
+  }
+
+  inline bool Subject::has(std::string name) {
+    if (this->types.size() == 1) {
+      return this->types[0]->has(name);
+    }
+    return false;
+  }
+
   inline Param* Param::clone() {
     const auto param = new Param();
     param->index = this->index;
@@ -601,6 +704,7 @@ namespace supercompiler {
     const auto result = new CompilationResult();
 
     const auto scope = new Scope();
+    scope->body = &program_node->body;
 
     const auto object = new Object();
     const auto structure = new Object();
@@ -614,7 +718,12 @@ namespace supercompiler {
     scope->variables.insert_or_assign("обʼєкт", object_subject);
     scope->variables.insert_or_assign("Структура", structure_subject);
 
-    for (const auto node : program_node->body) {
+    for (int i = 0; i < program_node->body.size(); ++i) {
+      const auto node = program_node->body[i];
+      if (!node) {
+        continue;
+      }
+
       const auto compiled_node = scope->compile_node(node);
       if (compiled_node->error) {
         result->error = compiled_node->error;
