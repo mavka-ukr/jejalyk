@@ -57,7 +57,7 @@ namespace supercompiler {
                                   std::string error_message);
     virtual Result* define_structure(mavka::ast::StructureNode* structure_node);
     virtual Result* define_diia(mavka::ast::DiiaNode* diia_node);
-    virtual Result* compile_diia_body(std::vector<mavka::ast::ASTNode*> body);
+    virtual Result* compile_body(std::vector<mavka::ast::ASTNode*> body);
     virtual Scope* make_child();
   };
 
@@ -83,12 +83,14 @@ namespace supercompiler {
     virtual Object* create_instance();
     virtual Subject* get(std::string name);
     virtual Result* set(std::string name, Subject* value);
+    virtual Result* set_element(Subject* element, Subject* value, Scope* scope);
     virtual bool has(std::string name);
     virtual Result* call(std::vector<Subject*> args, Scope* scope);
     virtual Result* get_element(Subject* value, Scope* scope);
     virtual bool is_diia(Scope* scope);
     virtual Result* plus(Subject* value, Scope* scope);
     virtual Result* minus(Subject* value, Scope* scope);
+    virtual Result* multiply(Subject* value, Scope* scope);
   };
 
   class Subject {
@@ -100,11 +102,13 @@ namespace supercompiler {
     virtual bool instance_of(Subject* value);
     virtual Result* call(std::vector<Subject*> args, Scope* scope);
     virtual Result* set(std::string name, Subject* value);
+    virtual Result* set_element(Subject* element, Subject* value, Scope* scope);
     virtual Subject* get(std::string name);
     virtual Result* get_element(Subject* value, Scope* scope);
     virtual bool has(std::string name);
     virtual Result* plus(Subject* value, Scope* scope);
     virtual Result* minus(Subject* value, Scope* scope);
+    virtual Result* multiply(Subject* value, Scope* scope);
   };
 
   class Param {
@@ -200,6 +204,23 @@ namespace supercompiler {
       }
     }
 
+    if (jejalyk::tools::instance_of<mavka::ast::GetElementNode>(node)) {
+      const auto get_element_node =
+          dynamic_cast<mavka::ast::GetElementNode*>(node);
+
+      const auto value_result = this->compile_node(get_element_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      const auto index_result = this->compile_node(get_element_node->index);
+      if (index_result->error) {
+        return index_result;
+      }
+
+      return value_result->value->get_element(index_result->value, this);
+    }
+
     if (jejalyk::tools::instance_of<mavka::ast::AssignSimpleNode>(node)) {
       const auto assign_simple_node =
           dynamic_cast<mavka::ast::AssignSimpleNode*>(node);
@@ -268,6 +289,31 @@ namespace supercompiler {
                                      value_result->value);
     }
 
+    if (jejalyk::tools::instance_of<mavka::ast::AssignByElementNode>(node)) {
+      const auto assign_by_element_node =
+          dynamic_cast<mavka::ast::AssignByElementNode*>(node);
+
+      const auto left_result = this->compile_node(assign_by_element_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+
+      const auto element_result =
+          this->compile_node(assign_by_element_node->element);
+      if (element_result->error) {
+        return element_result;
+      }
+
+      const auto value_result =
+          this->compile_node(assign_by_element_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      return left_result->value->set_element(element_result->value,
+                                             value_result->value, this);
+    }
+
     if (jejalyk::tools::instance_of<mavka::ast::NumberNode>(node)) {
       const auto number_node = dynamic_cast<mavka::ast::NumberNode*>(node);
       const auto number_structure = this->get("число");
@@ -333,6 +379,10 @@ namespace supercompiler {
         this->variables.insert_or_assign(each_node->keyName, new Subject());
       }
       // todo: handle fromto
+      const auto body_result = this->compile_body(each_node->body);
+      if (body_result->error) {
+        return error(body_result->error->message);
+      }
       return success(new Subject());
     }
 
@@ -352,6 +402,9 @@ namespace supercompiler {
       }
       if (arithmetic_node->op == "-") {
         return left_result->value->minus(right_result->value, this);
+      }
+      if (arithmetic_node->op == "*") {
+        return left_result->value->multiply(right_result->value, this);
       }
     }
 
@@ -596,7 +649,7 @@ namespace supercompiler {
 
     diia_scope->diia = diia_object;
 
-    const auto body_result = diia_scope->compile_diia_body(diia_node->body);
+    const auto body_result = diia_scope->compile_body(diia_node->body);
     if (body_result->error) {
       return error(body_result->error->message);
     }
@@ -604,8 +657,7 @@ namespace supercompiler {
     return success(diia_subject);
   }
 
-  inline Result* Scope::compile_diia_body(
-      std::vector<mavka::ast::ASTNode*> body) {
+  inline Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*> body) {
     const auto result = new Result();
 
     for (int i = 0; i < body.size(); ++i) {
@@ -664,6 +716,21 @@ namespace supercompiler {
       return error_result;
     }
     return success(value);
+  }
+
+  inline Result* Object::set_element(Subject* element,
+                                     Subject* value,
+                                     Scope* scope) {
+    if (!this->has("чародія_змінити_спеціальну_властивість")) {
+      return error("unsupported set element");
+    }
+    const auto set_element_result =
+        this->get("чародія_змінити_спеціальну_властивість")
+            ->call({element, value}, scope);
+    if (set_element_result->error) {
+      return set_element_result;
+    }
+    return set_element_result;
   }
 
   inline bool Object::has(std::string name) {
@@ -726,6 +793,13 @@ namespace supercompiler {
       return this->get("чародія_відняти")->call({value}, scope);
     }
     return error("unsupported minus");
+  }
+
+  inline Result* Object::multiply(Subject* value, Scope* scope) {
+    if (this->has("чародія_помножити")) {
+      return this->get("чародія_помножити")->call({value}, scope);
+    }
+    return error("unsupported multiply");
   }
 
   inline bool Subject::is_structure(Scope* scope) {
@@ -797,6 +871,15 @@ namespace supercompiler {
     return error("Неможливо встановити.");
   }
 
+  inline Result* Subject::set_element(Subject* element,
+                                      Subject* value,
+                                      Scope* scope) {
+    if (this->types.size() == 1) {
+      return this->types[0]->set_element(element, value, scope);
+    }
+    return error("Неможливо встановити елемент.");
+  }
+
   inline Subject* Subject::get(std::string name) {
     if (this->types.size() == 1) {
       return this->types[0]->get(name);
@@ -830,6 +913,13 @@ namespace supercompiler {
       return this->types[0]->minus(value, scope);
     }
     return error("Неможливо відняти.");
+  }
+
+  inline Result* Subject::multiply(Subject* value, Scope* scope) {
+    if (this->types.size() == 1) {
+      return this->types[0]->multiply(value, scope);
+    }
+    return error("Неможливо помножити.");
   }
 
   inline Param* Param::clone() {
