@@ -41,12 +41,15 @@ namespace supercompiler {
 
   class Scope {
    public:
+    Scope* parent;
     std::map<std::string, Subject*> variables;
     std::vector<mavka::ast::ASTNode*>* body;
+    Object* diia;
 
     virtual bool has(std::string name);
     virtual Subject* get(std::string name);
-    bool has_local(std::string name);
+    virtual Subject* get_local(std::string name);
+    virtual bool has_local(std::string name);
     virtual Result* compile_node(mavka::ast::ASTNode* node);
     virtual ParamsResult* compile_params(
         std::vector<mavka::ast::ParamNode*> params);
@@ -54,6 +57,8 @@ namespace supercompiler {
                                   std::string error_message);
     virtual Result* define_structure(mavka::ast::StructureNode* structure_node);
     virtual Result* define_diia(mavka::ast::DiiaNode* diia_node);
+    virtual Result* compile_diia_body(std::vector<mavka::ast::ASTNode*> body);
+    virtual Scope* make_child();
   };
 
   class Object {
@@ -75,13 +80,15 @@ namespace supercompiler {
     std::vector<Param*> diia_params;
     Subject* diia_return;
 
-    Object* create_instance();
-    Subject* get(std::string name);
-    Result* set(std::string name, Subject* value);
-    bool has(std::string name);
-    Result* call(std::vector<Subject*> args, Scope* scope);
-    Result* get_element(Subject* value, Scope* scope);
-    bool is_diia(Scope* scope);
+    virtual Object* create_instance();
+    virtual Subject* get(std::string name);
+    virtual Result* set(std::string name, Subject* value);
+    virtual bool has(std::string name);
+    virtual Result* call(std::vector<Subject*> args, Scope* scope);
+    virtual Result* get_element(Subject* value, Scope* scope);
+    virtual bool is_diia(Scope* scope);
+    virtual Result* plus(Subject* value, Scope* scope);
+    virtual Result* minus(Subject* value, Scope* scope);
   };
 
   class Subject {
@@ -95,7 +102,9 @@ namespace supercompiler {
     virtual Result* set(std::string name, Subject* value);
     virtual Subject* get(std::string name);
     virtual Result* get_element(Subject* value, Scope* scope);
-    bool has(std::string name);
+    virtual bool has(std::string name);
+    virtual Result* plus(Subject* value, Scope* scope);
+    virtual Result* minus(Subject* value, Scope* scope);
   };
 
   class Param {
@@ -122,10 +131,26 @@ namespace supercompiler {
   }
 
   inline bool Scope::has(std::string name) {
-    return this->variables.contains(name);
+    if (this->variables.contains(name)) {
+      return true;
+    }
+    if (this->parent) {
+      return this->parent->has(name);
+    }
+    return false;
   }
 
   inline Subject* Scope::get(std::string name) {
+    if (this->variables.contains(name)) {
+      return this->variables.find(name)->second;
+    }
+    if (this->parent) {
+      return this->parent->get(name);
+    }
+    return nullptr;
+  }
+
+  inline Subject* Scope::get_local(std::string name) {
     return this->variables.find(name)->second;
   }
 
@@ -186,7 +211,7 @@ namespace supercompiler {
 
       if (assign_simple_node->types.empty()) {
         if (this->has_local(assign_simple_node->name)) {
-          const auto subject = this->get(assign_simple_node->name);
+          const auto subject = this->get_local(assign_simple_node->name);
           if (!value_result->value->check_types(subject)) {
             return error("Неправильний тип значення субʼєкта \"" +
                          assign_simple_node->name + "\".");
@@ -299,6 +324,52 @@ namespace supercompiler {
         args.push_back(arg_result->value);
       }
       return value_result->value->call(args, this);
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::EachNode>(node)) {
+      const auto each_node = dynamic_cast<mavka::ast::EachNode*>(node);
+      this->variables.insert_or_assign(each_node->name, new Subject());
+      if (!each_node->keyName.empty()) {
+        this->variables.insert_or_assign(each_node->keyName, new Subject());
+      }
+      // todo: handle fromto
+      return success(new Subject());
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::ArithmeticNode>(node)) {
+      const auto arithmetic_node =
+          dynamic_cast<mavka::ast::ArithmeticNode*>(node);
+      const auto left_result = this->compile_node(arithmetic_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+      const auto right_result = this->compile_node(arithmetic_node->right);
+      if (right_result->error) {
+        return right_result;
+      }
+      if (arithmetic_node->op == "+") {
+        return left_result->value->plus(right_result->value, this);
+      }
+      if (arithmetic_node->op == "-") {
+        return left_result->value->minus(right_result->value, this);
+      }
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::ReturnNode>(node)) {
+      const auto return_node = dynamic_cast<mavka::ast::ReturnNode*>(node);
+      if (!this->diia) {
+        return error(
+            "Вказівка \"вернути\" може бути використана тільки в "
+            "тілі дії.");
+      }
+      const auto value_result = this->compile_node(return_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+      if (!value_result->value->check_types(this->diia->diia_return)) {
+        return error("Неправильний тип значення, що повертається.");
+      }
+      return value_result;
     }
 
     return error("unsupported node");
@@ -472,6 +543,9 @@ namespace supercompiler {
     const auto diia_subject = new Subject();
     diia_subject->types.push_back(diia_object);
 
+    const auto diia_scope = this->make_child();
+    diia_scope->body = &diia_node->body;
+
     if (diia_node->structure.empty()) {
       this->variables.insert_or_assign(diia_node->name, diia_subject);
     } else {
@@ -491,11 +565,18 @@ namespace supercompiler {
       }
       structure_object->structure_methods.insert_or_assign(diia_node->name,
                                                            diia_subject);
+      const auto me = structure_subject->types[0]->create_instance();
+      const auto me_subject = new Subject();
+      me_subject->types.push_back(me);
+      diia_scope->variables.insert_or_assign("я", me_subject);
     }
 
-    const auto params_result = this->compile_params(diia_node->params);
+    const auto params_result = diia_scope->compile_params(diia_node->params);
     if (params_result->error) {
       return error(params_result->error->message);
+    }
+    for (const auto param : params_result->value) {
+      diia_scope->variables.insert_or_assign(param->name, param->types);
     }
 
     diia_object->diia_params = params_result->value;
@@ -513,7 +594,40 @@ namespace supercompiler {
       diia_object->diia_return = new Subject();
     }
 
+    diia_scope->diia = diia_object;
+
+    const auto body_result = diia_scope->compile_diia_body(diia_node->body);
+    if (body_result->error) {
+      return error(body_result->error->message);
+    }
+
     return success(diia_subject);
+  }
+
+  inline Result* Scope::compile_diia_body(
+      std::vector<mavka::ast::ASTNode*> body) {
+    const auto result = new Result();
+
+    for (int i = 0; i < body.size(); ++i) {
+      const auto node = body[i];
+      if (!node) {
+        continue;
+      }
+
+      const auto compiled_node = this->compile_node(node);
+      if (compiled_node->error) {
+        result->error = compiled_node->error;
+        return result;
+      }
+    }
+
+    return result;
+  }
+
+  inline Scope* Scope::make_child() {
+    const auto child = new Scope();
+    child->parent = this;
+    return child;
   }
 
   inline Object* Object::create_instance() {
@@ -598,6 +712,20 @@ namespace supercompiler {
 
   inline bool Object::is_diia(Scope* scope) {
     return this->structure == scope->get("Дія")->types[0];
+  }
+
+  inline Result* Object::plus(Subject* value, Scope* scope) {
+    if (this->has("чародія_додати")) {
+      return this->get("чародія_додати")->call({value}, scope);
+    }
+    return error("unsupported plus");
+  }
+
+  inline Result* Object::minus(Subject* value, Scope* scope) {
+    if (this->has("чародія_відняти")) {
+      return this->get("чародія_відняти")->call({value}, scope);
+    }
+    return error("unsupported minus");
   }
 
   inline bool Subject::is_structure(Scope* scope) {
@@ -688,6 +816,20 @@ namespace supercompiler {
       return this->types[0]->has(name);
     }
     return false;
+  }
+
+  inline Result* Subject::plus(Subject* value, Scope* scope) {
+    if (this->types.size() == 1) {
+      return this->types[0]->plus(value, scope);
+    }
+    return error("Неможливо додати.");
+  }
+
+  inline Result* Subject::minus(Subject* value, Scope* scope) {
+    if (this->types.size() == 1) {
+      return this->types[0]->minus(value, scope);
+    }
+    return error("Неможливо відняти.");
   }
 
   inline Param* Param::clone() {
