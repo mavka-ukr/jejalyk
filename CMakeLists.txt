@@ -134,8 +134,6 @@ set(JEJALYK_COMPILER_SRC
         parser.h
         tools.cpp
         tools.h
-        compiler/newcompiler.h
-        compiler/xcompiler.h
         compiler/supercompiler.h
 )
 

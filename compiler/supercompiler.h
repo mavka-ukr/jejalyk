@@ -441,6 +441,31 @@ namespace supercompiler {
       return value_result;
     }
 
+    if (jejalyk::tools::instance_of<mavka::ast::NegativeNode>(node)) {
+      const auto negative_node = dynamic_cast<mavka::ast::NegativeNode*>(node);
+      const auto value_result = this->compile_node(negative_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+      return value_result;
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::IfNode>(node)) {
+      const auto if_node = dynamic_cast<mavka::ast::IfNode*>(node);
+
+      const auto body_result = this->compile_body(if_node->body);
+      if (body_result->error) {
+        return error(body_result->error->message);
+      }
+
+      const auto else_body_result = this->compile_body(if_node->body);
+      if (else_body_result->error) {
+        return error(else_body_result->error->message);
+      }
+
+      return success(new Subject());
+    }
+
     return error("unsupported node");
   }
 
