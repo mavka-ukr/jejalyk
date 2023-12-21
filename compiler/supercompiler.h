@@ -75,6 +75,8 @@ namespace supercompiler {
 
     Object* create_instance();
     Subject* get(std::string name);
+    Result* set(std::string name, Subject* value);
+    bool has(std::string name);
     Result* call(std::vector<Subject*> args, Scope* scope);
     bool is_diia(Scope* scope);
   };
@@ -85,7 +87,9 @@ namespace supercompiler {
     virtual bool is_structure(Scope* scope);
     virtual bool is_diia(Scope* scope);
     virtual bool check_types(Subject* value);
+    virtual bool instance_of(Subject* value);
     virtual Result* call(std::vector<Subject*> args, Scope* scope);
+    virtual Result* set(std::string name, Subject* value);
   };
 
   class Param {
@@ -95,6 +99,7 @@ namespace supercompiler {
     Subject* types;
     Subject* value;
     bool variadic;
+    Param* clone();
   };
 
   inline Result* error(const std::string& message) {
@@ -146,7 +151,8 @@ namespace supercompiler {
         if (this->has_local(assign_simple_node->name)) {
           const auto subject = this->get(assign_simple_node->name);
           if (!value_result->value->check_types(subject)) {
-            return error("Неправильний тип значення субʼєкта.");
+            return error("Неправильний тип значення субʼєкта \"" +
+                         assign_simple_node->name + "\".");
           }
           return success(subject);
         } else {
@@ -169,7 +175,8 @@ namespace supercompiler {
         }
 
         if (!value_result->value->check_types(types_result->value)) {
-          return error("Неправильний тип значення субʼєкта.");
+          return error("Субʼєкт \"" + assign_simple_node->name +
+                       "\" вже визначено.");
         }
 
         this->variables.insert_or_assign(assign_simple_node->name,
@@ -177,6 +184,26 @@ namespace supercompiler {
 
         return success(types_result->value);
       }
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::AssignByIdentifierNode>(node)) {
+      const auto assign_by_identifier_node =
+          dynamic_cast<mavka::ast::AssignByIdentifierNode*>(node);
+
+      const auto left_result =
+          this->compile_node(assign_by_identifier_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+
+      const auto value_result =
+          this->compile_node(assign_by_identifier_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      return left_result->value->set(assign_by_identifier_node->identifier,
+                                     value_result->value);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::NumberNode>(node)) {
@@ -195,6 +222,15 @@ namespace supercompiler {
       const auto string_subject = new Subject();
       string_subject->types.push_back(string);
       return success(string_subject);
+    }
+
+    if (jejalyk::tools::instance_of<mavka::ast::ArrayNode>(node)) {
+      const auto array_node = dynamic_cast<mavka::ast::StringNode*>(node);
+      const auto array_structure = this->get("список");
+      const auto array = array_structure->types[0]->create_instance();
+      const auto array_subject = new Subject();
+      array_subject->types.push_back(array);
+      return success(array_subject);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
@@ -249,6 +285,17 @@ namespace supercompiler {
         const auto error_result = new ParamsResult();
         error_result->error = types_result->error;
         return error_result;
+      }
+      if (param->variadic) {
+        const auto list_structure_subject = this->get("список");
+        if (!types_result->value->instance_of(list_structure_subject)) {
+          const auto error_result = new ParamsResult();
+          error_result->error = new Error();
+          error_result->error->message = "Тип збірного параметра \"" +
+                                         param->name +
+                                         "\" повинен бути списком.";
+          return error_result;
+        }
       }
       param->types = types_result->value;
 
@@ -309,6 +356,8 @@ namespace supercompiler {
     const auto object_structure_subject = this->get("обʼєкт");
     structure_object->structure_parent = object_structure_subject->types[0];
 
+    structure_object->structure_name = structure_node->name;
+
     const auto structure_subject = new Subject();
     structure_subject->types.push_back(structure_object);
 
@@ -327,11 +376,33 @@ namespace supercompiler {
       if (!parent_result->value->is_structure(this)) {
         return error("Батьківський тип повинен бути структурою.");
       }
-      structure_object->structure_parent =
-          parent_result->value->types[0]->structure;
+      structure_object->structure_parent = parent_result->value->types[0];
+
+      const auto params_size = params_result->value.size();
+
+      for (int i = 0;
+           i < parent_result->value->types[0]->structure_params.size(); ++i) {
+        const auto param = parent_result->value->types[0]->structure_params[i];
+        const auto param_clone = param->clone();
+        param_clone->index = params_size + i;
+        params_result->value.push_back(param_clone);
+      }
     }
 
     structure_object->structure_params = params_result->value;
+
+    const auto constructor_diia = new Object();
+    const auto diia_structure_subject = this->get("Дія");
+    constructor_diia->structure = diia_structure_subject->types[0];
+    constructor_diia->diia_params = structure_object->structure_params;
+    const auto structure_type_subject = new Subject();
+    structure_type_subject->types.push_back(
+        structure_object->create_instance());
+    constructor_diia->diia_return = structure_type_subject;
+    const auto constructor_diia_subject = new Subject();
+    constructor_diia_subject->types.push_back(constructor_diia);
+    structure_object->properties["чародія_викликати"] =
+        constructor_diia_subject;
 
     return success(structure_subject);
   }
@@ -354,7 +425,7 @@ namespace supercompiler {
 
     diia_object->diia_params = params_result->value;
 
-    if (diia_node->return_types.size()) {
+    if (!diia_node->return_types.empty()) {
       const auto return_types_result =
           this->compile_types(diia_node->return_types,
                               "Тип поверненого значення повинен бути "
@@ -363,6 +434,8 @@ namespace supercompiler {
         return return_types_result;
       }
       diia_object->diia_return = return_types_result->value;
+    } else {
+      diia_object->diia_return = new Subject();
     }
 
     return success(diia_subject);
@@ -371,15 +444,38 @@ namespace supercompiler {
   inline Object* Object::create_instance() {
     const auto instance = new Object();
     instance->structure = this;
-    instance->type = Object::OBJECT;
+    instance->type = OBJECT;
     for (const auto param : this->structure_params) {
-      properties.insert_or_assign(param->name, param->value);
+      instance->properties.insert_or_assign(param->name, param->types);
     }
     return instance;
   }
 
   inline Subject* Object::get(std::string name) {
     return this->properties.find(name)->second;
+  }
+
+  inline Result* Object::set(std::string name, Subject* value) {
+    if (!this->has(name)) {
+      const auto error_result = new Result();
+      error_result->error = new Error();
+      error_result->error->message =
+          "Властивість \"" + name + "\" не визначено.";
+      return error_result;
+    }
+    const auto property_subject = this->get(name);
+    if (!value->check_types(property_subject)) {
+      const auto error_result = new Result();
+      error_result->error = new Error();
+      error_result->error->message =
+          "Значення властивості \"" + name + "\" не відповідає її типу.";
+      return error_result;
+    }
+    return success(value);
+  }
+
+  inline bool Object::has(std::string name) {
+    return this->properties.contains(name);
   }
 
   inline Result* Object::call(std::vector<Subject*> args, Scope* scope) {
@@ -389,14 +485,28 @@ namespace supercompiler {
       }
     }
     if (this->is_diia(scope)) {
-      for (const auto param : this->diia_params) {
-        if (args.size() <= param->index) {
-          return error("Недостатня кількість аргументів.");
+      if (args.size() > this->diia_params.size()) {
+        if (this->diia_params.empty() ||
+            !this->diia_params[this->diia_params.size() - 1]->variadic) {
+          return error("Забагато аргументів.");
         }
-        const auto arg = args[param->index];
-        if (!arg->check_types(param->types)) {
-          return error("Аргумент \"" + param->name +
-                       "\" не відповідає його типу.");
+      }
+      for (const auto param : this->diia_params) {
+        if (param->variadic) {
+          break;
+        }
+        if (args.size() > param->index) {
+          const auto arg = args[param->index];
+          if (!arg->check_types(param->types)) {
+            return error("Аргумент \"" + param->name +
+                         "\" не відповідає його типу.");
+          }
+        } else {
+          if (param->value) {
+            continue;
+          }
+
+          return error("Недостатня кількість аргументів.");
         }
       }
       return success(this->diia_return);
@@ -411,8 +521,12 @@ namespace supercompiler {
   inline bool Subject::is_structure(Scope* scope) {
     if (this->types.size() == 1) {
       const auto structure_structure_subject = scope->get("Структура");
-      if (this->types[0]->structure == structure_structure_subject->types[0]) {
-        return true;
+      auto structure = this->types[0]->structure;
+      while (structure) {
+        if (structure == structure_structure_subject->types[0]) {
+          return true;
+        }
+        structure = structure->structure_parent;
       }
     }
     return false;
@@ -436,11 +550,22 @@ namespace supercompiler {
       return false;
     }
     if (value->types.empty()) {
-      return false;
+      return true;
     }
     auto structure = this->types[0]->structure;
     while (structure) {
-      if (structure == value->types[0]->structure) {
+      if (value->types[0]->structure == structure) {
+        return true;
+      }
+      structure = structure->structure_parent;
+    }
+    return false;
+  }
+
+  inline bool Subject::instance_of(Subject* value) {
+    auto structure = this->types[0]->structure;
+    while (structure) {
+      if (value->types[0] == structure) {
         return true;
       }
       structure = structure->structure_parent;
@@ -453,6 +578,23 @@ namespace supercompiler {
       return this->types[0]->call(args, scope);
     }
     return error("Неможливо викликати.");
+  }
+
+  inline Result* Subject::set(std::string name, Subject* value) {
+    if (this->types.size() == 1) {
+      return this->types[0]->set(name, value);
+    }
+    return error("Неможливо встановити.");
+  }
+
+  inline Param* Param::clone() {
+    const auto param = new Param();
+    param->index = this->index;
+    param->name = this->name;
+    param->types = this->types;
+    param->value = this->value;
+    param->variadic = this->variadic;
+    return param;
   }
 
   inline CompilationResult* compile(mavka::ast::ProgramNode* program_node) {
