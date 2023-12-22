@@ -100,7 +100,9 @@ namespace supercompiler {
           const auto arg = args[param->index];
           if (!arg->check_types(param->types)) {
             return error("Аргумент \"" + param->name +
-                         "\" не відповідає його типу.");
+                         "\" не відповідає його типу.: очікується " +
+                         param->types->types_string() + ", отримано " +
+                         arg->types_string() + ".");
           }
         } else {
           if (param->value) {
@@ -158,8 +160,8 @@ namespace supercompiler {
     if (this->has("чародія_додати")) {
       return this->get("чародія_додати")->call({value}, scope);
     }
-    return error("Неможливо додати \"" + this->structure->structure_name +
-                 "\" і " + value->types_string() + ".");
+    return error("Чародію додавання для \"" + this->structure->structure_name +
+                 "\" не визначено.");
   }
 
   Result* Object::minus(Subject* value, Scope* scope) {

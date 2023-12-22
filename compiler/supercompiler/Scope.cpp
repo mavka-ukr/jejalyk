@@ -227,8 +227,11 @@ namespace supercompiler {
         if (this->has_local(assign_simple_node->name)) {
           const auto subject = this->get_local(assign_simple_node->name);
           if (!value_result->value->check_types(subject)) {
-            return error("Неправильний тип значення субʼєкта \"" +
-                         assign_simple_node->name + "\".");
+            return error_from_ast(
+                node, "Неправильний тип значення субʼєкта \"" +
+                          assign_simple_node->name + "\": очікується " +
+                          subject->types_string() + ", отримано " +
+                          value_result->value->types_string() + ".");
           }
           return success(subject);
         } else {
@@ -238,8 +241,8 @@ namespace supercompiler {
         }
       } else {
         if (this->has_local(assign_simple_node->name)) {
-          return error("Субʼєкт \"" + assign_simple_node->name +
-                       "\" вже визначено.");
+          return error_from_ast(node, "Субʼєкт \"" + assign_simple_node->name +
+                                          "\" вже визначено.");
         }
 
         const auto types_result =
@@ -251,8 +254,11 @@ namespace supercompiler {
         }
 
         if (!value_result->value->check_types(types_result->value)) {
-          return error("Субʼєкт \"" + assign_simple_node->name +
-                       "\" вже визначено.");
+          return error_from_ast(
+              node, "Неправильний тип значення субʼєкта \"" +
+                        assign_simple_node->name + "\": очікується " +
+                        types_result->value->types_string() + ", отримано " +
+                        value_result->value->types_string() + ".");
         }
 
         this->variables.insert_or_assign(assign_simple_node->name,

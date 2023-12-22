@@ -9,6 +9,7 @@ namespace supercompiler {
 
     const auto object = new Object();
     const auto structure = new Object();
+    structure->structure_name = "Структура";
     structure->structure = object;
 
     const auto object_subject = new Subject();
