@@ -3,6 +3,10 @@
 namespace supercompiler {
   bool Subject::is_structure(Scope* scope) {
     if (this->types.size() == 1) {
+      const auto empty_subject = scope->get("пусто");
+      if (this->types[0] == empty_subject->types[0]) {
+        return true;
+      }
       const auto structure_structure_subject = scope->get("Структура");
       auto structure = this->types[0]->structure;
       while (structure) {

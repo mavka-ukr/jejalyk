@@ -7,16 +7,25 @@ namespace supercompiler {
     const auto scope = new Scope();
     scope->body = &program_node->body;
 
+    const auto empty = new Object();
+    empty->structure = empty;
+    empty->structure_name = "пусто";
+
     const auto object = new Object();
+
     const auto structure = new Object();
     structure->structure_name = "Структура";
     structure->structure = object;
+    object->structure = structure;
 
+    const auto empty_subject = new Subject();
+    empty_subject->types.push_back(empty);
     const auto object_subject = new Subject();
     object_subject->types.push_back(object);
     const auto structure_subject = new Subject();
     structure_subject->types.push_back(structure);
 
+    scope->variables.insert_or_assign("пусто", empty_subject);
     scope->variables.insert_or_assign("обʼєкт", object_subject);
     scope->variables.insert_or_assign("Структура", structure_subject);
 

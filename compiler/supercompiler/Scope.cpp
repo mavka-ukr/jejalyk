@@ -33,7 +33,7 @@ namespace supercompiler {
     if (this->has_local(name)) {
       const auto subject = this->get_local(name);
       if (!value->check_types(subject)) {
-        return error("Неправильний тип значення субʼєкта \"" + name + "\".");
+        return error("Невірне значення субʼєкта \"" + name + "\".");
       }
       return success(subject);
     }
@@ -228,7 +228,7 @@ namespace supercompiler {
           const auto subject = this->get_local(assign_simple_node->name);
           if (!value_result->value->check_types(subject)) {
             return error_from_ast(
-                node, "Неправильний тип значення субʼєкта \"" +
+                node, "Невірне значення субʼєкта \"" +
                           assign_simple_node->name + "\": очікується " +
                           subject->types_string() + ", отримано " +
                           value_result->value->types_string() + ".");
@@ -255,8 +255,8 @@ namespace supercompiler {
 
         if (!value_result->value->check_types(types_result->value)) {
           return error_from_ast(
-              node, "Неправильний тип значення субʼєкта \"" +
-                        assign_simple_node->name + "\": очікується " +
+              node, "Невірне значення субʼєкта \"" + assign_simple_node->name +
+                        "\": очікується " +
                         types_result->value->types_string() + ", отримано " +
                         value_result->value->types_string() + ".");
         }
@@ -508,7 +508,20 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::MockupSubjectNode>(node)) {
       const auto mockup_subject_node =
           dynamic_cast<mavka::ast::MockupSubjectNode*>(node);
-      // todo
+      if (this->has_local(mockup_subject_node->name)) {
+        return error_from_ast(node, "Субʼєкт \"" + mockup_subject_node->name +
+                                        "\" вже визначено.");
+      }
+      const auto types_result =
+          this->compile_types(mockup_subject_node->types,
+                              "Тип субʼєкта \"" + mockup_subject_node->name +
+                                  "\" не є структурою.");
+      if (types_result->error) {
+        return types_result;
+      }
+      this->variables.insert_or_assign(mockup_subject_node->name,
+                                       types_result->value);
+      return types_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ModuleNode>(node)) {
@@ -581,7 +594,7 @@ namespace supercompiler {
       }
       if (!value_result->value->check_types(this->diia->diia_return)) {
         return error_from_ast(return_node,
-                              "Неправильний тип значення, що повертається.");
+                              "Невірне значення, що повертається.");
       }
       return value_result;
     }
