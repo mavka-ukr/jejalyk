@@ -79,6 +79,7 @@ namespace mavka::ast {
 
   class ParamNode final : public ASTNode {
    public:
+    bool ee = false;
     std::string name;
     std::vector<ASTNode*> types;
     ASTNode* value;
@@ -191,7 +192,8 @@ namespace mavka::ast {
 
   class DiiaNode final : public ASTNode {
    public:
-    bool async;
+    bool ee = false;
+    bool async = false;
     std::string structure;
     std::string name;
     std::vector<ParamNode*> params;
@@ -272,7 +274,8 @@ namespace mavka::ast {
 
   class MethodDeclarationNode final : public ASTNode {
    public:
-    bool async;
+    bool ee = false;
+    bool async = false;
     std::string name;
     std::vector<ParamNode*> params;
     std::vector<ASTNode*> return_types;
@@ -280,7 +283,8 @@ namespace mavka::ast {
 
   class MockupDiiaNode final : public ASTNode {
    public:
-    bool async;
+    bool ee = false;
+    bool async = false;
     std::string name;
     std::vector<ParamNode*> params;
     std::vector<ASTNode*> return_types;

@@ -35,11 +35,8 @@ namespace supercompiler {
 
   Result* Object::set(std::string name, Subject* value) {
     if (!this->has(name)) {
-      const auto error_result = new Result();
-      error_result->error = new Error();
-      error_result->error->message =
-          "Властивість \"" + name + "\" не визначено.";
-      return error_result;
+      return error("Властивість \"" + name + "\" не визначено для \"" +
+                   this->structure->structure_name + "\".");
     }
     const auto property_subject = this->get(name);
     if (!value->check_types(property_subject)) {
@@ -53,11 +50,10 @@ namespace supercompiler {
   }
 
   Result* Object::set_element(Subject* element, Subject* value, Scope* scope) {
-    if (!this->has("чародія_змінити_спеціальну_властивість")) {
+    if (!this->has("чародія_покласти")) {
       return error("unsupported set element");
     }
-    return this->get("чародія_змінити_спеціальну_властивість")
-        ->call({element, value}, scope);
+    return this->get("чародія_покласти")->call({element, value}, scope);
   }
 
   bool Object::has(std::string name) {
@@ -100,7 +96,7 @@ namespace supercompiler {
           const auto arg = args[param->index];
           if (!arg->check_types(param->types)) {
             return error("Аргумент \"" + param->name +
-                         "\" не відповідає його типу.: очікується " +
+                         "\" не відповідає його типу: очікується " +
                          param->types->types_string() + ", отримано " +
                          arg->types_string() + ".");
           }
@@ -145,11 +141,10 @@ namespace supercompiler {
   }
 
   Result* Object::get_element(Subject* value, Scope* scope) {
-    if (!this->has("чародія_отримати_спеціальну_властивість")) {
+    if (!this->has("чародія_отримати")) {
       return error("unsupported get element");
     }
-    return this->get("чародія_отримати_спеціальну_властивість")
-        ->call({value}, scope);
+    return this->get("чародія_отримати")->call({value}, scope);
   }
 
   bool Object::is_diia(Scope* scope) {

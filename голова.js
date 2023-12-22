@@ -658,7 +658,7 @@ function мПклс(a, index, value, di) {
   if (a == null) {
     throw new Падіння(`Неможливо встановити спеціальну властивість для "${мТипТ(a)}".`, di);
   }
-  var aSetSpecialFn = a["чародія_змінити_спеціальну_властивість"];
+  var aSetSpecialFn = a["чародія_покласти"];
   if (aSetSpecialFn) {
     return мВикл(aSetSpecialFn, [index, value], di);
   }
@@ -981,8 +981,8 @@ function мОтре(a, b, di) {
   if (a == null) {
     throw new Падіння(`Неможливо отримати властивість "${b}" з "${мТипТ(a)}".`, di);
   }
-  if (a["чародія_отримати_спеціальну_властивість"]) {
-    return мВикл(a["чародія_отримати_спеціальну_властивість"], [b], di);
+  if (a["чародія_отримати"]) {
+    return мВикл(a["чародія_отримати"], [b], di);
   }
   if (a instanceof Map) {
     return a.get(b);

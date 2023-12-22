@@ -8,14 +8,16 @@ namespace supercompiler {
     scope->body = &program_node->body;
 
     const auto empty = new Object();
-    empty->structure = empty;
     empty->structure_name = "пусто";
 
     const auto object = new Object();
+    object->structure_name = "обʼєкт";
 
     const auto structure = new Object();
     structure->structure_name = "Структура";
     structure->structure = object;
+
+    empty->structure = object;
     object->structure = structure;
 
     const auto empty_subject = new Subject();
@@ -28,6 +30,34 @@ namespace supercompiler {
     scope->variables.insert_or_assign("пусто", empty_subject);
     scope->variables.insert_or_assign("обʼєкт", object_subject);
     scope->variables.insert_or_assign("Структура", structure_subject);
+
+    for (int i = 0; i < program_node->body.size(); ++i) {
+      const auto node = program_node->body[i];
+      if (!node) {
+        continue;
+      }
+
+      if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
+        const auto structure_node =
+            dynamic_cast<mavka::ast::StructureNode*>(node);
+        const auto structure_result = scope->define_structure_from_ast(
+            structure_node->name, structure_node->parent, {});
+        if (structure_result->error) {
+          result->error = structure_result->error;
+          return result;
+        }
+      }
+      if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
+        const auto mockup_structure_node =
+            dynamic_cast<mavka::ast::MockupStructureNode*>(node);
+        const auto structure_result = scope->define_structure_from_ast(
+            mockup_structure_node->name, mockup_structure_node->parent, {});
+        if (structure_result->error) {
+          result->error = structure_result->error;
+          return result;
+        }
+      }
+    }
 
     for (int i = 0; i < program_node->body.size(); ++i) {
       const auto node = program_node->body[i];

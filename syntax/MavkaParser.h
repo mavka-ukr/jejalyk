@@ -15,24 +15,25 @@ public:
     END = 1, DIIA = 2, STRUCTURE = 3, FOR = 4, EQ = 5, NOT_EQ = 6, GREATER_EQ = 7, 
     SMALLER_EQ = 8, GREATER = 9, SMALLER = 10, IF = 11, WAIT = 12, TAKE = 13, 
     TAKE_PAK = 14, TAKE_FILE = 15, GIVE = 16, AS = 17, TA = 18, IS = 19, 
-    RETURN = 20, ASYNC = 21, SUBJECT = 22, AND = 23, OR = 24, TRY = 25, 
-    CATCH = 26, ELSE = 27, THROW = 28, WHILE = 29, MODULE = 30, TERNARY = 31, 
-    EQ_WORD = 32, GR_WORD = 33, SM_WORD = 34, NOT_GR_WORD = 35, NOT_SM_WORD = 36, 
-    NOT_EQ_WORD = 37, NOT_IS_WORD = 38, HAS_IS_WORD = 39, NOT_HAS_IS_WORD = 40, 
-    STAR_ALL = 41, MOCKUP = 42, IMPLEMENTS = 43, IMPLEMENT = 44, EVAL = 45, 
-    WHEN = 46, ALSO = 47, PARENT = 48, TSE = 49, TEST = 50, IY = 51, SPREAD = 52, 
-    FROMTO = 53, SKIP_SPACES = 54, NL = 55, DECREMENT = 56, INCREMENT = 57, 
-    OPEN_PAREN = 58, CLOSE_PAREN = 59, OPEN_ARRAY = 60, CLOSE_ARRAY = 61, 
-    COMMA = 62, ASSIGN = 63, ASSIGN_PARENT = 64, ASSIGN_ADD = 65, ASSIGN_SUB = 66, 
-    ASSIGN_MUL = 67, ASSIGN_DIV = 68, ASSIGN_DIVDIV = 69, ASSIGN_MOD = 70, 
-    ASSIGN_BW_OR = 71, ASSIGN_BW_AND = 72, ASSIGN_BW_SHIFT_LEFT = 73, ASSIGN_BW_SHIFT_RIGHT = 74, 
-    ASSIGN_XOR = 75, ASSIGN_POW = 76, ASSIGN_OR = 77, ASSIGN_AND = 78, ASSIGN_IF = 79, 
-    PLUS = 80, MINUS = 81, MUL = 82, DIV = 83, COLON = 84, DOT = 85, NOT = 86, 
-    TILDA = 87, PERCENT = 88, DIVDIV = 89, POW = 90, XOR = 91, OR_SYM = 92, 
-    AND_SYM = 93, OR_BW = 94, AND_BW = 95, BW_SHIFT_LEFT = 96, BW_SHIFT_RIGHT = 97, 
-    HEX_START = 98, ID = 99, NUMBER = 100, INTEGER = 101, FLOAT = 102, HEX = 103, 
-    HEXUKR = 104, BINNUM = 105, BINNUMUKR = 106, TRIPPLE_QUOTE = 107, STRING_MULTILINE = 108, 
-    STRING = 109, COMMENT = 110, LINE_COMMENT = 111, OLD_COMMENT = 112
+    EE = 20, RETURN = 21, ASYNC = 22, SUBJECT = 23, AND = 24, OR = 25, TRY = 26, 
+    CATCH = 27, ELSE = 28, THROW = 29, WHILE = 30, MODULE = 31, TERNARY = 32, 
+    EQ_WORD = 33, GR_WORD = 34, SM_WORD = 35, NOT_GR_WORD = 36, NOT_SM_WORD = 37, 
+    NOT_EQ_WORD = 38, NOT_IS_WORD = 39, HAS_IS_WORD = 40, NOT_HAS_IS_WORD = 41, 
+    STAR_ALL = 42, MOCKUP = 43, IMPLEMENTS = 44, IMPLEMENT = 45, EVAL = 46, 
+    WHEN = 47, ALSO = 48, PARENT = 49, TSE = 50, TEST = 51, IY = 52, SPREAD = 53, 
+    FROMTO = 54, SKIP_SPACES = 55, NL = 56, DECREMENT = 57, INCREMENT = 58, 
+    OPEN_PAREN = 59, CLOSE_PAREN = 60, OPEN_ARRAY = 61, CLOSE_ARRAY = 62, 
+    COMMA = 63, ASSIGN = 64, ASSIGN_PARENT = 65, ASSIGN_ADD = 66, ASSIGN_SUB = 67, 
+    ASSIGN_MUL = 68, ASSIGN_DIV = 69, ASSIGN_DIVDIV = 70, ASSIGN_MOD = 71, 
+    ASSIGN_BW_OR = 72, ASSIGN_BW_AND = 73, ASSIGN_BW_SHIFT_LEFT = 74, ASSIGN_BW_SHIFT_RIGHT = 75, 
+    ASSIGN_XOR = 76, ASSIGN_POW = 77, ASSIGN_OR = 78, ASSIGN_AND = 79, ASSIGN_IF = 80, 
+    PLUS = 81, MINUS = 82, MUL = 83, DIV = 84, COLON = 85, DOT = 86, NOT = 87, 
+    TILDA = 88, PERCENT = 89, DIVDIV = 90, POW = 91, XOR = 92, OR_SYM = 93, 
+    AND_SYM = 94, OR_BW = 95, AND_BW = 96, BW_SHIFT_LEFT = 97, BW_SHIFT_RIGHT = 98, 
+    HEX_START = 99, ID = 100, NUMBER = 101, INTEGER = 102, FLOAT = 103, 
+    HEX = 104, HEXUKR = 105, BINNUM = 106, BINNUMUKR = 107, TRIPPLE_QUOTE = 108, 
+    STRING_MULTILINE = 109, STRING = 110, COMMENT = 111, LINE_COMMENT = 112, 
+    OLD_COMMENT = 113
   };
 
   enum {
@@ -294,6 +295,7 @@ public:
 
   class  Method_declarationContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *md_static = nullptr;
     antlr4::Token *md_async = nullptr;
     MavkaParser::IdentifierContext *md_name = nullptr;
     MavkaParser::ParamsContext *md_params = nullptr;
@@ -305,6 +307,7 @@ public:
     IdentifierContext *identifier();
     std::vector<NlsContext *> nls();
     NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *EE();
     antlr4::tree::TerminalNode *ASYNC();
     Type_valueContext *type_value();
     ParamsContext *params();
@@ -380,6 +383,7 @@ public:
 
   class  Structure_paramContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *sp_static = nullptr;
     MavkaParser::IdentifierContext *sp_name = nullptr;
     MavkaParser::Type_valueContext *sp_type = nullptr;
     MavkaParser::Param_valueContext *sp_value = nullptr;
@@ -387,6 +391,7 @@ public:
     virtual size_t getRuleIndex() const override;
     IdentifierContext *identifier();
     antlr4::tree::TerminalNode *ASSIGN();
+    antlr4::tree::TerminalNode *EE();
     Type_valueContext *type_value();
     Param_valueContext *param_value();
 
@@ -470,6 +475,7 @@ public:
 
   class  Mockup_diiaContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *md_static = nullptr;
     antlr4::Token *md_async = nullptr;
     MavkaParser::IdentifierContext *md_name = nullptr;
     MavkaParser::ParamsContext *md_params = nullptr;
@@ -483,6 +489,7 @@ public:
     IdentifierContext *identifier();
     std::vector<NlsContext *> nls();
     NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *EE();
     antlr4::tree::TerminalNode *ASYNC();
     Type_valueContext *type_value();
     ParamsContext *params();
@@ -577,6 +584,7 @@ public:
 
   class  DiiaContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *d_static = nullptr;
     antlr4::Token *d_async = nullptr;
     MavkaParser::IdentifierContext *d_structure = nullptr;
     MavkaParser::IdentifierContext *d_name = nullptr;
@@ -596,6 +604,7 @@ public:
     std::vector<IdentifierContext *> identifier();
     IdentifierContext* identifier(size_t i);
     antlr4::tree::TerminalNode *DOT();
+    antlr4::tree::TerminalNode *EE();
     antlr4::tree::TerminalNode *ASYNC();
     Type_valueContext *type_value();
     BodyContext *body();

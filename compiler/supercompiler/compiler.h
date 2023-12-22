@@ -66,6 +66,8 @@ namespace supercompiler {
     Result* assign(std::string name, Subject* value);
     Result* make_diia_from_ast(
         Scope* diia_scope,
+        bool declaration,
+        bool ee,
         bool async,
         const std::string& name,
         const std::string& structure,
@@ -79,6 +81,8 @@ namespace supercompiler {
                                       mavka::ast::ASTNode* parent,
                                       std::vector<mavka::ast::ASTNode*> params);
     Result* define_diia_from_ast(
+        bool declaration,
+        bool ee,
         bool async,
         const std::string& name,
         const std::string& structure,

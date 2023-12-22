@@ -13,23 +13,23 @@ module: 'модуль' (m_name=identifier)? nl (m_body=module_body nl)? nls 'к�
 module_body: module_body_element (nl module_body_element)*;
 module_body_element: module | structure | mockup | diia | if | each | while | try | expr | throw | eval | wait_assign | assign | give | nls;
 
-method_declaration: (md_async='тривала')? md_name=identifier '(' (nls md_params=params? nls) ')' (md_type=type_value)?;
+method_declaration: (md_static='її')? (md_async='тривала')? md_name=identifier '(' (nls md_params=params? nls) ')' (md_type=type_value)?;
 
 structure: 'структура' s_name=identifier ('є' s_parent=super_identifiers_chain)? nl (s_elements=structure_elements nl)? nls 'кінець';
 structure_elements: structure_element (nl structure_element)*;
 structure_element: structure_param | nls;
-structure_param: sp_name=identifier sp_type=type_value? ('=' sp_value=param_value)?;
+structure_param: (sp_static='її')? sp_name=identifier sp_type=type_value? ('=' sp_value=param_value)?;
 
 mockup: mockup_module | mockup_structure | mockup_diia | mockup_subject | mockup_object;
 mockup_module: 'макет' 'модуль' mm_name=identifier nl nls (mm_elements=mockup_body nl)? nls 'кінець';
 mockup_structure: 'макет' 'структура' ms_name=identifier nl nls (ms_elements=mockup_body nl)? nls 'кінець';
-mockup_diia: 'макет' (md_async='тривала')? 'дія' md_name=identifier '(' ( nls md_params=params? nls ) ')' (md_type=type_value)?;
+mockup_diia: 'макет' (md_static='її')? (md_async='тривала')? 'дія' md_name=identifier '(' ( nls md_params=params? nls ) ')' (md_type=type_value)?;
 mockup_subject: 'макет' 'субʼєкт' ms_name=identifier ms_type=type_value;
 mockup_object: 'макет' mo_name=identifier nl nls (mo_elements=mockup_body nl)? nls 'кінець';
 mockup_body: mockup_body_element (nl mockup_body_element)*;
 mockup_body_element: structure_param | method_declaration | nls;
 
-diia: (d_async='тривала')? 'дія' (d_structure=identifier '.')? d_name=identifier '(' ( nls d_params=params? nls ) ')' (d_type=type_value)? nl (d_body=body nl)? nls 'кінець';
+diia: (d_static='її')? (d_async='тривала')? 'дія' (d_structure=identifier '.')? d_name=identifier '(' ( nls d_params=params? nls ) ')' (d_type=type_value)? nl (d_body=body nl)? nls 'кінець';
 
 if: 'якщо' i_value=expr nl (i_body=body nl)? ((('інакше' i_else_body=body nl)? 'кінець') | ('інакше' i_else_if=if));
 

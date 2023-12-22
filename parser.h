@@ -284,6 +284,7 @@ namespace mavka::parser {
       structure_param_node->end_line = context->getStop()->getLine();
       structure_param_node->end_column =
           context->getStop()->getCharPositionInLine();
+      structure_param_node->ee = context->sp_static != nullptr;
       structure_param_node->name = name;
       structure_param_node->types = types;
       structure_param_node->value = value;
@@ -299,6 +300,7 @@ namespace mavka::parser {
       method_declaration_node->end_line = context->getStop()->getLine();
       method_declaration_node->end_column =
           context->getStop()->getCharPositionInLine();
+      method_declaration_node->ee = context->md_static != nullptr;
       method_declaration_node->async = context->md_async != nullptr;
       method_declaration_node->name = context->md_name->getText();
       if (context->md_params) {
@@ -400,6 +402,7 @@ namespace mavka::parser {
       mockup_diia_node->end_line = context->getStop()->getLine();
       mockup_diia_node->end_column =
           context->getStop()->getCharPositionInLine();
+      mockup_diia_node->ee = context->md_static != nullptr;
       mockup_diia_node->async = context->md_async != nullptr;
       mockup_diia_node->name = context->md_name->getText();
       if (context->md_params) {
@@ -453,6 +456,7 @@ namespace mavka::parser {
       diia_node->start_column = context->getStart()->getCharPositionInLine();
       diia_node->end_line = context->getStop()->getLine();
       diia_node->end_column = context->getStop()->getCharPositionInLine();
+      diia_node->ee = context->d_static != nullptr;
       diia_node->async = context->d_async != nullptr;
       diia_node->structure =
           context->d_structure ? context->d_structure->getText() : "";
