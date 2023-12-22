@@ -239,12 +239,9 @@ namespace mavka::parser {
                 ->node;
         structure_node->parent = parent;
       }
-      structure_node->params = std::vector<ast::ParamNode*>();
+      structure_node->params = std::vector<ast::ASTNode*>();
       for (const auto& param : params) {
-        if (jejalyk::tools::instance_of<ast::ParamNode>(param)) {
-          structure_node->params.push_back(
-              dynamic_cast<ast::ParamNode*>(param));
-        }
+        structure_node->params.push_back(param);
       }
       return create_ast_result(structure_node);
     }
@@ -291,6 +288,30 @@ namespace mavka::parser {
       structure_param_node->types = types;
       structure_param_node->value = value;
       return create_ast_result(structure_param_node);
+    }
+
+    std::any visitMethod_declaration(
+        MavkaParser::Method_declarationContext* context) override {
+      const auto method_declaration_node = new ast::MethodDeclarationNode();
+      method_declaration_node->start_line = context->getStart()->getLine();
+      method_declaration_node->start_column =
+          context->getStart()->getCharPositionInLine();
+      method_declaration_node->end_line = context->getStop()->getLine();
+      method_declaration_node->end_column =
+          context->getStop()->getCharPositionInLine();
+      method_declaration_node->async = context->md_async != nullptr;
+      method_declaration_node->name = context->md_name->getText();
+      if (context->md_params) {
+        method_declaration_node->params =
+            std::any_cast<std::vector<ast::ParamNode*>>(
+                visitParams(context->md_params));
+      }
+      if (context->md_type) {
+        method_declaration_node->return_types =
+            std::any_cast<std::vector<ast::ASTNode*>>(
+                visitType_value(context->md_type));
+      }
+      return create_ast_result(method_declaration_node);
     }
 
     std::any visitMockup(MavkaParser::MockupContext* context) override {

@@ -294,6 +294,7 @@ public:
 
   class  Method_declarationContext : public antlr4::ParserRuleContext {
   public:
+    antlr4::Token *md_async = nullptr;
     MavkaParser::IdentifierContext *md_name = nullptr;
     MavkaParser::ParamsContext *md_params = nullptr;
     MavkaParser::Type_valueContext *md_type = nullptr;
@@ -304,6 +305,7 @@ public:
     IdentifierContext *identifier();
     std::vector<NlsContext *> nls();
     NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *ASYNC();
     Type_valueContext *type_value();
     ParamsContext *params();
 

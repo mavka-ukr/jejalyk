@@ -13,7 +13,7 @@ module: 'модуль' (m_name=identifier)? nl (m_body=module_body nl)? nls 'к�
 module_body: module_body_element (nl module_body_element)*;
 module_body_element: module | structure | mockup | diia | if | each | while | try | expr | throw | eval | wait_assign | assign | give | nls;
 
-method_declaration: md_name=identifier '(' (nls md_params=params? nls) ')' (md_type=type_value)?;
+method_declaration: (md_async='тривала')? md_name=identifier '(' (nls md_params=params? nls) ')' (md_type=type_value)?;
 
 structure: 'структура' s_name=identifier ('є' s_parent=super_identifiers_chain)? nl (s_elements=structure_elements nl)? nls 'кінець';
 structure_elements: structure_element (nl structure_element)*;

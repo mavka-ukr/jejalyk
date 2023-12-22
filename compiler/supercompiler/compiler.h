@@ -65,7 +65,7 @@ namespace supercompiler {
     bool has_local(std::string name);
     Result* assign(std::string name, Subject* value);
     Result* make_diia_from_ast(
-        Scope* scope,
+        Scope* diia_scope,
         bool async,
         const std::string& name,
         const std::string& structure,
@@ -75,8 +75,16 @@ namespace supercompiler {
     ParamsResult* compile_params(std::vector<mavka::ast::ParamNode*> params);
     Result* compile_types(const std::vector<mavka::ast::ASTNode*>& types,
                           const std::string& error_message);
-    Result* define_structure(mavka::ast::StructureNode* structure_node);
-    Result* define_diia(mavka::ast::DiiaNode* diia_node);
+    Result* define_structure_from_ast(std::string name,
+                                      mavka::ast::ASTNode* parent,
+                                      std::vector<mavka::ast::ASTNode*> params);
+    Result* define_diia_from_ast(
+        bool async,
+        const std::string& name,
+        const std::string& structure,
+        const std::vector<mavka::ast::ParamNode*>& params,
+        const std::vector<mavka::ast::ASTNode*>& return_types,
+        std::vector<mavka::ast::ASTNode*> body);
     Result* compile_body(std::vector<mavka::ast::ASTNode*> body,
                          bool with_bodies_to_compile = false);
     Scope* make_child();

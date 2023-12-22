@@ -46,6 +46,7 @@ namespace mavka::ast {
   class GodNode;
   class IdentifierNode;
   class IfNode;
+  class MethodDeclarationNode;
   class MockupDiiaNode;
   class MockupModuleNode;
   class MockupObjectNode;
@@ -269,6 +270,14 @@ namespace mavka::ast {
     std::vector<ASTNode*> else_body;
   };
 
+  class MethodDeclarationNode final : public ASTNode {
+   public:
+    bool async;
+    std::string name;
+    std::vector<ParamNode*> params;
+    std::vector<ASTNode*> return_types;
+  };
+
   class MockupDiiaNode final : public ASTNode {
    public:
     bool async;
@@ -367,7 +376,7 @@ namespace mavka::ast {
    public:
     std::string name;
     ASTNode* parent;
-    std::vector<ParamNode*> params;
+    std::vector<ASTNode*> params;
   };
 
   class TakeModuleNode final : public ASTNode {
