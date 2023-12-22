@@ -77,6 +77,8 @@ namespace supercompiler {
     ParamsResult* compile_params(std::vector<mavka::ast::ParamNode*> params);
     Result* compile_types(const std::vector<mavka::ast::ASTNode*>& types,
                           const std::string& error_message);
+    Result* define_module_from_ast(std::string name,
+                                   std::vector<mavka::ast::ASTNode*> elements);
     Result* define_structure_from_ast(std::string name,
                                       mavka::ast::ASTNode* parent,
                                       std::vector<mavka::ast::ASTNode*> params);

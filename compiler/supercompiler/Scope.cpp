@@ -767,6 +767,10 @@ namespace supercompiler {
     return result;
   }
 
+  Result* Scope::define_module_from_ast(
+      std::string name,
+      std::vector<mavka::ast::ASTNode*> elements) {}
+
   Result* Scope::define_structure_from_ast(
       std::string name,
       mavka::ast::ASTNode* parent,

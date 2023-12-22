@@ -8,6 +8,9 @@ namespace supercompiler {
         return true;
       }
       const auto structure_structure_subject = scope->get("Структура");
+      if (this->types[0] == structure_structure_subject->types[0]) {
+        return true;
+      }
       auto structure = this->types[0]->structure;
       while (structure) {
         if (structure == structure_structure_subject->types[0]) {
