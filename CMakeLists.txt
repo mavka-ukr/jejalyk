@@ -134,14 +134,21 @@ set(JEJALYK_COMPILER_SRC
         parser.h
         tools.cpp
         tools.h
-        compiler/supercompiler.h
 )
 
 add_executable(jejalyk jejalyk_bin.cpp
         parser.cpp
         parser.h
         tools.cpp
-        tools.h)
+        tools.h
+        compiler/supercompiler/Object.cpp
+        compiler/supercompiler/Param.cpp
+        compiler/supercompiler/Scope.cpp
+        compiler/supercompiler/Subject.cpp
+        compiler/supercompiler/compiler.h
+        compiler/supercompiler/Error.cpp
+        compiler/supercompiler/compile.cpp
+)
 add_executable(jejalyk_node jejalyk_wasm.cpp ${JEJALYK_COMPILER_SRC})
 add_executable(jejalyk_web jejalyk_wasm.cpp ${JEJALYK_COMPILER_SRC})
 #add_executable(optimized_jejalyk jejalyk_bin.cpp ${JEJALYK_COMPILER_SRC})

@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "compiler/supercompiler.h"
+#include "compiler/supercompiler/compiler.h"
 #include "parser.h"
 
 int main() {

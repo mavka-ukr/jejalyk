@@ -304,18 +304,10 @@ namespace mavka::ast {
     std::string value;
   };
 
-  // class StructureParamNode final : public ASTNode {
-  //  public:
-  //   std::string name;
-  //   std::vector<ASTNode*> types;
-  //   ASTNode* value;
-  // };
-
   class StructureNode final : public ASTNode {
    public:
     std::string name;
     ASTNode* parent;
-    // std::vector<StructureParamNode*> params;
     std::vector<ParamNode*> params;
   };
 
