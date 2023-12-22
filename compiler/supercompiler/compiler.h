@@ -58,8 +58,9 @@ namespace supercompiler {
     std::map<std::string, Subject*> variables;
     std::vector<mavka::ast::ASTNode*>* body;
     Object* diia;
-    std::vector<BodyToCompile*> bodies_to_compile;
+    std::vector<BodyToCompile*>* bodies_to_compile = {};
 
+    void set(std::string name, Subject* value);
     bool has(std::string name);
     Subject* get(std::string name);
     Subject* get_local(std::string name);
@@ -72,6 +73,7 @@ namespace supercompiler {
         bool async,
         const std::string& name,
         const std::string& structure,
+        const std::vector<mavka::ast::GenericNode*>& generics,
         const std::vector<mavka::ast::ParamNode*>& params,
         const std::vector<mavka::ast::ASTNode*>& return_types);
     Result* compile_node(mavka::ast::ASTNode* node);
@@ -92,6 +94,7 @@ namespace supercompiler {
         bool async,
         const std::string& name,
         const std::string& structure,
+        const std::vector<mavka::ast::GenericNode*>& generics,
         const std::vector<mavka::ast::ParamNode*>& params,
         const std::vector<mavka::ast::ASTNode*>& return_types,
         std::vector<mavka::ast::ASTNode*> body);
@@ -102,11 +105,6 @@ namespace supercompiler {
 
   class Object final {
    public:
-    static constexpr int OBJECT = 0;
-    static constexpr int DIIA = 1;
-    static constexpr int STRUCTURE = 2;
-
-    int type = OBJECT;
     Object* structure;
     std::map<std::string, Subject*> properties;
 

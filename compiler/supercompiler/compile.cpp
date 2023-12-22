@@ -27,9 +27,9 @@ namespace supercompiler {
     const auto structure_subject = new Subject();
     structure_subject->types.push_back(structure);
 
-    scope->variables.insert_or_assign("пусто", empty_subject);
-    scope->variables.insert_or_assign("обʼєкт", object_subject);
-    scope->variables.insert_or_assign("Структура", structure_subject);
+    scope->set("пусто", empty_subject);
+    scope->set("обʼєкт", object_subject);
+    scope->set("Структура", structure_subject);
 
     for (int i = 0; i < program_node->body.size(); ++i) {
       const auto node = program_node->body[i];
@@ -74,8 +74,8 @@ namespace supercompiler {
       }
     }
 
-    for (int i = 0; i < scope->bodies_to_compile.size(); ++i) {
-      const auto body_to_compile = scope->bodies_to_compile[i];
+    for (int i = 0; i < scope->bodies_to_compile->size(); ++i) {
+      const auto body_to_compile = scope->bodies_to_compile->at(i);
 
       const auto compilation_result =
           body_to_compile->scope->compile_body(body_to_compile->body);

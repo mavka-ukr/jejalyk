@@ -1,8 +1,12 @@
 #include "compiler.h"
 
 namespace supercompiler {
+  void Scope::set(std::string name, Subject* value) {
+    this->variables.insert_or_assign(name, value);
+  }
+
   bool Scope::has(std::string name) {
-    if (this->variables.contains(name)) {
+    if (this->has_local(name)) {
       return true;
     }
     if (this->parent) {
@@ -12,8 +16,8 @@ namespace supercompiler {
   }
 
   Subject* Scope::get(std::string name) {
-    if (this->variables.contains(name)) {
-      return this->variables.find(name)->second;
+    if (this->has_local(name)) {
+      return this->get_local(name);
     }
     if (this->parent) {
       return this->parent->get(name);
@@ -37,7 +41,7 @@ namespace supercompiler {
       }
       return success(subject);
     }
-    this->variables.insert_or_assign(name, value);
+    this->set(name, value);
     return success(value);
   }
 
@@ -48,12 +52,21 @@ namespace supercompiler {
       bool async,
       const std::string& name,
       const std::string& structure,
+      const std::vector<mavka::ast::GenericNode*>& generics,
       const std::vector<mavka::ast::ParamNode*>& params,
       const std::vector<mavka::ast::ASTNode*>& return_types) {
     const auto diia_structure_subject = this->get("Дія");
 
     const auto diia_object = new Object();
     diia_object->structure = diia_structure_subject->types[0];
+
+    for (int i = 0; i < generics.size(); ++i) {
+      const auto generic_node = generics[i];
+      const auto generic = new Generic();
+      generic->index = i;
+      generic->name = generic_node->name;
+      diia_object->diia_generics.push_back(generic);
+    }
 
     diia_scope->diia = diia_object;
 
@@ -66,7 +79,7 @@ namespace supercompiler {
           return error("Не вказано структури для її дії.");
         }
       }
-      this->variables.insert_or_assign(name, diia_subject);
+      this->set(name, diia_subject);
     } else {
       if (!this->has_local(structure)) {
         return error("Структуру \"" + structure + "\" не визначено.");
@@ -92,7 +105,7 @@ namespace supercompiler {
         const auto me = structure_subject->types[0]->create_instance();
         const auto me_subject = new Subject();
         me_subject->types.push_back(me);
-        diia_scope->variables.insert_or_assign("я", me_subject);
+        diia_scope->set("я", me_subject);
       }
     }
 
@@ -101,7 +114,7 @@ namespace supercompiler {
       return error(params_result->error->message);
     }
     for (const auto param : params_result->value) {
-      diia_scope->variables.insert_or_assign(param->name, param->types);
+      diia_scope->set(param->name, param->types);
     }
 
     diia_object->diia_params = params_result->value;
@@ -125,12 +138,12 @@ namespace supercompiler {
       const auto anon_diia_node = dynamic_cast<mavka::ast::AnonDiiaNode*>(node);
       const auto diia_scope = this->make_child();
       const auto diia_subject_result = this->make_diia_from_ast(
-          diia_scope, false, false, anon_diia_node->async, "", "",
+          diia_scope, false, false, anon_diia_node->async, "", "", {},
           anon_diia_node->params, anon_diia_node->return_types);
       if (diia_subject_result->error) {
         return diia_subject_result;
       }
-      this->bodies_to_compile.push_back(
+      this->bodies_to_compile->push_back(
           new BodyToCompile(diia_scope, anon_diia_node->body));
       return diia_subject_result;
     }
@@ -251,8 +264,7 @@ namespace supercompiler {
           }
           return success(subject);
         } else {
-          this->variables.insert_or_assign(assign_simple_node->name,
-                                           value_result->value);
+          this->set(assign_simple_node->name, value_result->value);
           return success(value_result->value);
         }
       } else {
@@ -277,8 +289,7 @@ namespace supercompiler {
                         value_result->value->types_string() + ".");
         }
 
-        this->variables.insert_or_assign(assign_simple_node->name,
-                                         types_result->value);
+        this->set(assign_simple_node->name, types_result->value);
 
         return success(types_result->value);
       }
@@ -389,15 +400,15 @@ namespace supercompiler {
       const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node);
       return this->define_diia_from_ast(
           false, diia_node->ee, diia_node->async, diia_node->name,
-          diia_node->structure, diia_node->params, diia_node->return_types,
-          diia_node->body);
+          diia_node->structure, diia_node->generics, diia_node->params,
+          diia_node->return_types, diia_node->body);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::EachNode>(node)) {
       const auto each_node = dynamic_cast<mavka::ast::EachNode*>(node);
-      this->variables.insert_or_assign(each_node->name, new Subject());
+      this->set(each_node->name, new Subject());
       if (!each_node->keyName.empty()) {
-        this->variables.insert_or_assign(each_node->keyName, new Subject());
+        this->set(each_node->keyName, new Subject());
       }
       // todo: handle fromto
       const auto body_result = this->compile_body(each_node->body, false);
@@ -428,12 +439,12 @@ namespace supercompiler {
       const auto function_node = dynamic_cast<mavka::ast::FunctionNode*>(node);
       const auto diia_scope = this->make_child();
       const auto diia_subject_result = this->make_diia_from_ast(
-          diia_scope, false, false, function_node->async, "", "",
+          diia_scope, false, false, function_node->async, "", "", {},
           function_node->params, function_node->return_types);
       if (diia_subject_result->error) {
         return diia_subject_result;
       }
-      this->bodies_to_compile.push_back(
+      this->bodies_to_compile->push_back(
           new BodyToCompile(diia_scope, function_node->body));
       return diia_subject_result;
     }
@@ -499,7 +510,7 @@ namespace supercompiler {
       const auto diia_subject_result = this->make_diia_from_ast(
           diia_scope, true, method_declaration_node->ee,
           method_declaration_node->async, method_declaration_node->name, "",
-          method_declaration_node->params,
+          method_declaration_node->generics, method_declaration_node->params,
           method_declaration_node->return_types);
       return diia_subject_result;
     }
@@ -509,8 +520,8 @@ namespace supercompiler {
           dynamic_cast<mavka::ast::MockupDiiaNode*>(node);
       return this->define_diia_from_ast(
           false, mockup_diia_node->ee, mockup_diia_node->async,
-          mockup_diia_node->name, "", mockup_diia_node->params,
-          mockup_diia_node->return_types, {});
+          mockup_diia_node->name, "", mockup_diia_node->generics,
+          mockup_diia_node->params, mockup_diia_node->return_types, {});
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MockupModuleNode>(node)) {
@@ -547,8 +558,7 @@ namespace supercompiler {
       if (types_result->error) {
         return types_result;
       }
-      this->variables.insert_or_assign(mockup_subject_node->name,
-                                       types_result->value);
+      this->set(mockup_subject_node->name, types_result->value);
       return types_result;
     }
 
@@ -810,7 +820,7 @@ namespace supercompiler {
       structure_subject = new Subject();
       structure_subject->types.push_back(structure_object);
 
-      this->variables.insert_or_assign(name, structure_subject);
+      this->set(name, structure_subject);
     }
 
     for (int i = 0; i < generics.size(); ++i) {
@@ -949,6 +959,7 @@ namespace supercompiler {
       bool async,
       const std::string& name,
       const std::string& structure,
+      const std::vector<mavka::ast::GenericNode*>& generics,
       const std::vector<mavka::ast::ParamNode*>& params,
       const std::vector<mavka::ast::ASTNode*>& return_types,
       std::vector<mavka::ast::ASTNode*> body) {
@@ -957,12 +968,12 @@ namespace supercompiler {
 
     const auto diia_subject_result =
         this->make_diia_from_ast(diia_scope, declaration, ee, async, name,
-                                 structure, params, return_types);
+                                 structure, generics, params, return_types);
     if (diia_subject_result->error) {
       return diia_subject_result;
     }
 
-    this->bodies_to_compile.push_back(new BodyToCompile(diia_scope, body));
+    this->bodies_to_compile->push_back(new BodyToCompile(diia_scope, body));
 
     return diia_subject_result;
   }
@@ -984,8 +995,8 @@ namespace supercompiler {
     }
 
     if (with_bodies_to_compile) {
-      for (int i = 0; i < this->bodies_to_compile.size(); ++i) {
-        const auto body_to_compile = this->bodies_to_compile[i];
+      for (int i = 0; i < this->bodies_to_compile->size(); ++i) {
+        const auto body_to_compile = this->bodies_to_compile->at(i);
 
         const auto compilation_result =
             body_to_compile->scope->compile_body(body_to_compile->body, true);

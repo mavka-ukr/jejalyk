@@ -4,7 +4,6 @@ namespace supercompiler {
   Object* Object::create_instance() {
     const auto instance = new Object();
     instance->structure = this;
-    instance->type = OBJECT;
     for (const auto param : this->structure_params) {
       // instance->properties.insert_or_assign(param->name, param->types);
     }
