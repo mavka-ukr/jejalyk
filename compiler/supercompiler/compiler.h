@@ -19,6 +19,7 @@ namespace supercompiler {
   class Object;
   class Subject;
   class Param;
+  class Generic;
 
   class Error final {
    public:
@@ -79,10 +80,12 @@ namespace supercompiler {
                           const std::string& error_message);
     Result* define_module_from_ast(std::string name,
                                    std::vector<mavka::ast::ASTNode*> elements);
-    Result* define_structure_from_ast(bool mockup,
-                                      std::string name,
-                                      mavka::ast::ASTNode* parent,
-                                      std::vector<mavka::ast::ASTNode*> params);
+    Result* define_structure_from_ast(
+        bool mockup,
+        std::string name,
+        std::vector<mavka::ast::GenericNode*> generics,
+        mavka::ast::ASTNode* parent,
+        std::vector<mavka::ast::ASTNode*> params);
     Result* define_diia_from_ast(
         bool declaration,
         bool ee,
@@ -111,12 +114,12 @@ namespace supercompiler {
     Object* structure_parent;
     std::vector<Param*> structure_params;
     std::map<std::string, Subject*> structure_methods;
-    std::map<std::string, Subject*> structure_generics;
+    std::vector<Generic*> structure_generics;
 
     std::string diia_name;
     std::vector<Param*> diia_params;
     Subject* diia_return;
-    std::map<std::string, Subject*> diia_generics;
+    std::vector<Generic*> diia_generics;
 
     Object* create_instance();
     Subject* get(std::string name);
@@ -167,6 +170,12 @@ namespace supercompiler {
     bool variadic;
 
     Param* clone();
+  };
+
+  class Generic final {
+   public:
+    int index;
+    std::string name;
   };
 
   Result* error(const std::string& message);

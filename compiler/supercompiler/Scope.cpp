@@ -520,9 +520,9 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
       const auto mockup_structure_node =
           dynamic_cast<mavka::ast::MockupStructureNode*>(node);
-      return this->define_structure_from_ast(true, mockup_structure_node->name,
-                                             mockup_structure_node->parent,
-                                             mockup_structure_node->params);
+      return this->define_structure_from_ast(
+          true, mockup_structure_node->name, mockup_structure_node->generics,
+          mockup_structure_node->parent, mockup_structure_node->params);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MockupSubjectNode>(node)) {
@@ -631,9 +631,9 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
       const auto structure_node =
           dynamic_cast<mavka::ast::StructureNode*>(node);
-      return this->define_structure_from_ast(false, structure_node->name,
-                                             structure_node->parent,
-                                             structure_node->params);
+      return this->define_structure_from_ast(
+          false, structure_node->name, structure_node->generics,
+          structure_node->parent, structure_node->params);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TakeModuleNode>(node)) {
@@ -777,6 +777,7 @@ namespace supercompiler {
   Result* Scope::define_structure_from_ast(
       bool mockup,
       std::string name,
+      std::vector<mavka::ast::GenericNode*> generics,
       mavka::ast::ASTNode* parent,
       std::vector<mavka::ast::ASTNode*> params) {
     Object* structure_object;
@@ -802,6 +803,14 @@ namespace supercompiler {
       structure_subject->types.push_back(structure_object);
 
       this->variables.insert_or_assign(name, structure_subject);
+    }
+
+    for (int i = 0; i < generics.size(); ++i) {
+      const auto generic_node = generics[i];
+      const auto generic = new Generic();
+      generic->index = i;
+      generic->name = generic_node->name;
+      structure_object->structure_generics.push_back(generic);
     }
 
     std::vector<mavka::ast::ParamNode*> only_params;
@@ -911,6 +920,7 @@ namespace supercompiler {
       const auto constructor_diia = new Object();
       const auto diia_structure_subject = this->get("Дія");
       constructor_diia->structure = diia_structure_subject->types[0];
+      constructor_diia->diia_generics = structure_object->structure_generics;
       constructor_diia->diia_params = structure_object->structure_params;
       const auto structure_type_subject = new Subject();
       structure_type_subject->types.push_back(
