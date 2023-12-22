@@ -63,12 +63,14 @@ namespace supercompiler {
     return false;
   }
 
-  Result* Subject::call(std::vector<Subject*> args, Scope* scope) {
+  Result* Subject::call(std::vector<Subject*> generics,
+                        std::vector<Subject*> args,
+                        Scope* scope) {
     if (this->types.empty()) {
       return success(new Subject());
     }
     if (this->types.size() == 1) {
-      return this->types[0]->call(args, scope);
+      return this->types[0]->call(generics, args, scope);
     }
     return error("Неможливо викликати.");
   }

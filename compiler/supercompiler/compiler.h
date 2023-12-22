@@ -126,7 +126,9 @@ namespace supercompiler {
     Result* set(std::string name, Subject* value);
     Result* set_element(Subject* element, Subject* value, Scope* scope);
     bool has(std::string name);
-    Result* call(std::vector<Subject*> args, Scope* scope);
+    Result* call(std::vector<Subject*> generics,
+                 std::vector<Subject*> args,
+                 Scope* scope);
     Result* call_named(std::map<std::string, Subject*> args, Scope* scope);
     Result* get_element(Subject* value, Scope* scope);
     bool is_diia(Scope* scope);
@@ -145,7 +147,9 @@ namespace supercompiler {
     bool is_diia(Scope* scope);
     bool check_types(Subject* value);
     bool instance_of(Subject* value);
-    Result* call(std::vector<Subject*> args, Scope* scope);
+    Result* call(std::vector<Subject*> generics,
+                 std::vector<Subject*> args,
+                 Scope* scope);
     Result* call_named(std::map<std::string, Subject*> args, Scope* scope);
     Result* set(std::string name, Subject* value);
     Result* set_element(Subject* element, Subject* value, Scope* scope);

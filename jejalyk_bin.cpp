@@ -83,6 +83,10 @@ int main() {
 ;; ---
 
 друк(словник.назва)
+
+дія а<К, З>(б К або З) К або З
+  вернути б
+кінець
 )";
   const auto parser_result = mavka::parser::parse(code);
   if (parser_result->error) {

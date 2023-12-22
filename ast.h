@@ -162,6 +162,7 @@ namespace mavka::ast {
   class CallNode final : public ASTNode {
    public:
     ASTNode* value;
+    std::vector<ASTNode*> generics;
     std::vector<ArgNode*> args;
   };
 

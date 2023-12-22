@@ -301,6 +301,14 @@ namespace supercompiler {
       if (value_result->error) {
         return value_result;
       }
+      std::vector<Subject*> generics;
+      for (const auto generic_node : call_node->generics) {
+        const auto generic_result = this->compile_node(generic_node);
+        if (generic_result->error) {
+          return generic_result;
+        }
+        generics.push_back(generic_result->value);
+      }
       std::vector<Subject*> args;
       std::map<std::string, Subject*> named_args;
       for (const auto arg_node : call_node->args) {
@@ -321,7 +329,7 @@ namespace supercompiler {
       if (!named_args.empty()) {
         return value_result->value->call_named(named_args, this);
       }
-      return value_result->value->call(args, this);
+      return value_result->value->call(generics, args, this);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ChainNode>(node)) {

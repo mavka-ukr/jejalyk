@@ -53,7 +53,7 @@ namespace supercompiler {
     if (!this->has("чародія_покласти")) {
       return error("unsupported set element");
     }
-    return this->get("чародія_покласти")->call({element, value}, scope);
+    return this->get("чародія_покласти")->call({}, {element, value}, scope);
   }
 
   bool Object::has(std::string name) {
@@ -75,10 +75,12 @@ namespace supercompiler {
     return false;
   }
 
-  Result* Object::call(std::vector<Subject*> args, Scope* scope) {
+  Result* Object::call(std::vector<Subject*> generics,
+                       std::vector<Subject*> args,
+                       Scope* scope) {
     if (this->has("чародія_викликати")) {
       if (const auto magic_diia = this->get("чародія_викликати")) {
-        return magic_diia->call(args, scope);
+        return magic_diia->call(generics, args, scope);
       }
     }
     if (this->is_diia(scope)) {
@@ -144,7 +146,7 @@ namespace supercompiler {
     if (!this->has("чародія_отримати")) {
       return error("unsupported get element");
     }
-    return this->get("чародія_отримати")->call({value}, scope);
+    return this->get("чародія_отримати")->call({}, {value}, scope);
   }
 
   bool Object::is_diia(Scope* scope) {
@@ -153,7 +155,7 @@ namespace supercompiler {
 
   Result* Object::plus(Subject* value, Scope* scope) {
     if (this->has("чародія_додати")) {
-      return this->get("чародія_додати")->call({value}, scope);
+      return this->get("чародія_додати")->call({}, {value}, scope);
     }
     return error("Чародію додавання для \"" + this->structure->structure_name +
                  "\" не визначено.");
@@ -161,7 +163,7 @@ namespace supercompiler {
 
   Result* Object::minus(Subject* value, Scope* scope) {
     if (this->has("чародія_відняти")) {
-      return this->get("чародія_відняти")->call({value}, scope);
+      return this->get("чародія_відняти")->call({}, {value}, scope);
     }
     return error("Неможливо відняти \"" + this->structure->structure_name +
                  "\" і " + value->types_string() + ".");
@@ -169,7 +171,7 @@ namespace supercompiler {
 
   Result* Object::multiply(Subject* value, Scope* scope) {
     if (this->has("чародія_помножити")) {
-      return this->get("чародія_помножити")->call({value}, scope);
+      return this->get("чародія_помножити")->call({}, {value}, scope);
     }
     return error("Неможливо помножити \"" + this->structure->structure_name +
                  "\" і " + value->types_string() + ".");
@@ -177,7 +179,7 @@ namespace supercompiler {
 
   Result* Object::divide(Subject* value, Scope* scope) {
     if (this->has("чародія_поділити")) {
-      return this->get("чародія_поділити")->call({value}, scope);
+      return this->get("чародія_поділити")->call({}, {value}, scope);
     }
     return error("Неможливо поділити \"" + this->structure->structure_name +
                  "\" і " + value->types_string() + ".");
@@ -186,7 +188,7 @@ namespace supercompiler {
   Result* Object::divdiv(Subject* value, Scope* scope) {
     if (this->has("чародія_поділити_за_модулем_частка")) {
       return this->get("чародія_поділити_за_модулем_частка")
-          ->call({value}, scope);
+          ->call({},{value}, scope);
     }
     return error("Неможливо чародія_поділити_за_модулем_частка \"" +
                  this->structure->structure_name + "\" і " +
@@ -195,7 +197,7 @@ namespace supercompiler {
 
   Result* Object::pow(Subject* value, Scope* scope) {
     if (this->has("чародія_піднести_до_степеня")) {
-      return this->get("чародія_піднести_до_степеня")->call({value}, scope);
+      return this->get("чародія_піднести_до_степеня")->call({},{value}, scope);
     }
     return error("Неможливо чародія_піднести_до_степеня \"" +
                  this->structure->structure_name + "\" і " +
