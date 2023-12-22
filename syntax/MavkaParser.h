@@ -21,19 +21,19 @@ public:
     NOT_EQ_WORD = 38, NOT_IS_WORD = 39, HAS_IS_WORD = 40, NOT_HAS_IS_WORD = 41, 
     STAR_ALL = 42, MOCKUP = 43, IMPLEMENTS = 44, IMPLEMENT = 45, EVAL = 46, 
     WHEN = 47, ALSO = 48, PARENT = 49, TSE = 50, TEST = 51, IY = 52, SPREAD = 53, 
-    FROMTO = 54, SKIP_SPACES = 55, NL = 56, DECREMENT = 57, INCREMENT = 58, 
-    OPEN_PAREN = 59, CLOSE_PAREN = 60, OPEN_ARRAY = 61, CLOSE_ARRAY = 62, 
-    COMMA = 63, ASSIGN = 64, ASSIGN_PARENT = 65, ASSIGN_ADD = 66, ASSIGN_SUB = 67, 
-    ASSIGN_MUL = 68, ASSIGN_DIV = 69, ASSIGN_DIVDIV = 70, ASSIGN_MOD = 71, 
-    ASSIGN_BW_OR = 72, ASSIGN_BW_AND = 73, ASSIGN_BW_SHIFT_LEFT = 74, ASSIGN_BW_SHIFT_RIGHT = 75, 
-    ASSIGN_XOR = 76, ASSIGN_POW = 77, ASSIGN_OR = 78, ASSIGN_AND = 79, ASSIGN_IF = 80, 
-    PLUS = 81, MINUS = 82, MUL = 83, DIV = 84, COLON = 85, DOT = 86, NOT = 87, 
-    TILDA = 88, PERCENT = 89, DIVDIV = 90, POW = 91, XOR = 92, OR_SYM = 93, 
-    AND_SYM = 94, OR_BW = 95, AND_BW = 96, BW_SHIFT_LEFT = 97, BW_SHIFT_RIGHT = 98, 
-    HEX_START = 99, ID = 100, NUMBER = 101, INTEGER = 102, FLOAT = 103, 
-    HEX = 104, HEXUKR = 105, BINNUM = 106, BINNUMUKR = 107, TRIPPLE_QUOTE = 108, 
-    STRING_MULTILINE = 109, STRING = 110, COMMENT = 111, LINE_COMMENT = 112, 
-    OLD_COMMENT = 113
+    FROMTO = 54, KID = 55, SKIP_SPACES = 56, NL = 57, DECREMENT = 58, INCREMENT = 59, 
+    OPEN_PAREN = 60, CLOSE_PAREN = 61, OPEN_ARRAY = 62, CLOSE_ARRAY = 63, 
+    COMMA = 64, ASSIGN = 65, ASSIGN_PARENT = 66, ASSIGN_ADD = 67, ASSIGN_SUB = 68, 
+    ASSIGN_MUL = 69, ASSIGN_DIV = 70, ASSIGN_DIVDIV = 71, ASSIGN_MOD = 72, 
+    ASSIGN_BW_OR = 73, ASSIGN_BW_AND = 74, ASSIGN_BW_SHIFT_LEFT = 75, ASSIGN_BW_SHIFT_RIGHT = 76, 
+    ASSIGN_XOR = 77, ASSIGN_POW = 78, ASSIGN_OR = 79, ASSIGN_AND = 80, ASSIGN_IF = 81, 
+    PLUS = 82, MINUS = 83, MUL = 84, DIV = 85, COLON = 86, DOT = 87, NOT = 88, 
+    TILDA = 89, PERCENT = 90, DIVDIV = 91, POW = 92, XOR = 93, OR_SYM = 94, 
+    AND_SYM = 95, OR_BW = 96, AND_BW = 97, BW_SHIFT_LEFT = 98, BW_SHIFT_RIGHT = 99, 
+    HEX_START = 100, ID = 101, NUMBER = 102, INTEGER = 103, FLOAT = 104, 
+    HEX = 105, HEXUKR = 106, BINNUM = 107, BINNUMUKR = 108, TRIPPLE_QUOTE = 109, 
+    STRING_MULTILINE = 110, STRING = 111, COMMENT = 112, LINE_COMMENT = 113, 
+    OLD_COMMENT = 114
   };
 
   enum {
@@ -52,14 +52,13 @@ public:
     RuleObject_destruction = 44, RuleObject_destruction_el = 45, RuleAssign = 46, 
     RuleAssign_simple = 47, RuleAssign_by_identifier = 48, RuleAssign_by_element = 49, 
     RuleAssign_array_destruction = 50, RuleAssign_object_destruction = 51, 
-    RuleAssign_symbol = 52, RuleWait_assign = 53, RuleIdentifier = 54, RuleExtended_identifier = 55, 
-    RuleIdentifiers_chain = 56, RuleSuper_identifiers_chain = 57, RuleType_value = 58, 
-    RuleType_value_item = 59, RuleArgs = 60, RuleArg = 61, RuleNamed_args = 62, 
-    RuleNamed_arg = 63, RuleParams = 64, RuleParam = 65, RuleParam_value = 66, 
-    RuleBody = 67, RuleBody_element_or_return = 68, RuleBody_element = 69, 
-    RuleReturn_body_line = 70, RuleArithmetic_op_mul = 71, RuleArithmetic_op_add = 72, 
-    RuleBitwise_op = 73, RuleTest_op = 74, RuleComparison_op = 75, RuleNl = 76, 
-    RuleNls = 77
+    RuleAssign_symbol = 52, RuleWait_assign = 53, RuleIdentifier = 54, RuleIdentifiers_chain = 55, 
+    RuleSuper_identifiers_chain = 56, RuleType_value = 57, RuleType_value_item = 58, 
+    RuleArgs = 59, RuleArg = 60, RuleNamed_args = 61, RuleNamed_arg = 62, 
+    RuleParams = 63, RuleParam = 64, RuleParam_value = 65, RuleBody = 66, 
+    RuleBody_element_or_return = 67, RuleBody_element = 68, RuleReturn_body_line = 69, 
+    RuleArithmetic_op_mul = 70, RuleArithmetic_op_add = 71, RuleBitwise_op = 72, 
+    RuleTest_op = 73, RuleComparison_op = 74, RuleNl = 75, RuleNls = 76
   };
 
   explicit MavkaParser(antlr4::TokenStream *input);
@@ -134,7 +133,6 @@ public:
   class Assign_symbolContext;
   class Wait_assignContext;
   class IdentifierContext;
-  class Extended_identifierContext;
   class Identifiers_chainContext;
   class Super_identifiers_chainContext;
   class Type_valueContext;
@@ -1223,12 +1221,12 @@ public:
     ChainContext(ValueContext *ctx);
 
     MavkaParser::ValueContext *c_left = nullptr;
-    MavkaParser::Extended_identifierContext *c_right = nullptr;
+    MavkaParser::IdentifierContext *c_right = nullptr;
     std::vector<NlsContext *> nls();
     NlsContext* nls(size_t i);
     antlr4::tree::TerminalNode *DOT();
     ValueContext *value();
-    Extended_identifierContext *extended_identifier();
+    IdentifierContext *identifier();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1880,6 +1878,7 @@ public:
     IdentifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *ID();
+    antlr4::tree::TerminalNode *KID();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1890,60 +1889,16 @@ public:
 
   IdentifierContext* identifier();
 
-  class  Extended_identifierContext : public antlr4::ParserRuleContext {
-  public:
-    Extended_identifierContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *ID();
-    antlr4::tree::TerminalNode *END();
-    antlr4::tree::TerminalNode *DIIA();
-    antlr4::tree::TerminalNode *STRUCTURE();
-    antlr4::tree::TerminalNode *FOR();
-    antlr4::tree::TerminalNode *IF();
-    antlr4::tree::TerminalNode *WAIT();
-    antlr4::tree::TerminalNode *TAKE();
-    antlr4::tree::TerminalNode *GIVE();
-    antlr4::tree::TerminalNode *AS();
-    antlr4::tree::TerminalNode *IS();
-    antlr4::tree::TerminalNode *RETURN();
-    antlr4::tree::TerminalNode *ASYNC();
-    antlr4::tree::TerminalNode *AND();
-    antlr4::tree::TerminalNode *OR();
-    antlr4::tree::TerminalNode *TRY();
-    antlr4::tree::TerminalNode *CATCH();
-    antlr4::tree::TerminalNode *ELSE();
-    antlr4::tree::TerminalNode *THROW();
-    antlr4::tree::TerminalNode *WHILE();
-    antlr4::tree::TerminalNode *MODULE();
-    antlr4::tree::TerminalNode *EQ_WORD();
-    antlr4::tree::TerminalNode *GR_WORD();
-    antlr4::tree::TerminalNode *SM_WORD();
-    antlr4::tree::TerminalNode *MOCKUP();
-    antlr4::tree::TerminalNode *IMPLEMENTS();
-    antlr4::tree::TerminalNode *EVAL();
-    antlr4::tree::TerminalNode *WHEN();
-    antlr4::tree::TerminalNode *TA();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  Extended_identifierContext* extended_identifier();
-
   class  Identifiers_chainContext : public antlr4::ParserRuleContext {
   public:
     MavkaParser::Identifiers_chainContext *ic_left = nullptr;
     MavkaParser::IdentifierContext *ic_identifier = nullptr;
-    MavkaParser::Extended_identifierContext *ic_right = nullptr;
+    MavkaParser::IdentifierContext *ic_right = nullptr;
     Identifiers_chainContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     IdentifierContext *identifier();
     antlr4::tree::TerminalNode *DOT();
     Identifiers_chainContext *identifiers_chain();
-    Extended_identifierContext *extended_identifier();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1958,7 +1913,7 @@ public:
   public:
     MavkaParser::Super_identifiers_chainContext *sic_left = nullptr;
     MavkaParser::IdentifierContext *sic_identifier = nullptr;
-    MavkaParser::Extended_identifierContext *sic_right = nullptr;
+    MavkaParser::IdentifierContext *sic_right = nullptr;
     MavkaParser::ExprContext *sic_index = nullptr;
     Super_identifiers_chainContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
@@ -1967,7 +1922,6 @@ public:
     NlsContext* nls(size_t i);
     antlr4::tree::TerminalNode *DOT();
     Super_identifiers_chainContext *super_identifiers_chain();
-    Extended_identifierContext *extended_identifier();
     antlr4::tree::TerminalNode *OPEN_ARRAY();
     antlr4::tree::TerminalNode *CLOSE_ARRAY();
     ExprContext *expr();

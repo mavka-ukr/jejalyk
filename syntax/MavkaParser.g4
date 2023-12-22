@@ -63,7 +63,7 @@ string: STRING | STRING_MULTILINE;
 value: NUMBER #number
      | string #string_value
      | identifier #id
-     | c_left=value nls '.' nls c_right=extended_identifier #chain
+     | c_left=value nls '.' nls c_right=identifier #chain
      | c_value=value '(' (c_args=args | c_named_args=named_args)? ')' #call
      | ge_left=value '[' ge_element=expr ']' #get_element
      | '+' p_value=value  #positive
@@ -118,12 +118,11 @@ assign_object_destruction: aod_object_destruction=object_destruction '=' aod_val
 assign_symbol: 'це' | '=' | ':=' | '+=' | '-=' | '*=' | '/=' | '//=' | '%=' | '**=' | '&=' | '|=' | '<<=' | '>>=' | '^=' | '&&=' | '||=' | '??=';
 wait_assign: 'чекати' wa_assign=assign;
 
-identifier: ID;
-extended_identifier: ID | END | DIIA | STRUCTURE | FOR | IF | WAIT | TAKE | GIVE | AS | IS | RETURN | ASYNC | AND | OR | TRY | CATCH | ELSE | THROW | WHILE | MODULE | EQ_WORD | GR_WORD | SM_WORD | MOCKUP | IMPLEMENTS | EVAL | WHEN | TA;
+identifier: ID | KID;
 
-identifiers_chain: ic_identifier=identifier | ic_left=identifiers_chain '.' ic_right=extended_identifier;
+identifiers_chain: ic_identifier=identifier | ic_left=identifiers_chain '.' ic_right=identifier;
 super_identifiers_chain: sic_identifier=identifier
-                       | sic_left=super_identifiers_chain nls '.' nls sic_right=extended_identifier
+                       | sic_left=super_identifiers_chain nls '.' nls sic_right=identifier
                        | sic_left=super_identifiers_chain '[' nls sic_index=expr nls ']';
 
 type_value: type_value_item (('|' | 'або') type_value_item)*;

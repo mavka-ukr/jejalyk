@@ -54,6 +54,7 @@ TEST: 'тест';
 IY: 'й';
 SPREAD: '...';
 FROMTO: '..';
+KID: '\'' ( ID | END | DIIA | STRUCTURE | FOR | IF | WAIT | TAKE | GIVE | AS | TA | IS | EE | RETURN | ASYNC | SUBJECT | AND | OR | TRY | CATCH | ELSE | THROW | WHILE | MODULE | EQ_WORD | GR_WORD | SM_WORD | HAS_IS_WORD | MOCKUP | IMPLEMENTS | IMPLEMENT | EVAL | WHEN | ALSO | PARENT | TSE | TEST | IY )*;
 
 SKIP_SPACES: ( ' ' | '\t' ) -> skip;
 NL: ( '\r'? '\n' );

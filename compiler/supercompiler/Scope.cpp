@@ -520,7 +520,7 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
       const auto mockup_structure_node =
           dynamic_cast<mavka::ast::MockupStructureNode*>(node);
-      return this->define_structure_from_ast(mockup_structure_node->name,
+      return this->define_structure_from_ast(true, mockup_structure_node->name,
                                              mockup_structure_node->parent,
                                              mockup_structure_node->params);
     }
@@ -631,8 +631,9 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
       const auto structure_node =
           dynamic_cast<mavka::ast::StructureNode*>(node);
-      return this->define_structure_from_ast(
-          structure_node->name, structure_node->parent, structure_node->params);
+      return this->define_structure_from_ast(false, structure_node->name,
+                                             structure_node->parent,
+                                             structure_node->params);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TakeModuleNode>(node)) {
@@ -772,6 +773,7 @@ namespace supercompiler {
       std::vector<mavka::ast::ASTNode*> elements) {}
 
   Result* Scope::define_structure_from_ast(
+      bool mockup,
       std::string name,
       mavka::ast::ASTNode* parent,
       std::vector<mavka::ast::ASTNode*> params) {
@@ -806,13 +808,13 @@ namespace supercompiler {
         const auto param_param = dynamic_cast<mavka::ast::ParamNode*>(param);
         // todo: check if param already defined
         if (param_param->ee) {
-          if (!param_param->value) {
+          if (!mockup && !param_param->value) {
             return error_from_ast(param_param, "Її властивість \"" +
                                                    param_param->name +
                                                    "\" повинна мати значення.");
           }
           const auto param_param_types_result = this->compile_types(
-              param_param->types, "Тип параметра \"" + param_param->name +
+              param_param->types, "Тип властивості \"" + param_param->name +
                                       "\" повинен бути структурою.");
           if (param_param_types_result->error) {
             return param_param_types_result;
@@ -822,9 +824,8 @@ namespace supercompiler {
         } else {
           only_params.push_back(dynamic_cast<mavka::ast::ParamNode*>(param));
         }
-      }
-      if (jejalyk::tools::instance_of<mavka::ast::MethodDeclarationNode>(
-              param)) {
+      } else if (jejalyk::tools::instance_of<mavka::ast::MethodDeclarationNode>(
+                     param)) {
         const auto method_declaration_node =
             dynamic_cast<mavka::ast::MethodDeclarationNode*>(param);
 
@@ -852,7 +853,6 @@ namespace supercompiler {
               method_declaration_node->name, method_declaration_result->value);
         }
       }
-      // todo: handle method declarations
     }
 
     const auto params_result = this->compile_params(only_params);

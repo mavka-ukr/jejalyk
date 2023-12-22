@@ -41,7 +41,7 @@ namespace supercompiler {
         const auto structure_node =
             dynamic_cast<mavka::ast::StructureNode*>(node);
         const auto structure_result = scope->define_structure_from_ast(
-            structure_node->name, structure_node->parent, {});
+            false, structure_node->name, structure_node->parent, {});
         if (structure_result->error) {
           result->error = structure_result->error;
           return result;
@@ -50,8 +50,9 @@ namespace supercompiler {
       if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
         const auto mockup_structure_node =
             dynamic_cast<mavka::ast::MockupStructureNode*>(node);
-        const auto structure_result = scope->define_structure_from_ast(
-            mockup_structure_node->name, mockup_structure_node->parent, {});
+        const auto structure_result =
+            scope->define_structure_from_ast(true, mockup_structure_node->name,
+                                             mockup_structure_node->parent, {});
         if (structure_result->error) {
           result->error = structure_result->error;
           return result;

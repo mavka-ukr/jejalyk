@@ -371,10 +371,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitExtended_identifier(MavkaParser::Extended_identifierContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitIdentifiers_chain(MavkaParser::Identifiers_chainContext *ctx) override {
     return visitChildren(ctx);
   }

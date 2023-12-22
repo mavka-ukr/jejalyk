@@ -283,9 +283,6 @@ public:
   virtual void enterIdentifier(MavkaParser::IdentifierContext * /*ctx*/) override { }
   virtual void exitIdentifier(MavkaParser::IdentifierContext * /*ctx*/) override { }
 
-  virtual void enterExtended_identifier(MavkaParser::Extended_identifierContext * /*ctx*/) override { }
-  virtual void exitExtended_identifier(MavkaParser::Extended_identifierContext * /*ctx*/) override { }
-
   virtual void enterIdentifiers_chain(MavkaParser::Identifiers_chainContext * /*ctx*/) override { }
   virtual void exitIdentifiers_chain(MavkaParser::Identifiers_chainContext * /*ctx*/) override { }
 

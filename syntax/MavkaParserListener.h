@@ -281,9 +281,6 @@ public:
   virtual void enterIdentifier(MavkaParser::IdentifierContext *ctx) = 0;
   virtual void exitIdentifier(MavkaParser::IdentifierContext *ctx) = 0;
 
-  virtual void enterExtended_identifier(MavkaParser::Extended_identifierContext *ctx) = 0;
-  virtual void exitExtended_identifier(MavkaParser::Extended_identifierContext *ctx) = 0;
-
   virtual void enterIdentifiers_chain(MavkaParser::Identifiers_chainContext *ctx) = 0;
   virtual void exitIdentifiers_chain(MavkaParser::Identifiers_chainContext *ctx) = 0;
 

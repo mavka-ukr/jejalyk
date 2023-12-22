@@ -865,19 +865,11 @@ namespace mavka::parser {
           context->getStart()->getCharPositionInLine();
       identifier_node->end_line = context->getStop()->getLine();
       identifier_node->end_column = context->getStop()->getCharPositionInLine();
-      identifier_node->name = context->getText();
-      return create_ast_result(identifier_node);
-    }
-
-    std::any visitExtended_identifier(
-        MavkaParser::Extended_identifierContext* context) override {
-      const auto identifier_node = new ast::IdentifierNode();
-      identifier_node->start_line = context->getStart()->getLine();
-      identifier_node->start_column =
-          context->getStart()->getCharPositionInLine();
-      identifier_node->end_line = context->getStop()->getLine();
-      identifier_node->end_column = context->getStop()->getCharPositionInLine();
-      identifier_node->name = context->getText();
+      if (context->getText()[0] == '\'') {
+        identifier_node->name = context->getText().substr(1);
+      } else {
+        identifier_node->name = context->getText();
+      }
       return create_ast_result(identifier_node);
     }
 
@@ -889,7 +881,7 @@ namespace mavka::parser {
       chain_node->end_column = context->getStop()->getCharPositionInLine();
       chain_node->left = any_to_ast_result(visitValue(context->c_left))->node;
       chain_node->right =
-          any_to_ast_result(visitExtended_identifier(context->c_right))->node;
+          any_to_ast_result(visitIdentifier(context->c_right))->node;
       return create_ast_result(chain_node);
     }
 
@@ -1789,7 +1781,7 @@ namespace mavka::parser {
       chain_node->left =
           any_to_ast_result(visitIdentifiers_chain(context->ic_left))->node;
       chain_node->right =
-          any_to_ast_result(visitExtended_identifier(context->ic_right))->node;
+          any_to_ast_result(visitIdentifier(context->ic_right))->node;
       return create_ast_result(chain_node);
     }
 
@@ -1803,8 +1795,7 @@ namespace mavka::parser {
               ->node;
       if (context->sic_right) {
         const auto right =
-            any_to_ast_result(visitExtended_identifier(context->sic_right))
-                ->node;
+            any_to_ast_result(visitIdentifier(context->sic_right))->node;
         const auto chain_node = new ast::ChainNode();
         chain_node->start_line = context->getStart()->getLine();
         chain_node->start_column = context->getStart()->getCharPositionInLine();

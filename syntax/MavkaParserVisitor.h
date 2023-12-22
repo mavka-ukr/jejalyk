@@ -197,8 +197,6 @@ public:
 
     virtual std::any visitIdentifier(MavkaParser::IdentifierContext *context) = 0;
 
-    virtual std::any visitExtended_identifier(MavkaParser::Extended_identifierContext *context) = 0;
-
     virtual std::any visitIdentifiers_chain(MavkaParser::Identifiers_chainContext *context) = 0;
 
     virtual std::any visitSuper_identifiers_chain(MavkaParser::Super_identifiers_chainContext *context) = 0;

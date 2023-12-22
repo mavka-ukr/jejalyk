@@ -79,7 +79,8 @@ namespace supercompiler {
                           const std::string& error_message);
     Result* define_module_from_ast(std::string name,
                                    std::vector<mavka::ast::ASTNode*> elements);
-    Result* define_structure_from_ast(std::string name,
+    Result* define_structure_from_ast(bool mockup,
+                                      std::string name,
                                       mavka::ast::ASTNode* parent,
                                       std::vector<mavka::ast::ASTNode*> params);
     Result* define_diia_from_ast(
