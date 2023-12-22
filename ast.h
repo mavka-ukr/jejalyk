@@ -40,6 +40,7 @@ namespace mavka::ast {
   class FromToComplexNode;
   class FromToSimpleNode;
   class FunctionNode;
+  class GenericNode;
   class GetElementNode;
   class GiveElementNode;
   class GiveNode;
@@ -196,6 +197,7 @@ namespace mavka::ast {
     bool async = false;
     std::string structure;
     std::string name;
+    std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
     std::vector<ASTNode*> return_types;
     std::vector<ASTNode*> body;
@@ -212,6 +214,11 @@ namespace mavka::ast {
   class EvalNode final : public ASTNode {
    public:
     ASTNode* value;
+  };
+
+  class GenericNode final : public ASTNode {
+   public:
+    std::string name;
   };
 
   class FunctionNode final : public ASTNode {
@@ -277,6 +284,7 @@ namespace mavka::ast {
     bool ee = false;
     bool async = false;
     std::string name;
+    std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
     std::vector<ASTNode*> return_types;
   };
@@ -286,6 +294,7 @@ namespace mavka::ast {
     bool ee = false;
     bool async = false;
     std::string name;
+    std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
     std::vector<ASTNode*> return_types;
   };
@@ -305,6 +314,7 @@ namespace mavka::ast {
   class MockupStructureNode final : public ASTNode {
    public:
     std::string name;
+    std::vector<GenericNode*> generics;
     ASTNode* parent;
     std::vector<ASTNode*> params;
   };
@@ -379,6 +389,7 @@ namespace mavka::ast {
   class StructureNode final : public ASTNode {
    public:
     std::string name;
+    std::vector<GenericNode*> generics;
     ASTNode* parent;
     std::vector<ASTNode*> params;
   };

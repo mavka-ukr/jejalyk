@@ -49,6 +49,9 @@ public:
   virtual void enterStructure_param(MavkaParser::Structure_paramContext * /*ctx*/) override { }
   virtual void exitStructure_param(MavkaParser::Structure_paramContext * /*ctx*/) override { }
 
+  virtual void enterGenerics(MavkaParser::GenericsContext * /*ctx*/) override { }
+  virtual void exitGenerics(MavkaParser::GenericsContext * /*ctx*/) override { }
+
   virtual void enterMockup(MavkaParser::MockupContext * /*ctx*/) override { }
   virtual void exitMockup(MavkaParser::MockupContext * /*ctx*/) override { }
 
@@ -214,6 +217,9 @@ public:
   virtual void enterGod(MavkaParser::GodContext * /*ctx*/) override { }
   virtual void exitGod(MavkaParser::GodContext * /*ctx*/) override { }
 
+  virtual void enterCall_generics(MavkaParser::Call_genericsContext * /*ctx*/) override { }
+  virtual void exitCall_generics(MavkaParser::Call_genericsContext * /*ctx*/) override { }
+
   virtual void enterArray_elements(MavkaParser::Array_elementsContext * /*ctx*/) override { }
   virtual void exitArray_elements(MavkaParser::Array_elementsContext * /*ctx*/) override { }
 
@@ -294,6 +300,9 @@ public:
 
   virtual void enterType_value_item(MavkaParser::Type_value_itemContext * /*ctx*/) override { }
   virtual void exitType_value_item(MavkaParser::Type_value_itemContext * /*ctx*/) override { }
+
+  virtual void enterType_value_item_generics(MavkaParser::Type_value_item_genericsContext * /*ctx*/) override { }
+  virtual void exitType_value_item_generics(MavkaParser::Type_value_item_genericsContext * /*ctx*/) override { }
 
   virtual void enterArgs(MavkaParser::ArgsContext * /*ctx*/) override { }
   virtual void exitArgs(MavkaParser::ArgsContext * /*ctx*/) override { }

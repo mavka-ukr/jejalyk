@@ -111,10 +111,12 @@ namespace supercompiler {
     Object* structure_parent;
     std::vector<Param*> structure_params;
     std::map<std::string, Subject*> structure_methods;
+    std::map<std::string, Subject*> structure_generics;
 
     std::string diia_name;
     std::vector<Param*> diia_params;
     Subject* diia_return;
+    std::map<std::string, Subject*> diia_generics;
 
     Object* create_instance();
     Subject* get(std::string name);

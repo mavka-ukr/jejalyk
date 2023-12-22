@@ -41,6 +41,8 @@ public:
 
     virtual std::any visitStructure_param(MavkaParser::Structure_paramContext *context) = 0;
 
+    virtual std::any visitGenerics(MavkaParser::GenericsContext *context) = 0;
+
     virtual std::any visitMockup(MavkaParser::MockupContext *context) = 0;
 
     virtual std::any visitMockup_module(MavkaParser::Mockup_moduleContext *context) = 0;
@@ -151,6 +153,8 @@ public:
 
     virtual std::any visitGod(MavkaParser::GodContext *context) = 0;
 
+    virtual std::any visitCall_generics(MavkaParser::Call_genericsContext *context) = 0;
+
     virtual std::any visitArray_elements(MavkaParser::Array_elementsContext *context) = 0;
 
     virtual std::any visitArray_element(MavkaParser::Array_elementContext *context) = 0;
@@ -204,6 +208,8 @@ public:
     virtual std::any visitType_value(MavkaParser::Type_valueContext *context) = 0;
 
     virtual std::any visitType_value_item(MavkaParser::Type_value_itemContext *context) = 0;
+
+    virtual std::any visitType_value_item_generics(MavkaParser::Type_value_item_genericsContext *context) = 0;
 
     virtual std::any visitArgs(MavkaParser::ArgsContext *context) = 0;
 

@@ -221,6 +221,11 @@ namespace mavka::parser {
 
     std::any visitStructure(MavkaParser::StructureContext* context) override {
       const std::string name = context->s_name->getText();
+      std::vector<ast::GenericNode*> generics;
+      if (context->s_generics) {
+        generics = std::any_cast<std::vector<ast::GenericNode*>>(
+            visitGenerics(context->s_generics));
+      }
       std::vector<ast::ASTNode*> params;
       if (context->structure_elements()) {
         params = std::any_cast<std::vector<ast::ASTNode*>>(
@@ -233,6 +238,7 @@ namespace mavka::parser {
       structure_node->end_line = context->getStop()->getLine();
       structure_node->end_column = context->getStop()->getCharPositionInLine();
       structure_node->name = name;
+      structure_node->generics = generics;
       if (context->s_parent) {
         const auto parent =
             any_to_ast_result(visitSuper_identifiers_chain(context->s_parent))
@@ -291,6 +297,24 @@ namespace mavka::parser {
       return create_ast_result(structure_param_node);
     }
 
+    std::any visitGenerics(MavkaParser::GenericsContext* context) override {
+      std::vector<ast::GenericNode*> generics;
+      for (const auto identifier_node : context->identifier()) {
+        const auto identifier_result =
+            any_to_ast_result(visitIdentifier(identifier_node));
+        const auto identifier =
+            dynamic_cast<ast::IdentifierNode*>(identifier_result->node);
+        const auto generic = new ast::GenericNode();
+        generic->start_line = identifier->start_line;
+        generic->start_column = identifier->start_column;
+        generic->end_line = identifier->end_line;
+        generic->end_column = identifier->end_column;
+        generic->name = identifier->name;
+        generics.push_back(generic);
+      }
+      return generics;
+    }
+
     std::any visitMethod_declaration(
         MavkaParser::Method_declarationContext* context) override {
       const auto method_declaration_node = new ast::MethodDeclarationNode();
@@ -303,6 +327,11 @@ namespace mavka::parser {
       method_declaration_node->ee = context->md_static != nullptr;
       method_declaration_node->async = context->md_async != nullptr;
       method_declaration_node->name = context->md_name->getText();
+      if (context->md_generics) {
+        method_declaration_node->generics =
+            std::any_cast<std::vector<ast::GenericNode*>>(
+                visitGenerics(context->md_generics));
+      }
       if (context->md_params) {
         method_declaration_node->params =
             std::any_cast<std::vector<ast::ParamNode*>>(
@@ -363,6 +392,11 @@ namespace mavka::parser {
       mockup_structure_node->end_column =
           context->getStop()->getCharPositionInLine();
       mockup_structure_node->name = context->ms_name->getText();
+      if (context->ms_generics) {
+        mockup_structure_node->generics =
+            std::any_cast<std::vector<ast::GenericNode*>>(
+                visitGenerics(context->ms_generics));
+      }
       if (context->ms_elements) {
         mockup_structure_node->params =
             std::any_cast<std::vector<ast::ASTNode*>>(
@@ -405,6 +439,11 @@ namespace mavka::parser {
       mockup_diia_node->ee = context->md_static != nullptr;
       mockup_diia_node->async = context->md_async != nullptr;
       mockup_diia_node->name = context->md_name->getText();
+      if (context->md_generics) {
+        mockup_diia_node->generics =
+            std::any_cast<std::vector<ast::GenericNode*>>(
+                visitGenerics(context->md_generics));
+      }
       if (context->md_params) {
         mockup_diia_node->params = std::any_cast<std::vector<ast::ParamNode*>>(
             visitParams(context->md_params));
@@ -461,6 +500,10 @@ namespace mavka::parser {
       diia_node->structure =
           context->d_structure ? context->d_structure->getText() : "";
       diia_node->name = context->d_name->getText();
+      if (context->d_generics) {
+        diia_node->generics = std::any_cast<std::vector<ast::GenericNode*>>(
+            visitGenerics(context->d_generics));
+      }
       if (context->d_params) {
         diia_node->params = std::any_cast<std::vector<ast::ParamNode*>>(
             visitParams(context->d_params));
@@ -1823,7 +1866,7 @@ namespace mavka::parser {
       for (int i = 0; i < context->type_value_item().size(); ++i) {
         const auto type = context->type_value_item()[i];
         const auto ast_result =
-            any_to_ast_result(visitIdentifiers_chain(type->tv_single));
+            any_to_ast_result(visitIdentifiers_chain(type->tvi_value));
         types.push_back(ast_result->node);
       }
       return types;
@@ -1951,6 +1994,7 @@ namespace mavka::parser {
                      size_t charPositionInLine,
                      const std::string& msg,
                      std::exception_ptr e) override {
+      std::cout << msg << std::endl;
       const auto error = new MavkaParserError();
       error->line = line;
       error->column = charPositionInLine;

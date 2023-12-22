@@ -59,6 +59,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitGenerics(MavkaParser::GenericsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitMockup(MavkaParser::MockupContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -279,6 +283,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitCall_generics(MavkaParser::Call_genericsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitArray_elements(MavkaParser::Array_elementsContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -384,6 +392,10 @@ public:
   }
 
   virtual std::any visitType_value_item(MavkaParser::Type_value_itemContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitType_value_item_generics(MavkaParser::Type_value_item_genericsContext *ctx) override {
     return visitChildren(ctx);
   }
 

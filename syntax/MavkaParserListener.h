@@ -47,6 +47,9 @@ public:
   virtual void enterStructure_param(MavkaParser::Structure_paramContext *ctx) = 0;
   virtual void exitStructure_param(MavkaParser::Structure_paramContext *ctx) = 0;
 
+  virtual void enterGenerics(MavkaParser::GenericsContext *ctx) = 0;
+  virtual void exitGenerics(MavkaParser::GenericsContext *ctx) = 0;
+
   virtual void enterMockup(MavkaParser::MockupContext *ctx) = 0;
   virtual void exitMockup(MavkaParser::MockupContext *ctx) = 0;
 
@@ -212,6 +215,9 @@ public:
   virtual void enterGod(MavkaParser::GodContext *ctx) = 0;
   virtual void exitGod(MavkaParser::GodContext *ctx) = 0;
 
+  virtual void enterCall_generics(MavkaParser::Call_genericsContext *ctx) = 0;
+  virtual void exitCall_generics(MavkaParser::Call_genericsContext *ctx) = 0;
+
   virtual void enterArray_elements(MavkaParser::Array_elementsContext *ctx) = 0;
   virtual void exitArray_elements(MavkaParser::Array_elementsContext *ctx) = 0;
 
@@ -292,6 +298,9 @@ public:
 
   virtual void enterType_value_item(MavkaParser::Type_value_itemContext *ctx) = 0;
   virtual void exitType_value_item(MavkaParser::Type_value_itemContext *ctx) = 0;
+
+  virtual void enterType_value_item_generics(MavkaParser::Type_value_item_genericsContext *ctx) = 0;
+  virtual void exitType_value_item_generics(MavkaParser::Type_value_item_genericsContext *ctx) = 0;
 
   virtual void enterArgs(MavkaParser::ArgsContext *ctx) = 0;
   virtual void exitArgs(MavkaParser::ArgsContext *ctx) = 0;
