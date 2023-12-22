@@ -32,6 +32,17 @@ namespace supercompiler {
       }
     }
 
+    for (int i = 0; i < scope->bodies_to_compile.size(); ++i) {
+      const auto body_to_compile = scope->bodies_to_compile[i];
+
+      const auto compilation_result =
+          body_to_compile->scope->compile_body(body_to_compile->body);
+      if (compilation_result->error) {
+        result->error = compilation_result->error;
+        return result;
+      }
+    }
+
     return result;
   }
 }

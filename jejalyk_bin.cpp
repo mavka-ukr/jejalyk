@@ -60,6 +60,9 @@ int main() {
   }
   const auto result = supercompiler::compile(parser_result->program_node);
   if (result->error) {
+    if (result->error->full) {
+      std::cout << result->error->line << ":" << result->error->column << ": ";
+    }
     std::cout << result->error->message << std::endl;
     return 1;
   }
