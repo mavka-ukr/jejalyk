@@ -44,14 +44,19 @@ namespace supercompiler {
   }
 
   bool Subject::check_types(std::vector<Subject*> generics, Subject* value) {
-    if (value->types[0]->generic) {
-      const auto index = value->types[0]->generic->index;
-      std::cout << generics.size() << std::endl;
-      const auto generic_subject = generics[index];
-      value = generic_subject->create_instance();
-      std::cout << value->types[0]->structure->structure_name << std::endl;
-      std::cout << this->types[0]->structure->structure_name << std::endl;
+    const auto newval = new Subject();
+    for (const auto type : value->types) {
+      if (type->generic) {
+        const auto index = type->generic->index;
+        const auto generic_subject = generics[index];
+        for (const auto itype : generic_subject->create_instance()->types) {
+          newval->types.push_back(itype);
+        }
+      } else {
+        newval->types.push_back(type);
+      }
     }
+    value = newval;
     if (this->types.empty() && value->types.empty()) {
       return true;
     }
@@ -61,12 +66,16 @@ namespace supercompiler {
     if (value->types.empty()) {
       return true;
     }
-    auto structure = this->types[0]->structure;
-    while (structure) {
-      if (value->types[0]->structure == structure) {
-        return true;
+    for (const auto type : this->types) {
+      auto structure = type->structure;
+      while (structure) {
+        for (const auto vtype : value->types) {
+          if (vtype->structure == structure) {
+            return true;
+          }
+        }
+        structure = structure->structure_parent;
       }
-      structure = structure->structure_parent;
     }
     return false;
   }

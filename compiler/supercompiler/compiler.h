@@ -123,6 +123,8 @@ namespace supercompiler {
     Subject* diia_return;
     std::vector<Generic*> diia_generics;
 
+    std::vector<Subject*> type_generics;
+
     Object* create_instance();
     Subject* get(std::string name);
     Result* set(std::string name, Subject* value);
