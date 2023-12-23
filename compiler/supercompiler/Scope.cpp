@@ -52,7 +52,7 @@ namespace supercompiler {
   Result* Scope::assign(std::string name, Subject* value) {
     if (this->has_local(name)) {
       const auto subject = this->get_local(name);
-      if (!value->check_types(subject)) {
+      if (!value->check_types({}, subject)) {
         return error("Невірне значення субʼєкта \"" + name + "\".");
       }
       return success(subject);
@@ -125,7 +125,10 @@ namespace supercompiler {
       }
     }
 
-    const auto params_result = diia_scope->compile_params(params);
+    const auto params_scope = this->make_child();
+    params_scope->micro = true;
+    params_scope->generics = diia_object->diia_generics;
+    const auto params_result = params_scope->compile_params(params);
     if (params_result->error) {
       return new Result(params_result->error);
     }
@@ -136,7 +139,10 @@ namespace supercompiler {
     diia_object->diia_params = params_result->value;
 
     if (!return_types.empty()) {
-      const auto return_types_result = this->compile_types(
+      const auto return_type_scope = this->make_child();
+      return_type_scope->micro = true;
+      return_type_scope->generics = diia_object->diia_generics;
+      const auto return_types_result = return_type_scope->compile_types(
           return_types, "Тип поверненого значення повинен бути структурою.");
       if (return_types_result->error) {
         return return_types_result;
@@ -277,12 +283,12 @@ namespace supercompiler {
       if (assign_simple_node->types.empty()) {
         if (this->has_local(assign_simple_node->name)) {
           const auto subject = this->get_local(assign_simple_node->name);
-          if (!value_result->value->check_types(subject)) {
+          if (!value_result->value->check_types({}, subject)) {
             return error_from_ast(
                 node, "Невірне значення субʼєкта \"" +
                           assign_simple_node->name + "\": очікується " +
-                          subject->types_string() + ", отримано " +
-                          value_result->value->types_string() + ".");
+                          subject->types_string({}) + ", отримано " +
+                          value_result->value->types_string({}) + ".");
           }
           return success(subject);
         } else {
@@ -303,12 +309,12 @@ namespace supercompiler {
           return types_result;
         }
 
-        if (!value_result->value->check_types(types_result->value)) {
+        if (!value_result->value->check_types({}, types_result->value)) {
           return error_from_ast(
               node, "Невірне значення субʼєкта \"" + assign_simple_node->name +
                         "\": очікується " +
-                        types_result->value->types_string() + ", отримано " +
-                        value_result->value->types_string() + ".");
+                        types_result->value->types_string({}) + ", отримано " +
+                        value_result->value->types_string({}) + ".");
         }
 
         this->set(assign_simple_node->name, types_result->value);
@@ -383,7 +389,7 @@ namespace supercompiler {
         if (!left_result->value->has(right_identifier_node->name)) {
           return error("Властивість \"" + right_identifier_node->name +
                        "\" не визначено для " +
-                       left_result->value->types_string() + ".");
+                       left_result->value->types_string({}) + ".");
         }
 
         const auto subject =
@@ -519,9 +525,9 @@ namespace supercompiler {
       }
       if (generic) {
         const auto generic_subject = new Subject();
-        generic_subject->generic = generic;
-        const auto structure_structure_subject = this->get("обʼєкт");
-        generic_subject->types = structure_structure_subject->types;
+        const auto newobj = new Object();
+        newobj->generic = generic;
+        generic_subject->types.push_back(newobj);
         return success(generic_subject);
       }
       if (!this->has(identifier_node->name)) {
@@ -684,7 +690,7 @@ namespace supercompiler {
       if (value_result->error) {
         return value_result;
       }
-      if (!value_result->value->check_types(this->diia->diia_return)) {
+      if (!value_result->value->check_types({}, this->diia->diia_return)) {
         return error_from_ast(return_node,
                               "Невірне значення, що повертається.");
       }
@@ -813,7 +819,7 @@ namespace supercompiler {
           error_result->error = value_result->error;
           return error_result;
         }
-        if (!value_result->value->check_types(types_result->value)) {
+        if (!value_result->value->check_types({}, types_result->value)) {
           const auto error_result = new ParamsResult();
           error_result->error = new Error();
           error_result->error->message = "Значення параметра \"" + param->name +

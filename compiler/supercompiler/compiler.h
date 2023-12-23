@@ -107,6 +107,8 @@ namespace supercompiler {
 
   class Object final {
    public:
+    Generic* generic;
+
     Object* structure;
     std::map<std::string, Subject*> properties;
 
@@ -143,11 +145,11 @@ namespace supercompiler {
   class Subject final {
    public:
     std::vector<Object*> types;
-    Generic* generic;
 
     bool is_structure(Scope* scope);
     bool is_diia(Scope* scope);
-    bool check_types(Subject* value);
+    Subject* create_instance();
+    bool check_types(std::vector<Subject*> generics, Subject* value);
     bool instance_of(Subject* value);
     Result* call(std::vector<Subject*> generics,
                  std::vector<Subject*> args,
@@ -164,7 +166,7 @@ namespace supercompiler {
     Result* divide(Subject* value, Scope* scope);
     Result* divdiv(Subject* value, Scope* scope);
     Result* pow(Subject* value, Scope* scope);
-    std::string types_string();
+    std::string types_string(std::vector<Subject*> generics);
   };
 
   class Param final {

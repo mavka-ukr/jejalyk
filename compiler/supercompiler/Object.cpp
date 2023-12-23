@@ -2,14 +2,13 @@
 
 namespace supercompiler {
   Object* Object::create_instance() {
+    if (this->generic) {
+      const auto instance = new Object();
+      instance->generic = this->generic;
+      return instance;
+    }
     const auto instance = new Object();
     instance->structure = this;
-    for (const auto param : this->structure_params) {
-      // instance->properties.insert_or_assign(param->name, param->types);
-    }
-    for (const auto method : this->structure_methods) {
-      // instance->properties.insert_or_assign(method.first, method.second);
-    }
     return instance;
   }
 
@@ -38,7 +37,7 @@ namespace supercompiler {
                    this->structure->structure_name + "\".");
     }
     const auto property_subject = this->get(name);
-    if (!value->check_types(property_subject)) {
+    if (!value->check_types({}, property_subject)) {
       const auto error_result = new Result();
       error_result->error = new Error();
       error_result->error->message =
@@ -60,6 +59,10 @@ namespace supercompiler {
       if (prop.first == name) {
         return true;
       }
+    }
+    if (this->generic) {
+      std::cout << "[BUG] trying to do \"has\" on generic." << std::endl;
+      return false;
     }
     for (const auto param : this->structure->structure_params) {
       if (param->name == name) {
@@ -101,11 +104,12 @@ namespace supercompiler {
         }
         if (args.size() > param->index) {
           const auto arg = args[param->index];
-          if (!arg->check_types(param->types)) {
+
+          if (!arg->check_types(generics, param->types)) {
             return error("Аргумент \"" + param->name +
                          "\" не відповідає його типу: очікується " +
-                         param->types->types_string() + ", отримано " +
-                         arg->types_string() + ".");
+                         param->types->types_string(generics) + ", отримано " +
+                         arg->types_string(generics) + ".");
           }
         } else {
           if (param->value) {
@@ -115,9 +119,18 @@ namespace supercompiler {
           return error("Недостатня кількість аргументів.");
         }
       }
-      return success(this->diia_return);
+      std::cout << "call succ" << std::endl;
+      const auto return_type = new Subject();
+      for (const auto type : this->diia_return->types) {
+        if (type->generic) {
+          const auto generic_subject = generics[type->generic->index];
+          return_type->types.push_back(generic_subject->types[0]->create_instance());
+        } else {
+          return_type->types.push_back(type);
+        }
+      }
+      return success(return_type);
     }
-    std::cout << this->properties.size() << std::endl;
     return error("Неможливо викликати \"" + this->structure->structure_name +
                  "\".");
   }
@@ -137,7 +150,7 @@ namespace supercompiler {
           }
         }
         const auto arg = args[param->name];
-        if (!arg->check_types(param->types)) {
+        if (!arg->check_types({}, param->types)) {
           return error("Аргумент \"" + param->name +
                        "\" не відповідає його типу.");
         }
@@ -172,7 +185,7 @@ namespace supercompiler {
       return this->get("чародія_відняти")->call({}, {value}, scope);
     }
     return error("Неможливо відняти \"" + this->structure->structure_name +
-                 "\" і " + value->types_string() + ".");
+                 "\" і " + value->types_string({}) + ".");
   }
 
   Result* Object::multiply(Subject* value, Scope* scope) {
@@ -180,7 +193,7 @@ namespace supercompiler {
       return this->get("чародія_помножити")->call({}, {value}, scope);
     }
     return error("Неможливо помножити \"" + this->structure->structure_name +
-                 "\" і " + value->types_string() + ".");
+                 "\" і " + value->types_string({}) + ".");
   }
 
   Result* Object::divide(Subject* value, Scope* scope) {
@@ -188,7 +201,7 @@ namespace supercompiler {
       return this->get("чародія_поділити")->call({}, {value}, scope);
     }
     return error("Неможливо поділити \"" + this->structure->structure_name +
-                 "\" і " + value->types_string() + ".");
+                 "\" і " + value->types_string({}) + ".");
   }
 
   Result* Object::divdiv(Subject* value, Scope* scope) {
@@ -198,7 +211,7 @@ namespace supercompiler {
     }
     return error("Неможливо чародія_поділити_за_модулем_частка \"" +
                  this->structure->structure_name + "\" і " +
-                 value->types_string() + ".");
+                 value->types_string({}) + ".");
   }
 
   Result* Object::pow(Subject* value, Scope* scope) {
@@ -207,6 +220,6 @@ namespace supercompiler {
     }
     return error("Неможливо чародія_піднести_до_степеня \"" +
                  this->structure->structure_name + "\" і " +
-                 value->types_string() + ".");
+                 value->types_string({}) + ".");
   }
 }

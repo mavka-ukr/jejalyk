@@ -2,9 +2,6 @@
 
 namespace supercompiler {
   bool Subject::is_structure(Scope* scope) {
-    if (this->generic) {
-      return true;
-    }
     if (this->types.size() == 1) {
       const auto empty_subject = scope->get("пусто");
       if (this->types[0] == empty_subject->types[0]) {
@@ -12,6 +9,9 @@ namespace supercompiler {
       }
       const auto structure_structure_subject = scope->get("Структура");
       if (this->types[0] == structure_structure_subject->types[0]) {
+        return true;
+      }
+      if (this->types[0]->generic) {
         return true;
       }
       auto structure = this->types[0]->structure;
@@ -35,7 +35,23 @@ namespace supercompiler {
     return false;
   }
 
-  bool Subject::check_types(Subject* value) {
+  Subject* Subject::create_instance() {
+    const auto subject = new Subject();
+    for (const auto type : this->types) {
+      subject->types.push_back(type->create_instance());
+    }
+    return subject;
+  }
+
+  bool Subject::check_types(std::vector<Subject*> generics, Subject* value) {
+    if (value->types[0]->generic) {
+      const auto index = value->types[0]->generic->index;
+      std::cout << generics.size() << std::endl;
+      const auto generic_subject = generics[index];
+      value = generic_subject->create_instance();
+      std::cout << value->types[0]->structure->structure_name << std::endl;
+      std::cout << this->types[0]->structure->structure_name << std::endl;
+    }
     if (this->types.empty() && value->types.empty()) {
       return true;
     }
@@ -199,10 +215,24 @@ namespace supercompiler {
     return error("Неможливо піднести до степеня.");
   }
 
-  std::string Subject::types_string() {
+  std::string Subject::types_string(std::vector<Subject*> generics) {
     std::vector<std::string> types;
     for (const auto type : this->types) {
-      types.push_back("\"" + type->structure->structure_name + "\"");
+      if (type->structure) {
+        types.push_back("\"" + type->structure->structure_name + "\"");
+      } else {
+        if (type->generic) {
+          if (generics.size() <= type->generic->index) {
+            types.push_back("\"[GENERIC BUG OUT OF INDEX]\"");
+          } else {
+            const auto generic_subject = generics[type->generic->index];
+            types.push_back(
+                generic_subject->create_instance()->types_string(generics));
+          }
+        } else {
+          types.push_back("\"[SUBJECT WITHOUT STRUCTURE]\"");
+        }
+      }
     }
     return jejalyk::tools::implode(types, " або ");
   }
