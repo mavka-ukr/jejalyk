@@ -111,6 +111,7 @@ namespace supercompiler {
       }
       return success(this->diia_return);
     }
+    std::cout << this->properties.size() << std::endl;
     return error("Неможливо викликати \"" + this->structure->structure_name +
                  "\".");
   }

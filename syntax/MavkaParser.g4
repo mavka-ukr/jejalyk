@@ -43,7 +43,7 @@ fromto_complex: fc_from=fromto_value '..' (fc_middle_symbol=fromto_middle_symbol
 fromto_value: NUMBER #fromto_number
             | STRING #fromto_string
             | identifier #fromto_id
-            | '(' fn_value=value ')' #fromto_nested;
+            | '(' fn_value=expr ')' #fromto_nested;
 fromto_middle_symbol: '+' | '-' | '*' | '/' | PERCENT | DIVDIV | POW;
 fromto_to_symbol: '!=' | '==' | '>' | '<' | '>=' | '<=';
 
@@ -62,32 +62,28 @@ give_element: ge_name=identifier ('як' ge_as=identifier)?;
 
 string: STRING | STRING_MULTILINE;
 
-value: NUMBER #number
-     | string #string_value
-     | identifier #id
-     | c_left=value nls '.' nls c_right=identifier #chain
-     | c_value=value ('<' call_generics '>')? '(' (c_args=args | c_named_args=named_args)? ')' #call
-     | ge_left=value '[' ge_element=expr ']' #get_element
-     | '+' p_value=value  #positive
-     | '-' n_value=value  #negative
-     | DECREMENT pd_value=value  #pre_decrement
-     | INCREMENT pi_value=value  #pre_increment
-     | pd_value=value DECREMENT #post_decrement
-     | pi_value=value INCREMENT #post_increment
-     | '!' n_value=value  #not
-     | '~' bn_value=value  #bitwise_not
-     | '(' n_value=expr ')' #nested
-     | '(' ce_value=expr ')' '(' (ce_args=args | ce_named_args=named_args)? ')' #call_expr
-     | a_left=value 'як' a_right=value #as
+atom: NUMBER #number
+    | string #string_value
+    | identifier #id
+    | c_left=atom nls '.' nls c_right=identifier #chain
+    | c_value=atom ('<' call_generics '>')? '(' (c_args=args | c_named_args=named_args)? ')' #call
+    | ge_left=atom '[' ge_element=expr ']' #get_element
+    | '+' p_value=atom  #positive
+    | '-' n_value=atom  #negative
+    | DECREMENT pd_value=atom  #pre_decrement
+    | INCREMENT pi_value=atom  #pre_increment
+    | pd_value=atom DECREMENT #post_decrement
+    | pi_value=atom INCREMENT #post_increment
+    | '!' n_value=atom  #not
+    | '~' bn_value=atom  #bitwise_not
+    | '(' n_value=expr ')' #nested;
+
+value: atom #value_atom
      | a_left=value a_operation=arithmetic_op_mul a_right=value #arithmetic_mul
      | a_left=value a_operation=arithmetic_op_add a_right=value #arithmetic_add
      | b_left=value b_operation=bitwise_op b_right=value #bitwise
      | c_left=value c_operation=comparison_op c_right=value #comparison
      | t_left=value t_operation=test_op t_right=value #test
-     | t_value=value nls '?' nls t_positive=expr nls ':' nls t_negative=expr #ternary
-     | ('<' a_type=expr '>')? '[' a_elements=array_elements? ']' #array
-     | ('<' d_key_type=expr ',' d_value_type=expr '>')? '(' d_args=dictionary_args? ')' #dictionary
-     | value ('та' value)+ #god
      ;
 
 call_generics: expr (',' expr)*;
@@ -100,6 +96,11 @@ dictionary_arg: nls (da_name_id=identifier | da_name_string=STRING) '=' da_value
 
 expr: 'предок' nls '.' nls cp_id=identifier '(' (cp_args=args | cp_named_args=named_args)? ')' #call_parent
     | value #simple
+    | a_left=value 'як' a_right=value #as
+    | t_value=value nls '?' nls t_positive=expr nls ':' nls t_negative=expr #ternary
+    | ('<' a_type=expr '>')? '[' a_elements=array_elements? ']' #array
+    | ('<' d_key_type=expr ',' d_value_type=expr '>')? '(' d_args=dictionary_args? ')' #dictionary
+    | value ('та' value)+ #god
     | 'чекати' w_value=value #wait
     | (f_async='тривала')? '(' f_params=params? ')' f_type=type_value? ':' f_body=expr #function
     | (d_async='тривала')? 'дія' '(' ( nls d_params=params? nls ) ')' (d_type=type_value)? nl (d_body=body nl)? nls 'кінець' #anonymous_diia

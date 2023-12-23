@@ -2,10 +2,17 @@
 
 namespace supercompiler {
   void Scope::set(std::string name, Subject* value) {
-    this->variables.insert_or_assign(name, value);
+    if (this->micro) {
+      this->parent->set(name, value);
+    } else {
+      this->variables.insert_or_assign(name, value);
+    }
   }
 
   bool Scope::has(std::string name) {
+    if (this->micro) {
+      return this->parent->has(name);
+    }
     if (this->has_local(name)) {
       return true;
     }
@@ -16,6 +23,9 @@ namespace supercompiler {
   }
 
   Subject* Scope::get(std::string name) {
+    if (this->micro) {
+      return this->parent->get(name);
+    }
     if (this->has_local(name)) {
       return this->get_local(name);
     }
@@ -26,10 +36,16 @@ namespace supercompiler {
   }
 
   Subject* Scope::get_local(std::string name) {
+    if (this->micro) {
+      return this->parent->get_local(name);
+    }
     return this->variables.find(name)->second;
   }
 
   bool Scope::has_local(std::string name) {
+    if (this->micro) {
+      return this->parent->has_local(name);
+    }
     return this->variables.contains(name);
   }
 
@@ -111,7 +127,7 @@ namespace supercompiler {
 
     const auto params_result = diia_scope->compile_params(params);
     if (params_result->error) {
-      return error(params_result->error->message);
+      return new Result(params_result->error);
     }
     for (const auto param : params_result->value) {
       diia_scope->set(param->name, param->types);
@@ -134,6 +150,10 @@ namespace supercompiler {
   }
 
   Result* Scope::compile_node(mavka::ast::ASTNode* node) {
+    if (!node) {
+      return error("empty node");
+    }
+
     if (jejalyk::tools::instance_of<mavka::ast::AnonDiiaNode>(node)) {
       const auto anon_diia_node = dynamic_cast<mavka::ast::AnonDiiaNode*>(node);
       const auto diia_scope = this->make_child();
@@ -143,7 +163,7 @@ namespace supercompiler {
       if (diia_subject_result->error) {
         return diia_subject_result;
       }
-      this->bodies_to_compile->push_back(
+      this->bodies_to_compile.push_back(
           new BodyToCompile(diia_scope, anon_diia_node->body));
       return diia_subject_result;
     }
@@ -151,6 +171,7 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::ArgNode>(node)) {
       const auto arg_node = dynamic_cast<mavka::ast::ArgNode*>(node);
       // todo
+      std::cout << "ArgNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ArithmeticNode>(node)) {
@@ -196,6 +217,7 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::AsNode>(node)) {
       const auto as_node = dynamic_cast<mavka::ast::AsNode*>(node);
       // todo
+      std::cout << "AsNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::AssignByElementNode>(node)) {
@@ -298,12 +320,14 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::BitwiseNode>(node)) {
       const auto bitwise_node = dynamic_cast<mavka::ast::BitwiseNode*>(node);
       // todo
+      std::cout << "BitwiseNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::BitwiseNotNode>(node)) {
       const auto bitwise_not_node =
           dynamic_cast<mavka::ast::BitwiseNotNode*>(node);
       // todo
+      std::cout << "BitwiseNotNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::CallNode>(node)) {
@@ -379,11 +403,13 @@ namespace supercompiler {
       const auto comparison_node =
           dynamic_cast<mavka::ast::ComparisonNode*>(node);
       // todo
+      std::cout << "ComparisonNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ContinueNode>(node)) {
       const auto continue_node = dynamic_cast<mavka::ast::ContinueNode*>(node);
       // todo
+      std::cout << "ContinueNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::DictionaryNode>(node)) {
@@ -421,18 +447,21 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::EvalNode>(node)) {
       const auto eval_node = dynamic_cast<mavka::ast::EvalNode*>(node);
       // todo
+      std::cout << "EvalNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::FromToComplexNode>(node)) {
       const auto from_to_complex_node =
           dynamic_cast<mavka::ast::FromToComplexNode*>(node);
       // todo
+      std::cout << "FromToComplexNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::FromToSimpleNode>(node)) {
       const auto from_to_simple_node =
           dynamic_cast<mavka::ast::FromToSimpleNode*>(node);
       // todo
+      std::cout << "FromToSimpleNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::FunctionNode>(node)) {
@@ -444,7 +473,7 @@ namespace supercompiler {
       if (diia_subject_result->error) {
         return diia_subject_result;
       }
-      this->bodies_to_compile->push_back(
+      this->bodies_to_compile.push_back(
           new BodyToCompile(diia_scope, function_node->body));
       return diia_subject_result;
     }
@@ -469,16 +498,32 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::GiveNode>(node)) {
       const auto give_node = dynamic_cast<mavka::ast::GiveNode*>(node);
       // todo
+      std::cout << "GiveNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::GodNode>(node)) {
       const auto god_node = dynamic_cast<mavka::ast::GodNode*>(node);
-      // todl
+      // todo
+      std::cout << "GodNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::IdentifierNode>(node)) {
       const auto identifier_node =
           dynamic_cast<mavka::ast::IdentifierNode*>(node);
+      Generic* generic = nullptr;
+      for (auto& g : this->generics) {
+        if (g->name == identifier_node->name) {
+          generic = g;
+          break;
+        }
+      }
+      if (generic) {
+        const auto generic_subject = new Subject();
+        generic_subject->generic = generic;
+        const auto structure_structure_subject = this->get("обʼєкт");
+        generic_subject->types = structure_structure_subject->types;
+        return success(generic_subject);
+      }
       if (!this->has(identifier_node->name)) {
         return error_from_ast(
             node, "Субʼєкт \"" + identifier_node->name + "\" не визначено.");
@@ -528,12 +573,14 @@ namespace supercompiler {
       const auto mockup_module_node =
           dynamic_cast<mavka::ast::MockupModuleNode*>(node);
       // todo
+      std::cout << "MockupModuleNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MockupObjectNode>(node)) {
       const auto mockup_object_node =
           dynamic_cast<mavka::ast::MockupObjectNode*>(node);
       // todo
+      std::cout << "MockupObjectNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
@@ -565,6 +612,7 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::ModuleNode>(node)) {
       const auto module_node = dynamic_cast<mavka::ast::ModuleNode*>(node);
       // todo
+      std::cout << "ModuleNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::NegativeNode>(node)) {
@@ -579,6 +627,7 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::NotNode>(node)) {
       const auto not_node = dynamic_cast<mavka::ast::NotNode*>(node);
       // todo
+      std::cout << "NotNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::NumberNode>(node)) {
@@ -593,30 +642,35 @@ namespace supercompiler {
     if (jejalyk::tools::instance_of<mavka::ast::PositiveNode>(node)) {
       const auto positive_node = dynamic_cast<mavka::ast::PositiveNode*>(node);
       // todo
+      std::cout << "PositiveNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PostDecrementNode>(node)) {
       const auto post_decrement_node =
           dynamic_cast<mavka::ast::PostDecrementNode*>(node);
       // todo
+      std::cout << "PostDecrementNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PostIncrementNode>(node)) {
       const auto post_increment_node =
           dynamic_cast<mavka::ast::PostIncrementNode*>(node);
       // todo
+      std::cout << "PostIncrementNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PreDecrementNode>(node)) {
       const auto pre_decrement_node =
           dynamic_cast<mavka::ast::PreDecrementNode*>(node);
       // todo
+      std::cout << "PreDecrementNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PreIncrementNode>(node)) {
       const auto pre_increment_node =
           dynamic_cast<mavka::ast::PreIncrementNode*>(node);
       // todo
+      std::cout << "PreIncrementNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ReturnNode>(node)) {
@@ -658,53 +712,63 @@ namespace supercompiler {
       const auto take_module_node =
           dynamic_cast<mavka::ast::TakeModuleNode*>(node);
       // todo
+      std::cout << "TakeModuleNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TakePakNode>(node)) {
       const auto take_pak_node = dynamic_cast<mavka::ast::TakePakNode*>(node);
       // todo
+      std::cout << "TakePakNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TernaryNode>(node)) {
       const auto ternary_node = dynamic_cast<mavka::ast::TernaryNode*>(node);
       // todo
+      std::cout << "TernaryNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TestNode>(node)) {
       const auto test_node = dynamic_cast<mavka::ast::TestNode*>(node);
       // todo
+      std::cout << "TestNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ThrowNode>(node)) {
       const auto throw_node = dynamic_cast<mavka::ast::ThrowNode*>(node);
       // todo
+      std::cout << "ThrowNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TryNode>(node)) {
       const auto try_node = dynamic_cast<mavka::ast::TryNode*>(node);
       // todo
+      std::cout << "TryNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TypeValueNode>(node)) {
       const auto type_value_node =
           dynamic_cast<mavka::ast::TypeValueNode*>(node);
       // todo
+      std::cout << "TypeValueNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TypeValueSingleNode>(node)) {
       const auto type_value_single_node =
           dynamic_cast<mavka::ast::TypeValueSingleNode*>(node);
       // todo
+      std::cout << "TypeValueSingleNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::WaitNode>(node)) {
       const auto wait_node = dynamic_cast<mavka::ast::WaitNode*>(node);
       // todo
+      std::cout << "WaitNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::WhileNode>(node)) {
       const auto while_node = dynamic_cast<mavka::ast::WhileNode*>(node);
       // todo
+      std::cout << "WhileNode" << std::endl;
     }
 
     return error("unsupported node");
@@ -842,7 +906,10 @@ namespace supercompiler {
                                                    param_param->name +
                                                    "\" повинна мати значення.");
           }
-          const auto param_param_types_result = this->compile_types(
+          const auto param_scope = this->make_child();
+          param_scope->micro = true;
+          param_scope->generics = structure_object->structure_generics;
+          const auto param_param_types_result = param_scope->compile_types(
               param_param->types, "Тип властивості \"" + param_param->name +
                                       "\" повинен бути структурою.");
           if (param_param_types_result->error) {
@@ -873,8 +940,11 @@ namespace supercompiler {
             return error("Дію \"" + method_declaration_node->name +
                          "\" вже визначено для структури \"" + name + "\".");
           }
+          const auto method_scope = this->make_child();
+          method_scope->micro = true;
+          method_scope->generics = structure_object->structure_generics;
           const auto method_declaration_result =
-              this->compile_node(method_declaration_node);
+              method_scope->compile_node(method_declaration_node);
           if (method_declaration_result->error) {
             return method_declaration_result;
           }
@@ -883,19 +953,22 @@ namespace supercompiler {
         }
       }
     }
-
-    const auto params_result = this->compile_params(only_params);
+    const auto params_scope = this->make_child();
+    params_scope->micro = true;
+    params_scope->generics = structure_object->structure_generics;
+    const auto params_result = params_scope->compile_params(only_params);
     if (params_result->error) {
-      return error(params_result->error->message);
+      return new Result(params_result->error);
     }
 
     if (parent) {
       const auto parent_result = this->compile_node(parent);
       if (parent_result->error) {
-        return error(parent_result->error->message);
+        return parent_result;
       }
       if (!parent_result->value->is_structure(this)) {
-        return error("Батьківський тип повинен бути структурою.");
+        return error_from_ast(parent,
+                              "Батьківський тип повинен бути структурою.");
       }
       structure_object->structure_parent = parent_result->value->types[0];
 
@@ -932,8 +1005,9 @@ namespace supercompiler {
     }
 
     if (structure_object->structure_methods.contains("чародія_створити")) {
-      structure_object->properties["чародія_викликати"] =
-          structure_object->structure_methods["чародія_створити"];
+      structure_object->properties.insert_or_assign(
+          "чародія_викликати",
+          structure_object->structure_methods["чародія_створити"]);
     } else {
       const auto constructor_diia = new Object();
       const auto diia_structure_subject = this->get("Дія");
@@ -946,8 +1020,8 @@ namespace supercompiler {
       constructor_diia->diia_return = structure_type_subject;
       const auto constructor_diia_subject = new Subject();
       constructor_diia_subject->types.push_back(constructor_diia);
-      structure_object->properties["чародія_викликати"] =
-          constructor_diia_subject;
+      structure_object->properties.insert_or_assign("чародія_викликати",
+                                                    constructor_diia_subject);
     }
 
     return success(structure_subject);
@@ -973,7 +1047,7 @@ namespace supercompiler {
       return diia_subject_result;
     }
 
-    this->bodies_to_compile->push_back(new BodyToCompile(diia_scope, body));
+    this->bodies_to_compile.push_back(new BodyToCompile(diia_scope, body));
 
     return diia_subject_result;
   }
@@ -995,8 +1069,8 @@ namespace supercompiler {
     }
 
     if (with_bodies_to_compile) {
-      for (int i = 0; i < this->bodies_to_compile->size(); ++i) {
-        const auto body_to_compile = this->bodies_to_compile->at(i);
+      for (int i = 0; i < this->bodies_to_compile.size(); ++i) {
+        const auto body_to_compile = this->bodies_to_compile[i];
 
         const auto compilation_result =
             body_to_compile->scope->compile_body(body_to_compile->body, true);
@@ -1012,6 +1086,7 @@ namespace supercompiler {
   Scope* Scope::make_child() {
     const auto child = new Scope();
     child->parent = this;
+    child->generics = this->generics;
     return child;
   }
 }

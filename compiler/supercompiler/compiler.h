@@ -24,8 +24,8 @@ namespace supercompiler {
   class Error final {
    public:
     bool full = false;
-    int line = 0;
-    int column = 0;
+    size_t line = 0;
+    size_t column = 0;
     std::string message;
   };
 
@@ -58,7 +58,9 @@ namespace supercompiler {
     std::map<std::string, Subject*> variables;
     std::vector<mavka::ast::ASTNode*>* body;
     Object* diia;
-    std::vector<BodyToCompile*>* bodies_to_compile = {};
+    std::vector<BodyToCompile*> bodies_to_compile;
+    std::vector<Generic*> generics;
+    bool micro = false;
 
     void set(std::string name, Subject* value);
     bool has(std::string name);
@@ -141,6 +143,8 @@ namespace supercompiler {
   class Subject final {
    public:
     std::vector<Object*> types;
+    Generic* generic;
+
     bool is_structure(Scope* scope);
     bool is_diia(Scope* scope);
     bool check_types(Subject* value);

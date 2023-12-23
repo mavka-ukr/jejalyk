@@ -101,13 +101,21 @@ public:
 
     virtual std::any visitString(MavkaParser::StringContext *context) = 0;
 
-    virtual std::any visitPre_increment(MavkaParser::Pre_incrementContext *context) = 0;
+    virtual std::any visitGet_element(MavkaParser::Get_elementContext *context) = 0;
 
-    virtual std::any visitArithmetic_add(MavkaParser::Arithmetic_addContext *context) = 0;
+    virtual std::any visitChain(MavkaParser::ChainContext *context) = 0;
+
+    virtual std::any visitString_value(MavkaParser::String_valueContext *context) = 0;
+
+    virtual std::any visitPre_increment(MavkaParser::Pre_incrementContext *context) = 0;
 
     virtual std::any visitBitwise_not(MavkaParser::Bitwise_notContext *context) = 0;
 
+    virtual std::any visitPositive(MavkaParser::PositiveContext *context) = 0;
+
     virtual std::any visitNested(MavkaParser::NestedContext *context) = 0;
+
+    virtual std::any visitCall(MavkaParser::CallContext *context) = 0;
 
     virtual std::any visitNumber(MavkaParser::NumberContext *context) = 0;
 
@@ -115,43 +123,25 @@ public:
 
     virtual std::any visitNot(MavkaParser::NotContext *context) = 0;
 
-    virtual std::any visitArray(MavkaParser::ArrayContext *context) = 0;
-
-    virtual std::any visitBitwise(MavkaParser::BitwiseContext *context) = 0;
+    virtual std::any visitPre_decrement(MavkaParser::Pre_decrementContext *context) = 0;
 
     virtual std::any visitPost_decrement(MavkaParser::Post_decrementContext *context) = 0;
 
     virtual std::any visitId(MavkaParser::IdContext *context) = 0;
 
+    virtual std::any visitPost_increment(MavkaParser::Post_incrementContext *context) = 0;
+
     virtual std::any visitArithmetic_mul(MavkaParser::Arithmetic_mulContext *context) = 0;
 
-    virtual std::any visitGet_element(MavkaParser::Get_elementContext *context) = 0;
-
-    virtual std::any visitChain(MavkaParser::ChainContext *context) = 0;
-
-    virtual std::any visitString_value(MavkaParser::String_valueContext *context) = 0;
+    virtual std::any visitArithmetic_add(MavkaParser::Arithmetic_addContext *context) = 0;
 
     virtual std::any visitComparison(MavkaParser::ComparisonContext *context) = 0;
 
     virtual std::any visitTest(MavkaParser::TestContext *context) = 0;
 
-    virtual std::any visitCall_expr(MavkaParser::Call_exprContext *context) = 0;
+    virtual std::any visitBitwise(MavkaParser::BitwiseContext *context) = 0;
 
-    virtual std::any visitPositive(MavkaParser::PositiveContext *context) = 0;
-
-    virtual std::any visitCall(MavkaParser::CallContext *context) = 0;
-
-    virtual std::any visitAs(MavkaParser::AsContext *context) = 0;
-
-    virtual std::any visitDictionary(MavkaParser::DictionaryContext *context) = 0;
-
-    virtual std::any visitPre_decrement(MavkaParser::Pre_decrementContext *context) = 0;
-
-    virtual std::any visitPost_increment(MavkaParser::Post_incrementContext *context) = 0;
-
-    virtual std::any visitTernary(MavkaParser::TernaryContext *context) = 0;
-
-    virtual std::any visitGod(MavkaParser::GodContext *context) = 0;
+    virtual std::any visitValue_atom(MavkaParser::Value_atomContext *context) = 0;
 
     virtual std::any visitCall_generics(MavkaParser::Call_genericsContext *context) = 0;
 
@@ -166,6 +156,16 @@ public:
     virtual std::any visitCall_parent(MavkaParser::Call_parentContext *context) = 0;
 
     virtual std::any visitSimple(MavkaParser::SimpleContext *context) = 0;
+
+    virtual std::any visitAs(MavkaParser::AsContext *context) = 0;
+
+    virtual std::any visitTernary(MavkaParser::TernaryContext *context) = 0;
+
+    virtual std::any visitArray(MavkaParser::ArrayContext *context) = 0;
+
+    virtual std::any visitDictionary(MavkaParser::DictionaryContext *context) = 0;
+
+    virtual std::any visitGod(MavkaParser::GodContext *context) = 0;
 
     virtual std::any visitWait(MavkaParser::WaitContext *context) = 0;
 

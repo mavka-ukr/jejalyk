@@ -179,11 +179,19 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitPre_increment(MavkaParser::Pre_incrementContext *ctx) override {
+  virtual std::any visitGet_element(MavkaParser::Get_elementContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitArithmetic_add(MavkaParser::Arithmetic_addContext *ctx) override {
+  virtual std::any visitChain(MavkaParser::ChainContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitString_value(MavkaParser::String_valueContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPre_increment(MavkaParser::Pre_incrementContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -191,7 +199,15 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitPositive(MavkaParser::PositiveContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitNested(MavkaParser::NestedContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitCall(MavkaParser::CallContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -207,11 +223,7 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitArray(MavkaParser::ArrayContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitBitwise(MavkaParser::BitwiseContext *ctx) override {
+  virtual std::any visitPre_decrement(MavkaParser::Pre_decrementContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -223,19 +235,15 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitPost_increment(MavkaParser::Post_incrementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitArithmetic_mul(MavkaParser::Arithmetic_mulContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitGet_element(MavkaParser::Get_elementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitChain(MavkaParser::ChainContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitString_value(MavkaParser::String_valueContext *ctx) override {
+  virtual std::any visitArithmetic_add(MavkaParser::Arithmetic_addContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -247,39 +255,11 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitCall_expr(MavkaParser::Call_exprContext *ctx) override {
+  virtual std::any visitBitwise(MavkaParser::BitwiseContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitPositive(MavkaParser::PositiveContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitCall(MavkaParser::CallContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitAs(MavkaParser::AsContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitDictionary(MavkaParser::DictionaryContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitPre_decrement(MavkaParser::Pre_decrementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitPost_increment(MavkaParser::Post_incrementContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitTernary(MavkaParser::TernaryContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitGod(MavkaParser::GodContext *ctx) override {
+  virtual std::any visitValue_atom(MavkaParser::Value_atomContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -308,6 +288,26 @@ public:
   }
 
   virtual std::any visitSimple(MavkaParser::SimpleContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitAs(MavkaParser::AsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTernary(MavkaParser::TernaryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitArray(MavkaParser::ArrayContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitDictionary(MavkaParser::DictionaryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitGod(MavkaParser::GodContext *ctx) override {
     return visitChildren(ctx);
   }
 

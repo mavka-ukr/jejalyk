@@ -137,17 +137,29 @@ public:
   virtual void enterString(MavkaParser::StringContext *ctx) = 0;
   virtual void exitString(MavkaParser::StringContext *ctx) = 0;
 
+  virtual void enterGet_element(MavkaParser::Get_elementContext *ctx) = 0;
+  virtual void exitGet_element(MavkaParser::Get_elementContext *ctx) = 0;
+
+  virtual void enterChain(MavkaParser::ChainContext *ctx) = 0;
+  virtual void exitChain(MavkaParser::ChainContext *ctx) = 0;
+
+  virtual void enterString_value(MavkaParser::String_valueContext *ctx) = 0;
+  virtual void exitString_value(MavkaParser::String_valueContext *ctx) = 0;
+
   virtual void enterPre_increment(MavkaParser::Pre_incrementContext *ctx) = 0;
   virtual void exitPre_increment(MavkaParser::Pre_incrementContext *ctx) = 0;
-
-  virtual void enterArithmetic_add(MavkaParser::Arithmetic_addContext *ctx) = 0;
-  virtual void exitArithmetic_add(MavkaParser::Arithmetic_addContext *ctx) = 0;
 
   virtual void enterBitwise_not(MavkaParser::Bitwise_notContext *ctx) = 0;
   virtual void exitBitwise_not(MavkaParser::Bitwise_notContext *ctx) = 0;
 
+  virtual void enterPositive(MavkaParser::PositiveContext *ctx) = 0;
+  virtual void exitPositive(MavkaParser::PositiveContext *ctx) = 0;
+
   virtual void enterNested(MavkaParser::NestedContext *ctx) = 0;
   virtual void exitNested(MavkaParser::NestedContext *ctx) = 0;
+
+  virtual void enterCall(MavkaParser::CallContext *ctx) = 0;
+  virtual void exitCall(MavkaParser::CallContext *ctx) = 0;
 
   virtual void enterNumber(MavkaParser::NumberContext *ctx) = 0;
   virtual void exitNumber(MavkaParser::NumberContext *ctx) = 0;
@@ -158,11 +170,8 @@ public:
   virtual void enterNot(MavkaParser::NotContext *ctx) = 0;
   virtual void exitNot(MavkaParser::NotContext *ctx) = 0;
 
-  virtual void enterArray(MavkaParser::ArrayContext *ctx) = 0;
-  virtual void exitArray(MavkaParser::ArrayContext *ctx) = 0;
-
-  virtual void enterBitwise(MavkaParser::BitwiseContext *ctx) = 0;
-  virtual void exitBitwise(MavkaParser::BitwiseContext *ctx) = 0;
+  virtual void enterPre_decrement(MavkaParser::Pre_decrementContext *ctx) = 0;
+  virtual void exitPre_decrement(MavkaParser::Pre_decrementContext *ctx) = 0;
 
   virtual void enterPost_decrement(MavkaParser::Post_decrementContext *ctx) = 0;
   virtual void exitPost_decrement(MavkaParser::Post_decrementContext *ctx) = 0;
@@ -170,17 +179,14 @@ public:
   virtual void enterId(MavkaParser::IdContext *ctx) = 0;
   virtual void exitId(MavkaParser::IdContext *ctx) = 0;
 
+  virtual void enterPost_increment(MavkaParser::Post_incrementContext *ctx) = 0;
+  virtual void exitPost_increment(MavkaParser::Post_incrementContext *ctx) = 0;
+
   virtual void enterArithmetic_mul(MavkaParser::Arithmetic_mulContext *ctx) = 0;
   virtual void exitArithmetic_mul(MavkaParser::Arithmetic_mulContext *ctx) = 0;
 
-  virtual void enterGet_element(MavkaParser::Get_elementContext *ctx) = 0;
-  virtual void exitGet_element(MavkaParser::Get_elementContext *ctx) = 0;
-
-  virtual void enterChain(MavkaParser::ChainContext *ctx) = 0;
-  virtual void exitChain(MavkaParser::ChainContext *ctx) = 0;
-
-  virtual void enterString_value(MavkaParser::String_valueContext *ctx) = 0;
-  virtual void exitString_value(MavkaParser::String_valueContext *ctx) = 0;
+  virtual void enterArithmetic_add(MavkaParser::Arithmetic_addContext *ctx) = 0;
+  virtual void exitArithmetic_add(MavkaParser::Arithmetic_addContext *ctx) = 0;
 
   virtual void enterComparison(MavkaParser::ComparisonContext *ctx) = 0;
   virtual void exitComparison(MavkaParser::ComparisonContext *ctx) = 0;
@@ -188,32 +194,11 @@ public:
   virtual void enterTest(MavkaParser::TestContext *ctx) = 0;
   virtual void exitTest(MavkaParser::TestContext *ctx) = 0;
 
-  virtual void enterCall_expr(MavkaParser::Call_exprContext *ctx) = 0;
-  virtual void exitCall_expr(MavkaParser::Call_exprContext *ctx) = 0;
+  virtual void enterBitwise(MavkaParser::BitwiseContext *ctx) = 0;
+  virtual void exitBitwise(MavkaParser::BitwiseContext *ctx) = 0;
 
-  virtual void enterPositive(MavkaParser::PositiveContext *ctx) = 0;
-  virtual void exitPositive(MavkaParser::PositiveContext *ctx) = 0;
-
-  virtual void enterCall(MavkaParser::CallContext *ctx) = 0;
-  virtual void exitCall(MavkaParser::CallContext *ctx) = 0;
-
-  virtual void enterAs(MavkaParser::AsContext *ctx) = 0;
-  virtual void exitAs(MavkaParser::AsContext *ctx) = 0;
-
-  virtual void enterDictionary(MavkaParser::DictionaryContext *ctx) = 0;
-  virtual void exitDictionary(MavkaParser::DictionaryContext *ctx) = 0;
-
-  virtual void enterPre_decrement(MavkaParser::Pre_decrementContext *ctx) = 0;
-  virtual void exitPre_decrement(MavkaParser::Pre_decrementContext *ctx) = 0;
-
-  virtual void enterPost_increment(MavkaParser::Post_incrementContext *ctx) = 0;
-  virtual void exitPost_increment(MavkaParser::Post_incrementContext *ctx) = 0;
-
-  virtual void enterTernary(MavkaParser::TernaryContext *ctx) = 0;
-  virtual void exitTernary(MavkaParser::TernaryContext *ctx) = 0;
-
-  virtual void enterGod(MavkaParser::GodContext *ctx) = 0;
-  virtual void exitGod(MavkaParser::GodContext *ctx) = 0;
+  virtual void enterValue_atom(MavkaParser::Value_atomContext *ctx) = 0;
+  virtual void exitValue_atom(MavkaParser::Value_atomContext *ctx) = 0;
 
   virtual void enterCall_generics(MavkaParser::Call_genericsContext *ctx) = 0;
   virtual void exitCall_generics(MavkaParser::Call_genericsContext *ctx) = 0;
@@ -235,6 +220,21 @@ public:
 
   virtual void enterSimple(MavkaParser::SimpleContext *ctx) = 0;
   virtual void exitSimple(MavkaParser::SimpleContext *ctx) = 0;
+
+  virtual void enterAs(MavkaParser::AsContext *ctx) = 0;
+  virtual void exitAs(MavkaParser::AsContext *ctx) = 0;
+
+  virtual void enterTernary(MavkaParser::TernaryContext *ctx) = 0;
+  virtual void exitTernary(MavkaParser::TernaryContext *ctx) = 0;
+
+  virtual void enterArray(MavkaParser::ArrayContext *ctx) = 0;
+  virtual void exitArray(MavkaParser::ArrayContext *ctx) = 0;
+
+  virtual void enterDictionary(MavkaParser::DictionaryContext *ctx) = 0;
+  virtual void exitDictionary(MavkaParser::DictionaryContext *ctx) = 0;
+
+  virtual void enterGod(MavkaParser::GodContext *ctx) = 0;
+  virtual void exitGod(MavkaParser::GodContext *ctx) = 0;
 
   virtual void enterWait(MavkaParser::WaitContext *ctx) = 0;
   virtual void exitWait(MavkaParser::WaitContext *ctx) = 0;

@@ -139,17 +139,29 @@ public:
   virtual void enterString(MavkaParser::StringContext * /*ctx*/) override { }
   virtual void exitString(MavkaParser::StringContext * /*ctx*/) override { }
 
+  virtual void enterGet_element(MavkaParser::Get_elementContext * /*ctx*/) override { }
+  virtual void exitGet_element(MavkaParser::Get_elementContext * /*ctx*/) override { }
+
+  virtual void enterChain(MavkaParser::ChainContext * /*ctx*/) override { }
+  virtual void exitChain(MavkaParser::ChainContext * /*ctx*/) override { }
+
+  virtual void enterString_value(MavkaParser::String_valueContext * /*ctx*/) override { }
+  virtual void exitString_value(MavkaParser::String_valueContext * /*ctx*/) override { }
+
   virtual void enterPre_increment(MavkaParser::Pre_incrementContext * /*ctx*/) override { }
   virtual void exitPre_increment(MavkaParser::Pre_incrementContext * /*ctx*/) override { }
-
-  virtual void enterArithmetic_add(MavkaParser::Arithmetic_addContext * /*ctx*/) override { }
-  virtual void exitArithmetic_add(MavkaParser::Arithmetic_addContext * /*ctx*/) override { }
 
   virtual void enterBitwise_not(MavkaParser::Bitwise_notContext * /*ctx*/) override { }
   virtual void exitBitwise_not(MavkaParser::Bitwise_notContext * /*ctx*/) override { }
 
+  virtual void enterPositive(MavkaParser::PositiveContext * /*ctx*/) override { }
+  virtual void exitPositive(MavkaParser::PositiveContext * /*ctx*/) override { }
+
   virtual void enterNested(MavkaParser::NestedContext * /*ctx*/) override { }
   virtual void exitNested(MavkaParser::NestedContext * /*ctx*/) override { }
+
+  virtual void enterCall(MavkaParser::CallContext * /*ctx*/) override { }
+  virtual void exitCall(MavkaParser::CallContext * /*ctx*/) override { }
 
   virtual void enterNumber(MavkaParser::NumberContext * /*ctx*/) override { }
   virtual void exitNumber(MavkaParser::NumberContext * /*ctx*/) override { }
@@ -160,11 +172,8 @@ public:
   virtual void enterNot(MavkaParser::NotContext * /*ctx*/) override { }
   virtual void exitNot(MavkaParser::NotContext * /*ctx*/) override { }
 
-  virtual void enterArray(MavkaParser::ArrayContext * /*ctx*/) override { }
-  virtual void exitArray(MavkaParser::ArrayContext * /*ctx*/) override { }
-
-  virtual void enterBitwise(MavkaParser::BitwiseContext * /*ctx*/) override { }
-  virtual void exitBitwise(MavkaParser::BitwiseContext * /*ctx*/) override { }
+  virtual void enterPre_decrement(MavkaParser::Pre_decrementContext * /*ctx*/) override { }
+  virtual void exitPre_decrement(MavkaParser::Pre_decrementContext * /*ctx*/) override { }
 
   virtual void enterPost_decrement(MavkaParser::Post_decrementContext * /*ctx*/) override { }
   virtual void exitPost_decrement(MavkaParser::Post_decrementContext * /*ctx*/) override { }
@@ -172,17 +181,14 @@ public:
   virtual void enterId(MavkaParser::IdContext * /*ctx*/) override { }
   virtual void exitId(MavkaParser::IdContext * /*ctx*/) override { }
 
+  virtual void enterPost_increment(MavkaParser::Post_incrementContext * /*ctx*/) override { }
+  virtual void exitPost_increment(MavkaParser::Post_incrementContext * /*ctx*/) override { }
+
   virtual void enterArithmetic_mul(MavkaParser::Arithmetic_mulContext * /*ctx*/) override { }
   virtual void exitArithmetic_mul(MavkaParser::Arithmetic_mulContext * /*ctx*/) override { }
 
-  virtual void enterGet_element(MavkaParser::Get_elementContext * /*ctx*/) override { }
-  virtual void exitGet_element(MavkaParser::Get_elementContext * /*ctx*/) override { }
-
-  virtual void enterChain(MavkaParser::ChainContext * /*ctx*/) override { }
-  virtual void exitChain(MavkaParser::ChainContext * /*ctx*/) override { }
-
-  virtual void enterString_value(MavkaParser::String_valueContext * /*ctx*/) override { }
-  virtual void exitString_value(MavkaParser::String_valueContext * /*ctx*/) override { }
+  virtual void enterArithmetic_add(MavkaParser::Arithmetic_addContext * /*ctx*/) override { }
+  virtual void exitArithmetic_add(MavkaParser::Arithmetic_addContext * /*ctx*/) override { }
 
   virtual void enterComparison(MavkaParser::ComparisonContext * /*ctx*/) override { }
   virtual void exitComparison(MavkaParser::ComparisonContext * /*ctx*/) override { }
@@ -190,32 +196,11 @@ public:
   virtual void enterTest(MavkaParser::TestContext * /*ctx*/) override { }
   virtual void exitTest(MavkaParser::TestContext * /*ctx*/) override { }
 
-  virtual void enterCall_expr(MavkaParser::Call_exprContext * /*ctx*/) override { }
-  virtual void exitCall_expr(MavkaParser::Call_exprContext * /*ctx*/) override { }
+  virtual void enterBitwise(MavkaParser::BitwiseContext * /*ctx*/) override { }
+  virtual void exitBitwise(MavkaParser::BitwiseContext * /*ctx*/) override { }
 
-  virtual void enterPositive(MavkaParser::PositiveContext * /*ctx*/) override { }
-  virtual void exitPositive(MavkaParser::PositiveContext * /*ctx*/) override { }
-
-  virtual void enterCall(MavkaParser::CallContext * /*ctx*/) override { }
-  virtual void exitCall(MavkaParser::CallContext * /*ctx*/) override { }
-
-  virtual void enterAs(MavkaParser::AsContext * /*ctx*/) override { }
-  virtual void exitAs(MavkaParser::AsContext * /*ctx*/) override { }
-
-  virtual void enterDictionary(MavkaParser::DictionaryContext * /*ctx*/) override { }
-  virtual void exitDictionary(MavkaParser::DictionaryContext * /*ctx*/) override { }
-
-  virtual void enterPre_decrement(MavkaParser::Pre_decrementContext * /*ctx*/) override { }
-  virtual void exitPre_decrement(MavkaParser::Pre_decrementContext * /*ctx*/) override { }
-
-  virtual void enterPost_increment(MavkaParser::Post_incrementContext * /*ctx*/) override { }
-  virtual void exitPost_increment(MavkaParser::Post_incrementContext * /*ctx*/) override { }
-
-  virtual void enterTernary(MavkaParser::TernaryContext * /*ctx*/) override { }
-  virtual void exitTernary(MavkaParser::TernaryContext * /*ctx*/) override { }
-
-  virtual void enterGod(MavkaParser::GodContext * /*ctx*/) override { }
-  virtual void exitGod(MavkaParser::GodContext * /*ctx*/) override { }
+  virtual void enterValue_atom(MavkaParser::Value_atomContext * /*ctx*/) override { }
+  virtual void exitValue_atom(MavkaParser::Value_atomContext * /*ctx*/) override { }
 
   virtual void enterCall_generics(MavkaParser::Call_genericsContext * /*ctx*/) override { }
   virtual void exitCall_generics(MavkaParser::Call_genericsContext * /*ctx*/) override { }
@@ -237,6 +222,21 @@ public:
 
   virtual void enterSimple(MavkaParser::SimpleContext * /*ctx*/) override { }
   virtual void exitSimple(MavkaParser::SimpleContext * /*ctx*/) override { }
+
+  virtual void enterAs(MavkaParser::AsContext * /*ctx*/) override { }
+  virtual void exitAs(MavkaParser::AsContext * /*ctx*/) override { }
+
+  virtual void enterTernary(MavkaParser::TernaryContext * /*ctx*/) override { }
+  virtual void exitTernary(MavkaParser::TernaryContext * /*ctx*/) override { }
+
+  virtual void enterArray(MavkaParser::ArrayContext * /*ctx*/) override { }
+  virtual void exitArray(MavkaParser::ArrayContext * /*ctx*/) override { }
+
+  virtual void enterDictionary(MavkaParser::DictionaryContext * /*ctx*/) override { }
+  virtual void exitDictionary(MavkaParser::DictionaryContext * /*ctx*/) override { }
+
+  virtual void enterGod(MavkaParser::GodContext * /*ctx*/) override { }
+  virtual void exitGod(MavkaParser::GodContext * /*ctx*/) override { }
 
   virtual void enterWait(MavkaParser::WaitContext * /*ctx*/) override { }
   virtual void exitWait(MavkaParser::WaitContext * /*ctx*/) override { }
