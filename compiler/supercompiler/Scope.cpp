@@ -865,12 +865,15 @@ namespace supercompiler {
     Object* structure_object;
     Subject* structure_subject;
 
+    bool redefine = false;
+
     if (this->has(name)) {
       structure_subject = this->get(name);
       if (!structure_subject->is_structure(this)) {
         return error("Субʼєкт \"" + name + "\" вже визначено.");
       }
       structure_object = structure_subject->types[0];
+      redefine = true;
     } else {
       const auto structure_structure_subject = this->get("Структура");
 
@@ -887,12 +890,14 @@ namespace supercompiler {
       this->set(name, structure_subject);
     }
 
-    for (int i = 0; i < generics.size(); ++i) {
-      const auto generic_node = generics[i];
-      const auto generic = new Generic();
-      generic->index = i;
-      generic->name = generic_node->name;
-      structure_object->structure_generics.push_back(generic);
+    if (!redefine) {
+      for (int i = 0; i < generics.size(); ++i) {
+        const auto generic_node = generics[i];
+        const auto generic = new Generic();
+        generic->index = i;
+        generic->name = generic_node->name;
+        structure_object->structure_generics.push_back(generic);
+      }
     }
 
     std::vector<mavka::ast::ParamNode*> only_params;

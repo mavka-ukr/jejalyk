@@ -83,6 +83,12 @@ namespace supercompiler {
       }
     }
     if (this->is_diia(scope)) {
+      if (generics.size() < this->diia_generics.size()) {
+        return error("Недостаня кількість аргументів узагальнення.");
+      }
+      if (generics.size() > this->diia_generics.size()) {
+        return error("Забагато аргументів узагальнення.");
+      }
       if (args.size() > this->diia_params.size()) {
         if (this->diia_params.empty() ||
             !this->diia_params[this->diia_params.size() - 1]->variadic) {
