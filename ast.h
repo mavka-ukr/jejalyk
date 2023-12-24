@@ -293,6 +293,7 @@ namespace mavka::ast {
    public:
     bool ee = false;
     bool async = false;
+    std::string structure;
     std::string name;
     std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
@@ -316,7 +317,8 @@ namespace mavka::ast {
     std::string name;
     std::vector<GenericNode*> generics;
     ASTNode* parent;
-    std::vector<ASTNode*> params;
+    std::vector<ParamNode*> params;
+    std::vector<MethodDeclarationNode*> methods;
   };
 
   class MockupSubjectNode final : public ASTNode {
@@ -436,6 +438,7 @@ namespace mavka::ast {
   class TypeValueSingleNode final : public ASTNode {
    public:
     ASTNode* value;
+    std::vector<TypeValueSingleNode*> generics;
   };
 
   class WaitNode final : public ASTNode {
@@ -448,5 +451,5 @@ namespace mavka::ast {
     ASTNode* condition;
     std::vector<ASTNode*> body;
   };
-}  // namespace mavka::ast
-#endif  // AST_H
+} // namespace mavka::ast
+#endif // AST_H

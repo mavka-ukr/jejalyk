@@ -398,9 +398,20 @@ namespace mavka::parser {
                 visitGenerics(context->ms_generics));
       }
       if (context->ms_elements) {
-        mockup_structure_node->params =
-            std::any_cast<std::vector<ast::ASTNode*>>(
-                visitMockup_body(context->ms_elements));
+        const auto elements = std::any_cast<std::vector<ast::ASTNode*>>(
+            visitMockup_body(context->ms_elements));
+        for (const auto element : elements) {
+          if (jejalyk::tools::instance_of<ast::ParamNode>(element)) {
+            const auto param_node = dynamic_cast<ast::ParamNode*>(element);
+            mockup_structure_node->params.push_back(param_node);
+          }
+          if (jejalyk::tools::instance_of<ast::MethodDeclarationNode>(
+                  element)) {
+            const auto method_declaration_node =
+                dynamic_cast<ast::MethodDeclarationNode*>(element);
+            mockup_structure_node->methods.push_back(method_declaration_node);
+          }
+        }
       }
       return create_ast_result(mockup_structure_node);
     }
