@@ -44,12 +44,13 @@ namespace mavka::parser {
       parser_error->message = "Помилка парсингу.";
       parser_result->error = parser_error;
       return parser_result;
-    } catch (...) {
-      const auto parser_result = new MavkaParserResult();
-      const auto parser_error = new MavkaParserError();
-      parser_error->message = "Невідома помилка парсингу.";
-      parser_result->error = parser_error;
-      return parser_result;
     }
+    // catch (...) {
+    //   const auto parser_result = new MavkaParserResult();
+    //   const auto parser_error = new MavkaParserError();
+    //   parser_error->message = "Невідома помилка парсингу.";
+    //   parser_result->error = parser_error;
+    //   return parser_result;
+    // }
   }
 }

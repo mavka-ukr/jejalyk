@@ -385,8 +385,8 @@ void mavkaparserParserInitialize() {
   	3,74,37,3,677,683,1,0,0,0,678,679,10,1,0,0,679,680,3,154,77,0,680,681,
   	3,74,37,2,681,683,1,0,0,0,682,662,1,0,0,0,682,666,1,0,0,0,682,670,1,0,
   	0,0,682,674,1,0,0,0,682,678,1,0,0,0,683,686,1,0,0,0,684,682,1,0,0,0,684,
-  	685,1,0,0,0,685,75,1,0,0,0,686,684,1,0,0,0,687,692,3,86,43,0,688,689,
-  	5,64,0,0,689,691,3,86,43,0,690,688,1,0,0,0,691,694,1,0,0,0,692,690,1,
+  	685,1,0,0,0,685,75,1,0,0,0,686,684,1,0,0,0,687,692,3,120,60,0,688,689,
+  	5,64,0,0,689,691,3,120,60,0,690,688,1,0,0,0,691,694,1,0,0,0,692,690,1,
   	0,0,0,692,693,1,0,0,0,693,77,1,0,0,0,694,692,1,0,0,0,695,696,3,160,80,
   	0,696,697,3,80,40,0,697,706,3,160,80,0,698,699,3,160,80,0,699,700,5,64,
   	0,0,700,701,3,160,80,0,701,702,3,80,40,0,702,703,3,160,80,0,703,705,1,
@@ -6116,12 +6116,12 @@ MavkaParser::Call_genericsContext::Call_genericsContext(ParserRuleContext *paren
   : ParserRuleContext(parent, invokingState) {
 }
 
-std::vector<MavkaParser::ExprContext *> MavkaParser::Call_genericsContext::expr() {
-  return getRuleContexts<MavkaParser::ExprContext>();
+std::vector<MavkaParser::Type_valueContext *> MavkaParser::Call_genericsContext::type_value() {
+  return getRuleContexts<MavkaParser::Type_valueContext>();
 }
 
-MavkaParser::ExprContext* MavkaParser::Call_genericsContext::expr(size_t i) {
-  return getRuleContext<MavkaParser::ExprContext>(i);
+MavkaParser::Type_valueContext* MavkaParser::Call_genericsContext::type_value(size_t i) {
+  return getRuleContext<MavkaParser::Type_valueContext>(i);
 }
 
 std::vector<tree::TerminalNode *> MavkaParser::Call_genericsContext::COMMA() {
@@ -6172,7 +6172,7 @@ MavkaParser::Call_genericsContext* MavkaParser::call_generics() {
   try {
     enterOuterAlt(_localctx, 1);
     setState(687);
-    expr();
+    type_value();
     setState(692);
     _errHandler->sync(this);
     _la = _input->LA(1);
@@ -6180,7 +6180,7 @@ MavkaParser::Call_genericsContext* MavkaParser::call_generics() {
       setState(688);
       match(MavkaParser::COMMA);
       setState(689);
-      expr();
+      type_value();
       setState(694);
       _errHandler->sync(this);
       _la = _input->LA(1);

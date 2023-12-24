@@ -73,7 +73,6 @@ namespace mavka::ast {
   class TestNode;
   class ThrowNode;
   class TryNode;
-  class TypeValueNode;
   class TypeValueSingleNode;
   class WaitNode;
   class WhileNode;
@@ -82,7 +81,7 @@ namespace mavka::ast {
    public:
     bool ee = false;
     std::string name;
-    std::vector<ASTNode*> types;
+    std::vector<TypeValueSingleNode*> types;
     ASTNode* value;
     bool variadic = false;
   };
@@ -91,7 +90,7 @@ namespace mavka::ast {
    public:
     bool async;
     std::vector<ParamNode*> params;
-    std::vector<ASTNode*> return_types;
+    std::vector<TypeValueSingleNode*> return_types;
     std::vector<ASTNode*> body;
   };
 
@@ -140,7 +139,7 @@ namespace mavka::ast {
   class AssignSimpleNode final : public ASTNode {
    public:
     std::string name;
-    std::vector<ASTNode*> types;
+    std::vector<TypeValueSingleNode*> types;
     std::string op;
     ASTNode* value;
   };
@@ -162,7 +161,7 @@ namespace mavka::ast {
   class CallNode final : public ASTNode {
    public:
     ASTNode* value;
-    std::vector<ASTNode*> generics;
+    std::vector<std::vector<TypeValueSingleNode*>> generics;
     std::vector<ArgNode*> args;
   };
 
@@ -200,7 +199,7 @@ namespace mavka::ast {
     std::string name;
     std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
-    std::vector<ASTNode*> return_types;
+    std::vector<TypeValueSingleNode*> return_types;
     std::vector<ASTNode*> body;
   };
 
@@ -226,7 +225,7 @@ namespace mavka::ast {
    public:
     bool async;
     std::vector<ParamNode*> params;
-    std::vector<ASTNode*> return_types;
+    std::vector<TypeValueSingleNode*> return_types;
     std::vector<ASTNode*> body;
   };
 
@@ -287,7 +286,7 @@ namespace mavka::ast {
     std::string name;
     std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
-    std::vector<ASTNode*> return_types;
+    std::vector<TypeValueSingleNode*> return_types;
   };
 
   class MockupDiiaNode final : public ASTNode {
@@ -297,7 +296,7 @@ namespace mavka::ast {
     std::string name;
     std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
-    std::vector<ASTNode*> return_types;
+    std::vector<TypeValueSingleNode*> return_types;
   };
 
   class MockupModuleNode final : public ASTNode {
@@ -323,7 +322,7 @@ namespace mavka::ast {
   class MockupSubjectNode final : public ASTNode {
    public:
     std::string name;
-    std::vector<ASTNode*> types;
+    std::vector<TypeValueSingleNode*> types;
   };
 
   class ModuleNode final : public ASTNode {
@@ -434,16 +433,8 @@ namespace mavka::ast {
     std::vector<ASTNode*> catch_body;
   };
 
-  class TypeValueNode final : public ASTNode {
-   public:
-    ASTNode* left;
-    ASTNode* right;
-    std::string op;
-  };
-
   class TypeValueSingleNode final : public ASTNode {
    public:
-    bool is_array;
     ASTNode* value;
   };
 

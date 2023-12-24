@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "compiler/supercompiler/compiler.h"
+#include "compiler/typeinterpreter/typeinterpreter.h"
 #include "parser.h"
 
 int main() {
@@ -82,18 +82,19 @@ int main() {
 
 ;; ---
 
-дія привіт<Т, К>(т Т або К) Т або К
+структура А<Т>
+  т Т
 кінець
 
-а = привіт<логічне, список>([])
-а.довжина
+а = А<число>(2)
+а.т + 2
 )";
   const auto parser_result = mavka::parser::parse(code);
   if (parser_result->error) {
     std::cout << parser_result->error->message << std::endl;
     return 1;
   }
-  const auto result = supercompiler::compile(parser_result->program_node);
+  const auto result = typeinterpreter::compile(parser_result->program_node);
   if (result->error) {
     if (result->error->full) {
       std::cout << result->error->line << ":" << result->error->column << ": ";

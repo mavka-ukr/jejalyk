@@ -130,7 +130,6 @@ fragment ID_CONTINUE
     : ID_START
     | '0'..'9'
     | 'ʼ'
-    | '\''
     | ID_START
     ;
 

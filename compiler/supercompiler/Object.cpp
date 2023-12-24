@@ -119,12 +119,12 @@ namespace supercompiler {
           return error("Недостатня кількість аргументів.");
         }
       }
-      std::cout << "call succ" << std::endl;
       const auto return_type = new Subject();
       for (const auto type : this->diia_return->types) {
         if (type->generic) {
           const auto generic_subject = generics[type->generic->index];
-          return_type->types.push_back(generic_subject->types[0]->create_instance());
+          return_type->types.push_back(
+              generic_subject->types[0]->create_instance());
         } else {
           return_type->types.push_back(type);
         }

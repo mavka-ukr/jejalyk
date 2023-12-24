@@ -141,13 +141,17 @@ add_executable(jejalyk jejalyk_bin.cpp
         parser.h
         tools.cpp
         tools.h
-        compiler/supercompiler/Object.cpp
-        compiler/supercompiler/Param.cpp
-        compiler/supercompiler/Scope.cpp
-        compiler/supercompiler/Subject.cpp
-        compiler/supercompiler/compiler.h
-        compiler/supercompiler/Error.cpp
-        compiler/supercompiler/compile.cpp
+        compiler/typeinterpreter/typeinterpreter.cpp
+        compiler/typeinterpreter/typeinterpreter.h
+        compiler/typeinterpreter/Error.cpp
+        compiler/typeinterpreter/Result.cpp
+        compiler/typeinterpreter/Type.cpp
+        compiler/typeinterpreter/Object.cpp
+        compiler/typeinterpreter/Subject.cpp
+        compiler/typeinterpreter/Scope.cpp
+        compiler/typeinterpreter/Param.cpp
+        compiler/typeinterpreter/Method.cpp
+        compiler/typeinterpreter/Generic.cpp
 )
 add_executable(jejalyk_node jejalyk_wasm.cpp ${JEJALYK_COMPILER_SRC})
 add_executable(jejalyk_web jejalyk_wasm.cpp ${JEJALYK_COMPILER_SRC})

@@ -86,7 +86,7 @@ value: atom #value_atom
      | t_left=value t_operation=test_op t_right=value #test
      ;
 
-call_generics: expr (',' expr)*;
+call_generics: type_value (',' type_value)*;
 
 array_elements: nls array_element nls (nls ',' nls array_element nls)*;
 array_element: ae_value=expr;

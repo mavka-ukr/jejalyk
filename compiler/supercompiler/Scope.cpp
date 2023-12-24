@@ -70,7 +70,7 @@ namespace supercompiler {
       const std::string& structure,
       const std::vector<mavka::ast::GenericNode*>& generics,
       const std::vector<mavka::ast::ParamNode*>& params,
-      const std::vector<mavka::ast::ASTNode*>& return_types) {
+      const std::vector<mavka::ast::TypeValueSingleNode*>& return_types) {
     const auto diia_structure_subject = this->get("Дія");
 
     const auto diia_object = new Object();
@@ -343,12 +343,16 @@ namespace supercompiler {
         return value_result;
       }
       std::vector<Subject*> generics;
-      for (const auto generic_node : call_node->generics) {
-        const auto generic_result = this->compile_node(generic_node);
-        if (generic_result->error) {
-          return generic_result;
+      for (const auto& generic_node : call_node->generics) {
+        Subject* generic_subject = nullptr;
+        for (const auto type_value_node : generic_node) {
+          const auto type_value_result = this->compile_node(type_value_node);
+          if (type_value_result->error) {
+            return type_value_result;
+          }
+          generic_subject = type_value_result->value;
         }
-        generics.push_back(generic_result->value);
+        generics.push_back(generic_subject);
       }
       std::vector<Subject*> args;
       std::map<std::string, Subject*> named_args;
@@ -751,18 +755,10 @@ namespace supercompiler {
       std::cout << "TryNode" << std::endl;
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::TypeValueNode>(node)) {
-      const auto type_value_node =
-          dynamic_cast<mavka::ast::TypeValueNode*>(node);
-      // todo
-      std::cout << "TypeValueNode" << std::endl;
-    }
-
     if (jejalyk::tools::instance_of<mavka::ast::TypeValueSingleNode>(node)) {
       const auto type_value_single_node =
           dynamic_cast<mavka::ast::TypeValueSingleNode*>(node);
-      // todo
-      std::cout << "TypeValueSingleNode" << std::endl;
+      return this->compile_node(type_value_single_node->value);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::WaitNode>(node)) {
@@ -835,8 +831,9 @@ namespace supercompiler {
     return result;
   }
 
-  Result* Scope::compile_types(const std::vector<mavka::ast::ASTNode*>& types,
-                               const std::string& error_message) {
+  Result* Scope::compile_types(
+      const std::vector<mavka::ast::TypeValueSingleNode*>& types,
+      const std::string& error_message) {
     const auto result = new Result();
     result->value = new Subject();
 
@@ -1046,7 +1043,7 @@ namespace supercompiler {
       const std::string& structure,
       const std::vector<mavka::ast::GenericNode*>& generics,
       const std::vector<mavka::ast::ParamNode*>& params,
-      const std::vector<mavka::ast::ASTNode*>& return_types,
+      const std::vector<mavka::ast::TypeValueSingleNode*>& return_types,
       std::vector<mavka::ast::ASTNode*> body) {
     const auto diia_scope = this->make_child();
     diia_scope->body = &body;
