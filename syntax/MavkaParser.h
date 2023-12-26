@@ -1478,6 +1478,7 @@ public:
 
   class  Dictionary_argContext : public antlr4::ParserRuleContext {
   public:
+    MavkaParser::IdentifierContext *da_name_id = nullptr;
     antlr4::Token *da_name_string = nullptr;
     MavkaParser::ExprContext *da_value = nullptr;
     Dictionary_argContext(antlr4::ParserRuleContext *parent, size_t invokingState);
@@ -1485,8 +1486,9 @@ public:
     std::vector<NlsContext *> nls();
     NlsContext* nls(size_t i);
     antlr4::tree::TerminalNode *ASSIGN();
-    antlr4::tree::TerminalNode *STRING();
     ExprContext *expr();
+    IdentifierContext *identifier();
+    antlr4::tree::TerminalNode *STRING();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

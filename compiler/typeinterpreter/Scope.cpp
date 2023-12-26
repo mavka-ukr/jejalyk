@@ -188,6 +188,37 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::ArithmeticNode>(node)) {
       const auto arithmetic_node =
           dynamic_cast<mavka::ast::ArithmeticNode*>(node);
+
+      const auto left_result = this->compile_node(arithmetic_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+      const auto right_result = this->compile_node(arithmetic_node->right);
+      if (right_result->error) {
+        return right_result;
+      }
+      if (arithmetic_node->op == "+") {
+        return left_result->value->plus(this, node, right_result->value);
+      }
+      if (arithmetic_node->op == "-") {
+        return left_result->value->minus(this, node, right_result->value);
+      }
+      if (arithmetic_node->op == "*") {
+        return left_result->value->multiply(this, node, right_result->value);
+      }
+      if (arithmetic_node->op == "/") {
+        return left_result->value->divide(this, node, right_result->value);
+      }
+      if (arithmetic_node->op == "%") {
+        return left_result->value->divmod(this, node, right_result->value);
+      }
+      if (arithmetic_node->op == "//") {
+        return left_result->value->divdiv(this, node, right_result->value);
+      }
+      if (arithmetic_node->op == "**") {
+        return left_result->value->pow(this, node, right_result->value);
+      }
+
       std::cout << "ArithmeticNode" << std::endl;
     }
 
@@ -239,13 +270,47 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::AssignByElementNode>(node)) {
       const auto assign_by_element_node =
           dynamic_cast<mavka::ast::AssignByElementNode*>(node);
-      std::cout << "AssignByElementNode" << std::endl;
+
+      const auto left_result = this->compile_node(assign_by_element_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+
+      const auto element_result =
+          this->compile_node(assign_by_element_node->element);
+      if (element_result->error) {
+        return element_result;
+      }
+
+      const auto value_result =
+          this->compile_node(assign_by_element_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      return left_result->value->set_element(this, node, element_result->value,
+                                             value_result->value);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::AssignByIdentifierNode>(node)) {
       const auto assign_by_identifier_node =
           dynamic_cast<mavka::ast::AssignByIdentifierNode*>(node);
-      std::cout << "AssignByIdentifierNode" << std::endl;
+
+      const auto left_result =
+          this->compile_node(assign_by_identifier_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+
+      const auto value_result =
+          this->compile_node(assign_by_identifier_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      return left_result->value->set(this, node,
+                                     assign_by_identifier_node->identifier,
+                                     value_result->value);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::AssignSimpleNode>(node)) {
@@ -412,7 +477,59 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::EachNode>(node)) {
       const auto each_node = dynamic_cast<mavka::ast::EachNode*>(node);
-      std::cout << "EachNode" << std::endl;
+
+      const auto value_result = this->compile_node(each_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      if (each_node->keyName.empty()) {
+        if (value_result->value->is_iterator(this)) {
+          const auto iterator_type_result =
+              value_result->value->get_iterator_type(this, each_node->value);
+          if (iterator_type_result->error) {
+            return iterator_type_result;
+          }
+          this->set_local(each_node->name, iterator_type_result->value);
+        } else if (value_result->value->has("чародія_перебір")) {
+          const auto iterator_diia_type_result =
+              value_result->value->get("чародія_перебір");
+          if (iterator_diia_type_result->error) {
+            return iterator_diia_type_result;
+          }
+          const auto iterator_diia_return_types =
+              iterator_diia_type_result->value->call(this, each_node->value, {},
+                                                     {});
+          if (iterator_diia_return_types->value->is_iterator(this)) {
+            const auto iterator_type_result =
+                iterator_diia_return_types->value->get_iterator_type(
+                    this, each_node->value);
+            if (iterator_type_result->error) {
+              return iterator_type_result;
+            }
+            this->set_local(each_node->name, iterator_type_result->value);
+          } else {
+            return error_from_ast(
+                node, "Неможливо перебрати \"" +
+                          value_result->value->types_string() + "\".");
+          }
+        } else {
+          return error_from_ast(node, "Неможливо перебрати \"" +
+                                          value_result->value->types_string() +
+                                          "\".");
+        }
+      } else {
+        return error_from_ast(node, "Неможливо перебрати \"" +
+                                        value_result->value->types_string() +
+                                        "\".");
+      }
+
+      const auto compiled_body = this->compile_body(each_node->body);
+      if (compiled_body->error) {
+        return compiled_body;
+      }
+
+      return success(nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::EvalNode>(node)) {
@@ -481,7 +598,24 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::IfNode>(node)) {
       const auto if_node = dynamic_cast<mavka::ast::IfNode*>(node);
-      std::cout << "IfNode" << std::endl;
+
+      const auto condition_result = this->compile_node(if_node->condition);
+      if (condition_result->error) {
+        return condition_result;
+      }
+      const auto body_result = this->compile_body(if_node->body);
+      if (body_result->error) {
+        return body_result;
+      }
+
+      if (!if_node->else_body.empty()) {
+        const auto else_body_result = this->compile_body(if_node->else_body);
+        if (else_body_result->error) {
+          return else_body_result;
+        }
+      }
+
+      return success(nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MethodDeclarationNode>(node)) {
@@ -540,7 +674,20 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::MockupSubjectNode>(node)) {
       const auto mockup_subject_node =
           dynamic_cast<mavka::ast::MockupSubjectNode*>(node);
-      std::cout << "MockupSubjectNode" << std::endl;
+
+      if (this->has_local(mockup_subject_node->name)) {
+        return error_from_ast(node, "Субʼєкт \"" + mockup_subject_node->name +
+                                        "\" вже визначено.");
+      }
+
+      const auto types_result = this->compile_types(mockup_subject_node->types);
+      if (types_result->error) {
+        return types_result;
+      }
+
+      this->set_local(mockup_subject_node->name, types_result->value);
+
+      return types_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ModuleNode>(node)) {
@@ -720,6 +867,40 @@ namespace typeinterpreter {
   }
 
   Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*> body) {
+    for (int i = 0; i < body.size(); ++i) {
+      const auto node = body[i];
+      if (!node) {
+        continue;
+      }
+
+      if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
+        const auto mockup_structure_node =
+            dynamic_cast<mavka::ast::MockupStructureNode*>(node);
+        const auto compiled_structure_result = this->compile_structure(
+            mockup_structure_node->name, mockup_structure_node->generics, "",
+            {}, {}, {});
+        if (compiled_structure_result->error) {
+          return compiled_structure_result;
+        }
+        compiled_structure_result->value->types[0]
+            ->object->this_is_declaration = true;
+        this->set_local(mockup_structure_node->name,
+                        compiled_structure_result->value);
+      }
+    }
+
+    for (int i = 0; i < body.size(); ++i) {
+      const auto node = body[i];
+      if (!node) {
+        continue;
+      }
+
+      const auto compiled_node_result = this->compile_node(node);
+      if (compiled_node_result->error) {
+        return compiled_node_result;
+      }
+    }
+
     return new Result();
   }
 

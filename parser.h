@@ -1334,7 +1334,20 @@ namespace mavka::parser {
       for (const auto dictionary_arg : context->dictionary_arg()) {
         const auto value =
             any_to_ast_result(_visitContext(dictionary_arg->da_value))->node;
-        if (dictionary_arg->da_name_string) {
+        if (dictionary_arg->da_name_id) {
+          const auto dictionary_element_node = new ast::DictionaryElementNode();
+          dictionary_element_node->start_line =
+              dictionary_arg->getStart()->getLine();
+          dictionary_element_node->start_column =
+              dictionary_arg->getStart()->getCharPositionInLine();
+          dictionary_element_node->end_line =
+              dictionary_arg->getStop()->getLine();
+          dictionary_element_node->end_column =
+              dictionary_arg->getStop()->getCharPositionInLine();
+          dictionary_element_node->key = dictionary_arg->da_name_id->getText();
+          dictionary_element_node->value = value;
+          elements.push_back(dictionary_element_node);
+        } else if (dictionary_arg->da_name_string) {
           const auto name_string = dictionary_arg->da_name_string->getText();
           if (name_string.starts_with(R"(""")")) {
             const auto dictionary_element_node =

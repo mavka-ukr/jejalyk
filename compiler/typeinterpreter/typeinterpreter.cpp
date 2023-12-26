@@ -114,38 +114,9 @@ namespace typeinterpreter {
     scope->set_local("обʼєкт", object_subject);
     scope->set_local("Структура", structure_subject);
 
-    for (int i = 0; i < program_node->body.size(); ++i) {
-      const auto node = program_node->body[i];
-      if (!node) {
-        continue;
-      }
-
-      if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
-        const auto mockup_structure_node =
-            dynamic_cast<mavka::ast::MockupStructureNode*>(node);
-        const auto compiled_structure_result = scope->compile_structure(
-            mockup_structure_node->name, mockup_structure_node->generics, "",
-            {}, {}, {});
-        if (compiled_structure_result->error) {
-          return compiled_structure_result;
-        }
-        compiled_structure_result->value->types[0]
-            ->object->this_is_declaration = true;
-        scope->set_local(mockup_structure_node->name,
-                         compiled_structure_result->value);
-      }
-    }
-
-    for (int i = 0; i < program_node->body.size(); ++i) {
-      const auto node = program_node->body[i];
-      if (!node) {
-        continue;
-      }
-
-      const auto compiled_node_result = scope->compile_node(node);
-      if (compiled_node_result->error) {
-        return compiled_node_result;
-      }
+    const auto compiled_body = scope->compile_body(program_node->body);
+    if (compiled_body->error) {
+      return compiled_body;
     }
 
     return new Result();

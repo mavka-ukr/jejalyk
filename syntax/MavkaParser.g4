@@ -92,7 +92,7 @@ array_elements: nls array_element nls (nls ',' nls array_element nls)*;
 array_element: ae_value=expr;
 
 dictionary_args: dictionary_arg (',' dictionary_arg)*;
-dictionary_arg: nls da_name_string=STRING '=' da_value=expr nls;
+dictionary_arg: nls (da_name_id=identifier | da_name_string=STRING) '=' da_value=expr nls;
 
 expr: 'предок' nls '.' nls cp_id=identifier '(' (cp_args=args | cp_named_args=named_args)? ')' #call_parent
     | value #simple

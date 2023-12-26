@@ -49,6 +49,10 @@ namespace typeinterpreter {
 
     bool has(std::string name);
     Subject* get(std::string name);
+    Result* set(Scope* scope,
+                mavka::ast::ASTNode* node,
+                const std::string& name,
+                Subject* value);
 
     Result* call(Scope* scope,
                  mavka::ast::ASTNode* node,
@@ -57,6 +61,20 @@ namespace typeinterpreter {
     Result* get_element(Scope* scope,
                         mavka::ast::ASTNode* node,
                         Subject* value);
+    Result* set_element(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* element,
+                        Subject* value);
+    Result* plus(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* minus(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* multiply(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* divide(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* divmod(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* divdiv(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+
+    bool is_iterator(Scope* scope);
+    Result* get_iterator_type(Scope* scope, mavka::ast::ASTNode* node);
   };
 
   class Object final {
@@ -87,6 +105,10 @@ namespace typeinterpreter {
 
     bool has(const std::string& name);
     Result* get(const std::string& name);
+    Result* set(Scope* scope,
+                mavka::ast::ASTNode* node,
+                const std::string& name,
+                Subject* value);
 
     Result* call(Scope* scope,
                  mavka::ast::ASTNode* node,
@@ -95,6 +117,20 @@ namespace typeinterpreter {
     Result* get_element(Scope* scope,
                         mavka::ast::ASTNode* node,
                         Subject* value);
+    Result* set_element(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* element,
+                        Subject* value);
+    Result* plus(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* minus(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* multiply(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* divide(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* divmod(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* divdiv(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+
+    bool is_iterator(Scope* scope);
+    Result* get_iterator_type(Scope* scope, mavka::ast::ASTNode* node);
 
     Result* create_instance(Scope* scope, std::vector<Subject*> generic_types);
   };

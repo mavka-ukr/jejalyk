@@ -3,6 +3,9 @@
 namespace typeinterpreter {
   bool Type::is_diia(Scope* scope) {
     const auto diia_structure_subject = scope->get_root()->get("Дія");
+    if (this->generic_definition) {
+      return false;
+    }
     return this->object->structure->object ==
            diia_structure_subject->types[0]->object;
   }
@@ -114,6 +117,27 @@ namespace typeinterpreter {
     return nullptr;
   }
 
+  Result* Type::set(Scope* scope,
+                    mavka::ast::ASTNode* node,
+                    const std::string& name,
+                    Subject* value) {
+    if (this->has(name)) {
+      const auto types = this->get(name);
+      if (!scope->check_subjects(value, types)) {
+        return error_from_ast(
+            node, "Неправильний тип значення для властивості \"" + name +
+                      "\": очікується \"" + types->types_string() +
+                      "\", отримано \"" + value->types_string() + "\".");
+      }
+      return success(types);
+    } else {
+      return error_from_ast(
+          node,
+          "Неможливо встановити не визначену властивість \"" + name + "\".");
+    }
+    return success(value);
+  }
+
   Result* Type::call(Scope* scope,
                      mavka::ast::ASTNode* node,
                      std::vector<Subject*> generic_types,
@@ -138,11 +162,20 @@ namespace typeinterpreter {
         const auto processed_types_result =
             process_subject_generics(this->object, generic_types, param->types);
         if (!scope->check_subjects(arg, processed_types_result)) {
-          return error_from_ast(
-              node, "Неправильний тип аргументу параметра \"" + param->name +
-                        "\": очікується \"" +
-                        processed_types_result->types_string() +
-                        "\", отримано \"" + arg->types_string() + "\".");
+          if (this->object->name.empty()) {
+            return error_from_ast(
+                node, "Неправильний тип аргументу параметра \"" + param->name +
+                          "\": очікується \"" +
+                          processed_types_result->types_string() +
+                          "\", отримано \"" + arg->types_string() + "\".");
+          } else {
+            return error_from_ast(
+                node, "Неправильний тип аргументу параметра \"" + param->name +
+                          "\" дії \"" + this->object->name +
+                          "\": очікується \"" +
+                          processed_types_result->types_string() +
+                          "\", отримано \"" + arg->types_string() + "\".");
+          }
         }
       }
       return success(process_subject_generics(this->object, generic_types,
@@ -161,6 +194,110 @@ namespace typeinterpreter {
     if (this->has("чародія_отримати")) {
       return this->get("чародія_отримати")->call(scope, node, {}, {value});
     }
-    return error("Неможливо отримати спеціальну властивість з типу \"" + this->get_type_name() + "\".");
+    return error_from_ast(
+        node, "Неможливо отримати спеціальну властивість з типу \"" +
+                  this->get_type_name() + "\".");
   }
+
+  Result* Type::set_element(Scope* scope,
+                            mavka::ast::ASTNode* node,
+                            Subject* element,
+                            Subject* value) {
+    if (this->has("чародія_покласти")) {
+      return this->get("чародія_покласти")
+          ->call(scope, node, {}, {element, value});
+    }
+    return error_from_ast(
+        node, "Неможливо встановити спеціальну властивість з типу \"" +
+                  this->get_type_name() + "\".");
+  }
+
+  Result* Type::plus(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
+    if (this->has("чародія_додати")) {
+      return this->get("чародія_додати")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати додавання для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::minus(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
+    if (this->has("чародія_відняти")) {
+      return this->get("чародія_відняти")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати віднімання для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::multiply(Scope* scope,
+                         mavka::ast::ASTNode* node,
+                         Subject* value) {
+    if (this->has("чародія_помножити")) {
+      return this->get("чародія_помножити")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати множення для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::divide(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       Subject* value) {
+    if (this->has("чародія_поділити")) {
+      return this->get("чародія_поділити")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати ділення для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::divmod(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       Subject* value) {
+    if (this->has("чародія_остача")) {
+      return this->get("чародія_остача")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node,
+                          "Неможливо виконати ділення з остачею для "
+                          "типу \"" +
+                              this->get_type_name() + "\".");
+  }
+
+  Result* Type::divdiv(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       Subject* value) {
+    if (this->has("чародія_частка")) {
+      return this->get("чародія_частка")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node,
+                          "Неможливо чародія_частка для "
+                          "типу \"" +
+                              this->get_type_name() + "\".");
+  }
+
+  Result* Type::pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
+    if (this->has("чародія_степінь")) {
+      return this->get("чародія_степінь")
+          ->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати піднесення до степені "
+                                    "для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  bool Type::is_iterator(Scope* scope) {
+    const auto iterator_structure_subject = scope->get_root()->get("перебір");
+
+    if (this->generic_definition) {
+      return false;
+    }
+
+    return this->object->structure->object == iterator_structure_subject->types[0]->object;
+  }
+
+  Result* Type::get_iterator_type(Scope* scope, mavka::ast::ASTNode* node) {
+    if (!this->is_iterator(scope)) {
+      return error_from_ast(node, "Неможливо отримати тип ітератора.");
+    }
+
+    return success(this->generic_types[0]);
+  }
+
 } // namespace typeinterpreter

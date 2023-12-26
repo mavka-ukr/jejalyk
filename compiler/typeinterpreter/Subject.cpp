@@ -80,6 +80,21 @@ namespace typeinterpreter {
     return success(types[0]->get(name));
   }
 
+  Result* Subject::set(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       const std::string& name,
+                       Subject* value) {
+    if (types.empty()) {
+      return error("Неможливо встановити властивість \"" + name +
+                   "\" субʼєкта невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error("Неможливо встановити властивість \"" + name +
+                   "\" субʼєкта декількох типів.");
+    }
+    return types[0]->set(scope, node, name, value);
+  }
+
   Result* Subject::call(Scope* scope,
                         mavka::ast::ASTNode* node,
                         std::vector<Subject*> generic_types,
@@ -98,16 +113,143 @@ namespace typeinterpreter {
                                mavka::ast::ASTNode* node,
                                Subject* value) {
     if (types.empty()) {
-      return error(
+      return error_from_ast(
+          node,
           "Неможливо отримати спеціальну властивість з субʼєкта невідомого "
           "типу.");
     }
     if (types.size() > 1) {
-      return error(
+      return error_from_ast(
+          node,
           "Неможливо отримати спеціальну властивість з субʼєкта декількох "
           "типів.");
     }
     return types[0]->get_element(scope, node, value);
+  }
+
+  Result* Subject::set_element(Scope* scope,
+                               mavka::ast::ASTNode* node,
+                               Subject* element,
+                               Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(
+          node,
+          "Неможливо встановити спеціальну властивість субʼєкта невідомого "
+          "типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(
+          node,
+          "Неможливо встановити спеціальну властивість субʼєкта декількох "
+          "типів.");
+    }
+    return types[0]->set_element(scope, node, element, value);
+  }
+
+  Result* Subject::plus(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо додати субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо додати субʼєкт декількох типів.");
+    }
+    return types[0]->plus(scope, node, value);
+  }
+
+  Result* Subject::minus(Scope* scope,
+                         mavka::ast::ASTNode* node,
+                         Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо відняти субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо відняти субʼєкт декількох типів.");
+    }
+    return types[0]->minus(scope, node, value);
+  }
+
+  Result* Subject::multiply(Scope* scope,
+                            mavka::ast::ASTNode* node,
+                            Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо помножити субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо помножити субʼєкт декількох типів.");
+    }
+    return types[0]->multiply(scope, node, value);
+  }
+
+  Result* Subject::divide(Scope* scope,
+                          mavka::ast::ASTNode* node,
+                          Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо поділити субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо поділити субʼєкт декількох типів.");
+    }
+    return types[0]->divide(scope, node, value);
+  }
+
+  Result* Subject::divmod(Scope* scope,
+                          mavka::ast::ASTNode* node,
+                          Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо divmod субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо divmod субʼєкт декількох типів.");
+    }
+    return types[0]->divmod(scope, node, value);
+  }
+
+  Result* Subject::divdiv(Scope* scope,
+                          mavka::ast::ASTNode* node,
+                          Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо divdiv субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо divdiv субʼєкт декількох типів.");
+    }
+    return types[0]->divdiv(scope, node, value);
+  }
+
+  Result* Subject::pow(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(
+          node, "Неможливо піднести субʼєкт невідомого типу до степеня.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо піднести субʼєкт декількох типів до степеня.");
+    }
+    return types[0]->pow(scope, node, value);
+  }
+
+  bool Subject::is_iterator(Scope* scope) {
+    if (types.empty()) {
+      return false;
+    }
+    if (types.size() > 1) {
+      return false;
+    }
+    return types[0]->is_iterator(scope);
+  }
+
+  Result* Subject::get_iterator_type(Scope* scope, mavka::ast::ASTNode* node) {
+    if (!this->is_iterator(scope)) {
+      return error_from_ast(node, "Неможливо отримати тип ітератора.");
+    }
+    return types[0]->get_iterator_type(scope, node);
   }
 
   Result* Subject::create_instance(Scope* scope,
