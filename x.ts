@@ -2,4 +2,4 @@ function A<T>(t: T): T {
   return t;
 }
 
-const a = +A<number>(2);
+const a = A<number>()<2>();

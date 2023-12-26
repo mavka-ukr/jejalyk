@@ -438,7 +438,7 @@ namespace mavka::ast {
   class TypeValueSingleNode final : public ASTNode {
    public:
     ASTNode* value;
-    std::vector<TypeValueSingleNode*> generics;
+    std::vector<std::vector<TypeValueSingleNode*>> generics;
   };
 
   class WaitNode final : public ASTNode {

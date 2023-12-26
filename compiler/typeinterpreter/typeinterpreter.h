@@ -37,19 +37,34 @@ namespace typeinterpreter {
   class Type final {
    public:
     Object* object = nullptr;
-    std::map<std::string, Subject*> generic_types;
+    GenericDefinition* generic_definition = nullptr;
+    std::vector<Subject*> generic_types;
+
+    bool is_diia(Scope* scope);
+    bool is_structure(Scope* scope);
+    std::string get_name();
+    std::string get_type_name();
+
+    Type* create_instance(Scope* scope, std::vector<Subject*> generics);
+
+    bool has(std::string name);
+    Subject* get(std::string name);
+
+    Result* call(Scope* scope,
+                 mavka::ast::ASTNode* node,
+                 std::vector<Subject*> vector,
+                 std::vector<Subject*> args);
   };
 
   class Object final {
    public:
     Type* structure = nullptr;
-    std::map<std::string, Subject*> properties;
 
     std::string name; // for structure, diia and module
-    std::map<std::string, GenericDefinition*>
+    std::vector<GenericDefinition*>
         generic_definitions; // for structure and diia
     Type* parent = nullptr; // for structure
-    std::map<std::string, Param*> params; // for structure and diia
+    std::vector<Param*> params; // for structure and diia
     std::map<std::string, Type*> methods; // for structure
     Subject* return_types = nullptr; // for diia
   };
@@ -58,12 +73,17 @@ namespace typeinterpreter {
    public:
     std::vector<Type*> types;
 
+    std::string get_name();
+    std::string types_string();
+
     bool check(Subject* subject);
 
     Result* call(Scope* scope,
                  mavka::ast::ASTNode* node,
-                 const std::vector<Subject*>& generics,
-                 const std::vector<Subject*>& args);
+                 std::vector<Subject*> generic_types,
+                 std::vector<Subject*> args);
+
+    Result* create_instance(Scope* scope, std::vector<Subject*> generic_types);
   };
 
   class Scope final {
@@ -84,10 +104,12 @@ namespace typeinterpreter {
 
     bool assign(std::string name, Subject* value);
 
+    bool check_subjects(Subject* value, Subject* types);
+
     Result* compile_node(mavka::ast::ASTNode* node);
     Result* compile_body(std::vector<mavka::ast::ASTNode*> body);
 
-    Result* Scope::compile_structure(
+    Result* compile_structure(
         std::string name,
         std::vector<mavka::ast::GenericNode*> generic_definitions,
         std::string parent,
@@ -119,14 +141,25 @@ namespace typeinterpreter {
 
   class GenericDefinition final {
    public:
+    Object* object;
+    size_t index;
     std::string name;
   };
+
+  Subject* process_subject_generics(Object* object,
+                                    std::vector<Subject*> generic_types,
+                                    Subject* subject);
 
   Result* error(const std::string& message);
   Result* error_from_ast(const mavka::ast::ASTNode* node,
                          const std::string& message);
   Result* success(Subject* value);
   Result* compile(mavka::ast::ProgramNode* program_node);
+
+  void debug_print_call(Type* value,
+                        std::vector<Subject*> generic_types,
+                        std::vector<Subject*> args);
+  void debug_print_check_subjects(Subject* value, Subject* types);
 
 } // namespace typeinterpreter
 

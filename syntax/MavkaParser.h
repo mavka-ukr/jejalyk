@@ -29,11 +29,10 @@ public:
     ASSIGN_XOR = 77, ASSIGN_POW = 78, ASSIGN_OR = 79, ASSIGN_AND = 80, ASSIGN_IF = 81, 
     PLUS = 82, MINUS = 83, MUL = 84, DIV = 85, COLON = 86, DOT = 87, NOT = 88, 
     TILDA = 89, PERCENT = 90, DIVDIV = 91, POW = 92, XOR = 93, OR_SYM = 94, 
-    AND_SYM = 95, OR_BW = 96, AND_BW = 97, BW_SHIFT_LEFT = 98, BW_SHIFT_RIGHT = 99, 
-    HEX_START = 100, ID = 101, NUMBER = 102, INTEGER = 103, FLOAT = 104, 
-    HEX = 105, HEXUKR = 106, BINNUM = 107, BINNUMUKR = 108, TRIPPLE_QUOTE = 109, 
-    STRING_MULTILINE = 110, STRING = 111, COMMENT = 112, LINE_COMMENT = 113, 
-    OLD_COMMENT = 114
+    AND_SYM = 95, OR_BW = 96, AND_BW = 97, HEX_START = 98, ID = 99, NUMBER = 100, 
+    INTEGER = 101, FLOAT = 102, HEX = 103, HEXUKR = 104, BINNUM = 105, BINNUMUKR = 106, 
+    TRIPPLE_QUOTE = 107, STRING_MULTILINE = 108, STRING = 109, COMMENT = 110, 
+    LINE_COMMENT = 111, OLD_COMMENT = 112
   };
 
   enum {
@@ -2072,8 +2071,8 @@ public:
   public:
     Type_value_item_genericsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
-    std::vector<IdentifierContext *> identifier();
-    IdentifierContext* identifier(size_t i);
+    std::vector<Type_valueContext *> type_value();
+    Type_valueContext* type_value(size_t i);
     std::vector<antlr4::tree::TerminalNode *> COMMA();
     antlr4::tree::TerminalNode* COMMA(size_t i);
 
@@ -2403,8 +2402,10 @@ public:
     antlr4::tree::TerminalNode *XOR();
     antlr4::tree::TerminalNode *OR_BW();
     antlr4::tree::TerminalNode *AND_BW();
-    antlr4::tree::TerminalNode *BW_SHIFT_LEFT();
-    antlr4::tree::TerminalNode *BW_SHIFT_RIGHT();
+    std::vector<antlr4::tree::TerminalNode *> SMALLER();
+    antlr4::tree::TerminalNode* SMALLER(size_t i);
+    std::vector<antlr4::tree::TerminalNode *> GREATER();
+    antlr4::tree::TerminalNode* GREATER(size_t i);
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;

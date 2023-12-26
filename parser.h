@@ -725,6 +725,18 @@ namespace mavka::parser {
       if (jejalyk::tools::instance_of<MavkaParser::ChainContext>(context)) {
         return visitChain(dynamic_cast<MavkaParser::ChainContext*>(context));
       }
+      // if
+      // (jejalyk::tools::instance_of<MavkaParser::Call_with_genericsContext>(
+      //         context)) {
+      //   return visitCall_with_generics(
+      //       dynamic_cast<MavkaParser::Call_with_genericsContext*>(context));
+      // }
+      // if (jejalyk::tools::instance_of<
+      //         MavkaParser::Atom_call_with_genericsContext>(context)) {
+      //   return visitAtom_call_with_generics(
+      //       dynamic_cast<MavkaParser::Atom_call_with_genericsContext*>(
+      //           context));
+      // }
       if (jejalyk::tools::instance_of<MavkaParser::CallContext>(context)) {
         return visitCall(dynamic_cast<MavkaParser::CallContext*>(context));
       }
@@ -943,6 +955,36 @@ namespace mavka::parser {
           any_to_ast_result(visitIdentifier(context->c_right))->node;
       return create_ast_result(chain_node);
     }
+
+    // std::any visitCall_with_generics(
+    //     MavkaParser::Call_with_genericsContext* context) override {
+    //   const auto call_node = new ast::CallNode();
+    //   call_node->start_line = context->getStart()->getLine();
+    //   call_node->start_column = context->getStart()->getCharPositionInLine();
+    //   call_node->end_line = context->getStop()->getLine();
+    //   call_node->end_column = context->getStop()->getCharPositionInLine();
+    //   call_node->value =
+    //       any_to_ast_result(_visitContext(context->c_value))->node;
+    //   if (context->call_generics()) {
+    //     call_node->generics =
+    //         std::any_cast<std::vector<std::vector<ast::TypeValueSingleNode*>>>(
+    //             visitCall_generics(context->call_generics()));
+    //   }
+    //   if (context->c_args) {
+    //     call_node->args = std::any_cast<std::vector<ast::ArgNode*>>(
+    //         visitArgs(context->c_args));
+    //   }
+    //   if (context->c_named_args) {
+    //     call_node->args = std::any_cast<std::vector<ast::ArgNode*>>(
+    //         visitNamed_args(context->c_named_args));
+    //   }
+    //   return create_ast_result(call_node);
+    // }
+
+    // std::any visitAtom_call_with_generics(
+    //     MavkaParser::Atom_call_with_genericsContext* context) override {
+    //   return _visitContext(context->call_with_generics());
+    // }
 
     std::any visitCall(MavkaParser::CallContext* context) override {
       const auto call_node = new ast::CallNode();
@@ -1895,6 +1937,13 @@ namespace mavka::parser {
             any_to_ast_result(visitIdentifiers_chain(type->tvi_value));
         const auto type_value_single = new ast::TypeValueSingleNode();
         type_value_single->value = ast_result->node;
+        if (type->tvi_generics) {
+          for (const auto generic_type : type->tvi_generics->type_value()) {
+            type_value_single->generics.push_back(
+                std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
+                    visitType_value(generic_type)));
+          }
+        }
         types.push_back(type_value_single);
       }
       return types;

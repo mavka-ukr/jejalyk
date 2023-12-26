@@ -132,7 +132,7 @@ super_identifiers_chain: sic_identifier=identifier
 
 type_value: type_value_item (('|' | 'або') type_value_item)*;
 type_value_item: tvi_value=identifiers_chain ('<' tvi_generics=type_value_item_generics '>')?;
-type_value_item_generics: identifier (',' identifier)*;
+type_value_item_generics: type_value (',' type_value)*;
 
 args: arg (',' arg)*;
 arg: nls (a_spread='...')? a_value=expr nls;
@@ -155,7 +155,7 @@ return_body_line: 'вернути' rbl_value=expr;
 
 arithmetic_op_mul: '*' | '/' | PERCENT | DIVDIV | POW;
 arithmetic_op_add: '+' | '-';
-bitwise_op: XOR | OR_BW | AND_BW | BW_SHIFT_LEFT | BW_SHIFT_RIGHT;
+bitwise_op: XOR | OR_BW | AND_BW | '<' '<' | '>' '>';
 test_op: 'і' | 'або' | '||' | '&&';
 comparison_op: '==' | '!=' | '>' | '<' | '>=' | '<=' | 'є' | 'не є' | 'рівно' | 'не рівно' | 'більше' | 'не більше' | 'менше' | 'не менше' | 'містить' | 'не містить';
 

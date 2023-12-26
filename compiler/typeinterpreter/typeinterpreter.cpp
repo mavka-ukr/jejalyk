@@ -1,6 +1,46 @@
 #include "typeinterpreter.h"
 
 namespace typeinterpreter {
+  Subject* process_subject_generics(Object* object,
+                                    std::vector<Subject*> generic_types,
+                                    Subject* subject) {
+    const auto processed_subject = new Subject();
+    for (int i = 0; i < subject->types.size(); ++i) {
+      const auto type = subject->types[i];
+
+      if (type->generic_definition) {
+        if (type->generic_definition->object == object) {
+          const auto generic = generic_types[type->generic_definition->index];
+          const auto generic_type = generic->types[0];
+
+          if (!generic_type->generic_types.empty() &&
+              !type->generic_types.empty()) {
+            std::cout << "[BUG] you are stupid" << std::endl;
+            return nullptr;
+          }
+
+          const auto newtype = new Type();
+          newtype->object = generic_type->object;
+
+          processed_subject->types.push_back(newtype);
+        } else {
+          processed_subject->types.push_back(type);
+        }
+      } else {
+        const auto newtype = new Type();
+        newtype->object = type->object;
+
+        for (const auto& generic_type_value : type->generic_types) {
+          newtype->generic_types.push_back(process_subject_generics(
+              object, generic_types, generic_type_value));
+        }
+
+        processed_subject->types.push_back(newtype);
+      }
+    }
+    return processed_subject;
+  }
+
   Result* error(const std::string& message) {
     const auto result = new Result();
     result->error = new Error();
@@ -69,5 +109,34 @@ namespace typeinterpreter {
     }
 
     return new Result();
+  }
+
+  void debug_print_call(Type* value,
+                        std::vector<Subject*> generic_types,
+                        std::vector<Subject*> args) {
+    std::cout << "[debug] CALL " << value->get_name();
+    if (generic_types.size()) {
+      std::cout << "<";
+      for (int i = 0; i < generic_types.size(); ++i) {
+        if (i > 0) {
+          std::cout << ", ";
+        }
+        std::cout << generic_types[i]->types_string();
+      }
+      std::cout << ">";
+    }
+    std::cout << "(";
+    for (int i = 0; i < args.size(); ++i) {
+      if (i > 0) {
+        std::cout << ", ";
+      }
+      std::cout << args[i]->types_string();
+    }
+    std::cout << ")" << std::endl;
+  }
+
+  void debug_print_check_subjects(Subject* value, Subject* types) {
+    std::cout << "[debug] CHECK " << value->types_string() << " AND "
+              << types->types_string() << std::endl;
   }
 } // namespace typeinterpreter

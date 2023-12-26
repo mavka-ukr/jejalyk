@@ -10,6 +10,7 @@ namespace typeinterpreter {
   Scope* Scope::make_proxy() {
     const auto child = new Scope();
     child->parent = this;
+    child->proxy = true;
     return child;
   }
 
@@ -71,6 +72,45 @@ namespace typeinterpreter {
     return false;
   }
 
+  bool Scope::check_subjects(Subject* value, Subject* types) {
+    debug_print_check_subjects(value, types);
+
+    for (const auto type : value->types) {
+      if (type->generic_definition) {
+        std::cout << "[BUG] generic_definition: "
+                  << type->generic_definition->name << std::endl;
+      }
+      auto structure = type->object->structure;
+      while (structure) {
+        for (const auto types_type : types->types) {
+          if (types_type->generic_definition) {
+            std::cout << "[BUG] types generic_definition: "
+                      << types_type->generic_definition->name << std::endl;
+          }
+
+          if (structure->object == types_type->object->structure->object) {
+            bool generics_valid = true;
+            for (const auto& type_generic_type : type->generic_types) {
+              for (const auto& types_type_generic_type :
+                   types_type->generic_types) {
+                if (!check_subjects(type_generic_type,
+                                    types_type_generic_type)) {
+                  generics_valid = false;
+                  break;
+                }
+              }
+            }
+            if (generics_valid) {
+              return true;
+            }
+          }
+        }
+        structure = structure->object->parent;
+      }
+    }
+    return false;
+  }
+
   bool Scope::assign(std::string name, Subject* value) {
     if (this->has_local(name)) {
       return value->check(this->get_local(name));
@@ -106,8 +146,9 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::ArrayNode>(node)) {
       const auto array_node = dynamic_cast<mavka::ast::StringNode*>(node);
       const auto array_structure_subject = this->get_root()->get("список");
-      const auto array_subject = array_structure_subject->create_instance({});
-      return success(array_subject);
+      const auto array_subject =
+          array_structure_subject->create_instance(this, {});
+      return array_subject;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::AsNode>(node)) {
@@ -152,7 +193,7 @@ namespace typeinterpreter {
         return value_result;
       }
 
-      std::vector<Subject*> generics;
+      std::vector<Subject*> generic_types;
       for (const auto& generic_type_nodes : call_node->generics) {
         Subject* generic_subject = nullptr;
         for (const auto type_value_single_node : generic_type_nodes) {
@@ -163,7 +204,7 @@ namespace typeinterpreter {
           }
           generic_subject = type_value_single_result->value;
         }
-        generics.push_back(generic_subject);
+        generic_types.push_back(generic_subject);
       }
 
       std::vector<Subject*> args;
@@ -175,7 +216,7 @@ namespace typeinterpreter {
         args.push_back(arg_result->value);
       }
 
-      return value_result->value->call(this, call_node, generics, args);
+      return value_result->value->call(this, call_node, generic_types, args);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ChainNode>(node)) {
@@ -198,8 +239,9 @@ namespace typeinterpreter {
       const auto dictionary_node =
           dynamic_cast<mavka::ast::DictionaryNode*>(node);
       const auto dictionary_structure = this->get_root()->get("словник");
-      const auto dictionary_subject = dictionary_structure->create_instance({});
-      return success(dictionary_subject);
+      const auto dictionary_subject =
+          dictionary_structure->create_instance(this, {});
+      return dictionary_subject;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::DiiaNode>(node)) {
@@ -321,8 +363,8 @@ namespace typeinterpreter {
       const auto mockup_structure_node =
           dynamic_cast<mavka::ast::MockupStructureNode*>(node);
       const auto structure_compilation_result = this->compile_structure(
-          mockup_structure_node->name, mockup_structure_node->generics, nullptr,
-          {}, mockup_structure_node->params, mockup_structure_node->methods);
+          mockup_structure_node->name, mockup_structure_node->generics, "", {},
+          mockup_structure_node->params, mockup_structure_node->methods);
       if (structure_compilation_result->error) {
         return structure_compilation_result;
       }
@@ -355,8 +397,8 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::NumberNode>(node)) {
       const auto number_node = dynamic_cast<mavka::ast::NumberNode*>(node);
       const auto number_structure = this->get_root()->get("число");
-      const auto number_subject = number_structure->create_instance({});
-      return success(number_subject);
+      const auto number_subject = number_structure->create_instance(this, {});
+      return number_subject;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PositiveNode>(node)) {
@@ -396,8 +438,8 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::StringNode>(node)) {
       const auto string_node = dynamic_cast<mavka::ast::StringNode*>(node);
       const auto string_structure = this->get("текст");
-      const auto string_subject = string_structure->create_instance({});
-      return success(string_subject);
+      const auto string_subject = string_structure->create_instance(this, {});
+      return string_subject;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
@@ -440,22 +482,46 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::TypeValueSingleNode>(node)) {
       const auto type_value_single_node =
           dynamic_cast<mavka::ast::TypeValueSingleNode*>(node);
+
       const auto value_compilation_result =
           this->compile_node(type_value_single_node->value);
       if (value_compilation_result->error) {
         return value_compilation_result;
       }
-      std::vector<Subject*> generics;
-      for (const auto generic_type_value_single_node :
-           type_value_single_node->generics) {
-        const auto generic_type_value_single_result =
-            this->compile_node(generic_type_value_single_node);
-        if (generic_type_value_single_result->error) {
-          return generic_type_value_single_result;
+
+      if (!type_value_single_node->generics.empty()) {
+        if (value_compilation_result->value->types[0]->generic_definition) {
+          return error_from_ast(
+              node, "Неможливо використовувати шаблон для шаблону.");
         }
-        generics.push_back(generic_type_value_single_result->value);
+
+        if (value_compilation_result->value->types.size() > 1) {
+          return error_from_ast(node, "Забагато аргументів шаблону.");
+        }
+
+        std::vector<Subject*> generic_types;
+        for (const auto& generic_type_value :
+             type_value_single_node->generics) {
+          const auto generic_type_subject = new Subject();
+          for (const auto generic_type_value_single_node : generic_type_value) {
+            const auto generic_type_value_single_result =
+                this->compile_node(generic_type_value_single_node);
+            if (generic_type_value_single_result->error) {
+              return generic_type_value_single_result;
+            }
+            for (const auto generic_generic_type_value :
+                 generic_type_value_single_result->value->types) {
+              generic_type_subject->types.push_back(generic_generic_type_value);
+            }
+          }
+          generic_types.push_back(generic_type_subject);
+        }
+
+        return value_compilation_result->value->create_instance(this,
+                                                                generic_types);
       }
-      const auto type = new Type();
+
+      return value_compilation_result->value->create_instance(this, {});
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::WaitNode>(node)) {
@@ -471,7 +537,9 @@ namespace typeinterpreter {
     return error("unsupported node");
   }
 
-  Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*> body) {}
+  Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*> body) {
+    return new Result();
+  }
 
   Result* Scope::compile_structure(
       std::string name,
@@ -480,7 +548,78 @@ namespace typeinterpreter {
       std::vector<std::vector<mavka::ast::TypeValueSingleNode*>>
           parent_generics,
       std::vector<mavka::ast::ParamNode*> params,
-      std::vector<mavka::ast::MethodDeclarationNode*> method_declarations) {}
+      std::vector<mavka::ast::MethodDeclarationNode*> method_declarations) {
+    const auto structure_structure_subject = this->get_root()->get("Структура");
+
+    const auto structure_object = new Object();
+    structure_object->structure = structure_structure_subject->types[0];
+    structure_object->name = name;
+
+    const auto scope_with_generics = this->make_proxy();
+
+    for (int i = 0; i < generic_definitions.size(); ++i) {
+      const auto generic_definition_node = generic_definitions[i];
+      const auto generic_definition = new GenericDefinition();
+      generic_definition->object = structure_object;
+      generic_definition->index = i;
+      generic_definition->name = generic_definition_node->name;
+      structure_object->generic_definitions.push_back(generic_definition);
+
+      const auto generic_definition_type = new Type();
+      generic_definition_type->generic_definition = generic_definition;
+      const auto generic_definition_subject =
+          new Subject({generic_definition_type});
+      scope_with_generics->variables.insert_or_assign(
+          generic_definition->name, generic_definition_subject);
+    }
+
+    if (!parent.empty()) {
+      // todo: handle parent
+    }
+
+    for (const auto param_node : params) {
+      const auto param = new Param();
+      param->name = param_node->name;
+      param->types = new Subject();
+      for (const auto type_value_single_node : param_node->types) {
+        const auto type_value_single_result =
+            scope_with_generics->compile_node(type_value_single_node);
+        if (type_value_single_result->error) {
+          return type_value_single_result;
+        }
+        for (const auto param_type : type_value_single_result->value->types) {
+          param->types->types.push_back(param_type);
+        }
+      }
+      param->value = nullptr;
+      param->variadic = param_node->variadic;
+
+      structure_object->params.push_back(param);
+    }
+
+    for (auto method_declaration_node : method_declarations) {
+      const auto method_declaration_result =
+          scope_with_generics->compile_node(method_declaration_node);
+      if (method_declaration_result->error) {
+        return method_declaration_result;
+      }
+
+      structure_object->methods.insert_or_assign(
+          method_declaration_node->name,
+          method_declaration_result->value->types[0]);
+    }
+
+    const auto structure_type = new Type(structure_object);
+    const auto structure_subject = new Subject();
+    structure_subject->types.push_back(structure_type);
+
+    structure_object->return_types = new Subject();
+    // todo: use generics
+    structure_object->return_types->types.push_back(
+        structure_type->create_instance(this, {}));
+
+    return success(structure_subject);
+  }
 
   Result* Scope::compile_diia(
       Scope* diia_scope,
@@ -490,6 +629,8 @@ namespace typeinterpreter {
       std::string name,
       std::vector<mavka::ast::GenericNode*> generic_definitions,
       std::vector<mavka::ast::ParamNode*> params,
-      std::vector<mavka::ast::TypeValueSingleNode*> return_types) {}
+      std::vector<mavka::ast::TypeValueSingleNode*> return_types) {
+    return new Result();
+  }
 
 } // namespace typeinterpreter
