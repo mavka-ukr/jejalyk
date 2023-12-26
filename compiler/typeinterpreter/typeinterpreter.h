@@ -45,7 +45,7 @@ namespace typeinterpreter {
     std::string get_name();
     std::string get_type_name();
 
-    Type* create_instance(Scope* scope, std::vector<Subject*> generics);
+    Type* create_instance(Scope* scope, std::vector<Subject*> generic_types);
 
     bool has(std::string name);
     Subject* get(std::string name);

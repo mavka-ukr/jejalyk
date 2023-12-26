@@ -1936,6 +1936,12 @@ namespace mavka::parser {
         const auto ast_result =
             any_to_ast_result(visitIdentifiers_chain(type->tvi_value));
         const auto type_value_single = new ast::TypeValueSingleNode();
+        type_value_single->start_line = type->getStart()->getLine();
+        type_value_single->start_column =
+            type->getStart()->getCharPositionInLine();
+        type_value_single->end_line = type->getStop()->getLine();
+        type_value_single->end_column =
+            type->getStop()->getCharPositionInLine();
         type_value_single->value = ast_result->node;
         if (type->tvi_generics) {
           for (const auto generic_type : type->tvi_generics->type_value()) {

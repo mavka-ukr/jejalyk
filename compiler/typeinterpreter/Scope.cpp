@@ -511,6 +511,11 @@ namespace typeinterpreter {
           return error_from_ast(node, "Забагато аргументів шаблону.");
         }
 
+        if (value_compilation_result->value->types[0]
+                ->object->generic_definitions.empty()) {
+          return error_from_ast(node, "Забагато аргументів шаблону.");
+        }
+
         std::vector<Subject*> generic_types;
         for (const auto& generic_type_value :
              type_value_single_node->generics) {
@@ -568,6 +573,7 @@ namespace typeinterpreter {
     structure_object->name = name;
 
     const auto scope_with_generics = this->make_proxy();
+    std::vector<Subject*> generic_definition_subjects;
 
     for (int i = 0; i < generic_definitions.size(); ++i) {
       const auto generic_definition_node = generic_definitions[i];
@@ -583,6 +589,7 @@ namespace typeinterpreter {
           new Subject({generic_definition_type});
       scope_with_generics->variables.insert_or_assign(
           generic_definition->name, generic_definition_subject);
+      generic_definition_subjects.push_back(generic_definition_subject);
     }
 
     if (!parent.empty()) {
@@ -626,9 +633,8 @@ namespace typeinterpreter {
     structure_subject->types.push_back(structure_type);
 
     structure_object->return_types = new Subject();
-    // todo: use generics
     structure_object->return_types->types.push_back(
-        structure_type->create_instance(this, {}));
+        structure_type->create_instance(this, generic_definition_subjects));
 
     return success(structure_subject);
   }
