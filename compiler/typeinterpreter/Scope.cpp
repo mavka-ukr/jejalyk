@@ -112,6 +112,18 @@ namespace typeinterpreter {
       return true;
     }
 
+    if (value->generic_types.empty() && type->generic_types.empty()) {
+      auto structure = value->object->structure;
+
+      while (structure) {
+        if (structure == type->object->structure) {
+          return true;
+        }
+
+        structure = structure->object->parent;
+      }
+    }
+
     return false;
   }
 
@@ -125,41 +137,34 @@ namespace typeinterpreter {
 
   Result* Scope::compile_types(
       std::vector<mavka::ast::TypeValueSingleNode*> types) {
-    const auto types_subject = new Subject();
-    for (const auto type_value_single_node : types) {
-      const auto type_value_single_result =
-          this->compile_node(type_value_single_node);
-      if (type_value_single_result->error) {
-        return type_value_single_result;
-      }
-      for (const auto type : type_value_single_result->value->types) {
-        types_subject->add_type(type);
-      }
+    std::vector<mavka::ast::ASTNode*> nodes;
+    for (const auto type : types) {
+      nodes.push_back(type);
     }
-    return success(types_subject);
+    return this->compile_nodes(nodes);
   }
 
   Result* Scope::compile_nodes(std::vector<mavka::ast::ASTNode*> nodes) {
-    const auto nodes_subject = new Subject();
+    const auto subject = new Subject();
     for (const auto node : nodes) {
       const auto node_result = this->compile_node(node);
       if (node_result->error) {
         return node_result;
       }
       for (const auto type : node_result->value->types) {
-        nodes_subject->add_type(type);
+        subject->add_type(type);
       }
     }
-    if (nodes_subject->types.empty()) {
+    if (subject->types.empty()) {
       const auto object_structure_subject = this->get_root()->get("обʼєкт");
       const auto object_instance_subject =
           object_structure_subject->create_instance(this, {});
       if (object_instance_subject->error) {
         return object_instance_subject;
       }
-      nodes_subject->add_type(object_instance_subject->value->types[0]);
+      subject->add_type(object_instance_subject->value->types[0]);
     }
-    return success(nodes_subject);
+    return success(subject);
   }
 
   Result* Scope::compile_node(mavka::ast::ASTNode* node) {
@@ -379,8 +384,15 @@ namespace typeinterpreter {
       const auto dictionary_node =
           dynamic_cast<mavka::ast::DictionaryNode*>(node);
       const auto dictionary_structure = this->get_root()->get("словник");
-      const auto dictionary_subject =
-          dictionary_structure->create_instance(this, {});
+      const auto object_structure_subject = this->get_root()->get("обʼєкт");
+      const auto object_instance_subject =
+          object_structure_subject->create_instance(this, {});
+      if (object_instance_subject->error) {
+        return object_instance_subject;
+      }
+      const auto dictionary_subject = dictionary_structure->create_instance(
+          this,
+          {object_instance_subject->value, object_instance_subject->value});
       return dictionary_subject;
     }
 
@@ -750,6 +762,7 @@ namespace typeinterpreter {
     } else {
       const auto structure_structure_subject =
           this->get_root()->get("Структура");
+      const auto object_subject = this->get_root()->get("обʼєкт");
 
       structure_object = new Object();
       structure_object->structure = structure_structure_subject->types[0];
@@ -777,7 +790,9 @@ namespace typeinterpreter {
         generic_definition_subjects.push_back(generic_definition_subject);
       }
 
-      if (!parent.empty()) {
+      if (parent.empty()) {
+        structure_object->parent = object_subject->types[0];
+      } else {
         // todo: handle parent
       }
 

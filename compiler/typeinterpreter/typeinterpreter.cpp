@@ -102,6 +102,7 @@ namespace typeinterpreter {
     const auto structure_object = new Object();
     structure_object->name = "Структура";
     structure_object->structure = object_type;
+    structure_object->parent = object_type;
     const auto structure_type = new Type(structure_object);
     const auto structure_subject = new Subject();
     structure_subject->add_type(structure_type);

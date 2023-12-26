@@ -189,6 +189,8 @@ namespace mavka::ast {
 
   class DictionaryNode final : public ASTNode {
    public:
+    std::vector<TypeValueSingleNode*> key_types;
+    std::vector<TypeValueSingleNode*> value_types;
     std::vector<DictionaryElementNode*> elements;
   };
 
