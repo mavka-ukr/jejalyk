@@ -45,13 +45,13 @@ namespace typeinterpreter {
           << std::endl;
     }
 
+    if (this->generic_definition) {
+      return this;
+    }
+
     if (!this->is_structure(scope)) {
       std::cout << "[BUG] Type::create_instance() called for non-structure"
                 << std::endl;
-    }
-
-    if (this->generic_definition) {
-      return this;
     }
 
     const auto object = new Object();

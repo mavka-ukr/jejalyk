@@ -60,6 +60,8 @@ namespace typeinterpreter {
    public:
     Type* structure = nullptr;
 
+    bool this_is_declaration = false;
+
     std::string name; // for structure, diia and module
     std::vector<GenericDefinition*>
         generic_definitions; // for structure and diia
@@ -122,7 +124,6 @@ namespace typeinterpreter {
         Scope* diia_scope,
         bool async,
         bool ee,
-        std::string structure_name,
         std::string name,
         std::vector<mavka::ast::GenericNode*> generic_definitions,
         std::vector<mavka::ast::ParamNode*> params,
@@ -160,6 +161,9 @@ namespace typeinterpreter {
                         std::vector<Subject*> generic_types,
                         std::vector<Subject*> args);
   void debug_print_check_subjects(Subject* value, Subject* types);
+  void debug_print_got_from_scope(Scope* scope,
+                                  std::string name,
+                                  Subject* value);
 
   void debug_print_bug(const std::vector<std::string>& messages);
   void debug_print_bug(const std::string& message);

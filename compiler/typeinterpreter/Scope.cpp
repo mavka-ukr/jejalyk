@@ -140,7 +140,7 @@ namespace typeinterpreter {
       const auto anon_diia_node = dynamic_cast<mavka::ast::AnonDiiaNode*>(node);
       const auto diia_scope = this->make_child();
       return this->compile_diia(diia_scope, anon_diia_node->async, false, "",
-                                "", {}, anon_diia_node->params,
+                                {}, anon_diia_node->params,
                                 anon_diia_node->return_types);
     }
 
@@ -260,12 +260,12 @@ namespace typeinterpreter {
       const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node);
       const auto diia_scope = this->make_child();
       const auto diia_compilation_result = this->compile_diia(
-          diia_scope, diia_node->async, diia_node->ee, diia_node->structure,
-          diia_node->name, diia_node->generics, diia_node->params,
-          diia_node->return_types);
+          diia_scope, diia_node->async, diia_node->ee, diia_node->name,
+          diia_node->generics, diia_node->params, diia_node->return_types);
       if (diia_compilation_result->error) {
         return diia_compilation_result;
       }
+      // todo: handle structure
       this->set_local(diia_node->name, diia_compilation_result->value);
       return diia_compilation_result;
     }
@@ -295,8 +295,8 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::FunctionNode>(node)) {
       const auto function_node = dynamic_cast<mavka::ast::FunctionNode*>(node);
       const auto diia_scope = this->make_child();
-      return this->compile_diia(diia_scope, function_node->async, false, "", "",
-                                {}, function_node->params,
+      return this->compile_diia(diia_scope, function_node->async, false, "", {},
+                                function_node->params,
                                 function_node->return_types);
     }
 
@@ -324,6 +324,7 @@ namespace typeinterpreter {
             node, "Субʼєкт \"" + identifier_node->name + "\" не визначено.");
       }
       const auto subject = this->get(identifier_node->name);
+      debug_print_got_from_scope(this, identifier_node->name, subject);
       return success(subject);
     }
 
@@ -338,7 +339,7 @@ namespace typeinterpreter {
       const auto diia_scope = this->make_child();
       return this->compile_diia(
           diia_scope, method_declaration_node->async,
-          method_declaration_node->ee, "", method_declaration_node->name,
+          method_declaration_node->ee, method_declaration_node->name,
           method_declaration_node->generics, method_declaration_node->params,
           method_declaration_node->return_types);
     }
@@ -349,12 +350,12 @@ namespace typeinterpreter {
       const auto diia_scope = this->make_child();
       const auto diia_compilation_result = this->compile_diia(
           diia_scope, mockup_diia_node->async, mockup_diia_node->ee,
-          mockup_diia_node->structure, mockup_diia_node->name,
-          mockup_diia_node->generics, mockup_diia_node->params,
-          mockup_diia_node->return_types);
+          mockup_diia_node->name, mockup_diia_node->generics,
+          mockup_diia_node->params, mockup_diia_node->return_types);
       if (diia_compilation_result->error) {
         return diia_compilation_result;
       }
+      // todo: handle structure
       this->set_local(mockup_diia_node->name, diia_compilation_result->value);
       return diia_compilation_result;
     }
@@ -501,19 +502,32 @@ namespace typeinterpreter {
         return value_compilation_result;
       }
 
+      if (!value_compilation_result->value->types.empty()) {
+        if (value_compilation_result->value->types[0]->object) {
+          if (type_value_single_node->generics.size() >
+              value_compilation_result->value->types[0]
+                  ->object->generic_definitions.size()) {
+            return error_from_ast(node, "Забагато аргументів шаблону.");
+          }
+
+          if (type_value_single_node->generics.size() <
+              value_compilation_result->value->types[0]
+                  ->object->generic_definitions.size()) {
+            return error_from_ast(node, "Недостатньо аргументів шаблону.");
+          }
+        }
+      }
+
       if (!type_value_single_node->generics.empty()) {
+        if (value_compilation_result->value->types.size() != 1) {
+          return error_from_ast(node,
+                                "Неможливо застосувати аргументи шаблону до "
+                                "типу з різними можливими значеннями.");
+        }
+
         if (value_compilation_result->value->types[0]->generic_definition) {
           return error_from_ast(
-              node, "Неможливо використовувати шаблон для шаблону.");
-        }
-
-        if (value_compilation_result->value->types.size() > 1) {
-          return error_from_ast(node, "Забагато аргументів шаблону.");
-        }
-
-        if (value_compilation_result->value->types[0]
-                ->object->generic_definitions.empty()) {
-          return error_from_ast(node, "Забагато аргументів шаблону.");
+              node, "Неможливо використовувати аргументи шаблону для шаблону.");
         }
 
         std::vector<Subject*> generic_types;
@@ -566,34 +580,75 @@ namespace typeinterpreter {
           parent_generics,
       std::vector<mavka::ast::ParamNode*> params,
       std::vector<mavka::ast::MethodDeclarationNode*> method_declarations) {
-    const auto structure_structure_subject = this->get_root()->get("Структура");
-
-    const auto structure_object = new Object();
-    structure_object->structure = structure_structure_subject->types[0];
-    structure_object->name = name;
-
-    const auto scope_with_generics = this->make_proxy();
+    Subject* structure_subject = nullptr;
+    Type* structure_type = nullptr;
+    Object* structure_object = nullptr;
+    Scope* scope_with_generics = nullptr;
     std::vector<Subject*> generic_definition_subjects;
 
-    for (int i = 0; i < generic_definitions.size(); ++i) {
-      const auto generic_definition_node = generic_definitions[i];
-      const auto generic_definition = new GenericDefinition();
-      generic_definition->object = structure_object;
-      generic_definition->index = i;
-      generic_definition->name = generic_definition_node->name;
-      structure_object->generic_definitions.push_back(generic_definition);
+    if (this->has_local(name)) {
+      structure_subject = this->get_local(name);
+      structure_type = structure_subject->types[0];
+      structure_object = structure_type->object;
 
-      const auto generic_definition_type = new Type();
-      generic_definition_type->generic_definition = generic_definition;
-      const auto generic_definition_subject =
-          new Subject({generic_definition_type});
-      scope_with_generics->variables.insert_or_assign(
-          generic_definition->name, generic_definition_subject);
-      generic_definition_subjects.push_back(generic_definition_subject);
-    }
+      if (!structure_object->this_is_declaration) {
+        return error("Структура \"" + name + "\" вже визначена.");
+      }
 
-    if (!parent.empty()) {
-      // todo: handle parent
+      structure_object->this_is_declaration = false;
+      scope_with_generics = this->make_proxy();
+
+      for (const auto generic_definition :
+           structure_object->generic_definitions) {
+        const auto generic_definition_type = new Type();
+        generic_definition_type->generic_definition = generic_definition;
+        const auto generic_definition_subject =
+            new Subject({generic_definition_type});
+        scope_with_generics->variables.insert_or_assign(
+            generic_definition->name, generic_definition_subject);
+        generic_definition_subjects.push_back(generic_definition_subject);
+      }
+    } else {
+      const auto structure_structure_subject =
+          this->get_root()->get("Структура");
+
+      structure_object = new Object();
+      structure_object->structure = structure_structure_subject->types[0];
+      structure_object->name = name;
+
+      scope_with_generics = this->make_proxy();
+
+      for (int i = 0; i < generic_definitions.size(); ++i) {
+        const auto generic_definition_node = generic_definitions[i];
+        const auto generic_definition = new GenericDefinition();
+        generic_definition->object = structure_object;
+        generic_definition->index = i;
+        generic_definition->name = generic_definition_node->name;
+        structure_object->generic_definitions.push_back(generic_definition);
+      }
+
+      for (const auto generic_definition :
+           structure_object->generic_definitions) {
+        const auto generic_definition_type = new Type();
+        generic_definition_type->generic_definition = generic_definition;
+        const auto generic_definition_subject =
+            new Subject({generic_definition_type});
+        scope_with_generics->variables.insert_or_assign(
+            generic_definition->name, generic_definition_subject);
+        generic_definition_subjects.push_back(generic_definition_subject);
+      }
+
+      if (!parent.empty()) {
+        // todo: handle parent
+      }
+
+      structure_type = new Type(structure_object);
+      structure_subject = new Subject();
+      structure_subject->types.push_back(structure_type);
+
+      structure_object->return_types = new Subject();
+      structure_object->return_types->types.push_back(
+          structure_type->create_instance(this, generic_definition_subjects));
     }
 
     for (const auto param_node : params) {
@@ -616,7 +671,7 @@ namespace typeinterpreter {
       structure_object->params.push_back(param);
     }
 
-    for (auto method_declaration_node : method_declarations) {
+    for (const auto method_declaration_node : method_declarations) {
       const auto method_declaration_result =
           scope_with_generics->compile_node(method_declaration_node);
       if (method_declaration_result->error) {
@@ -628,14 +683,6 @@ namespace typeinterpreter {
           method_declaration_result->value->types[0]);
     }
 
-    const auto structure_type = new Type(structure_object);
-    const auto structure_subject = new Subject();
-    structure_subject->types.push_back(structure_type);
-
-    structure_object->return_types = new Subject();
-    structure_object->return_types->types.push_back(
-        structure_type->create_instance(this, generic_definition_subjects));
-
     return success(structure_subject);
   }
 
@@ -643,12 +690,81 @@ namespace typeinterpreter {
       Scope* diia_scope,
       bool async,
       bool ee,
-      std::string structure_name,
       std::string name,
       std::vector<mavka::ast::GenericNode*> generic_definitions,
       std::vector<mavka::ast::ParamNode*> params,
       std::vector<mavka::ast::TypeValueSingleNode*> return_types) {
-    return new Result();
+    Subject* diia_subject = nullptr;
+    Type* diia_type = nullptr;
+    Object* diia_object = nullptr;
+    Scope* scope_with_generics = nullptr;
+    std::vector<Subject*> generic_definition_subjects;
+
+    const auto diia_structure_subject = this->get_root()->get("Дія");
+
+    diia_object = new Object();
+    diia_object->structure = diia_structure_subject->types[0];
+    diia_object->name = name;
+
+    scope_with_generics = this->make_proxy();
+
+    for (int i = 0; i < generic_definitions.size(); ++i) {
+      const auto generic_definition_node = generic_definitions[i];
+      const auto generic_definition = new GenericDefinition();
+      generic_definition->object = diia_object;
+      generic_definition->index = i;
+      generic_definition->name = generic_definition_node->name;
+      diia_object->generic_definitions.push_back(generic_definition);
+    }
+
+    for (const auto generic_definition : diia_object->generic_definitions) {
+      const auto generic_definition_type = new Type();
+      generic_definition_type->generic_definition = generic_definition;
+      const auto generic_definition_subject =
+          new Subject({generic_definition_type});
+      scope_with_generics->variables.insert_or_assign(
+          generic_definition->name, generic_definition_subject);
+      generic_definition_subjects.push_back(generic_definition_subject);
+    }
+
+    diia_type = new Type(diia_object);
+    diia_subject = new Subject();
+    diia_subject->types.push_back(diia_type);
+
+    const auto return_types_subject = new Subject();
+    for (const auto return_type : return_types) {
+      const auto compiled_return_type =
+          scope_with_generics->compile_node(return_type);
+      if (compiled_return_type->error) {
+        return compiled_return_type;
+      }
+      for (const auto return_type_single : compiled_return_type->value->types) {
+        return_types_subject->types.push_back(return_type_single);
+      }
+    }
+    diia_object->return_types = return_types_subject;
+
+    for (const auto param_node : params) {
+      const auto param = new Param();
+      param->name = param_node->name;
+      param->types = new Subject();
+      for (const auto type_value_single_node : param_node->types) {
+        const auto type_value_single_result =
+            scope_with_generics->compile_node(type_value_single_node);
+        if (type_value_single_result->error) {
+          return type_value_single_result;
+        }
+        for (const auto param_type : type_value_single_result->value->types) {
+          param->types->types.push_back(param_type);
+        }
+      }
+      param->value = nullptr;
+      param->variadic = param_node->variadic;
+
+      diia_object->params.push_back(param);
+    }
+
+    return success(diia_subject);
   }
 
 } // namespace typeinterpreter
