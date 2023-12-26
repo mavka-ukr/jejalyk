@@ -161,6 +161,9 @@ namespace typeinterpreter {
                         std::vector<Subject*> args);
   void debug_print_check_subjects(Subject* value, Subject* types);
 
+  void debug_print_bug(const std::vector<std::string>& messages);
+  void debug_print_bug(const std::string& message);
+
 } // namespace typeinterpreter
 
 #endif // TYPEINTERPRETER_H

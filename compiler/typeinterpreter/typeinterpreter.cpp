@@ -13,16 +13,7 @@ namespace typeinterpreter {
           const auto generic = generic_types[type->generic_definition->index];
           const auto generic_type = generic->types[0];
 
-          if (!generic_type->generic_types.empty() &&
-              !type->generic_types.empty()) {
-            std::cout << "[BUG] you are stupid" << std::endl;
-            return nullptr;
-          }
-
-          const auto newtype = new Type();
-          newtype->object = generic_type->object;
-
-          processed_subject->types.push_back(newtype);
+          processed_subject->types.push_back(generic_type);
         } else {
           processed_subject->types.push_back(type);
         }
@@ -138,5 +129,17 @@ namespace typeinterpreter {
   void debug_print_check_subjects(Subject* value, Subject* types) {
     std::cout << "[debug] CHECK " << value->types_string() << " AND "
               << types->types_string() << std::endl;
+  }
+
+  void debug_print_bug(const std::vector<std::string>& messages) {
+    std::cout << "[BUG]";
+    for (const auto& message : messages) {
+      std::cout << " " << message;
+    }
+    std::cout << std::endl;
+  }
+
+  void debug_print_bug(const std::string& message) {
+    std::cout << "[BUG] " << message << std::endl;
   }
 } // namespace typeinterpreter

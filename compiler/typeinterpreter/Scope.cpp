@@ -75,39 +75,51 @@ namespace typeinterpreter {
   bool Scope::check_subjects(Subject* value, Subject* types) {
     debug_print_check_subjects(value, types);
 
-    for (const auto type : value->types) {
-      if (type->generic_definition) {
-        std::cout << "[BUG] generic_definition: "
-                  << type->generic_definition->name << std::endl;
-      }
-      auto structure = type->object->structure;
-      while (structure) {
-        for (const auto types_type : types->types) {
-          if (types_type->generic_definition) {
-            std::cout << "[BUG] types generic_definition: "
-                      << types_type->generic_definition->name << std::endl;
-          }
+    Type* valid_value_type = nullptr;
+    Type* valid_types_type = nullptr;
 
-          if (structure->object == types_type->object->structure->object) {
-            bool generics_valid = true;
-            for (const auto& type_generic_type : type->generic_types) {
-              for (const auto& types_type_generic_type :
-                   types_type->generic_types) {
-                if (!check_subjects(type_generic_type,
-                                    types_type_generic_type)) {
-                  generics_valid = false;
-                  break;
-                }
-              }
-            }
-            if (generics_valid) {
-              return true;
-            }
-          }
+    for (const auto value_type : value->types) {
+      if (value_type->generic_definition) {
+        debug_print_bug({"got value generic_definition in check_subjects:",
+                         value_type->generic_definition->name});
+      }
+
+      for (const auto types_type : types->types) {
+        if (types_type->generic_definition) {
+          debug_print_bug({"got types generic_definition in check_subjects",
+                           types_type->generic_definition->name});
         }
-        structure = structure->object->parent;
+
+        if (value_type->object->structure->object ==
+            types_type->object->structure->object) {
+          valid_value_type = value_type;
+          valid_types_type = types_type;
+          break;
+        }
       }
     }
+
+    // todo: move this up
+    if (valid_value_type != nullptr && valid_types_type != nullptr) {
+      if (valid_types_type->generic_types.size() !=
+          valid_value_type->generic_types.size()) {
+        return false;
+      }
+
+      for (int i = 0; i < valid_types_type->generic_types.size(); ++i) {
+        const auto valid_types_type_generic =
+            valid_types_type->generic_types[i];
+        const auto valid_value_type_generic =
+            valid_value_type->generic_types[i];
+        if (!this->check_subjects(valid_value_type_generic,
+                                  valid_types_type_generic)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
     return false;
   }
 
