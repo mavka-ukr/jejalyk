@@ -403,20 +403,20 @@ void mavkaparserParserInitialize() {
   	3,74,37,0,744,826,1,0,0,0,745,746,3,74,37,0,746,747,3,160,80,0,747,748,
   	5,32,0,0,748,749,3,160,80,0,749,750,3,86,43,0,750,751,3,160,80,0,751,
   	752,5,86,0,0,752,753,3,160,80,0,753,754,3,86,43,0,754,826,1,0,0,0,755,
-  	756,5,10,0,0,756,757,3,86,43,0,757,758,5,9,0,0,758,760,1,0,0,0,759,755,
+  	756,5,10,0,0,756,757,3,120,60,0,757,758,5,9,0,0,758,760,1,0,0,0,759,755,
   	1,0,0,0,759,760,1,0,0,0,760,761,1,0,0,0,761,763,5,62,0,0,762,764,3,78,
   	39,0,763,762,1,0,0,0,763,764,1,0,0,0,764,765,1,0,0,0,765,826,5,63,0,0,
-  	766,767,5,10,0,0,767,768,3,86,43,0,768,769,5,64,0,0,769,770,3,86,43,0,
-  	770,771,5,9,0,0,771,773,1,0,0,0,772,766,1,0,0,0,772,773,1,0,0,0,773,774,
-  	1,0,0,0,774,776,5,60,0,0,775,777,3,82,41,0,776,775,1,0,0,0,776,777,1,
-  	0,0,0,777,778,1,0,0,0,778,826,5,61,0,0,779,782,3,74,37,0,780,781,5,18,
-  	0,0,781,783,3,74,37,0,782,780,1,0,0,0,783,784,1,0,0,0,784,782,1,0,0,0,
-  	784,785,1,0,0,0,785,826,1,0,0,0,786,787,5,12,0,0,787,826,3,74,37,0,788,
-  	790,5,22,0,0,789,788,1,0,0,0,789,790,1,0,0,0,790,791,1,0,0,0,791,793,
-  	5,60,0,0,792,794,3,134,67,0,793,792,1,0,0,0,793,794,1,0,0,0,794,795,1,
-  	0,0,0,795,797,5,61,0,0,796,798,3,120,60,0,797,796,1,0,0,0,797,798,1,0,
-  	0,0,798,799,1,0,0,0,799,800,5,86,0,0,800,826,3,86,43,0,801,803,5,22,0,
-  	0,802,801,1,0,0,0,802,803,1,0,0,0,803,804,1,0,0,0,804,805,5,2,0,0,805,
+  	766,767,5,10,0,0,767,768,3,120,60,0,768,769,5,64,0,0,769,770,3,120,60,
+  	0,770,771,5,9,0,0,771,773,1,0,0,0,772,766,1,0,0,0,772,773,1,0,0,0,773,
+  	774,1,0,0,0,774,776,5,60,0,0,775,777,3,82,41,0,776,775,1,0,0,0,776,777,
+  	1,0,0,0,777,778,1,0,0,0,778,826,5,61,0,0,779,782,3,74,37,0,780,781,5,
+  	18,0,0,781,783,3,74,37,0,782,780,1,0,0,0,783,784,1,0,0,0,784,782,1,0,
+  	0,0,784,785,1,0,0,0,785,826,1,0,0,0,786,787,5,12,0,0,787,826,3,74,37,
+  	0,788,790,5,22,0,0,789,788,1,0,0,0,789,790,1,0,0,0,790,791,1,0,0,0,791,
+  	793,5,60,0,0,792,794,3,134,67,0,793,792,1,0,0,0,793,794,1,0,0,0,794,795,
+  	1,0,0,0,795,797,5,61,0,0,796,798,3,120,60,0,797,796,1,0,0,0,797,798,1,
+  	0,0,0,798,799,1,0,0,0,799,800,5,86,0,0,800,826,3,86,43,0,801,803,5,22,
+  	0,0,802,801,1,0,0,0,802,803,1,0,0,0,803,804,1,0,0,0,804,805,5,2,0,0,805,
   	806,5,60,0,0,806,808,3,160,80,0,807,809,3,134,67,0,808,807,1,0,0,0,808,
   	809,1,0,0,0,809,810,1,0,0,0,810,811,3,160,80,0,811,812,1,0,0,0,812,814,
   	5,61,0,0,813,815,3,120,60,0,814,813,1,0,0,0,814,815,1,0,0,0,815,816,1,
@@ -6725,12 +6725,12 @@ tree::TerminalNode* MavkaParser::DictionaryContext::GREATER() {
   return getToken(MavkaParser::GREATER, 0);
 }
 
-std::vector<MavkaParser::ExprContext *> MavkaParser::DictionaryContext::expr() {
-  return getRuleContexts<MavkaParser::ExprContext>();
+std::vector<MavkaParser::Type_valueContext *> MavkaParser::DictionaryContext::type_value() {
+  return getRuleContexts<MavkaParser::Type_valueContext>();
 }
 
-MavkaParser::ExprContext* MavkaParser::DictionaryContext::expr(size_t i) {
-  return getRuleContext<MavkaParser::ExprContext>(i);
+MavkaParser::Type_valueContext* MavkaParser::DictionaryContext::type_value(size_t i) {
+  return getRuleContext<MavkaParser::Type_valueContext>(i);
 }
 
 MavkaParser::Dictionary_argsContext* MavkaParser::DictionaryContext::dictionary_args() {
@@ -6774,8 +6774,8 @@ tree::TerminalNode* MavkaParser::ArrayContext::GREATER() {
   return getToken(MavkaParser::GREATER, 0);
 }
 
-MavkaParser::ExprContext* MavkaParser::ArrayContext::expr() {
-  return getRuleContext<MavkaParser::ExprContext>(0);
+MavkaParser::Type_valueContext* MavkaParser::ArrayContext::type_value() {
+  return getRuleContext<MavkaParser::Type_valueContext>(0);
 }
 
 MavkaParser::Array_elementsContext* MavkaParser::ArrayContext::array_elements() {
@@ -7128,7 +7128,7 @@ MavkaParser::ExprContext* MavkaParser::expr() {
         setState(755);
         match(MavkaParser::SMALLER);
         setState(756);
-        antlrcpp::downCast<ArrayContext *>(_localctx)->a_type = expr();
+        antlrcpp::downCast<ArrayContext *>(_localctx)->a_type = type_value();
         setState(757);
         match(MavkaParser::GREATER);
       }
@@ -7160,11 +7160,11 @@ MavkaParser::ExprContext* MavkaParser::expr() {
         setState(766);
         match(MavkaParser::SMALLER);
         setState(767);
-        antlrcpp::downCast<DictionaryContext *>(_localctx)->d_key_type = expr();
+        antlrcpp::downCast<DictionaryContext *>(_localctx)->d_key_type = type_value();
         setState(768);
         match(MavkaParser::COMMA);
         setState(769);
-        antlrcpp::downCast<DictionaryContext *>(_localctx)->d_value_type = expr();
+        antlrcpp::downCast<DictionaryContext *>(_localctx)->d_value_type = type_value();
         setState(770);
         match(MavkaParser::GREATER);
       }

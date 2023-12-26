@@ -13,9 +13,9 @@ namespace typeinterpreter {
           const auto generic = generic_types[type->generic_definition->index];
           const auto generic_type = generic->types[0];
 
-          processed_subject->types.push_back(generic_type);
+          processed_subject->add_type(generic_type);
         } else {
-          processed_subject->types.push_back(type);
+          processed_subject->add_type(type);
         }
       } else {
         const auto newtype = new Type();
@@ -32,11 +32,30 @@ namespace typeinterpreter {
     return processed_subject;
   }
 
-  Result* error(const std::string& message) {
-    const auto result = new Result();
-    result->error = new Error();
-    result->error->message = message;
-    return result;
+  Result* error_0(const mavka::ast::ASTNode* node,
+                  const std::string& subject_name,
+                  Subject* expected,
+                  Subject* got) {
+    return error_from_ast(node, "Невірний тип субʼєкта \"" + subject_name +
+                                    "\": "
+                                    "очікується \"" +
+                                    expected->types_string() +
+                                    "\", отримано \"" + got->types_string() +
+                                    "\".");
+  }
+
+  Result* error_1(const mavka::ast::ASTNode* node,
+                  const std::string& subject_name) {
+    return error_from_ast(node,
+                          "Субʼєкт \"" + subject_name + "\" вже визначено.");
+  }
+
+  Result* error_2(const mavka::ast::ASTNode* node,
+                  const std::string& property_name,
+                  Subject* subject) {
+    return error_from_ast(node, "Неможливо отримати властивість \"" +
+                                    property_name + "\" з типу \"" +
+                                    subject->types_string() + "\".");
   }
 
   Result* error_from_ast(const mavka::ast::ASTNode* node,
@@ -46,6 +65,13 @@ namespace typeinterpreter {
     result->error->full = true;
     result->error->line = node->start_line;
     result->error->column = node->start_column;
+    result->error->message = message;
+    return result;
+  }
+
+  Result* error(const std::string& message) {
+    const auto result = new Result();
+    result->error = new Error();
     result->error->message = message;
     return result;
   }
@@ -65,20 +91,20 @@ namespace typeinterpreter {
     empty_object->name = "пусто";
     const auto empty_type = new Type(empty_object);
     const auto empty_subject = new Subject();
-    empty_subject->types.push_back(empty_type);
+    empty_subject->add_type(empty_type);
 
     const auto object_object = new Object();
     object_object->name = "обʼєкт";
     const auto object_type = new Type(object_object);
     const auto object_subject = new Subject();
-    object_subject->types.push_back(object_type);
+    object_subject->add_type(object_type);
 
     const auto structure_object = new Object();
     structure_object->name = "Структура";
     structure_object->structure = object_type;
     const auto structure_type = new Type(structure_object);
     const auto structure_subject = new Subject();
-    structure_subject->types.push_back(structure_type);
+    structure_subject->add_type(structure_type);
 
     empty_object->structure = object_type;
     object_object->structure = structure_type;

@@ -75,42 +75,34 @@ namespace typeinterpreter {
   bool Scope::check_subjects(Subject* value, Subject* types) {
     debug_print_check_subjects(value, types);
 
-    Type* valid_value_type = nullptr;
-    Type* valid_types_type = nullptr;
-
     for (const auto value_type : value->types) {
-      if (value_type->generic_definition) {
-        debug_print_bug({"got value generic_definition in check_subjects:",
-                         value_type->generic_definition->name});
-      }
+      bool type_found = false;
 
       for (const auto types_type : types->types) {
-        if (types_type->generic_definition) {
-          debug_print_bug({"got types generic_definition in check_subjects",
-                           types_type->generic_definition->name});
-        }
-
-        if (value_type->object->structure->object ==
-            types_type->object->structure->object) {
-          valid_value_type = value_type;
-          valid_types_type = types_type;
+        if (this->check_type(value_type, types_type)) {
+          type_found = true;
           break;
         }
       }
+
+      if (!type_found) {
+        return false;
+      }
     }
 
-    // todo: move this up
-    if (valid_value_type != nullptr && valid_types_type != nullptr) {
-      if (valid_types_type->generic_types.size() !=
-          valid_value_type->generic_types.size()) {
+    return true;
+  }
+
+  bool Scope::check_type(Type* value, Type* type) {
+    if (value->object->structure == type->object->structure) {
+      if (value->generic_types.size() != type->generic_types.size()) {
         return false;
       }
 
-      for (int i = 0; i < valid_types_type->generic_types.size(); ++i) {
-        const auto valid_types_type_generic =
-            valid_types_type->generic_types[i];
-        const auto valid_value_type_generic =
-            valid_value_type->generic_types[i];
+      for (int i = 0; i < type->generic_types.size(); ++i) {
+        const auto valid_types_type_generic = type->generic_types[i];
+        const auto valid_value_type_generic = value->generic_types[i];
+
         if (!this->check_subjects(valid_value_type_generic,
                                   valid_types_type_generic)) {
           return false;
@@ -129,6 +121,45 @@ namespace typeinterpreter {
     }
     this->set_local(name, value);
     return true;
+  }
+
+  Result* Scope::compile_types(
+      std::vector<mavka::ast::TypeValueSingleNode*> types) {
+    const auto types_subject = new Subject();
+    for (const auto type_value_single_node : types) {
+      const auto type_value_single_result =
+          this->compile_node(type_value_single_node);
+      if (type_value_single_result->error) {
+        return type_value_single_result;
+      }
+      for (const auto type : type_value_single_result->value->types) {
+        types_subject->add_type(type);
+      }
+    }
+    return success(types_subject);
+  }
+
+  Result* Scope::compile_nodes(std::vector<mavka::ast::ASTNode*> nodes) {
+    const auto nodes_subject = new Subject();
+    for (const auto node : nodes) {
+      const auto node_result = this->compile_node(node);
+      if (node_result->error) {
+        return node_result;
+      }
+      for (const auto type : node_result->value->types) {
+        nodes_subject->add_type(type);
+      }
+    }
+    if (nodes_subject->types.empty()) {
+      const auto object_structure_subject = this->get_root()->get("обʼєкт");
+      const auto object_instance_subject =
+          object_structure_subject->create_instance(this, {});
+      if (object_instance_subject->error) {
+        return object_instance_subject;
+      }
+      nodes_subject->add_type(object_instance_subject->value->types[0]);
+    }
+    return success(nodes_subject);
   }
 
   Result* Scope::compile_node(mavka::ast::ASTNode* node) {
@@ -156,11 +187,43 @@ namespace typeinterpreter {
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ArrayNode>(node)) {
-      const auto array_node = dynamic_cast<mavka::ast::StringNode*>(node);
+      const auto array_node = dynamic_cast<mavka::ast::ArrayNode*>(node);
       const auto array_structure_subject = this->get_root()->get("список");
-      const auto array_subject =
-          array_structure_subject->create_instance(this, {});
-      return array_subject;
+      const auto array_values_type_result =
+          this->compile_nodes(array_node->elements);
+      if (array_values_type_result->error) {
+        return array_values_type_result;
+      }
+      if (array_node->types.empty()) {
+        return array_structure_subject->create_instance(
+            this, {array_values_type_result->value});
+      } else {
+        const auto array_type_subject = new Subject();
+        for (const auto type_value_single_node : array_node->types) {
+          const auto type_value_single_result =
+              this->compile_node(type_value_single_node);
+          if (type_value_single_result->error) {
+            return type_value_single_result;
+          }
+          for (const auto type : type_value_single_result->value->types) {
+            array_type_subject->add_type(type);
+          }
+        }
+
+        if (!array_node->elements.empty()) {
+          if (!this->check_subjects(array_values_type_result->value,
+                                    array_type_subject)) {
+            return error_from_ast(
+                node,
+                "Неправильний тип елементів масиву: очікується \"" +
+                    array_type_subject->types_string() + "\", отримано \"" +
+                    array_values_type_result->value->types_string() + "\".");
+          }
+        }
+
+        return array_structure_subject->create_instance(this,
+                                                        {array_type_subject});
+      }
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::AsNode>(node)) {
@@ -183,7 +246,44 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::AssignSimpleNode>(node)) {
       const auto assign_simple_node =
           dynamic_cast<mavka::ast::AssignSimpleNode*>(node);
-      std::cout << "AssignSimpleNode" << std::endl;
+
+      const auto value_result = this->compile_node(assign_simple_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      if (assign_simple_node->types.empty()) {
+        if (this->has_local(assign_simple_node->name)) {
+          const auto local_subject = this->get_local(assign_simple_node->name);
+          if (!this->check_subjects(value_result->value, local_subject)) {
+            return error_0(node, assign_simple_node->name, local_subject,
+                           value_result->value);
+          }
+          return success(local_subject);
+        } else {
+          this->set_local(assign_simple_node->name, value_result->value);
+          return success(value_result->value);
+        }
+      } else {
+        if (this->has_local(assign_simple_node->name)) {
+          return error_1(node, assign_simple_node->name);
+        }
+
+        const auto types_result =
+            this->compile_types(assign_simple_node->types);
+        if (types_result->error) {
+          return types_result;
+        }
+
+        if (!this->check_subjects(value_result->value, types_result->value)) {
+          return error_0(node, assign_simple_node->name, types_result->value,
+                         value_result->value);
+        }
+
+        this->set_local(assign_simple_node->name, types_result->value);
+
+        return success(types_result->value);
+      }
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::BitwiseNode>(node)) {
@@ -233,7 +333,35 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::ChainNode>(node)) {
       const auto chain_node = dynamic_cast<mavka::ast::ChainNode*>(node);
-      std::cout << "ChainNode" << std::endl;
+
+      const auto left_result = this->compile_node(chain_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+
+      if (jejalyk::tools::instance_of<mavka::ast::IdentifierNode>(
+              chain_node->right)) {
+        const auto right_identifier_node =
+            dynamic_cast<mavka::ast::IdentifierNode*>(chain_node->right);
+
+        if (!left_result->value->has(right_identifier_node->name)) {
+          return error_2(node, right_identifier_node->name, left_result->value);
+        }
+
+        const auto subject_result =
+            left_result->value->get(right_identifier_node->name);
+        if (subject_result->error) {
+          return subject_result;
+        }
+        return success(subject_result->value);
+      } else {
+        const auto right_result = this->compile_node(chain_node->right);
+        if (right_result->error) {
+          return right_result;
+        }
+
+        return left_result->value->get_element(this, node, right_result->value);
+      }
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ComparisonNode>(node)) {
@@ -303,7 +431,18 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::GetElementNode>(node)) {
       const auto get_element_node =
           dynamic_cast<mavka::ast::GetElementNode*>(node);
-      std::cout << "GetElementNode" << std::endl;
+
+      const auto value_result = this->compile_node(get_element_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      const auto index_result = this->compile_node(get_element_node->index);
+      if (index_result->error) {
+        return index_result;
+      }
+
+      return value_result->value->get_element(this, node, index_result->value);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::GiveNode>(node)) {
@@ -542,7 +681,7 @@ namespace typeinterpreter {
             }
             for (const auto generic_generic_type_value :
                  generic_type_value_single_result->value->types) {
-              generic_type_subject->types.push_back(generic_generic_type_value);
+              generic_type_subject->add_type(generic_generic_type_value);
             }
           }
           generic_types.push_back(generic_type_subject);
@@ -644,10 +783,10 @@ namespace typeinterpreter {
 
       structure_type = new Type(structure_object);
       structure_subject = new Subject();
-      structure_subject->types.push_back(structure_type);
+      structure_subject->add_type(structure_type);
 
       structure_object->return_types = new Subject();
-      structure_object->return_types->types.push_back(
+      structure_object->return_types->add_type(
           structure_type->create_instance(this, generic_definition_subjects));
     }
 
@@ -662,7 +801,7 @@ namespace typeinterpreter {
           return type_value_single_result;
         }
         for (const auto param_type : type_value_single_result->value->types) {
-          param->types->types.push_back(param_type);
+          param->types->add_type(param_type);
         }
       }
       param->value = nullptr;
@@ -729,7 +868,7 @@ namespace typeinterpreter {
 
     diia_type = new Type(diia_object);
     diia_subject = new Subject();
-    diia_subject->types.push_back(diia_type);
+    diia_subject->add_type(diia_type);
 
     const auto return_types_subject = new Subject();
     for (const auto return_type : return_types) {
@@ -739,7 +878,7 @@ namespace typeinterpreter {
         return compiled_return_type;
       }
       for (const auto return_type_single : compiled_return_type->value->types) {
-        return_types_subject->types.push_back(return_type_single);
+        return_types_subject->add_type(return_type_single);
       }
     }
     diia_object->return_types = return_types_subject;
@@ -755,7 +894,7 @@ namespace typeinterpreter {
           return type_value_single_result;
         }
         for (const auto param_type : type_value_single_result->value->types) {
-          param->types->types.push_back(param_type);
+          param->types->add_type(param_type);
         }
       }
       param->value = nullptr;

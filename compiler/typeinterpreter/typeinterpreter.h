@@ -54,6 +54,9 @@ namespace typeinterpreter {
                  mavka::ast::ASTNode* node,
                  std::vector<Subject*> vector,
                  std::vector<Subject*> args);
+    Result* get_element(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* value);
   };
 
   class Object final {
@@ -75,15 +78,23 @@ namespace typeinterpreter {
    public:
     std::vector<Type*> types;
 
+    void add_type(Type* type);
+
     std::string get_name();
     std::string types_string();
 
     bool check(Subject* subject);
 
+    bool has(const std::string& name);
+    Result* get(const std::string& name);
+
     Result* call(Scope* scope,
                  mavka::ast::ASTNode* node,
                  std::vector<Subject*> generic_types,
                  std::vector<Subject*> args);
+    Result* get_element(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* value);
 
     Result* create_instance(Scope* scope, std::vector<Subject*> generic_types);
   };
@@ -107,7 +118,10 @@ namespace typeinterpreter {
     bool assign(std::string name, Subject* value);
 
     bool check_subjects(Subject* value, Subject* types);
+    bool check_type(Type* value, Type* type);
 
+    Result* compile_types(std::vector<mavka::ast::TypeValueSingleNode*> types);
+    Result* compile_nodes(std::vector<mavka::ast::ASTNode*> nodes);
     Result* compile_node(mavka::ast::ASTNode* node);
     Result* compile_body(std::vector<mavka::ast::ASTNode*> body);
 
@@ -151,10 +165,21 @@ namespace typeinterpreter {
                                     std::vector<Subject*> generic_types,
                                     Subject* subject);
 
-  Result* error(const std::string& message);
+  Result* error_0(const mavka::ast::ASTNode* node,
+                  const std::string& subject_name,
+                  Subject* expected,
+                  Subject* got);
+  Result* error_1(const mavka::ast::ASTNode* node,
+                  const std::string& subject_name);
+  Result* error_2(const mavka::ast::ASTNode* node,
+                  const std::string& property_name,
+                  Subject* subject);
+
   Result* error_from_ast(const mavka::ast::ASTNode* node,
                          const std::string& message);
+  Result* error(const std::string& message);
   Result* success(Subject* value);
+
   Result* compile(mavka::ast::ProgramNode* program_node);
 
   void debug_print_call(Type* value,

@@ -138,7 +138,11 @@ namespace typeinterpreter {
         const auto processed_types_result =
             process_subject_generics(this->object, generic_types, param->types);
         if (!scope->check_subjects(arg, processed_types_result)) {
-          return error_from_ast(node, "Неправильний тип аргументу.");
+          return error_from_ast(
+              node, "Неправильний тип аргументу параметра \"" + param->name +
+                        "\": очікується \"" +
+                        processed_types_result->types_string() +
+                        "\", отримано \"" + arg->types_string() + "\".");
         }
       }
       return success(process_subject_generics(this->object, generic_types,
@@ -151,4 +155,12 @@ namespace typeinterpreter {
     return error_from_ast(node, "Неможливо викликати тип.");
   }
 
+  Result* Type::get_element(Scope* scope,
+                            mavka::ast::ASTNode* node,
+                            Subject* value) {
+    if (this->has("чародія_отримати")) {
+      return this->get("чародія_отримати")->call(scope, node, {}, {value});
+    }
+    return error("Неможливо отримати спеціальну властивість з типу \"" + this->get_type_name() + "\".");
+  }
 } // namespace typeinterpreter

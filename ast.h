@@ -112,6 +112,7 @@ namespace mavka::ast {
   class ArrayNode final : public ASTNode {
    public:
     std::vector<ASTNode*> elements;
+    std::vector<TypeValueSingleNode*> types;
   };
 
   class AsNode final : public ASTNode {

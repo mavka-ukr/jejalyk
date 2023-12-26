@@ -1275,6 +1275,11 @@ namespace mavka::parser {
       array_node->start_column = context->getStart()->getCharPositionInLine();
       array_node->end_line = context->getStop()->getLine();
       array_node->end_column = context->getStop()->getCharPositionInLine();
+      if (context->a_type) {
+        array_node->types =
+            std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
+                visitType_value(context->a_type));
+      }
       if (context->a_elements) {
         array_node->elements = std::any_cast<std::vector<ast::ASTNode*>>(
             visitArray_elements(context->a_elements));
