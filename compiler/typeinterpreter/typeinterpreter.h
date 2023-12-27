@@ -109,6 +109,8 @@ namespace typeinterpreter {
 
     bool is_iterator(Scope* scope);
     Result* get_iterator_type(Scope* scope, mavka::ast::ASTNode* node);
+    bool is_awaiting(Scope* scope);
+    Result* get_awaiting_type(Scope* scope, mavka::ast::ASTNode* node);
   };
 
   class Object final {
@@ -209,6 +211,8 @@ namespace typeinterpreter {
 
     bool is_iterator(Scope* scope);
     Result* get_iterator_type(Scope* scope, mavka::ast::ASTNode* node);
+    bool is_awaiting(Scope* scope);
+    Result* get_awaiting_value(Scope* scope, mavka::ast::ASTNode* node);
 
     Result* create_instance(Scope* scope, std::vector<Subject*> generic_types);
   };

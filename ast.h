@@ -415,8 +415,8 @@ namespace mavka::ast {
   class TernaryNode final : public ASTNode {
    public:
     ASTNode* condition;
-    std::vector<ASTNode*> body;
-    std::vector<ASTNode*> else_body;
+    ASTNode* body;
+    ASTNode* else_body;
   };
 
   class TestNode final : public ASTNode {

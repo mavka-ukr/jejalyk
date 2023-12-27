@@ -1271,16 +1271,13 @@ namespace mavka::parser {
           any_to_ast_result(_visitContext(context->t_value))->node;
       std::vector<ast::ASTNode*> body;
       if (context->t_positive) {
-        body.push_back(
-            any_to_ast_result(_visitContext(context->t_positive))->node);
+        ternary_node->body =
+            any_to_ast_result(_visitContext(context->t_positive))->node;
       }
-      ternary_node->body = body;
-      std::vector<ast::ASTNode*> else_body;
       if (context->t_negative) {
-        else_body.push_back(
-            any_to_ast_result(_visitContext(context->t_negative))->node);
+        ternary_node->else_body =
+            any_to_ast_result(_visitContext(context->t_negative))->node;
       }
-      ternary_node->else_body = else_body;
       return create_ast_result(ternary_node);
     }
 

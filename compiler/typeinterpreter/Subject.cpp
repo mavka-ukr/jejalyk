@@ -503,10 +503,14 @@ namespace typeinterpreter {
                                  mavka::ast::ASTNode* node,
                                  Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо порівняти субʼєкт невідомого типу на наявність в іншому субʼєкті.");
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт невідомого типу на "
+                            "наявність в іншому субʼєкті.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на наявність в іншому субʼєкті.");
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт декількох типів на "
+                            "наявність в іншому субʼєкті.");
     }
     return types[0]->comp_contains(scope, node, value);
   }
@@ -560,6 +564,23 @@ namespace typeinterpreter {
       return error_from_ast(node, "Неможливо отримати тип ітератора.");
     }
     return types[0]->get_iterator_type(scope, node);
+  }
+
+  bool Subject::is_awaiting(Scope* scope) {
+    if (types.empty()) {
+      return false;
+    }
+    if (types.size() > 1) {
+      return false;
+    }
+    return types[0]->is_awaiting(scope);
+  }
+
+  Result* Subject::get_awaiting_value(Scope* scope, mavka::ast::ASTNode* node) {
+    if (!this->is_awaiting(scope)) {
+      return error_from_ast(node, "Неможливо отримати тип очікування.");
+    }
+    return types[0]->get_awaiting_type(scope, node);
   }
 
   Result* Subject::create_instance(Scope* scope,

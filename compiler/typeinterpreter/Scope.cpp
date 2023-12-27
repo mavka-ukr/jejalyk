@@ -147,6 +147,9 @@ namespace typeinterpreter {
   Result* Scope::compile_nodes(std::vector<mavka::ast::ASTNode*> nodes) {
     const auto subject = new Subject();
     for (const auto node : nodes) {
+      if (node == nullptr) {
+        continue;
+      }
       const auto node_result = this->compile_node(node);
       if (node_result->error) {
         return node_result;
@@ -914,6 +917,14 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::TernaryNode>(node)) {
       const auto ternary_node = dynamic_cast<mavka::ast::TernaryNode*>(node);
+
+      const auto condition_result = this->compile_node(ternary_node->condition);
+      if (condition_result->error) {
+        return condition_result;
+      }
+
+      return this->compile_nodes({ternary_node->body, ternary_node->else_body});
+
       std::cout << "TernaryNode" << std::endl;
     }
 
@@ -952,7 +963,28 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::TryNode>(node)) {
       const auto try_node = dynamic_cast<mavka::ast::TryNode*>(node);
-      std::cout << "TryNode" << std::endl;
+
+      const auto body_result = this->compile_body(try_node->body);
+      if (body_result->error) {
+        return body_result;
+      }
+
+      const auto object_structure_subject = this->get_root()->get("обʼєкт");
+      const auto object_instance_result =
+          object_structure_subject->create_instance(this, {});
+      if (object_instance_result->error) {
+        return object_instance_result;
+      }
+
+      const auto catch_scope = this->make_child();
+      catch_scope->set_local(try_node->name, object_instance_result->value);
+      const auto catch_body_result =
+          catch_scope->compile_body(try_node->catch_body);
+      if (catch_body_result->error) {
+        return catch_body_result;
+      }
+
+      return success(nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TypeValueSingleNode>(node)) {
@@ -1020,7 +1052,13 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::WaitNode>(node)) {
       const auto wait_node = dynamic_cast<mavka::ast::WaitNode*>(node);
-      std::cout << "WaitNode" << std::endl;
+
+      const auto value_result = this->compile_node(wait_node->value);
+      if (value_result->error) {
+        return value_result;
+      }
+
+      return value_result->value->get_awaiting_value(this, node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::WhileNode>(node)) {
@@ -1266,7 +1304,19 @@ namespace typeinterpreter {
         return_types_subject->add_type(return_type_single);
       }
     }
-    diia_object->return_types = return_types_subject;
+    if (async) {
+      const auto awaiting_structure_subject =
+          this->get_root()->get("очікування");
+      const auto awaiting_instance_result =
+          awaiting_structure_subject->create_instance(this,
+                                                      {return_types_subject});
+      if (awaiting_instance_result->error) {
+        return awaiting_instance_result;
+      }
+      diia_object->return_types = awaiting_instance_result->value;
+    } else {
+      diia_object->return_types = return_types_subject;
+    }
 
     for (const auto param_node : params) {
       const auto param = new Param();

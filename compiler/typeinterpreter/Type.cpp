@@ -429,7 +429,7 @@ namespace typeinterpreter {
   }
 
   Result* Type::comp_contains(Scope* scope,
-                        mavka::ast::ASTNode* node,
+                              mavka::ast::ASTNode* node,
                         Subject* value) {
     if (this->has("чародія_містить")) {
       return this->get("чародія_містить")->call(scope, node, {}, {value});
@@ -468,4 +468,21 @@ namespace typeinterpreter {
     return success(this->generic_types[0]);
   }
 
+  bool Type::is_awaiting(Scope* scope) {
+    const auto iterator_structure_subject = scope->get_root()->get("очікування");
+
+    if (this->generic_definition) {
+      return false;
+    }
+
+    return this->object->structure->object == iterator_structure_subject->types[0]->object;
+  }
+
+  Result* Type::get_awaiting_type(Scope* scope, mavka::ast::ASTNode* node) {
+    if (!this->is_awaiting(scope)) {
+      return error_from_ast(node, "Неможливо отримати тип очікування.");
+    }
+
+    return success(this->generic_types[0]);
+  }
 } // namespace typeinterpreter
