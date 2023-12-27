@@ -180,7 +180,8 @@ namespace typeinterpreter {
       const auto diia_scope = this->make_child();
       return this->compile_diia(diia_scope, anon_diia_node->async, false, "",
                                 {}, anon_diia_node->params,
-                                anon_diia_node->return_types);
+                                anon_diia_node->return_types,
+                                &anon_diia_node->body);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ArgNode>(node)) {
@@ -555,7 +556,8 @@ namespace typeinterpreter {
       const auto diia_scope = this->make_child();
       const auto diia_compilation_result = this->compile_diia(
           diia_scope, diia_node->async, diia_node->ee, diia_node->name,
-          diia_node->generics, diia_node->params, diia_node->return_types);
+          diia_node->generics, diia_node->params, diia_node->return_types,
+          &diia_node->body);
       if (diia_compilation_result->error) {
         return diia_compilation_result;
       }
@@ -643,7 +645,8 @@ namespace typeinterpreter {
       const auto diia_scope = this->make_child();
       return this->compile_diia(diia_scope, function_node->async, false, "", {},
                                 function_node->params,
-                                function_node->return_types);
+                                function_node->return_types,
+                                &function_node->body);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::GetElementNode>(node)) {
@@ -715,7 +718,7 @@ namespace typeinterpreter {
           diia_scope, method_declaration_node->async,
           method_declaration_node->ee, method_declaration_node->name,
           method_declaration_node->generics, method_declaration_node->params,
-          method_declaration_node->return_types);
+          method_declaration_node->return_types, nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MMLNode>(node)) {
@@ -730,7 +733,7 @@ namespace typeinterpreter {
       const auto diia_compilation_result = this->compile_diia(
           diia_scope, mockup_diia_node->async, mockup_diia_node->ee,
           mockup_diia_node->name, mockup_diia_node->generics,
-          mockup_diia_node->params, mockup_diia_node->return_types);
+          mockup_diia_node->params, mockup_diia_node->return_types, nullptr);
       if (diia_compilation_result->error) {
         return diia_compilation_result;
       }
@@ -1081,8 +1084,7 @@ namespace typeinterpreter {
   }
 
   Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*> body) {
-    for (int i = 0; i < body.size(); ++i) {
-      const auto node = body[i];
+    for (const auto node : body) {
       if (!node) {
         continue;
       }
@@ -1116,8 +1118,44 @@ namespace typeinterpreter {
       }
     }
 
-    for (int i = 0; i < body.size(); ++i) {
-      const auto node = body[i];
+    for (const auto node : body) {
+      if (!node) {
+        continue;
+      }
+
+      if (jejalyk::tools::instance_of<mavka::ast::MockupDiiaNode>(node)) {
+        const auto mockup_diia_node =
+            dynamic_cast<mavka::ast::MockupDiiaNode*>(node);
+        const auto diia_scope = this->make_child();
+        const auto compiled_diia_result = this->compile_diia(
+            diia_scope, mockup_diia_node->async, mockup_diia_node->ee,
+            mockup_diia_node->name, mockup_diia_node->generics,
+            mockup_diia_node->params, mockup_diia_node->return_types, nullptr);
+        if (compiled_diia_result->error) {
+          return compiled_diia_result;
+        }
+        compiled_diia_result->value->types[0]->object->this_is_declaration =
+            true;
+        this->set_local(mockup_diia_node->name, compiled_diia_result->value);
+      }
+
+      if (jejalyk::tools::instance_of<mavka::ast::DiiaNode>(node)) {
+        const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node);
+        const auto diia_scope = this->make_child();
+        const auto compiled_diia_result = this->compile_diia(
+            diia_scope, diia_node->async, diia_node->ee, diia_node->name,
+            diia_node->generics, diia_node->params, diia_node->return_types,
+            nullptr);
+        if (compiled_diia_result->error) {
+          return compiled_diia_result;
+        }
+        compiled_diia_result->value->types[0]->object->this_is_declaration =
+            true;
+        this->set_local(diia_node->name, compiled_diia_result->value);
+      }
+    }
+
+    for (const auto node : body) {
       if (!node) {
         continue;
       }
@@ -1255,87 +1293,123 @@ namespace typeinterpreter {
       std::string name,
       std::vector<mavka::ast::GenericNode*> generic_definitions,
       std::vector<mavka::ast::ParamNode*> params,
-      std::vector<mavka::ast::TypeValueSingleNode*> return_types) {
+      std::vector<mavka::ast::TypeValueSingleNode*> return_types,
+      std::vector<mavka::ast::ASTNode*>* body) {
     Subject* diia_subject = nullptr;
     Type* diia_type = nullptr;
     Object* diia_object = nullptr;
     Scope* scope_with_generics = nullptr;
     std::vector<Subject*> generic_definition_subjects;
 
-    const auto diia_structure_subject = this->get_root()->get("Дія");
+    if (this->has_local(name)) {
+      diia_subject = this->get_local(name);
+      diia_type = diia_subject->types[0];
+      diia_object = diia_type->object;
 
-    diia_object = new Object();
-    diia_object->structure = diia_structure_subject->types[0];
-    diia_object->name = name;
-
-    scope_with_generics = this->make_proxy();
-
-    for (int i = 0; i < generic_definitions.size(); ++i) {
-      const auto generic_definition_node = generic_definitions[i];
-      const auto generic_definition = new GenericDefinition();
-      generic_definition->object = diia_object;
-      generic_definition->index = i;
-      generic_definition->name = generic_definition_node->name;
-      diia_object->generic_definitions.push_back(generic_definition);
-    }
-
-    for (const auto generic_definition : diia_object->generic_definitions) {
-      const auto generic_definition_type = new Type();
-      generic_definition_type->generic_definition = generic_definition;
-      const auto generic_definition_subject =
-          new Subject({generic_definition_type});
-      scope_with_generics->variables.insert_or_assign(
-          generic_definition->name, generic_definition_subject);
-      generic_definition_subjects.push_back(generic_definition_subject);
-    }
-
-    diia_type = new Type(diia_object);
-    diia_subject = new Subject();
-    diia_subject->add_type(diia_type);
-
-    const auto return_types_subject = new Subject();
-    for (const auto return_type : return_types) {
-      const auto compiled_return_type =
-          scope_with_generics->compile_node(return_type);
-      if (compiled_return_type->error) {
-        return compiled_return_type;
+      if (!diia_object->this_is_declaration) {
+        return error("Структура \"" + name + "\" вже визначена.");
       }
-      for (const auto return_type_single : compiled_return_type->value->types) {
-        return_types_subject->add_type(return_type_single);
+
+      diia_object->this_is_declaration = false;
+      scope_with_generics = this->make_proxy();
+
+      for (const auto generic_definition : diia_object->generic_definitions) {
+        const auto generic_definition_type = new Type();
+        generic_definition_type->generic_definition = generic_definition;
+        const auto generic_definition_subject =
+            new Subject({generic_definition_type});
+        scope_with_generics->variables.insert_or_assign(
+            generic_definition->name, generic_definition_subject);
+        generic_definition_subjects.push_back(generic_definition_subject);
       }
-    }
-    if (async) {
-      const auto awaiting_structure_subject =
-          this->get_root()->get("очікування");
-      const auto awaiting_instance_result =
-          awaiting_structure_subject->create_instance(this,
-                                                      {return_types_subject});
-      if (awaiting_instance_result->error) {
-        return awaiting_instance_result;
+
+      for (const auto param : diia_object->params) {
+        diia_scope->set_local(param->name, param->types);
       }
-      diia_object->return_types = awaiting_instance_result->value;
+
+      if (body != nullptr) {
+        const auto compiled_body = diia_scope->compile_body(*body);
+        if (compiled_body->error) {
+          return compiled_body;
+        }
+      }
     } else {
-      diia_object->return_types = return_types_subject;
-    }
+      const auto diia_structure_subject = this->get_root()->get("Дія");
 
-    for (const auto param_node : params) {
-      const auto param = new Param();
-      param->name = param_node->name;
-      param->types = new Subject();
-      for (const auto type_value_single_node : param_node->types) {
-        const auto type_value_single_result =
-            scope_with_generics->compile_node(type_value_single_node);
-        if (type_value_single_result->error) {
-          return type_value_single_result;
+      diia_object = new Object();
+      diia_object->structure = diia_structure_subject->types[0];
+      diia_object->name = name;
+
+      scope_with_generics = this->make_proxy();
+
+      for (int i = 0; i < generic_definitions.size(); ++i) {
+        const auto generic_definition_node = generic_definitions[i];
+        const auto generic_definition = new GenericDefinition();
+        generic_definition->object = diia_object;
+        generic_definition->index = i;
+        generic_definition->name = generic_definition_node->name;
+        diia_object->generic_definitions.push_back(generic_definition);
+      }
+
+      for (const auto generic_definition : diia_object->generic_definitions) {
+        const auto generic_definition_type = new Type();
+        generic_definition_type->generic_definition = generic_definition;
+        const auto generic_definition_subject =
+            new Subject({generic_definition_type});
+        scope_with_generics->variables.insert_or_assign(
+            generic_definition->name, generic_definition_subject);
+        generic_definition_subjects.push_back(generic_definition_subject);
+      }
+
+      diia_type = new Type(diia_object);
+      diia_subject = new Subject();
+      diia_subject->add_type(diia_type);
+
+      const auto return_types_subject = new Subject();
+      for (const auto return_type : return_types) {
+        const auto compiled_return_type =
+            scope_with_generics->compile_node(return_type);
+        if (compiled_return_type->error) {
+          return compiled_return_type;
         }
-        for (const auto param_type : type_value_single_result->value->types) {
-          param->types->add_type(param_type);
+        for (const auto return_type_single :
+             compiled_return_type->value->types) {
+          return_types_subject->add_type(return_type_single);
         }
       }
-      param->value = nullptr;
-      param->variadic = param_node->variadic;
+      if (async) {
+        const auto awaiting_structure_subject =
+            this->get_root()->get("очікування");
+        const auto awaiting_instance_result =
+            awaiting_structure_subject->create_instance(this,
+                                                        {return_types_subject});
+        if (awaiting_instance_result->error) {
+          return awaiting_instance_result;
+        }
+        diia_object->return_types = awaiting_instance_result->value;
+      } else {
+        diia_object->return_types = return_types_subject;
+      }
 
-      diia_object->params.push_back(param);
+      for (const auto param_node : params) {
+        const auto param = new Param();
+        param->name = param_node->name;
+        param->types = new Subject();
+        for (const auto type_value_single_node : param_node->types) {
+          const auto type_value_single_result =
+              scope_with_generics->compile_node(type_value_single_node);
+          if (type_value_single_result->error) {
+            return type_value_single_result;
+          }
+          for (const auto param_type : type_value_single_result->value->types) {
+            param->types->add_type(param_type);
+          }
+        }
+        param->value = nullptr;
+        param->variadic = param_node->variadic;
+
+        diia_object->params.push_back(param);
+      }
     }
 
     return success(diia_subject);

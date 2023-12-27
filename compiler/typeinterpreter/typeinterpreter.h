@@ -259,7 +259,8 @@ namespace typeinterpreter {
         std::string name,
         std::vector<mavka::ast::GenericNode*> generic_definitions,
         std::vector<mavka::ast::ParamNode*> params,
-        std::vector<mavka::ast::TypeValueSingleNode*> return_types);
+        std::vector<mavka::ast::TypeValueSingleNode*> return_types,
+        std::vector<mavka::ast::ASTNode*>* body);
   };
 
   class Param final {

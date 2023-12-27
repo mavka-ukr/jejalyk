@@ -144,6 +144,10 @@ namespace typeinterpreter {
                      std::vector<Subject*> args) {
     debug_print_call(this, generic_types, args);
     if (this->is_diia(scope) || this->is_structure(scope)) {
+      // if (this->object->this_is_declaration) {
+      //   return error_from_ast(
+      //       node, "Неможливо викликати \"" + this->object->name + "\".");
+      // }
       if (generic_types.size() < this->object->generic_definitions.size()) {
         return error_from_ast(node, "Недостатньо аргументів шаблону.");
       }

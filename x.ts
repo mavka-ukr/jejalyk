@@ -1,5 +1,8 @@
-function A<T>(t: T): T {
-  return t;
+function a() {
+  return b();
 }
 
-const a = A < number() > (number());
+function b() {
+  const x = a();
+  return 1;
+}
