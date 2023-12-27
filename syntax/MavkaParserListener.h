@@ -245,6 +245,9 @@ public:
   virtual void enterAnonymous_diia(MavkaParser::Anonymous_diiaContext *ctx) = 0;
   virtual void exitAnonymous_diia(MavkaParser::Anonymous_diiaContext *ctx) = 0;
 
+  virtual void enterExpr_mml(MavkaParser::Expr_mmlContext *ctx) = 0;
+  virtual void exitExpr_mml(MavkaParser::Expr_mmlContext *ctx) = 0;
+
   virtual void enterThrow(MavkaParser::ThrowContext *ctx) = 0;
   virtual void exitThrow(MavkaParser::ThrowContext *ctx) = 0;
 

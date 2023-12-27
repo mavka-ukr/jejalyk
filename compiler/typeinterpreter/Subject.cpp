@@ -230,9 +230,153 @@ namespace typeinterpreter {
           node, "Неможливо піднести субʼєкт невідомого типу до степеня.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо піднести субʼєкт декількох типів до степеня.");
+      return error_from_ast(
+          node, "Неможливо піднести субʼєкт декількох типів до степеня.");
     }
     return types[0]->pow(scope, node, value);
+  }
+
+  Result* Subject::bw_not(Scope* scope, mavka::ast::ASTNode* node) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо bw_not субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо bw_not субʼєкт декількох типів.");
+    }
+    return types[0]->bw_not(scope, node);
+  }
+
+  Result* Subject::bw_xor(Scope* scope,
+                          mavka::ast::ASTNode* node,
+                          Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо bw_xor субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо bw_xor субʼєкт декількох типів.");
+    }
+    return types[0]->bw_xor(scope, node, value);
+  }
+
+  Result* Subject::bw_or(Scope* scope,
+                         mavka::ast::ASTNode* node,
+                         Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо bw_or субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо bw_or субʼєкт декількох типів.");
+    }
+    return types[0]->bw_or(scope, node, value);
+  }
+
+  Result* Subject::bw_and(Scope* scope,
+                          mavka::ast::ASTNode* node,
+                          Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо bw_and субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо bw_and субʼєкт декількох типів.");
+    }
+    return types[0]->bw_and(scope, node, value);
+  }
+
+  Result* Subject::bw_shift_left(Scope* scope,
+                                 mavka::ast::ASTNode* node,
+                                 Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо bw_shift_left субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо bw_shift_left субʼєкт декількох типів.");
+    }
+    return types[0]->bw_shift_left(scope, node, value);
+  }
+
+  Result* Subject::bw_shift_right(Scope* scope,
+                                  mavka::ast::ASTNode* node,
+                                  Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(
+          node, "Неможливо bw_shift_right субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(
+          node, "Неможливо bw_shift_right субʼєкт декількох типів.");
+    }
+    return types[0]->bw_shift_right(scope, node, value);
+  }
+
+  Result* Subject::negative(Scope* scope, mavka::ast::ASTNode* node) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо negative субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо negative субʼєкт декількох типів.");
+    }
+    return types[0]->negative(scope, node);
+  }
+
+  Result* Subject::positive(Scope* scope, mavka::ast::ASTNode* node) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо positive субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо positive субʼєкт декількох типів.");
+    }
+    return types[0]->positive(scope, node);
+  }
+
+  Result* Subject::post_decrement(Scope* scope, mavka::ast::ASTNode* node) {
+    if (types.empty()) {
+      return error_from_ast(
+          node, "Неможливо post_decrement субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(
+          node, "Неможливо post_decrement субʼєкт декількох типів.");
+    }
+    return types[0]->post_decrement(scope, node);
+  }
+
+  Result* Subject::post_increment(Scope* scope, mavka::ast::ASTNode* node) {
+    if (types.empty()) {
+      return error_from_ast(
+          node, "Неможливо post_increment субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(
+          node, "Неможливо post_increment субʼєкт декількох типів.");
+    }
+    return types[0]->post_increment(scope, node);
+  }
+
+  Result* Subject::pre_decrement(Scope* scope, mavka::ast::ASTNode* node) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо pre_decrement субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо pre_decrement субʼєкт декількох типів.");
+    }
+    return types[0]->pre_decrement(scope, node);
+  }
+
+  Result* Subject::pre_increment(Scope* scope, mavka::ast::ASTNode* node) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо pre_increment субʼєкт невідомого типу.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо pre_increment субʼєкт декількох типів.");
+    }
+    return types[0]->pre_increment(scope, node);
   }
 
   bool Subject::is_iterator(Scope* scope) {

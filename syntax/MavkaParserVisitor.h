@@ -173,6 +173,8 @@ public:
 
     virtual std::any visitAnonymous_diia(MavkaParser::Anonymous_diiaContext *context) = 0;
 
+    virtual std::any visitExpr_mml(MavkaParser::Expr_mmlContext *context) = 0;
+
     virtual std::any visitThrow(MavkaParser::ThrowContext *context) = 0;
 
     virtual std::any visitArray_destruction(MavkaParser::Array_destructionContext *context) = 0;

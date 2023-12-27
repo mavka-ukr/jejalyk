@@ -48,6 +48,7 @@ namespace mavka::ast {
   class IdentifierNode;
   class IfNode;
   class MethodDeclarationNode;
+  class MMLNode;
   class MockupDiiaNode;
   class MockupModuleNode;
   class MockupObjectNode;
@@ -292,6 +293,11 @@ namespace mavka::ast {
     std::vector<TypeValueSingleNode*> return_types;
   };
 
+  class MMLNode final : public ASTNode {
+   public:
+    std::string content;
+  };
+
   class MockupDiiaNode final : public ASTNode {
    public:
     bool ee = false;
@@ -396,7 +402,8 @@ namespace mavka::ast {
     std::string name;
     std::vector<GenericNode*> generics;
     ASTNode* parent;
-    std::vector<ASTNode*> params;
+    std::vector<ParamNode*> params;
+    std::vector<MethodDeclarationNode*> methods;
   };
 
   class TakeModuleNode final : public ASTNode {

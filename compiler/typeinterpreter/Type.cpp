@@ -274,12 +274,118 @@ namespace typeinterpreter {
 
   Result* Type::pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
     if (this->has("чародія_степінь")) {
-      return this->get("чародія_степінь")
-          ->call(scope, node, {}, {value});
+      return this->get("чародія_степінь")->call(scope, node, {}, {value});
     }
-    return error_from_ast(node, "Неможливо виконати піднесення до степені "
-                                    "для типу \"" +
+    return error_from_ast(node,
+                          "Неможливо виконати піднесення до степені "
+                          "для типу \"" +
+                              this->get_type_name() + "\".");
+  }
+
+  Result* Type::bw_not(Scope* scope, mavka::ast::ASTNode* node) {
+    if (this->has("чародія_дні")) {
+      return this->get("чародія_дні")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо виконати двійкове ні для типу \"" +
                                     this->get_type_name() + "\".");
+  }
+
+  Result* Type::bw_xor(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       Subject* value) {
+    if (this->has("чародія_вабо")) {
+      return this->get("чародія_вабо")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати чародія_вабо для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::bw_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
+    if (this->has("чародія_дабо")) {
+      return this->get("чародія_дабо")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати чародія_дабо для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::bw_and(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       Subject* value) {
+    if (this->has("чародія_ді")) {
+      return this->get("чародія_ді")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати чародія_ді для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::bw_shift_left(Scope* scope,
+                              mavka::ast::ASTNode* node,
+                              Subject* value) {
+    if (this->has("чародія_вліво")) {
+      return this->get("чародія_вліво")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node, "Неможливо виконати чародія_вліво для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::bw_shift_right(Scope* scope,
+                               mavka::ast::ASTNode* node,
+                               Subject* value) {
+    if (this->has("чародія_вправо")) {
+      return this->get("чародія_вправо")->call(scope, node, {}, {value});
+    }
+    return error_from_ast(node,
+                          "Неможливо виконати чародія_вправо для типу \"" +
+                              this->get_type_name() + "\".");
+  }
+
+  Result* Type::negative(Scope* scope, mavka::ast::ASTNode* node) {
+    if (this->has("чародія_відʼємне")) {
+      return this->get("чародія_відʼємне")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо виконати відʼємне для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::positive(Scope* scope, mavka::ast::ASTNode* node) {
+    if (this->has("чародія_додатнє")) {
+      return this->get("чародія_додатнє")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо виконати додатнє для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::post_decrement(Scope* scope, mavka::ast::ASTNode* node) {
+    if (this->has("чародія_зменшити_після")) {
+      return this->get("чародія_зменшити_після")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо чародія_зменшити_після для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::post_increment(Scope* scope, mavka::ast::ASTNode* node) {
+    if (this->has("чародія_збільшити_після")) {
+      return this->get("чародія_збільшити_після")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node,
+                          "Неможливо чародія_збільшити_після для типу \"" +
+                              this->get_type_name() + "\".");
+  }
+
+  Result* Type::pre_decrement(Scope* scope, mavka::ast::ASTNode* node) {
+    if (this->has("чародія_зменшити")) {
+      return this->get("чародія_зменшити")->call(scope, node, {}, {});
+    }
+        return error_from_ast(node, "Неможливо чародія_зменшити для типу \"" +
+                                        this->get_type_name() + "\".");
+  }
+
+  Result* Type::pre_increment(Scope* scope, mavka::ast::ASTNode* node) {
+    if (this->has("чародія_збільшити")) {
+      return this->get("чародія_збільшити")->call(scope, node, {}, {});
+    }
+        return error_from_ast(node, "Неможливо чародія_збільшити для типу \"" +
+                                        this->get_type_name() + "\".");
   }
 
   bool Type::is_iterator(Scope* scope) {

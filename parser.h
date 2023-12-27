@@ -226,11 +226,6 @@ namespace mavka::parser {
         generics = std::any_cast<std::vector<ast::GenericNode*>>(
             visitGenerics(context->s_generics));
       }
-      std::vector<ast::ASTNode*> params;
-      if (context->structure_elements()) {
-        params = std::any_cast<std::vector<ast::ASTNode*>>(
-            visitStructure_elements(context->structure_elements()));
-      }
       const auto structure_node = new ast::StructureNode();
       structure_node->start_line = context->getStart()->getLine();
       structure_node->start_column =
@@ -245,9 +240,21 @@ namespace mavka::parser {
                 ->node;
         structure_node->parent = parent;
       }
-      structure_node->params = std::vector<ast::ASTNode*>();
-      for (const auto& param : params) {
-        structure_node->params.push_back(param);
+      if (context->s_elements) {
+        const auto elements = std::any_cast<std::vector<ast::ASTNode*>>(
+            visitStructure_elements(context->s_elements));
+        for (const auto element : elements) {
+          if (jejalyk::tools::instance_of<ast::ParamNode>(element)) {
+            const auto param_node = dynamic_cast<ast::ParamNode*>(element);
+            structure_node->params.push_back(param_node);
+          }
+          if (jejalyk::tools::instance_of<ast::MethodDeclarationNode>(
+                  element)) {
+            const auto method_declaration_node =
+                dynamic_cast<ast::MethodDeclarationNode*>(element);
+            structure_node->methods.push_back(method_declaration_node);
+          }
+        }
       }
       return create_ast_result(structure_node);
     }
@@ -882,6 +889,20 @@ namespace mavka::parser {
             dynamic_cast<MavkaParser::Anonymous_diiaContext*>(context);
         return visitAnonymous_diia(anonymous_diia_context);
       }
+      if (jejalyk::tools::instance_of<MavkaParser::Expr_mmlContext>(context)) {
+        const auto expr_mml_context =
+            dynamic_cast<MavkaParser::Expr_mmlContext*>(context);
+        const auto mml_text = expr_mml_context->MML()->getText();
+        const auto mml_node = new ast::MMLNode();
+        mml_node->start_line = context->getStart()->getLine();
+        mml_node->start_column = context->getStart()->getCharPositionInLine();
+        mml_node->end_line = context->getStop()->getLine();
+        mml_node->end_column = context->getStop()->getCharPositionInLine();
+        // 9 because of unicode
+        mml_node->content =
+            jejalyk::tools::safe_substr(mml_text, 9, mml_text.length() - 21);
+        return create_ast_result(mml_node);
+      }
       return create_ast_result(nullptr);
     }
 
@@ -1392,7 +1413,7 @@ namespace mavka::parser {
       god_node->end_line = context->getStop()->getLine();
       god_node->end_column = context->getStop()->getCharPositionInLine();
       std::vector<ast::ASTNode*> elements;
-      for (const auto value : context->value()) {
+      for (const auto value : context->atom()) {
         const auto value_node = any_to_ast_result(_visitContext(value))->node;
         elements.push_back(value_node);
       }

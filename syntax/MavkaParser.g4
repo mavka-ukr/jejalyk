@@ -76,7 +76,7 @@ atom: NUMBER #number
     | pi_value=atom INCREMENT #post_increment
     | '!' n_value=atom  #not
     | '~' bn_value=atom  #bitwise_not
-    | '(' n_value=expr ')' #nested;
+    | '(' nls n_value=expr nls ')' #nested;
 
 value: atom #value_atom
      | a_left=value a_operation=arithmetic_op_mul a_right=value #arithmetic_mul
@@ -96,14 +96,15 @@ dictionary_arg: nls (da_name_id=identifier | da_name_string=STRING) '=' da_value
 
 expr: 'предок' nls '.' nls cp_id=identifier '(' (cp_args=args | cp_named_args=named_args)? ')' #call_parent
     | value #simple
-    | a_left=value 'як' a_right=value #as
+    | a_left=atom 'як' a_right=atom #as
     | t_value=value nls '?' nls t_positive=expr nls ':' nls t_negative=expr #ternary
     | ('<' a_type=type_value '>')? '[' a_elements=array_elements? ']' #array
     | ('<' d_key_type=type_value ',' d_value_type=type_value '>')? '(' d_args=dictionary_args? ')' #dictionary
-    | value ('та' value)+ #god
+    | atom ('та' atom)+ #god
     | 'чекати' w_value=value #wait
     | (f_async='тривала')? '(' f_params=params? ')' f_type=type_value? ':' f_body=expr #function
     | (d_async='тривала')? 'дія' '(' ( nls d_params=params? nls ) ')' (d_type=type_value)? nl (d_body=body nl)? nls 'кінець' #anonymous_diia
+    | MML #expr_mml
     ;
 
 throw: 'впасти' t_value=expr;

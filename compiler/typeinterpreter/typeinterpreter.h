@@ -72,6 +72,22 @@ namespace typeinterpreter {
     Result* divmod(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
     Result* divdiv(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
     Result* pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* bw_not(Scope* scope, mavka::ast::ASTNode* node);
+    Result* bw_xor(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* bw_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* bw_and(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* bw_shift_left(Scope* scope,
+                          mavka::ast::ASTNode* node,
+                          Subject* value);
+    Result* bw_shift_right(Scope* scope,
+                           mavka::ast::ASTNode* node,
+                           Subject* value);
+    Result* negative(Scope* scope, mavka::ast::ASTNode* node);
+    Result* positive(Scope* scope, mavka::ast::ASTNode* node);
+    Result* post_decrement(Scope* scope, mavka::ast::ASTNode* node);
+    Result* post_increment(Scope* scope, mavka::ast::ASTNode* node);
+    Result* pre_decrement(Scope* scope, mavka::ast::ASTNode* node);
+    Result* pre_increment(Scope* scope, mavka::ast::ASTNode* node);
 
     bool is_iterator(Scope* scope);
     Result* get_iterator_type(Scope* scope, mavka::ast::ASTNode* node);
@@ -128,6 +144,22 @@ namespace typeinterpreter {
     Result* divmod(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
     Result* divdiv(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
     Result* pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* bw_not(Scope* scope, mavka::ast::ASTNode* node);
+    Result* bw_xor(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* bw_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* bw_and(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* bw_shift_left(Scope* scope,
+                          mavka::ast::ASTNode* node,
+                          Subject* value);
+    Result* bw_shift_right(Scope* scope,
+                           mavka::ast::ASTNode* node,
+                           Subject* value);
+    Result* negative(Scope* scope, mavka::ast::ASTNode* node);
+    Result* positive(Scope* scope, mavka::ast::ASTNode* node);
+    Result* post_decrement(Scope* scope, mavka::ast::ASTNode* node);
+    Result* post_increment(Scope* scope, mavka::ast::ASTNode* node);
+    Result* pre_decrement(Scope* scope, mavka::ast::ASTNode* node);
+    Result* pre_increment(Scope* scope, mavka::ast::ASTNode* node);
 
     bool is_iterator(Scope* scope);
     Result* get_iterator_type(Scope* scope, mavka::ast::ASTNode* node);

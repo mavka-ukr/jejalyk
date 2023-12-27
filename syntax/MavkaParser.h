@@ -31,8 +31,8 @@ public:
     TILDA = 89, PERCENT = 90, DIVDIV = 91, POW = 92, XOR = 93, OR_SYM = 94, 
     AND_SYM = 95, OR_BW = 96, AND_BW = 97, HEX_START = 98, ID = 99, NUMBER = 100, 
     INTEGER = 101, FLOAT = 102, HEX = 103, HEXUKR = 104, BINNUM = 105, BINNUMUKR = 106, 
-    TRIPPLE_QUOTE = 107, STRING_MULTILINE = 108, STRING = 109, COMMENT = 110, 
-    LINE_COMMENT = 111, OLD_COMMENT = 112
+    MML = 107, TRIPPLE_QUOTE = 108, STRING_MULTILINE = 109, STRING = 110, 
+    COMMENT = 111, LINE_COMMENT = 112
   };
 
   enum {
@@ -1180,6 +1180,8 @@ public:
 
     MavkaParser::ExprContext *n_value = nullptr;
     antlr4::tree::TerminalNode *OPEN_PAREN();
+    std::vector<NlsContext *> nls();
+    NlsContext* nls(size_t i);
     antlr4::tree::TerminalNode *CLOSE_PAREN();
     ExprContext *expr();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1542,11 +1544,11 @@ public:
   public:
     AsContext(ExprContext *ctx);
 
-    MavkaParser::ValueContext *a_left = nullptr;
-    MavkaParser::ValueContext *a_right = nullptr;
+    MavkaParser::AtomContext *a_left = nullptr;
+    MavkaParser::AtomContext *a_right = nullptr;
     antlr4::tree::TerminalNode *AS();
-    std::vector<ValueContext *> value();
-    ValueContext* value(size_t i);
+    std::vector<AtomContext *> atom();
+    AtomContext* atom(size_t i);
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1627,6 +1629,17 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  Expr_mmlContext : public ExprContext {
+  public:
+    Expr_mmlContext(ExprContext *ctx);
+
+    antlr4::tree::TerminalNode *MML();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  FunctionContext : public ExprContext {
   public:
     FunctionContext(ExprContext *ctx);
@@ -1683,8 +1696,8 @@ public:
   public:
     GodContext(ExprContext *ctx);
 
-    std::vector<ValueContext *> value();
-    ValueContext* value(size_t i);
+    std::vector<AtomContext *> atom();
+    AtomContext* atom(size_t i);
     std::vector<antlr4::tree::TerminalNode *> TA();
     antlr4::tree::TerminalNode* TA(size_t i);
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
