@@ -365,9 +365,6 @@ namespace mavka::parser {
       if (context->mockup_subject()) {
         return visitMockup_subject(context->mockup_subject());
       }
-      if (context->mockup_object()) {
-        return visitMockup_object(context->mockup_object());
-      }
       return create_ast_result(nullptr);
     }
 
@@ -384,7 +381,7 @@ namespace mavka::parser {
       if (context->mm_elements) {
         mockup_module_node->elements =
             std::any_cast<std::vector<ast::ASTNode*>>(
-                visitMockup_body(context->mm_elements));
+                visitMockup_module_body(context->mm_elements));
       }
       return create_ast_result(mockup_module_node);
     }
@@ -406,7 +403,7 @@ namespace mavka::parser {
       }
       if (context->ms_elements) {
         const auto elements = std::any_cast<std::vector<ast::ASTNode*>>(
-            visitMockup_body(context->ms_elements));
+            visitMockup_structure_body(context->ms_elements));
         for (const auto element : elements) {
           if (jejalyk::tools::instance_of<ast::ParamNode>(element)) {
             const auto param_node = dynamic_cast<ast::ParamNode*>(element);
@@ -423,19 +420,31 @@ namespace mavka::parser {
       return create_ast_result(mockup_structure_node);
     }
 
-    std::any visitMockup_body(
-        MavkaParser::Mockup_bodyContext* context) override {
+    std::any visitMockup_module_body(
+        MavkaParser::Mockup_module_bodyContext* context) override {
       std::vector<ast::ASTNode*> elements;
-      for (const auto mockup_element : context->mockup_body_element()) {
+      for (const auto mockup_module_element : context->mockup()) {
         const auto ast_result =
-            any_to_ast_result(visitMockup_body_element(mockup_element));
+            any_to_ast_result(_visitContext(mockup_module_element));
         elements.push_back(ast_result->node);
       }
       return elements;
     }
 
-    std::any visitMockup_body_element(
-        MavkaParser::Mockup_body_elementContext* context) override {
+    std::any visitMockup_structure_body(
+        MavkaParser::Mockup_structure_bodyContext* context) override {
+      std::vector<ast::ASTNode*> elements;
+      for (const auto mockup_structure_element :
+           context->mockup_structure_body_element()) {
+        const auto ast_result = any_to_ast_result(
+            visitMockup_structure_body_element(mockup_structure_element));
+        elements.push_back(ast_result->node);
+      }
+      return elements;
+    }
+
+    std::any visitMockup_structure_body_element(
+        MavkaParser::Mockup_structure_body_elementContext* context) override {
       if (context->structure_param()) {
         return visitStructure_param(context->structure_param());
       }
@@ -488,24 +497,6 @@ namespace mavka::parser {
           std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
               visitType_value(context->ms_type));
       return create_ast_result(mockup_subject_node);
-    }
-
-    std::any visitMockup_object(
-        MavkaParser::Mockup_objectContext* context) override {
-      const auto mockup_object_node = new ast::MockupObjectNode();
-      mockup_object_node->start_line = context->getStart()->getLine();
-      mockup_object_node->start_column =
-          context->getStart()->getCharPositionInLine();
-      mockup_object_node->end_line = context->getStop()->getLine();
-      mockup_object_node->end_column =
-          context->getStop()->getCharPositionInLine();
-      mockup_object_node->name = context->mo_name->getText();
-      if (context->mo_elements) {
-        mockup_object_node->elements =
-            std::any_cast<std::vector<ast::ASTNode*>>(
-                visitMockup_body(context->mo_elements));
-      }
-      return create_ast_result(mockup_object_node);
     }
 
     std::any visitDiia(MavkaParser::DiiaContext* context) override {
@@ -900,6 +891,11 @@ namespace mavka::parser {
         mml_node->end_column = context->getStop()->getCharPositionInLine();
         mml_node->text = mml_text;
         return create_ast_result(mml_node);
+      }
+      if (jejalyk::tools::instance_of<MavkaParser::MockupContext>(context)) {
+        const auto mockup_context =
+            dynamic_cast<MavkaParser::MockupContext*>(context);
+        return visitMockup(mockup_context);
       }
       return create_ast_result(nullptr);
     }

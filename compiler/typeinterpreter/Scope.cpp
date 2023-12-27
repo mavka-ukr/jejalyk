@@ -402,6 +402,11 @@ namespace typeinterpreter {
       return value_result->value->bw_not(this, node);
     }
 
+    if (jejalyk::tools::instance_of<mavka::ast::BreakNode>(node)) {
+      const auto break_node = dynamic_cast<mavka::ast::BreakNode*>(node);
+      std::cout << "BreakNode" << std::endl;
+    }
+
     if (jejalyk::tools::instance_of<mavka::ast::CallNode>(node)) {
       const auto call_node = dynamic_cast<mavka::ast::CallNode*>(node);
 
@@ -737,12 +742,6 @@ namespace typeinterpreter {
       std::cout << "MockupModuleNode" << std::endl;
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::MockupObjectNode>(node)) {
-      const auto mockup_object_node =
-          dynamic_cast<mavka::ast::MockupObjectNode*>(node);
-      std::cout << "MockupObjectNode" << std::endl;
-    }
-
     if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
       const auto mockup_structure_node =
           dynamic_cast<mavka::ast::MockupStructureNode*>(node);
@@ -920,7 +919,24 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::TestNode>(node)) {
       const auto test_node = dynamic_cast<mavka::ast::TestNode*>(node);
-      std::cout << "TestNode" << std::endl;
+
+      const auto left_result = this->compile_node(test_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+      const auto right_result = this->compile_node(test_node->right);
+      if (right_result->error) {
+        return right_result;
+      }
+      if (test_node->op == "&&" || test_node->op == "і") {
+        return left_result->value->test_and(this, node, right_result->value);
+      }
+      if (test_node->op == "||" || test_node->op == "або") {
+        return left_result->value->test_or(this, node, right_result->value);
+      }
+
+      return error_from_ast(node,
+                            "Невідома вказівка \"" + test_node->op + "\".");
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ThrowNode>(node)) {
@@ -931,7 +947,7 @@ namespace typeinterpreter {
         return value_result;
       }
 
-      return value_result;
+      return success(nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TryNode>(node)) {

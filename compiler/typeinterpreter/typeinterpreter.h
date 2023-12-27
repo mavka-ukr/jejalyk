@@ -88,10 +88,6 @@ namespace typeinterpreter {
     Result* post_increment(Scope* scope, mavka::ast::ASTNode* node);
     Result* pre_decrement(Scope* scope, mavka::ast::ASTNode* node);
     Result* pre_increment(Scope* scope, mavka::ast::ASTNode* node);
-    Result* comp_eq(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* comp_not_eq(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value);
     Result* comp_greater(Scope* scope,
                          mavka::ast::ASTNode* node,
                          Subject* value);
@@ -104,10 +100,6 @@ namespace typeinterpreter {
     Result* comp_lesser_or_eq(Scope* scope,
                               mavka::ast::ASTNode* node,
                               Subject* value);
-    Result* comp_is(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* comp_is_not(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value);
     Result* comp_contains(Scope* scope,
                           mavka::ast::ASTNode* node,
                           Subject* value);
@@ -212,6 +204,8 @@ namespace typeinterpreter {
     Result* comp_contains_not(Scope* scope,
                               mavka::ast::ASTNode* node,
                               Subject* value);
+    Result* test_and(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
+    Result* test_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
 
     bool is_iterator(Scope* scope);
     Result* get_iterator_type(Scope* scope, mavka::ast::ASTNode* node);

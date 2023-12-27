@@ -71,7 +71,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitMockup_module_body(MavkaParser::Mockup_module_bodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitMockup_structure(MavkaParser::Mockup_structureContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_structure_body(MavkaParser::Mockup_structure_bodyContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMockup_structure_body_element(MavkaParser::Mockup_structure_body_elementContext *ctx) override {
     return visitChildren(ctx);
   }
 
@@ -80,18 +92,6 @@ public:
   }
 
   virtual std::any visitMockup_subject(MavkaParser::Mockup_subjectContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitMockup_object(MavkaParser::Mockup_objectContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitMockup_body(MavkaParser::Mockup_bodyContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitMockup_body_element(MavkaParser::Mockup_body_elementContext *ctx) override {
     return visitChildren(ctx);
   }
 

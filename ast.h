@@ -51,7 +51,6 @@ namespace mavka::ast {
   class MMLNode;
   class MockupDiiaNode;
   class MockupModuleNode;
-  class MockupObjectNode;
   class MockupStructureNode;
   class MockupSubjectNode;
   class ModuleNode;
@@ -310,12 +309,6 @@ namespace mavka::ast {
   };
 
   class MockupModuleNode final : public ASTNode {
-   public:
-    std::string name;
-    std::vector<ASTNode*> elements;
-  };
-
-  class MockupObjectNode final : public ASTNode {
    public:
     std::string name;
     std::vector<ASTNode*> elements;

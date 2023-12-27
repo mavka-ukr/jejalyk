@@ -20,19 +20,19 @@ public:
     TERNARY = 32, EQ_WORD = 33, GR_WORD = 34, SM_WORD = 35, NOT_GR_WORD = 36, 
     NOT_SM_WORD = 37, NOT_EQ_WORD = 38, NOT_IS_WORD = 39, HAS_IS_WORD = 40, 
     NOT_HAS_IS_WORD = 41, STAR_ALL = 42, MOCKUP = 43, IMPLEMENTS = 44, IMPLEMENT = 45, 
-    EVAL = 46, WHEN = 47, ALSO = 48, PARENT = 49, TSE = 50, IY = 51, SPREAD = 52, 
-    FROMTO = 53, KID = 54, SKIP_SPACES = 55, NL = 56, DECREMENT = 57, INCREMENT = 58, 
-    OPEN_PAREN = 59, CLOSE_PAREN = 60, OPEN_ARRAY = 61, CLOSE_ARRAY = 62, 
-    COMMA = 63, ASSIGN = 64, ASSIGN_PARENT = 65, ASSIGN_ADD = 66, ASSIGN_SUB = 67, 
-    ASSIGN_MUL = 68, ASSIGN_DIV = 69, ASSIGN_DIVDIV = 70, ASSIGN_MOD = 71, 
-    ASSIGN_BW_OR = 72, ASSIGN_BW_AND = 73, ASSIGN_BW_SHIFT_LEFT = 74, ASSIGN_BW_SHIFT_RIGHT = 75, 
-    ASSIGN_XOR = 76, ASSIGN_POW = 77, ASSIGN_OR = 78, ASSIGN_AND = 79, ASSIGN_IF = 80, 
-    PLUS = 81, MINUS = 82, MUL = 83, DIV = 84, COLON = 85, DOT = 86, NOT = 87, 
-    TILDA = 88, PERCENT = 89, DIVDIV = 90, POW = 91, XOR = 92, OR_SYM = 93, 
-    AND_SYM = 94, OR_BW = 95, AND_BW = 96, HEX_START = 97, ID = 98, NUMBER = 99, 
-    INTEGER = 100, FLOAT = 101, HEX = 102, HEXUKR = 103, BINNUM = 104, BINNUMUKR = 105, 
-    MML = 106, TRIPPLE_QUOTE = 107, STRING_MULTILINE = 108, STRING = 109, 
-    COMMENT = 110, LINE_COMMENT = 111
+    EVAL = 46, WHEN = 47, ALSO = 48, PARENT = 49, TSE = 50, SPREAD = 51, 
+    FROMTO = 52, KID = 53, SKIP_SPACES = 54, NL = 55, DECREMENT = 56, INCREMENT = 57, 
+    OPEN_PAREN = 58, CLOSE_PAREN = 59, OPEN_ARRAY = 60, CLOSE_ARRAY = 61, 
+    COMMA = 62, ASSIGN = 63, ASSIGN_PARENT = 64, ASSIGN_ADD = 65, ASSIGN_SUB = 66, 
+    ASSIGN_MUL = 67, ASSIGN_DIV = 68, ASSIGN_DIVDIV = 69, ASSIGN_MOD = 70, 
+    ASSIGN_BW_OR = 71, ASSIGN_BW_AND = 72, ASSIGN_BW_SHIFT_LEFT = 73, ASSIGN_BW_SHIFT_RIGHT = 74, 
+    ASSIGN_XOR = 75, ASSIGN_POW = 76, ASSIGN_OR = 77, ASSIGN_AND = 78, ASSIGN_IF = 79, 
+    PLUS = 80, MINUS = 81, MUL = 82, DIV = 83, COLON = 84, DOT = 85, NOT = 86, 
+    TILDA = 87, PERCENT = 88, DIVDIV = 89, POW = 90, XOR = 91, OR_SYM = 92, 
+    AND_SYM = 93, OR_BW = 94, AND_BW = 95, HEX_START = 96, ID = 97, NUMBER = 98, 
+    INTEGER = 99, FLOAT = 100, HEX = 101, HEXUKR = 102, BINNUM = 103, BINNUMUKR = 104, 
+    MML = 105, TRIPPLE_QUOTE = 106, STRING_MULTILINE = 107, STRING = 108, 
+    COMMENT = 109, LINE_COMMENT = 110
   };
 
   enum {
@@ -40,8 +40,8 @@ public:
     RuleModule_body = 4, RuleModule_body_element = 5, RuleMethod_declaration = 6, 
     RuleStructure = 7, RuleStructure_elements = 8, RuleStructure_element = 9, 
     RuleStructure_param = 10, RuleGenerics = 11, RuleMockup = 12, RuleMockup_module = 13, 
-    RuleMockup_structure = 14, RuleMockup_diia = 15, RuleMockup_subject = 16, 
-    RuleMockup_object = 17, RuleMockup_body = 18, RuleMockup_body_element = 19, 
+    RuleMockup_module_body = 14, RuleMockup_structure = 15, RuleMockup_structure_body = 16, 
+    RuleMockup_structure_body_element = 17, RuleMockup_diia = 18, RuleMockup_subject = 19, 
     RuleDiia = 20, RuleIf = 21, RuleEach = 22, RuleFromto = 23, RuleFromto_simple = 24, 
     RuleFromto_complex = 25, RuleFromto_value = 26, RuleFromto_middle_symbol = 27, 
     RuleFromto_to_symbol = 28, RuleWhile = 29, RuleTry = 30, RuleEval = 31, 
@@ -93,12 +93,12 @@ public:
   class GenericsContext;
   class MockupContext;
   class Mockup_moduleContext;
+  class Mockup_module_bodyContext;
   class Mockup_structureContext;
+  class Mockup_structure_bodyContext;
+  class Mockup_structure_body_elementContext;
   class Mockup_diiaContext;
   class Mockup_subjectContext;
-  class Mockup_objectContext;
-  class Mockup_bodyContext;
-  class Mockup_body_elementContext;
   class DiiaContext;
   class IfContext;
   class EachContext;
@@ -445,7 +445,6 @@ public:
     Mockup_structureContext *mockup_structure();
     Mockup_diiaContext *mockup_diia();
     Mockup_subjectContext *mockup_subject();
-    Mockup_objectContext *mockup_object();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -459,7 +458,7 @@ public:
   class  Mockup_moduleContext : public antlr4::ParserRuleContext {
   public:
     MavkaParser::IdentifierContext *mm_name = nullptr;
-    MavkaParser::Mockup_bodyContext *mm_elements = nullptr;
+    MavkaParser::Mockup_module_bodyContext *mm_elements = nullptr;
     Mockup_moduleContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *MOCKUP();
@@ -470,7 +469,7 @@ public:
     NlsContext* nls(size_t i);
     antlr4::tree::TerminalNode *END();
     IdentifierContext *identifier();
-    Mockup_bodyContext *mockup_body();
+    Mockup_module_bodyContext *mockup_module_body();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -481,13 +480,31 @@ public:
 
   Mockup_moduleContext* mockup_module();
 
+  class  Mockup_module_bodyContext : public antlr4::ParserRuleContext {
+  public:
+    Mockup_module_bodyContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<MockupContext *> mockup();
+    MockupContext* mockup(size_t i);
+    std::vector<NlContext *> nl();
+    NlContext* nl(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_module_bodyContext* mockup_module_body();
+
   class  Mockup_structureContext : public antlr4::ParserRuleContext {
   public:
     MavkaParser::IdentifierContext *ms_name = nullptr;
     MavkaParser::GenericsContext *ms_generics = nullptr;
     MavkaParser::Super_identifiers_chainContext *ms_parent = nullptr;
     MavkaParser::GenericsContext *ms_parent_generics = nullptr;
-    MavkaParser::Mockup_bodyContext *ms_elements = nullptr;
+    MavkaParser::Mockup_structure_bodyContext *ms_elements = nullptr;
     Mockup_structureContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     antlr4::tree::TerminalNode *MOCKUP();
@@ -506,7 +523,7 @@ public:
     std::vector<GenericsContext *> generics();
     GenericsContext* generics(size_t i);
     Super_identifiers_chainContext *super_identifiers_chain();
-    Mockup_bodyContext *mockup_body();
+    Mockup_structure_bodyContext *mockup_structure_body();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -516,6 +533,41 @@ public:
   };
 
   Mockup_structureContext* mockup_structure();
+
+  class  Mockup_structure_bodyContext : public antlr4::ParserRuleContext {
+  public:
+    Mockup_structure_bodyContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<Mockup_structure_body_elementContext *> mockup_structure_body_element();
+    Mockup_structure_body_elementContext* mockup_structure_body_element(size_t i);
+    std::vector<NlContext *> nl();
+    NlContext* nl(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_structure_bodyContext* mockup_structure_body();
+
+  class  Mockup_structure_body_elementContext : public antlr4::ParserRuleContext {
+  public:
+    Mockup_structure_body_elementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    Structure_paramContext *structure_param();
+    Method_declarationContext *method_declaration();
+    NlsContext *nls();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Mockup_structure_body_elementContext* mockup_structure_body_element();
 
   class  Mockup_diiaContext : public antlr4::ParserRuleContext {
   public:
@@ -570,65 +622,6 @@ public:
   };
 
   Mockup_subjectContext* mockup_subject();
-
-  class  Mockup_objectContext : public antlr4::ParserRuleContext {
-  public:
-    MavkaParser::IdentifierContext *mo_name = nullptr;
-    MavkaParser::Mockup_bodyContext *mo_elements = nullptr;
-    Mockup_objectContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    antlr4::tree::TerminalNode *MOCKUP();
-    std::vector<NlContext *> nl();
-    NlContext* nl(size_t i);
-    std::vector<NlsContext *> nls();
-    NlsContext* nls(size_t i);
-    antlr4::tree::TerminalNode *END();
-    IdentifierContext *identifier();
-    Mockup_bodyContext *mockup_body();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  Mockup_objectContext* mockup_object();
-
-  class  Mockup_bodyContext : public antlr4::ParserRuleContext {
-  public:
-    Mockup_bodyContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    std::vector<Mockup_body_elementContext *> mockup_body_element();
-    Mockup_body_elementContext* mockup_body_element(size_t i);
-    std::vector<NlContext *> nl();
-    NlContext* nl(size_t i);
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  Mockup_bodyContext* mockup_body();
-
-  class  Mockup_body_elementContext : public antlr4::ParserRuleContext {
-  public:
-    Mockup_body_elementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
-    virtual size_t getRuleIndex() const override;
-    Structure_paramContext *structure_param();
-    Method_declarationContext *method_declaration();
-    NlsContext *nls();
-
-    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
-    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
-
-    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
-   
-  };
-
-  Mockup_body_elementContext* mockup_body_element();
 
   class  DiiaContext : public antlr4::ParserRuleContext {
   public:

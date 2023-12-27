@@ -58,23 +58,23 @@ public:
   virtual void enterMockup_module(MavkaParser::Mockup_moduleContext * /*ctx*/) override { }
   virtual void exitMockup_module(MavkaParser::Mockup_moduleContext * /*ctx*/) override { }
 
+  virtual void enterMockup_module_body(MavkaParser::Mockup_module_bodyContext * /*ctx*/) override { }
+  virtual void exitMockup_module_body(MavkaParser::Mockup_module_bodyContext * /*ctx*/) override { }
+
   virtual void enterMockup_structure(MavkaParser::Mockup_structureContext * /*ctx*/) override { }
   virtual void exitMockup_structure(MavkaParser::Mockup_structureContext * /*ctx*/) override { }
+
+  virtual void enterMockup_structure_body(MavkaParser::Mockup_structure_bodyContext * /*ctx*/) override { }
+  virtual void exitMockup_structure_body(MavkaParser::Mockup_structure_bodyContext * /*ctx*/) override { }
+
+  virtual void enterMockup_structure_body_element(MavkaParser::Mockup_structure_body_elementContext * /*ctx*/) override { }
+  virtual void exitMockup_structure_body_element(MavkaParser::Mockup_structure_body_elementContext * /*ctx*/) override { }
 
   virtual void enterMockup_diia(MavkaParser::Mockup_diiaContext * /*ctx*/) override { }
   virtual void exitMockup_diia(MavkaParser::Mockup_diiaContext * /*ctx*/) override { }
 
   virtual void enterMockup_subject(MavkaParser::Mockup_subjectContext * /*ctx*/) override { }
   virtual void exitMockup_subject(MavkaParser::Mockup_subjectContext * /*ctx*/) override { }
-
-  virtual void enterMockup_object(MavkaParser::Mockup_objectContext * /*ctx*/) override { }
-  virtual void exitMockup_object(MavkaParser::Mockup_objectContext * /*ctx*/) override { }
-
-  virtual void enterMockup_body(MavkaParser::Mockup_bodyContext * /*ctx*/) override { }
-  virtual void exitMockup_body(MavkaParser::Mockup_bodyContext * /*ctx*/) override { }
-
-  virtual void enterMockup_body_element(MavkaParser::Mockup_body_elementContext * /*ctx*/) override { }
-  virtual void exitMockup_body_element(MavkaParser::Mockup_body_elementContext * /*ctx*/) override { }
 
   virtual void enterDiia(MavkaParser::DiiaContext * /*ctx*/) override { }
   virtual void exitDiia(MavkaParser::DiiaContext * /*ctx*/) override { }

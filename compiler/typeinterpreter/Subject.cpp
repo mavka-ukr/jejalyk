@@ -385,33 +385,25 @@ namespace typeinterpreter {
   Result* Subject::comp_eq(Scope* scope,
                            mavka::ast::ASTNode* node,
                            Subject* value) {
-    if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт невідомого "
-                            "типу на рівність з іншим субʼєктом.");
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
     }
-    if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт декількох "
-                            "типів на рівність з іншим субʼєктом.");
-    }
-    return types[0]->comp_eq(scope, node, value);
+    return success(logical_instance_result->value);
   }
 
   Result* Subject::comp_not_eq(Scope* scope,
                                mavka::ast::ASTNode* node,
                                Subject* value) {
-    if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт невідомого "
-                            "типу на нерівність з іншим субʼєктом.");
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
     }
-    if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт декількох "
-                            "типів на нерівність з іншим субʼєктом.");
-    }
-    return types[0]->comp_not_eq(scope, node, value);
+    return success(logical_instance_result->value);
   }
 
   Result* Subject::comp_greater(Scope* scope,
@@ -485,30 +477,31 @@ namespace typeinterpreter {
   Result* Subject::comp_is(Scope* scope,
                            mavka::ast::ASTNode* node,
                            Subject* value) {
-    if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт невідомого типу на рівність з іншим субʼєктом.");
+    // todo: check if value is structure
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
     }
-    if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на рівність з іншим субʼєктом.");
-    }
-    return types[0]->comp_is(scope, node, value);
+    return success(logical_instance_result->value);
   }
   Result* Subject::comp_is_not(Scope* scope,
-                      mavka::ast::ASTNode* node,
-                      Subject* value) {
-    if (types.empty()) {
-      return error_from_ast(node, "Неможливо порівняти субʼєкт невідомого типу на нерівність з іншим субʼєктом.");
+                               mavka::ast::ASTNode* node,
+                               Subject* value) {
+    // todo: check if value is structure
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
     }
-    if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на нерівність з іншим субʼєктом.");
-    }
-    return types[0]->comp_is_not(scope, node, value);
+    return success(logical_instance_result->value);
   }
 
   Result* Subject::comp_contains(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value) {
+                                 mavka::ast::ASTNode* node,
+                                 Subject* value) {
     if (types.empty()) {
       return error_from_ast(node, "Неможливо порівняти субʼєкт невідомого типу на наявність в іншому субʼєкті.");
     }
@@ -528,6 +521,28 @@ namespace typeinterpreter {
       return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на відсутність в іншому субʼєкті.");
     }
     return types[0]->comp_contains_not(scope, node, value);
+  }
+
+  Result* Subject::test_and(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
+    const auto newsubj = new Subject();
+    for (const auto type : this->types) {
+      newsubj->add_type(type);
+    }
+    for (const auto type : value->types) {
+      newsubj->add_type(type);
+    }
+    return success(newsubj);
+  }
+
+  Result* Subject::test_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
+    const auto newsubj = new Subject();
+    for (const auto type : this->types) {
+      newsubj->add_type(type);
+    }
+    for (const auto type : value->types) {
+      newsubj->add_type(type);
+    }
+    return success(newsubj);
   }
 
   bool Subject::is_iterator(Scope* scope) {

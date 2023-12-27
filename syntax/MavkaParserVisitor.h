@@ -47,17 +47,17 @@ public:
 
     virtual std::any visitMockup_module(MavkaParser::Mockup_moduleContext *context) = 0;
 
+    virtual std::any visitMockup_module_body(MavkaParser::Mockup_module_bodyContext *context) = 0;
+
     virtual std::any visitMockup_structure(MavkaParser::Mockup_structureContext *context) = 0;
+
+    virtual std::any visitMockup_structure_body(MavkaParser::Mockup_structure_bodyContext *context) = 0;
+
+    virtual std::any visitMockup_structure_body_element(MavkaParser::Mockup_structure_body_elementContext *context) = 0;
 
     virtual std::any visitMockup_diia(MavkaParser::Mockup_diiaContext *context) = 0;
 
     virtual std::any visitMockup_subject(MavkaParser::Mockup_subjectContext *context) = 0;
-
-    virtual std::any visitMockup_object(MavkaParser::Mockup_objectContext *context) = 0;
-
-    virtual std::any visitMockup_body(MavkaParser::Mockup_bodyContext *context) = 0;
-
-    virtual std::any visitMockup_body_element(MavkaParser::Mockup_body_elementContext *context) = 0;
 
     virtual std::any visitDiia(MavkaParser::DiiaContext *context) = 0;
 
