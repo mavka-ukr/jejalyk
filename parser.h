@@ -898,9 +898,7 @@ namespace mavka::parser {
         mml_node->start_column = context->getStart()->getCharPositionInLine();
         mml_node->end_line = context->getStop()->getLine();
         mml_node->end_column = context->getStop()->getCharPositionInLine();
-        // 9 because of unicode
-        mml_node->content =
-            jejalyk::tools::safe_substr(mml_text, 9, mml_text.length() - 21);
+        mml_node->text = mml_text;
         return create_ast_result(mml_node);
       }
       return create_ast_result(nullptr);

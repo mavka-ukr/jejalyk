@@ -364,19 +364,170 @@ namespace typeinterpreter {
                             "Неможливо pre_decrement субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо pre_decrement субʼєкт декількох типів.");
+      return error_from_ast(node,
+                            "Неможливо pre_decrement субʼєкт декількох типів.");
     }
     return types[0]->pre_decrement(scope, node);
   }
 
   Result* Subject::pre_increment(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо pre_increment субʼєкт невідомого типу.");
+      return error_from_ast(node,
+                            "Неможливо pre_increment субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо pre_increment субʼєкт декількох типів.");
+      return error_from_ast(node,
+                            "Неможливо pre_increment субʼєкт декількох типів.");
     }
     return types[0]->pre_increment(scope, node);
+  }
+
+  Result* Subject::comp_eq(Scope* scope,
+                           mavka::ast::ASTNode* node,
+                           Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт невідомого "
+                            "типу на рівність з іншим субʼєктом.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт декількох "
+                            "типів на рівність з іншим субʼєктом.");
+    }
+    return types[0]->comp_eq(scope, node, value);
+  }
+
+  Result* Subject::comp_not_eq(Scope* scope,
+                               mavka::ast::ASTNode* node,
+                               Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт невідомого "
+                            "типу на нерівність з іншим субʼєктом.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт декількох "
+                            "типів на нерівність з іншим субʼєктом.");
+    }
+    return types[0]->comp_not_eq(scope, node, value);
+  }
+
+  Result* Subject::comp_greater(Scope* scope,
+                                mavka::ast::ASTNode* node,
+                                Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт невідомого "
+                            "типу на більше з іншим субʼєктом.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт декількох "
+                            "типів на більше з іншим субʼєктом.");
+    }
+    return types[0]->comp_greater(scope, node, value);
+  }
+
+  Result* Subject::comp_lesser(Scope* scope,
+                               mavka::ast::ASTNode* node,
+                               Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт невідомого "
+                            "типу на менше з іншим субʼєктом.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт декількох "
+                            "типів на менше з іншим субʼєктом.");
+    }
+    return types[0]->comp_lesser(scope, node, value);
+  }
+
+  Result* Subject::comp_greater_or_eq(Scope* scope,
+                                      mavka::ast::ASTNode* node,
+                                      Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт невідомого "
+                            "типу на більше або дорівнює з іншим "
+                            "субʼєктом.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт декількох "
+                            "типів на більше або дорівнює з іншим "
+                            "субʼєктом.");
+    }
+    return types[0]->comp_greater_or_eq(scope, node, value);
+  }
+
+  Result* Subject::comp_lesser_or_eq(Scope* scope,
+                                     mavka::ast::ASTNode* node,
+                                     Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт невідомого "
+                            "типу на менше або дорівнює з іншим "
+                            "субʼєктом.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт декількох "
+                            "типів на менше або дорівнює з іншим "
+                            "субʼєктом.");
+    }
+    return types[0]->comp_lesser_or_eq(scope, node, value);
+  }
+
+  Result* Subject::comp_is(Scope* scope,
+                           mavka::ast::ASTNode* node,
+                           Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node,
+                            "Неможливо порівняти субʼєкт невідомого типу на рівність з іншим субʼєктом.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на рівність з іншим субʼєктом.");
+    }
+    return types[0]->comp_is(scope, node, value);
+  }
+  Result* Subject::comp_is_not(Scope* scope,
+                      mavka::ast::ASTNode* node,
+                      Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо порівняти субʼєкт невідомого типу на нерівність з іншим субʼєктом.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на нерівність з іншим субʼєктом.");
+    }
+    return types[0]->comp_is_not(scope, node, value);
+  }
+
+  Result* Subject::comp_contains(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо порівняти субʼєкт невідомого типу на наявність в іншому субʼєкті.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на наявність в іншому субʼєкті.");
+    }
+    return types[0]->comp_contains(scope, node, value);
+  }
+
+  Result* Subject::comp_contains_not(Scope* scope,
+                            mavka::ast::ASTNode* node,
+                            Subject* value) {
+    if (types.empty()) {
+      return error_from_ast(node, "Неможливо порівняти субʼєкт невідомого типу на відсутність в іншому субʼєкті.");
+    }
+    if (types.size() > 1) {
+      return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на відсутність в іншому субʼєкті.");
+    }
+    return types[0]->comp_contains_not(scope, node, value);
   }
 
   bool Subject::is_iterator(Scope* scope) {

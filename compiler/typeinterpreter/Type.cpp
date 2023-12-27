@@ -376,16 +376,126 @@ namespace typeinterpreter {
     if (this->has("чародія_зменшити")) {
       return this->get("чародія_зменшити")->call(scope, node, {}, {});
     }
-        return error_from_ast(node, "Неможливо чародія_зменшити для типу \"" +
-                                        this->get_type_name() + "\".");
+    return error_from_ast(node, "Неможливо чародія_зменшити для типу \"" +
+                                    this->get_type_name() + "\".");
   }
 
   Result* Type::pre_increment(Scope* scope, mavka::ast::ASTNode* node) {
     if (this->has("чародія_збільшити")) {
       return this->get("чародія_збільшити")->call(scope, node, {}, {});
     }
-        return error_from_ast(node, "Неможливо чародія_збільшити для типу \"" +
-                                        this->get_type_name() + "\".");
+    return error_from_ast(node, "Неможливо чародія_збільшити для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::comp_eq(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* value) {
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
+    }
+    return success(logical_instance_result->value);
+  }
+
+  Result* Type::comp_not_eq(Scope* scope,
+                            mavka::ast::ASTNode* node,
+                            Subject* value) {
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
+    }
+    return success(logical_instance_result->value);
+  }
+
+  Result* Type::comp_greater(Scope* scope,
+                             mavka::ast::ASTNode* node,
+                             Subject* value) {
+    if (this->has("чародія_більше")) {
+      return this->get("чародія_більше")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо чародія_більше для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::comp_lesser(Scope* scope,
+                            mavka::ast::ASTNode* node,
+                            Subject* value) {
+    if (this->has("чародія_менше")) {
+      return this->get("чародія_менше")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо чародія_менше для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::comp_greater_or_eq(Scope* scope,
+                                   mavka::ast::ASTNode* node,
+                                   Subject* value) {
+    if (this->has("чародія_не_менше")) {
+      return this->get("чародія_не_менше")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо чародія_не_менше для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::comp_lesser_or_eq(Scope* scope,
+                                  mavka::ast::ASTNode* node,
+                                  Subject* value) {
+    if (this->has("чародія_не_більше")) {
+      return this->get("чародія_не_більше")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо чародія_не_більше для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::comp_is(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* value) {
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
+    }
+    return success(logical_instance_result->value);
+  }
+
+  Result* Type::comp_is_not(Scope* scope,
+                      mavka::ast::ASTNode* node,
+                      Subject* value) {
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
+    }
+    return success(logical_instance_result->value);
+  }
+
+  Result* Type::comp_contains(Scope* scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* value) {
+    if (this->has("чародія_містить")) {
+      return this->get("чародія_містить")->call(scope, node, {}, {});
+    }
+    return error_from_ast(node, "Неможливо чародія_містить для типу \"" +
+                                    this->get_type_name() + "\".");
+  }
+
+  Result* Type::comp_contains_not(Scope* scope,
+                            mavka::ast::ASTNode* node,
+                            Subject* value) {
+    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_instance_result =
+        logical_structure_subject->create_instance(scope, {});
+    if (logical_instance_result->error) {
+      return logical_instance_result;
+    }
+    return success(logical_instance_result->value);
   }
 
   bool Type::is_iterator(Scope* scope) {

@@ -219,7 +219,8 @@ namespace typeinterpreter {
         return left_result->value->pow(this, node, right_result->value);
       }
 
-      std::cout << "ArithmeticNode" << std::endl;
+      return error_from_ast(
+          node, "Невідома вказівка \"" + arithmetic_node->op + "\".");
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ArrayNode>(node)) {
@@ -385,7 +386,8 @@ namespace typeinterpreter {
                                                   right_result->value);
       }
 
-      std::cout << "BitwiseNode" << std::endl;
+      return error_from_ast(node,
+                            "Невідома вказівка \"" + bitwise_node->op + "\".");
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::BitwiseNotNode>(node)) {
@@ -470,7 +472,53 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::ComparisonNode>(node)) {
       const auto comparison_node =
           dynamic_cast<mavka::ast::ComparisonNode*>(node);
-      std::cout << "ComparisonNode" << std::endl;
+
+      const auto left_result = this->compile_node(comparison_node->left);
+      if (left_result->error) {
+        return left_result;
+      }
+      const auto right_result = this->compile_node(comparison_node->right);
+      if (right_result->error) {
+        return right_result;
+      }
+      if (comparison_node->op == "==" || comparison_node->op == "рівно") {
+        return left_result->value->comp_eq(this, node, right_result->value);
+      }
+      if (comparison_node->op == "!=" || comparison_node->op == "не рівно") {
+        return left_result->value->comp_not_eq(this, node, right_result->value);
+      }
+      if (comparison_node->op == ">" || comparison_node->op == "більше") {
+        return left_result->value->comp_greater(this, node,
+                                                right_result->value);
+      }
+      if (comparison_node->op == "<" || comparison_node->op == "менше") {
+        return left_result->value->comp_lesser(this, node, right_result->value);
+      }
+      if (comparison_node->op == ">=" || comparison_node->op == "не менше") {
+        return left_result->value->comp_greater_or_eq(this, node,
+                                                      right_result->value);
+      }
+      if (comparison_node->op == "<=" || comparison_node->op == "не більше") {
+        return left_result->value->comp_lesser_or_eq(this, node,
+                                                     right_result->value);
+      }
+      if (comparison_node->op == "є") {
+        return left_result->value->comp_is(this, node, right_result->value);
+      }
+      if (comparison_node->op == "не є") {
+        return left_result->value->comp_is_not(this, node, right_result->value);
+      }
+      if (comparison_node->op == "містить") {
+        return left_result->value->comp_contains(this, node,
+                                                 right_result->value);
+      }
+      if (comparison_node->op == "не містить") {
+        return left_result->value->comp_contains_not(this, node,
+                                                     right_result->value);
+      }
+
+      return error_from_ast(
+          node, "Невідома вказівка \"" + comparison_node->op + "\".");
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ContinueNode>(node)) {
@@ -961,7 +1009,18 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::WhileNode>(node)) {
       const auto while_node = dynamic_cast<mavka::ast::WhileNode*>(node);
-      std::cout << "WhileNode" << std::endl;
+
+      const auto condition_result = this->compile_node(while_node->condition);
+      if (condition_result->error) {
+        return condition_result;
+      }
+
+      const auto body_result = this->compile_body(while_node->body);
+      if (body_result->error) {
+        return body_result;
+      }
+
+      return success(nullptr);
     }
 
     return error("unsupported node");

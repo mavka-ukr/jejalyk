@@ -35,5 +35,5 @@ namespace jejalyk::tools {
   bool instance_of(const T* ptr) {
     return dynamic_cast<const Base*>(ptr) != nullptr;
   }
-}  // namespace jejalyk::tools
-#endif  // TOOLS_H
+} // namespace jejalyk::tools
+#endif // TOOLS_H

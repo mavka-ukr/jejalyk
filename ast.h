@@ -295,7 +295,7 @@ namespace mavka::ast {
 
   class MMLNode final : public ASTNode {
    public:
-    std::string content;
+    std::string text;
   };
 
   class MockupDiiaNode final : public ASTNode {
