@@ -224,11 +224,13 @@ namespace typeinterpreter {
     bool proxy = false;
 
     Object* diia_object = nullptr;
+    bool is_loop = false;
 
     Scope* make_child();
     Scope* make_proxy();
     Scope* get_root();
     Object* get_diia_object();
+    bool get_is_loop();
 
     Subject* get(std::string name);
     Subject* get_local(std::string name);

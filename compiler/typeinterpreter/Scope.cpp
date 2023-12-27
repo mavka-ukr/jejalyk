@@ -31,6 +31,16 @@ namespace typeinterpreter {
     return nullptr;
   }
 
+  bool Scope::get_is_loop() {
+    if (this->is_loop) {
+      return true;
+    }
+    // if (this->proxy) {
+    //   return this->parent->get_is_loop();
+    // }
+    return false;
+  }
+
   Subject* Scope::get(std::string name) {
     if (this->has_local(name)) {
       return this->get_local(name);
@@ -418,7 +428,14 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::BreakNode>(node)) {
       const auto break_node = dynamic_cast<mavka::ast::BreakNode*>(node);
-      std::cout << "BreakNode" << std::endl;
+
+      if (!this->get_is_loop()) {
+        return error_from_ast(node,
+                              "Вказівка \"перервати\" може бути "
+                              "використана тільки всередині циклу.");
+      }
+
+      return success(nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::CallNode>(node)) {
@@ -542,7 +559,14 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::ContinueNode>(node)) {
       const auto continue_node = dynamic_cast<mavka::ast::ContinueNode*>(node);
-      std::cout << "ContinueNode" << std::endl;
+
+      if (!this->get_is_loop()) {
+        return error_from_ast(node,
+                              "Вказівка \"продовжити\" може бути "
+                              "використана тільки всередині циклу.");
+      }
+
+      return success(nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::DictionaryNode>(node)) {
@@ -625,7 +649,10 @@ namespace typeinterpreter {
                                         "\".");
       }
 
-      const auto compiled_body = this->compile_body(each_node->body);
+      const auto loop_scope = this->make_proxy();
+      loop_scope->is_loop = true;
+
+      const auto compiled_body = loop_scope->compile_body(each_node->body);
       if (compiled_body->error) {
         return compiled_body;
       }
@@ -951,8 +978,6 @@ namespace typeinterpreter {
       }
 
       return this->compile_nodes({ternary_node->body, ternary_node->else_body});
-
-      std::cout << "TernaryNode" << std::endl;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TestNode>(node)) {
@@ -1096,7 +1121,10 @@ namespace typeinterpreter {
         return condition_result;
       }
 
-      const auto body_result = this->compile_body(while_node->body);
+      const auto loop_scope = this->make_proxy();
+      loop_scope->is_loop = true;
+
+      const auto body_result = loop_scope->compile_body(while_node->body);
       if (body_result->error) {
         return body_result;
       }

@@ -2033,18 +2033,36 @@ namespace mavka::parser {
       for (const auto body_element : context->body_element_or_return()) {
         const auto ast_result =
             any_to_ast_result(visitBody_element_or_return(body_element));
-        body.push_back(ast_result->node);
+        if (jejalyk::tools::instance_of<ast::IdentifierNode>(
+                ast_result->node)) {
+          const auto identifier_node =
+              dynamic_cast<ast::IdentifierNode*>(ast_result->node);
+          if (identifier_node->name == "перервати") {
+            const auto break_node = new ast::BreakNode();
+            break_node->start_line = identifier_node->start_line;
+            break_node->start_column = identifier_node->start_column;
+            break_node->end_line = identifier_node->end_line;
+            break_node->end_column = identifier_node->end_column;
+            body.push_back(break_node);
+          } else if (identifier_node->name == "продовжити") {
+            const auto continue_node = new ast::ContinueNode();
+            continue_node->start_line = identifier_node->start_line;
+            continue_node->start_column = identifier_node->start_column;
+            continue_node->end_line = identifier_node->end_line;
+            continue_node->end_column = identifier_node->end_column;
+            body.push_back(continue_node);
+          } else {
+            body.push_back(ast_result->node);
+          }
+        } else {
+          body.push_back(ast_result->node);
+        }
       }
       return body;
     }
 
     std::any _visitDiiaBody(MavkaParser::BodyContext* context) {
-      std::vector<ast::ASTNode*> body;
-      for (const auto body_element : context->body_element_or_return()) {
-        const auto ast_result =
-            any_to_ast_result(visitBody_element_or_return(body_element));
-        body.push_back(ast_result->node);
-      }
+      auto body = std::any_cast<std::vector<ast::ASTNode*>>(visitBody(context));
       if (!body.empty()) {
         const auto last_node = body.back();
         if (jejalyk::tools::instance_of<ast::ASTValueNode>(last_node)) {
