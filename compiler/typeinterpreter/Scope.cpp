@@ -21,6 +21,16 @@ namespace typeinterpreter {
     return this;
   }
 
+  Object* Scope::get_diia_object() {
+    if (this->diia_object) {
+      return this->diia_object;
+    }
+    if (this->parent) {
+      return this->parent->get_diia_object();
+    }
+    return nullptr;
+  }
+
   Subject* Scope::get(std::string name) {
     if (this->has_local(name)) {
       return this->get_local(name);
@@ -882,7 +892,21 @@ namespace typeinterpreter {
         return value_result;
       }
 
-      std::cout << "ReturnNode" << std::endl;
+      const auto diia_object = this->get_diia_object();
+      if (!diia_object) {
+        return error_from_ast(node, "Неможливо вернути за межами дії.");
+      }
+
+      if (!this->check_subjects(value_result->value,
+                                diia_object->return_types)) {
+        return error_from_ast(
+            node, "Неправильний тип поверненого значення: очікується \"" +
+                      diia_object->return_types->types_string() +
+                      "\", отримано \"" + value_result->value->types_string() +
+                      "\".");
+      }
+
+      return value_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::StringNode>(node)) {
@@ -1328,6 +1352,8 @@ namespace typeinterpreter {
       }
 
       if (body != nullptr) {
+        diia_scope->diia_object = diia_object;
+
         const auto compiled_body = diia_scope->compile_body(*body);
         if (compiled_body->error) {
           return compiled_body;

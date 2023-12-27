@@ -223,9 +223,12 @@ namespace typeinterpreter {
     std::map<std::string, Subject*> variables;
     bool proxy = false;
 
+    Object* diia_object = nullptr;
+
     Scope* make_child();
     Scope* make_proxy();
     Scope* get_root();
+    Object* get_diia_object();
 
     Subject* get(std::string name);
     Subject* get_local(std::string name);

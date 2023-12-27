@@ -17,6 +17,14 @@ namespace mavka::ast {
     virtual ~ASTNode() = default;
   };
 
+  class ASTValueNode : public ASTNode {
+   public:
+  };
+
+  class ASTExprNode : public ASTNode {
+   public:
+  };
+
   class AnonDiiaNode;
   class ArgNode;
   class ArithmeticNode;
@@ -77,7 +85,7 @@ namespace mavka::ast {
   class WaitNode;
   class WhileNode;
 
-  class ParamNode final : public ASTNode {
+  class ParamNode final : public ASTExprNode {
    public:
     bool ee = false;
     std::string name;
@@ -86,7 +94,7 @@ namespace mavka::ast {
     bool variadic = false;
   };
 
-  class AnonDiiaNode final : public ASTNode {
+  class AnonDiiaNode final : public ASTValueNode {
    public:
     bool async;
     std::vector<ParamNode*> params;
@@ -94,7 +102,7 @@ namespace mavka::ast {
     std::vector<ASTNode*> body;
   };
 
-  class ArgNode final : public ASTNode {
+  class ArgNode final : public ASTExprNode {
    public:
     int index;
     std::string name;
@@ -102,26 +110,26 @@ namespace mavka::ast {
     bool spread = false;
   };
 
-  class ArithmeticNode final : public ASTNode {
+  class ArithmeticNode final : public ASTValueNode {
    public:
     ASTNode* left;
     ASTNode* right;
     std::string op;
   };
 
-  class ArrayNode final : public ASTNode {
+  class ArrayNode final : public ASTValueNode {
    public:
     std::vector<ASTNode*> elements;
     std::vector<TypeValueSingleNode*> types;
   };
 
-  class AsNode final : public ASTNode {
+  class AsNode final : public ASTValueNode {
    public:
     ASTNode* left;
     ASTNode* right;
   };
 
-  class AssignByIdentifierNode final : public ASTNode {
+  class AssignByIdentifierNode final : public ASTExprNode {
    public:
     ASTNode* left;
     std::string identifier;
@@ -129,7 +137,7 @@ namespace mavka::ast {
     ASTNode* value;
   };
 
-  class AssignByElementNode final : public ASTNode {
+  class AssignByElementNode final : public ASTExprNode {
    public:
     ASTNode* left;
     ASTNode* element;
@@ -137,7 +145,7 @@ namespace mavka::ast {
     ASTNode* value;
   };
 
-  class AssignSimpleNode final : public ASTNode {
+  class AssignSimpleNode final : public ASTExprNode {
    public:
     std::string name;
     std::vector<TypeValueSingleNode*> types;
@@ -145,56 +153,56 @@ namespace mavka::ast {
     ASTNode* value;
   };
 
-  class BitwiseNode final : public ASTNode {
+  class BitwiseNode final : public ASTValueNode {
    public:
     ASTNode* left;
     ASTNode* right;
     std::string op;
   };
 
-  class BitwiseNotNode final : public ASTNode {
+  class BitwiseNotNode final : public ASTValueNode {
    public:
     ASTNode* value;
   };
 
-  class BreakNode final : public ASTNode {};
+  class BreakNode final : public ASTExprNode {};
 
-  class CallNode final : public ASTNode {
+  class CallNode final : public ASTValueNode {
    public:
     ASTNode* value;
     std::vector<std::vector<TypeValueSingleNode*>> generics;
     std::vector<ArgNode*> args;
   };
 
-  class ChainNode final : public ASTNode {
+  class ChainNode final : public ASTValueNode {
    public:
     ASTNode* left;
     ASTNode* right;
   };
 
-  class ComparisonNode final : public ASTNode {
+  class ComparisonNode final : public ASTValueNode {
    public:
     ASTNode* left;
     ASTNode* right;
     std::string op;
   };
 
-  class ContinueNode final : public ASTNode {};
+  class ContinueNode final : public ASTExprNode {};
 
-  class DictionaryElementNode final : public ASTNode {
+  class DictionaryElementNode final : public ASTExprNode {
    public:
     std::string key;
     ASTNode* value;
   };
 
-  class DictionaryNode final : public ASTNode {
+  class DictionaryNode final : public ASTValueNode {
    public:
     std::vector<TypeValueSingleNode*> key_types;
     std::vector<TypeValueSingleNode*> value_types;
     std::vector<DictionaryElementNode*> elements;
   };
 
-  class DiiaNode final : public ASTNode {
+  class DiiaNode final : public ASTExprNode {
    public:
     bool ee = false;
     bool async = false;
@@ -206,7 +214,7 @@ namespace mavka::ast {
     std::vector<ASTNode*> body;
   };
 
-  class EachNode final : public ASTNode {
+  class EachNode final : public ASTExprNode {
    public:
     ASTNode* value;
     std::string keyName;
@@ -214,17 +222,17 @@ namespace mavka::ast {
     std::vector<ASTNode*> body;
   };
 
-  class EvalNode final : public ASTNode {
+  class EvalNode final : public ASTExprNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class GenericNode final : public ASTNode {
+  class GenericNode final : public ASTExprNode {
    public:
     std::string name;
   };
 
-  class FunctionNode final : public ASTNode {
+  class FunctionNode final : public ASTExprNode {
    public:
     bool async;
     std::vector<ParamNode*> params;
@@ -232,14 +240,14 @@ namespace mavka::ast {
     std::vector<ASTNode*> body;
   };
 
-  class FromToSimpleNode final : public ASTNode {
+  class FromToSimpleNode final : public ASTExprNode {
    public:
     ASTNode* from;
     ASTNode* to;
     std::string toSymbol;
   };
 
-  class FromToComplexNode final : public ASTNode {
+  class FromToComplexNode final : public ASTExprNode {
    public:
     ASTNode* from;
     ASTNode* to;
@@ -248,41 +256,41 @@ namespace mavka::ast {
     std::string stepSymbol;
   };
 
-  class GetElementNode final : public ASTNode {
+  class GetElementNode final : public ASTValueNode {
    public:
-    ASTNode* value;
-    ASTNode* index;
+    ASTNode* value = nullptr;
+    ASTNode* index = nullptr;
   };
 
-  class GiveElementNode final : public ASTNode {
+  class GiveElementNode final : public ASTExprNode {
    public:
     std::string name;
     std::string as;
   };
 
-  class GiveNode final : public ASTNode {
+  class GiveNode final : public ASTExprNode {
    public:
     std::vector<GiveElementNode*> elements;
   };
 
-  class GodNode final : public ASTNode {
+  class GodNode final : public ASTExprNode {
    public:
     std::vector<ASTNode*> elements;
   };
 
-  class IdentifierNode final : public ASTNode {
+  class IdentifierNode final : public ASTValueNode {
    public:
     std::string name;
   };
 
-  class IfNode final : public ASTNode {
+  class IfNode final : public ASTExprNode {
    public:
     ASTNode* condition;
     std::vector<ASTNode*> body;
     std::vector<ASTNode*> else_body;
   };
 
-  class MethodDeclarationNode final : public ASTNode {
+  class MethodDeclarationNode final : public ASTExprNode {
    public:
     bool ee = false;
     bool async = false;
@@ -292,12 +300,12 @@ namespace mavka::ast {
     std::vector<TypeValueSingleNode*> return_types;
   };
 
-  class MMLNode final : public ASTNode {
+  class MMLNode final : public ASTValueNode {
    public:
     std::string text;
   };
 
-  class MockupDiiaNode final : public ASTNode {
+  class MockupDiiaNode final : public ASTExprNode {
    public:
     bool ee = false;
     bool async = false;
@@ -308,13 +316,13 @@ namespace mavka::ast {
     std::vector<TypeValueSingleNode*> return_types;
   };
 
-  class MockupModuleNode final : public ASTNode {
+  class MockupModuleNode final : public ASTExprNode {
    public:
     std::string name;
     std::vector<ASTNode*> elements;
   };
 
-  class MockupStructureNode final : public ASTNode {
+  class MockupStructureNode final : public ASTExprNode {
    public:
     std::string name;
     std::vector<GenericNode*> generics;
@@ -323,74 +331,74 @@ namespace mavka::ast {
     std::vector<MethodDeclarationNode*> methods;
   };
 
-  class MockupSubjectNode final : public ASTNode {
+  class MockupSubjectNode final : public ASTExprNode {
    public:
     std::string name;
     std::vector<TypeValueSingleNode*> types;
   };
 
-  class ModuleNode final : public ASTNode {
+  class ModuleNode final : public ASTExprNode {
    public:
     std::string name;
     std::vector<ASTNode*> body;
   };
 
-  class NegativeNode final : public ASTNode {
+  class NegativeNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class NotNode final : public ASTNode {
+  class NotNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class NumberNode final : public ASTNode {
+  class NumberNode final : public ASTValueNode {
    public:
     std::string value;
   };
 
-  class PositiveNode final : public ASTNode {
+  class PositiveNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class PostDecrementNode final : public ASTNode {
+  class PostDecrementNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class PostIncrementNode final : public ASTNode {
+  class PostIncrementNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class PreDecrementNode final : public ASTNode {
+  class PreDecrementNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class PreIncrementNode final : public ASTNode {
+  class PreIncrementNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class ProgramNode final : public ASTNode {
+  class ProgramNode final : public ASTExprNode {
    public:
     std::vector<ASTNode*> body;
   };
 
-  class ReturnNode final : public ASTNode {
+  class ReturnNode final : public ASTExprNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class StringNode final : public ASTNode {
+  class StringNode final : public ASTValueNode {
    public:
     std::string value;
   };
 
-  class StructureNode final : public ASTNode {
+  class StructureNode final : public ASTExprNode {
    public:
     std::string name;
     std::vector<GenericNode*> generics;
@@ -399,57 +407,57 @@ namespace mavka::ast {
     std::vector<MethodDeclarationNode*> methods;
   };
 
-  class TakeModuleNode final : public ASTNode {
+  class TakeModuleNode final : public ASTExprNode {
    public:
     bool relative;
     std::string name;
     std::string as;
   };
 
-  class TakePakNode final : public ASTNode {
+  class TakePakNode final : public ASTExprNode {
    public:
     std::string name;
     std::string as;
   };
 
-  class TernaryNode final : public ASTNode {
+  class TernaryNode final : public ASTValueNode {
    public:
-    ASTNode* condition;
-    ASTNode* body;
-    ASTNode* else_body;
+    ASTNode* condition = nullptr;
+    ASTNode* body = nullptr;
+    ASTNode* else_body = nullptr;
   };
 
-  class TestNode final : public ASTNode {
+  class TestNode final : public ASTValueNode {
    public:
     ASTNode* left;
     ASTNode* right;
     std::string op;
   };
 
-  class ThrowNode final : public ASTNode {
+  class ThrowNode final : public ASTExprNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class TryNode final : public ASTNode {
+  class TryNode final : public ASTExprNode {
    public:
     std::vector<ASTNode*> body;
     std::string name;
     std::vector<ASTNode*> catch_body;
   };
 
-  class TypeValueSingleNode final : public ASTNode {
+  class TypeValueSingleNode final : public ASTExprNode {
    public:
     ASTNode* value;
     std::vector<std::vector<TypeValueSingleNode*>> generics;
   };
 
-  class WaitNode final : public ASTNode {
+  class WaitNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTNode* value = nullptr;
   };
 
-  class WhileNode final : public ASTNode {
+  class WhileNode final : public ASTExprNode {
    public:
     ASTNode* condition;
     std::vector<ASTNode*> body;

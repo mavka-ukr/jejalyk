@@ -525,7 +525,7 @@ namespace mavka::parser {
       }
       if (context->d_body) {
         diia_node->body = std::any_cast<std::vector<ast::ASTNode*>>(
-            visitBody(context->d_body));
+            _visitDiiaBody(context->d_body));
       }
       return create_ast_result(diia_node);
     }
@@ -1468,7 +1468,7 @@ namespace mavka::parser {
       }
       if (context->d_body) {
         anon_diia_node->body = std::any_cast<std::vector<ast::ASTNode*>>(
-            visitBody(context->d_body));
+            _visitDiiaBody(context->d_body));
       }
       return create_ast_result(anon_diia_node);
     }
@@ -2034,6 +2034,29 @@ namespace mavka::parser {
         const auto ast_result =
             any_to_ast_result(visitBody_element_or_return(body_element));
         body.push_back(ast_result->node);
+      }
+      return body;
+    }
+
+    std::any _visitDiiaBody(MavkaParser::BodyContext* context) {
+      std::vector<ast::ASTNode*> body;
+      for (const auto body_element : context->body_element_or_return()) {
+        const auto ast_result =
+            any_to_ast_result(visitBody_element_or_return(body_element));
+        body.push_back(ast_result->node);
+      }
+      if (!body.empty()) {
+        const auto last_node = body.back();
+        if (jejalyk::tools::instance_of<ast::ASTValueNode>(last_node)) {
+          const auto return_node = new ast::ReturnNode();
+          return_node->start_line = last_node->start_line;
+          return_node->start_column = last_node->start_column;
+          return_node->end_line = last_node->end_line;
+          return_node->end_column = last_node->end_column;
+          return_node->value = last_node;
+          body.pop_back();
+          body.push_back(return_node);
+        }
       }
       return body;
     }
