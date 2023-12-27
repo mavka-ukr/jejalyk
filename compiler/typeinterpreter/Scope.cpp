@@ -25,8 +25,18 @@ namespace typeinterpreter {
     if (this->diia_object) {
       return this->diia_object;
     }
-    if (this->parent) {
+    if (this->proxy) {
       return this->parent->get_diia_object();
+    }
+    return nullptr;
+  }
+
+  Object* Scope::get_module_object() {
+    if (this->module_object) {
+      return this->module_object;
+    }
+    if (this->proxy) {
+      return this->parent->get_module_object();
     }
     return nullptr;
   }
@@ -38,6 +48,16 @@ namespace typeinterpreter {
     // if (this->proxy) {
     //   return this->parent->get_is_loop();
     // }
+    return false;
+  }
+
+  bool Scope::get_is_async() {
+    if (this->is_async) {
+      return true;
+    }
+    if (this->proxy) {
+      return this->parent->get_is_async();
+    }
     return false;
   }
 
@@ -668,13 +688,39 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::FromToComplexNode>(node)) {
       const auto from_to_complex_node =
           dynamic_cast<mavka::ast::FromToComplexNode*>(node);
-      std::cout << "FromToComplexNode" << std::endl;
+      const auto iterator_structure_subject = this->get_root()->get("перебір");
+      const auto number_structure_subject = this->get_root()->get("число");
+      const auto number_instance_result =
+          number_structure_subject->create_instance(this, {});
+      if (number_instance_result->error) {
+        return number_instance_result;
+      }
+      const auto iterator_instance_result =
+          iterator_structure_subject->create_instance(
+              this, {number_instance_result->value});
+      if (iterator_instance_result->error) {
+        return iterator_instance_result;
+      }
+      return iterator_instance_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::FromToSimpleNode>(node)) {
       const auto from_to_simple_node =
           dynamic_cast<mavka::ast::FromToSimpleNode*>(node);
-      std::cout << "FromToSimpleNode" << std::endl;
+      const auto iterator_structure_subject = this->get_root()->get("перебір");
+      const auto number_structure_subject = this->get_root()->get("число");
+      const auto number_instance_result =
+          number_structure_subject->create_instance(this, {});
+      if (number_instance_result->error) {
+        return number_instance_result;
+      }
+      const auto iterator_instance_result =
+          iterator_structure_subject->create_instance(
+              this, {number_instance_result->value});
+      if (iterator_instance_result->error) {
+        return iterator_instance_result;
+      }
+      return iterator_instance_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::FunctionNode>(node)) {
@@ -705,7 +751,29 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::GiveNode>(node)) {
       const auto give_node = dynamic_cast<mavka::ast::GiveNode*>(node);
-      std::cout << "GiveNode" << std::endl;
+
+      const auto module_object = this->get_module_object();
+      if (module_object == nullptr) {
+        return error_from_ast(node, "Вказівка \"дати\" працює лише в модулі.");
+      }
+
+      for (const auto element_node : give_node->elements) {
+        if (this->has_local(element_node->name)) {
+          const auto subject = this->get_local(element_node->name);
+          if (element_node->as.empty()) {
+            module_object->properties.insert_or_assign(element_node->name,
+                                                       subject);
+          } else {
+            module_object->properties.insert_or_assign(element_node->as,
+                                                       subject);
+          }
+        } else {
+          return error_from_ast(node, "Невідомий субʼєкт для давання \"" +
+                                          element_node->name + "\".");
+        }
+      }
+
+      return success(nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::GodNode>(node)) {
@@ -782,7 +850,18 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::MockupModuleNode>(node)) {
       const auto mockup_module_node =
           dynamic_cast<mavka::ast::MockupModuleNode*>(node);
-      std::cout << "MockupModuleNode" << std::endl;
+      if (!this->get_is_async()) {
+        return error_from_ast(
+            node, "Модуль може бути визначений лише всередині іншого модуля.");
+      }
+      const auto module_compilation_result = this->compile_module(
+          mockup_module_node->name, &mockup_module_node->elements);
+      if (module_compilation_result->error) {
+        return module_compilation_result;
+      }
+      this->set_local(mockup_module_node->name,
+                      module_compilation_result->value);
+      return module_compilation_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
@@ -820,7 +899,17 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::ModuleNode>(node)) {
       const auto module_node = dynamic_cast<mavka::ast::ModuleNode*>(node);
-      std::cout << "ModuleNode" << std::endl;
+      if (!this->get_is_async()) {
+        return error_from_ast(
+            node, "Модуль може бути визначений лише всередині іншого модуля.");
+      }
+      const auto module_compilation_result =
+          this->compile_module(module_node->name, &module_node->body);
+      if (module_compilation_result->error) {
+        return module_compilation_result;
+      }
+      this->set_local(module_node->name, module_compilation_result->value);
+      return module_compilation_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::NegativeNode>(node)) {
@@ -1105,6 +1194,12 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::WaitNode>(node)) {
       const auto wait_node = dynamic_cast<mavka::ast::WaitNode*>(node);
 
+      if (!this->get_is_async()) {
+        return error_from_ast(
+            node,
+            "Вказівка \"чекати\" доступна лише в модулі або тривалій дії.");
+      }
+
       const auto value_result = this->compile_node(wait_node->value);
       if (value_result->error) {
         return value_result;
@@ -1381,6 +1476,7 @@ namespace typeinterpreter {
 
       if (body != nullptr) {
         diia_scope->diia_object = diia_object;
+        diia_scope->is_async = async;
 
         const auto compiled_body = diia_scope->compile_body(*body);
         if (compiled_body->error) {
@@ -1467,6 +1563,39 @@ namespace typeinterpreter {
     }
 
     return success(diia_subject);
+  }
+
+  Result* Scope::compile_module(std::string name,
+                                std::vector<mavka::ast::ASTNode*>* body) {
+    Subject* module_subject = nullptr;
+    Type* module_type = nullptr;
+    Object* module_object = nullptr;
+
+    const auto module_structure_subject = this->get_root()->get("Модуль");
+
+    module_object = new Object();
+    module_object->structure = module_structure_subject->types[0];
+    module_object->name = name;
+
+    module_type = new Type();
+    module_type->object = module_object;
+
+    module_subject = new Subject();
+    module_subject->add_type(module_type);
+
+    const auto module_scope = this->make_child();
+
+    if (body != nullptr) {
+      module_scope->module_object = module_object;
+      module_scope->is_async = true;
+
+      const auto compiled_body = module_scope->compile_body(*body);
+      if (compiled_body->error) {
+        return compiled_body;
+      }
+    }
+
+    return success(module_subject);
   }
 
 } // namespace typeinterpreter

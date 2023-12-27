@@ -86,6 +86,7 @@ namespace typeinterpreter {
     const auto result = new Result();
 
     const auto scope = new Scope();
+    scope->is_async = true;
 
     const auto empty_object = new Object();
     empty_object->name = "пусто";

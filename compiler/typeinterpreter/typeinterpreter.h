@@ -116,6 +116,7 @@ namespace typeinterpreter {
   class Object final {
    public:
     Type* structure = nullptr;
+    std::map<std::string, Subject*> properties;
 
     bool this_is_declaration = false;
 
@@ -224,13 +225,17 @@ namespace typeinterpreter {
     bool proxy = false;
 
     Object* diia_object = nullptr;
+    Object* module_object = nullptr;
     bool is_loop = false;
+    bool is_async = false;
 
     Scope* make_child();
     Scope* make_proxy();
     Scope* get_root();
     Object* get_diia_object();
+    Object* get_module_object();
     bool get_is_loop();
+    bool get_is_async();
 
     Subject* get(std::string name);
     Subject* get_local(std::string name);
@@ -266,6 +271,9 @@ namespace typeinterpreter {
         std::vector<mavka::ast::ParamNode*> params,
         std::vector<mavka::ast::TypeValueSingleNode*> return_types,
         std::vector<mavka::ast::ASTNode*>* body);
+
+    Result* compile_module(std::string name,
+                           std::vector<mavka::ast::ASTNode*>* body);
   };
 
   class Param final {

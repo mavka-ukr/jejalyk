@@ -67,6 +67,9 @@ namespace typeinterpreter {
   }
 
   bool Type::has(std::string name) {
+    if (this->object->properties.contains(name)) {
+      return true;
+    }
     for (const auto param : this->object->structure->object->params) {
       if (param->name == name) {
         return true;
@@ -85,6 +88,15 @@ namespace typeinterpreter {
     if (!this->has(name)) {
       std::cout << "[BUG] Type::get() called for non-existing property"
                 << std::endl;
+    }
+    if (this->object->properties.contains(name)) {
+      return this->object->properties[name];
+    }
+    for (const auto param : this->object->structure->object->params) {
+      if (param->name == name) {
+        return process_subject_generics(this->object->structure->object,
+                                        this->generic_types, param->types);
+      }
     }
     if (this->object->structure->object->methods.contains(name)) {
       const auto method_type = this->object->structure->object->methods[name];
@@ -107,12 +119,6 @@ namespace typeinterpreter {
           method_type->object->return_types);
       const auto processed_method_type = new Type(processed_method_object);
       return new Subject({processed_method_type});
-    }
-    for (const auto param : this->object->structure->object->params) {
-      if (param->name == name) {
-        return process_subject_generics(this->object->structure->object,
-                                        this->generic_types, param->types);
-      }
     }
     return nullptr;
   }

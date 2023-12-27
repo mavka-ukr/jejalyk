@@ -423,10 +423,54 @@ namespace mavka::parser {
     std::any visitMockup_module_body(
         MavkaParser::Mockup_module_bodyContext* context) override {
       std::vector<ast::ASTNode*> elements;
-      for (const auto mockup_module_element : context->mockup()) {
+      for (const auto mockup_module_element_ctx : context->mockup()) {
         const auto ast_result =
-            any_to_ast_result(_visitContext(mockup_module_element));
+            any_to_ast_result(_visitContext(mockup_module_element_ctx));
         elements.push_back(ast_result->node);
+      }
+      for (const auto element : elements) {
+        const auto give_node = new ast::GiveNode();
+        give_node->start_line = element->start_line;
+        give_node->start_column = element->start_column;
+        give_node->end_line = element->end_line;
+        give_node->end_column = element->end_column;
+        const auto give_element_node = new ast::GiveElementNode();
+        give_element_node->start_line = element->start_line;
+        give_element_node->start_column = element->start_column;
+        give_element_node->end_line = element->end_line;
+        give_element_node->end_column = element->end_column;
+
+        if (jejalyk::tools::instance_of<ast::MockupDiiaNode>(element)) {
+          const auto mockup_diia_node =
+              dynamic_cast<ast::MockupDiiaNode*>(element);
+          if (!mockup_diia_node->structure.empty()) {
+            continue;
+          }
+          give_element_node->name = mockup_diia_node->name;
+          give_node->elements.push_back(give_element_node);
+          elements.push_back(give_node);
+        }
+        if (jejalyk::tools::instance_of<ast::MockupModuleNode>(element)) {
+          const auto mockup_module_node =
+              dynamic_cast<ast::MockupModuleNode*>(element);
+          give_element_node->name = mockup_module_node->name;
+          give_node->elements.push_back(give_element_node);
+          elements.push_back(give_node);
+        }
+        if (jejalyk::tools::instance_of<ast::MockupSubjectNode>(element)) {
+          const auto mockup_subject_node =
+              dynamic_cast<ast::MockupSubjectNode*>(element);
+          give_element_node->name = mockup_subject_node->name;
+          give_node->elements.push_back(give_element_node);
+          elements.push_back(give_node);
+        }
+        if (jejalyk::tools::instance_of<ast::MockupStructureNode>(element)) {
+          const auto mockup_structure_node =
+              dynamic_cast<ast::MockupStructureNode*>(element);
+          give_element_node->name = mockup_structure_node->name;
+          give_node->elements.push_back(give_element_node);
+          elements.push_back(give_node);
+        }
       }
       return elements;
     }
