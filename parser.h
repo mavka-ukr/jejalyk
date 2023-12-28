@@ -586,7 +586,10 @@ namespace mavka::parser {
         if_node->body = std::any_cast<std::vector<ast::ASTNode*>>(
             visitBody(context->i_body));
       }
-      if (context->i_else_body) {
+      if (context->i_else_if) {
+        const auto else_if = any_to_ast_result(visitIf(context->i_else_if));
+        if_node->else_body.push_back(else_if->node);
+      } else if (context->i_else_body) {
         if_node->else_body = std::any_cast<std::vector<ast::ASTNode*>>(
             visitBody(context->i_else_body));
       }

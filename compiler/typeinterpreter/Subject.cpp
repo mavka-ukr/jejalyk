@@ -58,6 +58,46 @@ namespace typeinterpreter {
     return false;
   }
 
+  bool Subject::is_number(Scope* scope) {
+    if (types.empty()) {
+      return false;
+    }
+    if (types.size() > 1) {
+      return false;
+    }
+    return types[0]->is_number(scope);
+  }
+
+  bool Subject::is_string(Scope* scope) {
+    if (types.empty()) {
+      return false;
+    }
+    if (types.size() > 1) {
+      return false;
+    }
+    return types[0]->is_string(scope);
+  }
+
+  bool Subject::is_array(Scope* scope) {
+    if (types.empty()) {
+      return false;
+    }
+    if (types.size() > 1) {
+      return false;
+    }
+    return types[0]->is_array(scope);
+  }
+
+  bool Subject::is_diia(Scope* scope) {
+    if (types.empty()) {
+      return false;
+    }
+    if (types.size() > 1) {
+      return false;
+    }
+    return types[0]->is_diia(scope);
+  }
+
   bool Subject::has(const std::string& name) {
     if (types.empty()) {
       return false;
@@ -93,6 +133,17 @@ namespace typeinterpreter {
                    "\" субʼєкта декількох типів.");
     }
     return types[0]->set(scope, node, name, value);
+  }
+
+  bool Subject::has_diia(Scope* scope, std::string name) {
+    if (this->has(name)) {
+      const auto subject_result = this->get(name);
+      if (subject_result->error) {
+        return false;
+      }
+      return subject_result->value->is_diia(scope);
+    }
+    return false;
   }
 
   Result* Subject::call(Scope* scope,

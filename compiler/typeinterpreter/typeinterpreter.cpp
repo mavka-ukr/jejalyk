@@ -82,6 +82,20 @@ namespace typeinterpreter {
     return result;
   }
 
+  Result* success(Subject* value, jejalyk::js::JsNode* js_node) {
+    const auto result = new Result();
+    result->value = value;
+    result->js_node = js_node;
+    return result;
+  }
+
+  Result* success(Subject* value, jejalyk::js::JsBody* js_body) {
+    const auto result = new Result();
+    result->value = value;
+    result->js_body = js_body;
+    return result;
+  }
+
   Result* compile(mavka::ast::ProgramNode* program_node) {
     const auto result = new Result();
 
@@ -120,7 +134,7 @@ namespace typeinterpreter {
       return compiled_body;
     }
 
-    return new Result();
+    return compiled_body;
   }
 
   void debug_print_call(Type* value,

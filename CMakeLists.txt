@@ -141,6 +141,7 @@ add_executable(jejalyk jejalyk_bin.cpp
         parser.h
         tools.cpp
         tools.h
+        compiler/js/js.h
         compiler/typeinterpreter/typeinterpreter.cpp
         compiler/typeinterpreter/typeinterpreter.h
         compiler/typeinterpreter/Error.cpp

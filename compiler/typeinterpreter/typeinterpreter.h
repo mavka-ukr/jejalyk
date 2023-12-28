@@ -8,6 +8,7 @@
 
 #include "../../ast.h"
 #include "../../tools.h"
+#include "../js/js.h"
 
 namespace typeinterpreter {
   class Error;
@@ -32,6 +33,8 @@ namespace typeinterpreter {
    public:
     Error* error;
     Subject* value;
+    jejalyk::js::JsNode* js_node;
+    jejalyk::js::JsBody* js_body;
   };
 
   class Type final {
@@ -42,6 +45,9 @@ namespace typeinterpreter {
 
     bool is_diia(Scope* scope);
     bool is_structure(Scope* scope);
+    bool is_number(Scope* scope);
+    bool is_string(Scope* scope);
+    bool is_array(Scope* scope);
     std::string get_name();
     std::string get_type_name();
 
@@ -140,12 +146,19 @@ namespace typeinterpreter {
 
     bool check(Subject* subject);
 
+    bool is_number(Scope* scope);
+    bool is_string(Scope* scope);
+    bool is_array(Scope* scope);
+    bool is_diia(Scope* scope);
+
     bool has(const std::string& name);
     Result* get(const std::string& name);
     Result* set(Scope* scope,
                 mavka::ast::ASTNode* node,
                 const std::string& name,
                 Subject* value);
+
+    bool has_diia(Scope* scope, std::string name);
 
     Result* call(Scope* scope,
                  mavka::ast::ASTNode* node,
@@ -311,6 +324,8 @@ namespace typeinterpreter {
                          const std::string& message);
   Result* error(const std::string& message);
   Result* success(Subject* value);
+  Result* success(Subject* value, jejalyk::js::JsNode* js_node);
+  Result* success(Subject* value, jejalyk::js::JsBody* js_body);
 
   Result* compile(mavka::ast::ProgramNode* program_node);
 

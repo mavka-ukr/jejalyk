@@ -186,6 +186,7 @@ namespace typeinterpreter {
 
   Result* Scope::compile_nodes(std::vector<mavka::ast::ASTNode*> nodes) {
     const auto subject = new Subject();
+    const auto js_body = new jejalyk::js::JsBody();
     for (const auto node : nodes) {
       if (node == nullptr) {
         continue;
@@ -194,6 +195,7 @@ namespace typeinterpreter {
       if (node_result->error) {
         return node_result;
       }
+      js_body->nodes.push_back(node_result->js_node);
       for (const auto type : node_result->value->types) {
         subject->add_type(type);
       }
@@ -207,7 +209,7 @@ namespace typeinterpreter {
       }
       subject->add_type(object_instance_subject->value->types[0]);
     }
-    return success(subject);
+    return success(subject, js_body);
   }
 
   Result* Scope::compile_node(mavka::ast::ASTNode* node) {
@@ -241,26 +243,58 @@ namespace typeinterpreter {
       if (right_result->error) {
         return right_result;
       }
+
+      const auto js_arithmetic_node = new jejalyk::js::JsArithmeticNode();
+      const auto js_call_node = new jejalyk::js::JsCallNode();
+
+      Result* result;
+
       if (arithmetic_node->op == "+") {
-        return left_result->value->plus(this, node, right_result->value);
+        result = left_result->value->plus(this, node, right_result->value);
       }
       if (arithmetic_node->op == "-") {
-        return left_result->value->minus(this, node, right_result->value);
+        result = left_result->value->minus(this, node, right_result->value);
       }
       if (arithmetic_node->op == "*") {
-        return left_result->value->multiply(this, node, right_result->value);
+        result = left_result->value->multiply(this, node, right_result->value);
       }
       if (arithmetic_node->op == "/") {
-        return left_result->value->divide(this, node, right_result->value);
+        result = left_result->value->divide(this, node, right_result->value);
       }
       if (arithmetic_node->op == "%") {
-        return left_result->value->divmod(this, node, right_result->value);
+        result = left_result->value->divmod(this, node, right_result->value);
       }
       if (arithmetic_node->op == "//") {
-        return left_result->value->divdiv(this, node, right_result->value);
+        result = left_result->value->divdiv(this, node, right_result->value);
       }
       if (arithmetic_node->op == "**") {
-        return left_result->value->pow(this, node, right_result->value);
+        result = left_result->value->pow(this, node, right_result->value);
+      }
+
+      if (result != nullptr) {
+        if (result->error) {
+          return result;
+        }
+
+        if (left_result->value->is_number(this) &&
+            right_result->value->is_number(this)) {
+          js_arithmetic_node->left = left_result->js_node;
+          js_arithmetic_node->right = right_result->js_node;
+          js_arithmetic_node->op = arithmetic_node->op;
+          return success(result->value, js_arithmetic_node);
+        }
+
+        if (arithmetic_node->op == "+") {
+          if (left_result->value->is_string(this) &&
+              right_result->value->is_string(this)) {
+            js_arithmetic_node->left = left_result->js_node;
+            js_arithmetic_node->right = right_result->js_node;
+            js_arithmetic_node->op = "+";
+            return success(result->value, js_arithmetic_node);
+          }
+        }
+
+        return result;
       }
 
       return error_from_ast(
@@ -269,15 +303,19 @@ namespace typeinterpreter {
 
     if (jejalyk::tools::instance_of<mavka::ast::ArrayNode>(node)) {
       const auto array_node = dynamic_cast<mavka::ast::ArrayNode*>(node);
+      const auto js_array_node = new jejalyk::js::JsArrayNode();
       const auto array_structure_subject = this->get_root()->get("список");
       const auto array_values_type_result =
           this->compile_nodes(array_node->elements);
       if (array_values_type_result->error) {
         return array_values_type_result;
       }
+      js_array_node->elements = array_values_type_result->js_body->nodes;
       if (array_node->types.empty()) {
-        return array_structure_subject->create_instance(
+        const auto result = array_structure_subject->create_instance(
             this, {array_values_type_result->value});
+        result->js_node = js_array_node;
+        return result;
       } else {
         const auto array_type_subject = new Subject();
         for (const auto type_value_single_node : array_node->types) {
@@ -302,8 +340,10 @@ namespace typeinterpreter {
           }
         }
 
-        return array_structure_subject->create_instance(this,
-                                                        {array_type_subject});
+        const auto result = array_structure_subject->create_instance(
+            this, {array_type_subject});
+        result->js_node = js_array_node;
+        return result;
       }
     }
 
@@ -367,6 +407,11 @@ namespace typeinterpreter {
         return value_result;
       }
 
+      const auto js_assign_node = new jejalyk::js::JsAssignNode();
+      js_assign_node->identifier = new jejalyk::js::JsIdentifierNode();
+      js_assign_node->identifier->name = assign_simple_node->name;
+      js_assign_node->value = value_result->js_node;
+
       if (assign_simple_node->types.empty()) {
         if (this->has_local(assign_simple_node->name)) {
           const auto local_subject = this->get_local(assign_simple_node->name);
@@ -374,10 +419,10 @@ namespace typeinterpreter {
             return error_0(node, assign_simple_node->name, local_subject,
                            value_result->value);
           }
-          return success(local_subject);
+          return success(local_subject, js_assign_node);
         } else {
           this->set_local(assign_simple_node->name, value_result->value);
-          return success(value_result->value);
+          return success(value_result->value, js_assign_node);
         }
       } else {
         if (this->has_local(assign_simple_node->name)) {
@@ -397,7 +442,7 @@ namespace typeinterpreter {
 
         this->set_local(assign_simple_node->name, types_result->value);
 
-        return success(types_result->value);
+        return success(types_result->value, js_assign_node);
       }
     }
 
@@ -443,7 +488,35 @@ namespace typeinterpreter {
         return value_result;
       }
 
-      return value_result->value->bw_not(this, node);
+      const auto result = value_result->value->bw_not(this, node);
+      if (result->error) {
+        return result;
+      }
+
+      if (value_result->value->is_number(this)) {
+        const auto js_negative_node = new jejalyk::js::JsNegativeNode();
+        js_negative_node->value = value_result->js_node;
+        result->js_node = js_negative_node;
+      } else if (value_result->value->has_diia(this, "чародія_дні")) {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_chain_node = new jejalyk::js::JsChainNode();
+        js_chain_node->left = value_result->js_node;
+        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
+        js_chain_node_right->name = "чародія_дні";
+        js_chain_node->right = js_chain_node_right;
+        js_call_node->value = js_chain_node;
+        js_call_node->arguments = {};
+        result->js_node = js_call_node;
+      } else {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+        js_id_node->name = "мДні";
+        js_call_node->value = js_id_node;
+        js_call_node->arguments = {value_result->js_node};
+        result->js_node = js_call_node;
+      }
+
+      return result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::BreakNode>(node)) {
@@ -455,7 +528,9 @@ namespace typeinterpreter {
                               "використана тільки всередині циклу.");
       }
 
-      return success(nullptr);
+      const auto js_break_node = new jejalyk::js::JsBreakNode();
+
+      return success(nullptr, js_break_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::CallNode>(node)) {
@@ -586,7 +661,9 @@ namespace typeinterpreter {
                               "використана тільки всередині циклу.");
       }
 
-      return success(nullptr);
+      const auto js_continue_node = new jejalyk::js::JsContinueNode();
+
+      return success(nullptr, js_continue_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::DictionaryNode>(node)) {
@@ -746,7 +823,38 @@ namespace typeinterpreter {
         return index_result;
       }
 
-      return value_result->value->get_element(this, node, index_result->value);
+      const auto result =
+          value_result->value->get_element(this, node, index_result->value);
+      if (result->error) {
+        return result;
+      }
+
+      if (value_result->value->is_array(this)) {
+        const auto js_access_node = new jejalyk::js::JsAccessNode();
+        js_access_node->value = value_result->js_node;
+        js_access_node->index = index_result->js_node;
+        result->js_node = js_access_node;
+      } else if (value_result->value->has_diia(this, "чародія_отримати")) {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_chain_node = new jejalyk::js::JsChainNode();
+        js_chain_node->left = value_result->js_node;
+        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
+        js_chain_node_right->name = "чародія_отримати";
+        js_chain_node->right = js_chain_node_right;
+        js_call_node->value = js_chain_node;
+        js_call_node->arguments = {index_result->js_node};
+        result->js_node = js_call_node;
+      } else {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+        js_id_node->name = "мОтрЕ";
+        js_call_node->value = js_id_node;
+        js_call_node->arguments = {value_result->js_node,
+                                   index_result->js_node};
+        result->js_node = js_call_node;
+      }
+
+      return result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::GiveNode>(node)) {
@@ -790,7 +898,9 @@ namespace typeinterpreter {
       }
       const auto subject = this->get(identifier_node->name);
       debug_print_got_from_scope(this, identifier_node->name, subject);
-      return success(subject);
+      const auto js_identifier_node = new jejalyk::js::JsIdentifierNode();
+      js_identifier_node->name = identifier_node->name;
+      return success(subject, js_identifier_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::IfNode>(node)) {
@@ -805,14 +915,18 @@ namespace typeinterpreter {
         return body_result;
       }
 
-      if (!if_node->else_body.empty()) {
-        const auto else_body_result = this->compile_body(if_node->else_body);
-        if (else_body_result->error) {
-          return else_body_result;
-        }
+      const auto else_body_result = this->compile_body(if_node->else_body);
+      if (else_body_result->error) {
+        return else_body_result;
       }
 
-      return success(nullptr);
+      const auto js_if_node = new jejalyk::js::JsIfNode();
+      js_if_node->condition = condition_result->js_node;
+      js_if_node->body = body_result->js_body;
+      js_if_node->else_body = else_body_result->js_body;
+      std::cout << "watafak " << if_node->else_body.size() << std::endl;
+
+      return success(nullptr, js_if_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MethodDeclarationNode>(node)) {
@@ -844,7 +958,8 @@ namespace typeinterpreter {
       }
       // todo: handle structure
       this->set_local(mockup_diia_node->name, diia_compilation_result->value);
-      return diia_compilation_result;
+      return success(diia_compilation_result->value,
+                     new jejalyk::js::JsEmptyNode());
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MockupModuleNode>(node)) {
@@ -861,7 +976,8 @@ namespace typeinterpreter {
       }
       this->set_local(mockup_module_node->name,
                       module_compilation_result->value);
-      return module_compilation_result;
+      return success(module_compilation_result->value,
+                     new jejalyk::js::JsEmptyNode());
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
@@ -875,7 +991,8 @@ namespace typeinterpreter {
       }
       this->set_local(mockup_structure_node->name,
                       structure_compilation_result->value);
-      return structure_compilation_result;
+      return success(structure_compilation_result->value,
+                     new jejalyk::js::JsEmptyNode());
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MockupSubjectNode>(node)) {
@@ -894,7 +1011,7 @@ namespace typeinterpreter {
 
       this->set_local(mockup_subject_node->name, types_result->value);
 
-      return types_result;
+      return success(types_result->value, new jejalyk::js::JsEmptyNode());
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ModuleNode>(node)) {
@@ -920,25 +1037,66 @@ namespace typeinterpreter {
         return value_result;
       }
 
-      return value_result->value->negative(this, node);
+      const auto result = value_result->value->negative(this, node);
+      if (result->error) {
+        return result;
+      }
+
+      if (value_result->value->is_number(this)) {
+        const auto js_negative_node = new jejalyk::js::JsNegativeNode();
+        js_negative_node->value = value_result->js_node;
+        result->js_node = js_negative_node;
+      } else if (value_result->value->has_diia(this, "чародія_відʼємне")) {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_chain_node = new jejalyk::js::JsChainNode();
+        js_chain_node->left = value_result->js_node;
+        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
+        js_chain_node_right->name = "чародія_відʼємне";
+        js_chain_node->right = js_chain_node_right;
+        js_call_node->value = js_chain_node;
+        js_call_node->arguments = {};
+        result->js_node = js_call_node;
+      } else {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+        js_id_node->name = "мНегт";
+        js_call_node->value = js_id_node;
+        js_call_node->arguments = {value_result->js_node};
+        result->js_node = js_call_node;
+      }
+
+      return result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::NotNode>(node)) {
       const auto not_node = dynamic_cast<mavka::ast::NotNode*>(node);
-      const auto logical_structure_subject = this->get_root()->get("логічне");
-      const auto logical_instance_subject =
-          logical_structure_subject->create_instance(this, {});
-      if (logical_instance_subject->error) {
-        return logical_instance_subject;
+
+      const auto value_result = this->compile_node(not_node->value);
+      if (value_result->error) {
+        return value_result;
       }
-      return success(logical_instance_subject->value);
+
+      const auto logical_structure_subject = this->get_root()->get("логічне");
+      const auto logical_instance_result =
+          logical_structure_subject->create_instance(this, {});
+      if (logical_instance_result->error) {
+        return logical_instance_result;
+      }
+
+      const auto js_not_node = new jejalyk::js::JsNotNode();
+      js_not_node->value = value_result->js_node;
+      logical_instance_result->js_node = js_not_node;
+
+      return logical_instance_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::NumberNode>(node)) {
       const auto number_node = dynamic_cast<mavka::ast::NumberNode*>(node);
       const auto number_structure = this->get_root()->get("число");
-      const auto number_subject = number_structure->create_instance(this, {});
-      return number_subject;
+      const auto number_result = number_structure->create_instance(this, {});
+      const auto js_number_node = new jejalyk::js::JsNumberNode();
+      js_number_node->value = number_node->value;
+      return success(number_result->value, js_number_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PositiveNode>(node)) {
@@ -949,36 +1107,59 @@ namespace typeinterpreter {
         return value_result;
       }
 
-      return value_result->value->positive(this, node);
+      const auto result = value_result->value->positive(this, node);
+      if (result->error) {
+        return result;
+      }
+
+      if (value_result->value->is_number(this)) {
+        const auto js_negative_node = new jejalyk::js::JsPositiveNode();
+        js_negative_node->value = value_result->js_node;
+        result->js_node = js_negative_node;
+      } else if (value_result->value->has_diia(this, "чародія_додатнє")) {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_chain_node = new jejalyk::js::JsChainNode();
+        js_chain_node->left = value_result->js_node;
+        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
+        js_chain_node_right->name = "чародія_додатнє";
+        js_chain_node->right = js_chain_node_right;
+        js_call_node->value = js_chain_node;
+        js_call_node->arguments = {};
+        result->js_node = js_call_node;
+      } else {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+        js_id_node->name = "мПозт";
+        js_call_node->value = js_id_node;
+        js_call_node->arguments = {value_result->js_node};
+        result->js_node = js_call_node;
+      }
+
+      return result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PostDecrementNode>(node)) {
       const auto post_decrement_node =
           dynamic_cast<mavka::ast::PostDecrementNode*>(node);
 
-      const auto value_result = this->compile_node(post_decrement_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      return value_result->value->post_decrement(this, node);
+      return error_from_ast(node,
+                            "Постфіксний декремент тимчасово недоступний.");
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PostIncrementNode>(node)) {
       const auto post_increment_node =
           dynamic_cast<mavka::ast::PostIncrementNode*>(node);
 
-      const auto value_result = this->compile_node(post_increment_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      return value_result->value->post_increment(this, node);
+      return error_from_ast(node,
+                            "Постфіксний інкремент тимчасово недоступний.");
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::PreDecrementNode>(node)) {
       const auto pre_decrement_node =
           dynamic_cast<mavka::ast::PreDecrementNode*>(node);
+
+      return error_from_ast(node,
+                            "Префіксний декремент тимчасово недоступний.");
 
       const auto value_result = this->compile_node(pre_decrement_node->value);
       if (value_result->error) {
@@ -992,12 +1173,8 @@ namespace typeinterpreter {
       const auto pre_increment_node =
           dynamic_cast<mavka::ast::PreIncrementNode*>(node);
 
-      const auto value_result = this->compile_node(pre_increment_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      return value_result->value->pre_increment(this, node);
+      return error_from_ast(node,
+                            "Префіксний інкремент тимчасово недоступний.");
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ReturnNode>(node)) {
@@ -1022,15 +1199,22 @@ namespace typeinterpreter {
                       "\".");
       }
 
+      const auto js_return_node = new jejalyk::js::JsReturnNode();
+      js_return_node->value = value_result->js_node;
+
+      value_result->js_node = js_return_node;
+
       return value_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::StringNode>(node)) {
       const auto string_node = dynamic_cast<mavka::ast::StringNode*>(node);
-      const auto string_structure = this->get("текст");
-      const auto string_subject = string_structure->create_instance(this, {});
       // todo: interpolate
-      return string_subject;
+      const auto string_structure = this->get("текст");
+      const auto string_result = string_structure->create_instance(this, {});
+      const auto js_string_node = new jejalyk::js::JsStringNode();
+      js_string_node->value = string_node->value;
+      return success(string_result->value, js_string_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
@@ -1066,7 +1250,20 @@ namespace typeinterpreter {
         return condition_result;
       }
 
-      return this->compile_nodes({ternary_node->body, ternary_node->else_body});
+      const auto result =
+          this->compile_nodes({ternary_node->body, ternary_node->else_body});
+      if (result->error) {
+        return result;
+      }
+
+      const auto js_ternary_node = new jejalyk::js::JsTernaryNode();
+      js_ternary_node->condition = condition_result->js_node;
+      js_ternary_node->true_value = result->js_body->nodes[0];
+      js_ternary_node->false_value = result->js_body->nodes[1];
+
+      result->js_node = js_ternary_node;
+
+      return result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TestNode>(node)) {
@@ -1081,10 +1278,36 @@ namespace typeinterpreter {
         return right_result;
       }
       if (test_node->op == "&&" || test_node->op == "і") {
-        return left_result->value->test_and(this, node, right_result->value);
+        const auto result =
+            left_result->value->test_and(this, node, right_result->value);
+        if (result->error) {
+          return result;
+        }
+
+        const auto js_and_node = new jejalyk::js::JsTestNode();
+        js_and_node->left = left_result->js_node;
+        js_and_node->right = right_result->js_node;
+        js_and_node->op = "&&";
+
+        result->js_node = js_and_node;
+
+        return result;
       }
       if (test_node->op == "||" || test_node->op == "або") {
-        return left_result->value->test_or(this, node, right_result->value);
+        const auto result =
+            left_result->value->test_or(this, node, right_result->value);
+        if (result->error) {
+          return result;
+        }
+
+        const auto js_or_node = new jejalyk::js::JsTestNode();
+        js_or_node->left = left_result->js_node;
+        js_or_node->right = right_result->js_node;
+        js_or_node->op = "||";
+
+        result->js_node = js_or_node;
+
+        return result;
       }
 
       return error_from_ast(node,
@@ -1099,7 +1322,12 @@ namespace typeinterpreter {
         return value_result;
       }
 
-      return success(nullptr);
+      const auto js_throw_node = new jejalyk::js::JsThrowNode();
+      js_throw_node->value = value_result->js_node;
+
+      value_result->js_node = js_throw_node;
+
+      return value_result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TryNode>(node)) {
@@ -1118,6 +1346,7 @@ namespace typeinterpreter {
       }
 
       const auto catch_scope = this->make_child();
+      catch_scope->is_async = this->is_async;
       catch_scope->set_local(try_node->name, object_instance_result->value);
       const auto catch_body_result =
           catch_scope->compile_body(try_node->catch_body);
@@ -1125,7 +1354,12 @@ namespace typeinterpreter {
         return catch_body_result;
       }
 
-      return success(nullptr);
+      const auto js_try_node = new jejalyk::js::JsTryNode();
+      js_try_node->try_body = body_result->js_body;
+      js_try_node->catch_body = catch_body_result->js_body;
+      js_try_node->name = try_node->name;
+
+      return success(nullptr, js_try_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::TypeValueSingleNode>(node)) {
@@ -1205,7 +1439,14 @@ namespace typeinterpreter {
         return value_result;
       }
 
-      return value_result->value->get_awaiting_value(this, node);
+      const auto result = value_result->value->get_awaiting_value(this, node);
+
+      const auto js_await_node = new jejalyk::js::JsAwaitNode();
+      js_await_node->value = value_result->js_node;
+
+      result->js_node = js_await_node;
+
+      return result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::WhileNode>(node)) {
@@ -1224,13 +1465,20 @@ namespace typeinterpreter {
         return body_result;
       }
 
-      return success(nullptr);
+      const auto js_while_node = new jejalyk::js::JsWhileNode();
+      js_while_node->condition = condition_result->js_node;
+      js_while_node->body = body_result->js_body;
+
+      return success(nullptr, js_while_node);
     }
 
     return error("unsupported node");
   }
 
   Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*> body) {
+    const auto result = new Result();
+    result->js_body = new jejalyk::js::JsBody();
+
     for (const auto node : body) {
       if (!node) {
         continue;
@@ -1311,9 +1559,11 @@ namespace typeinterpreter {
       if (compiled_node_result->error) {
         return compiled_node_result;
       }
+
+      result->js_body->nodes.push_back(compiled_node_result->js_node);
     }
 
-    return new Result();
+    return result;
   }
 
   Result* Scope::compile_structure(

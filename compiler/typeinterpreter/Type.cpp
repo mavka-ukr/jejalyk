@@ -19,6 +19,33 @@ namespace typeinterpreter {
            structure_subject->types[0]->object;
   }
 
+  bool Type::is_number(Scope* scope) {
+    const auto number_structure_subject = scope->get_root()->get("число");
+    if (this->generic_definition) {
+      return false;
+    }
+    return this->object->structure->object ==
+           number_structure_subject->types[0]->object;
+  }
+
+  bool Type::is_string(Scope* scope) {
+    const auto text_structure_subject = scope->get_root()->get("текст");
+    if (this->generic_definition) {
+      return false;
+    }
+    return this->object->structure->object ==
+           text_structure_subject->types[0]->object;
+  }
+
+  bool Type::is_array(Scope* scope) {
+    const auto text_structure_subject = scope->get_root()->get("список");
+    if (this->generic_definition) {
+      return false;
+    }
+    return this->object->structure->object ==
+           text_structure_subject->types[0]->object;
+  }
+
   std::string Type::get_name() {
     if (this->generic_definition) {
       return this->generic_definition->name;
