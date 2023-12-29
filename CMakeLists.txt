@@ -14,7 +14,6 @@ set(JEJALYK_COMPILER_SRC
         compiler/typeinterpreter/typeinterpreter.cpp
         compiler/typeinterpreter/typeinterpreter.h
         compiler/typeinterpreter/Type.cpp
-        compiler/typeinterpreter/Object.cpp
         compiler/typeinterpreter/Subject.cpp
         compiler/typeinterpreter/Scope.cpp
         compiler/typeinterpreter/diia.cpp

@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+// насправді компілятор настільки гнучкий,
+// що можна зробити компіляцію в будь-яку мову (в тому числі машинний код)
+
 namespace jejalyk::js {
   class JsNode {
    public:
