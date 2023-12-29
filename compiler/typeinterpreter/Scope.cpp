@@ -4,6 +4,7 @@ namespace typeinterpreter {
   Scope* Scope::make_child() {
     const auto child = new Scope();
     child->parent = this;
+    child->proxy = false;
     return child;
   }
 
@@ -76,6 +77,21 @@ namespace typeinterpreter {
     }
   }
 
+  void Scope::put_additional_node_before(jejalyk::js::JsNode* node) {
+    if (this->proxy) {
+      this->parent->put_additional_node_before(node);
+    } else {
+      this->additional_nodes_before.push_back(node);
+    }
+  }
+
+  std::vector<jejalyk::js::JsNode*> Scope::get_additional_nodes_before() {
+    if (this->proxy) {
+      return this->parent->get_additional_nodes_before();
+    }
+    return this->additional_nodes_before;
+  }
+
   Subject* Scope::create_object_instance_subject() {
     const auto object_structure_subject = this->get_root()->get("обʼєкт");
     const auto object_instance_subject =
@@ -111,7 +127,10 @@ namespace typeinterpreter {
     if (this->variables.contains(name)) {
       return this->variables.find(name)->second;
     }
-    std::cout << "[BUG] Scope::get_local() called for non-existing variable"
+    if (this->proxy) {
+      return this->parent->get_local(name);
+    }
+    std::cout << "[BUG] Scope::get_local() called for non-existing variable '"
               << name << "'" << std::endl;
     return nullptr;
   }
@@ -143,7 +162,17 @@ namespace typeinterpreter {
     if (this->variables.contains(name)) {
       return true;
     }
+    if (this->proxy) {
+      return this->parent->has_local(name);
+    }
     return false;
+  }
+
+  void Scope::delete_local(std::string name) {
+    this->variables.erase(name);
+    if (this->proxy) {
+      return this->parent->delete_local(name);
+    }
   }
 
   bool Scope::check_subjects(Subject* value, Subject* types) {
@@ -946,6 +975,9 @@ namespace typeinterpreter {
       const auto iterator_name = "_мit_" + std::to_string(iterator_count);
 
       if (each_node->keyName.empty()) {
+        if (this->has_local(each_node->name)) {
+          return error_1(node, each_node->name);
+        }
         if (value_result->value->is_iterator(this)) {
           const auto iterator_type_result =
               value_result->value->get_iterator_type(this, each_node->value);
@@ -953,7 +985,7 @@ namespace typeinterpreter {
             return iterator_type_result;
           }
           this->set_local(each_node->name, iterator_type_result->value);
-          this->set_local(iterator_name, value_result->value);
+          this->put_additional_node_before(jejalyk::js::var(iterator_name));
 
           const auto compiled_body = loop_scope->compile_body(each_node->body);
           if (compiled_body->error) {
@@ -989,6 +1021,13 @@ namespace typeinterpreter {
           js_name_assign_node->value = js_name_assign_node_chain;
           js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
                                           js_name_assign_node);
+          js_for_node->cleanup = new jejalyk::js::JsBody();
+          const auto js_cleanup_iterator_assign =
+              new jejalyk::js::JsAssignNode();
+          js_cleanup_iterator_assign->identifier =
+              jejalyk::js::id(iterator_name);
+          js_cleanup_iterator_assign->value = jejalyk::js::id("undefined");
+          js_for_node->cleanup->nodes.push_back(js_cleanup_iterator_assign);
 
           return success(nullptr, js_for_node);
         } else if (value_result->value->has("чародія_перебір")) {
@@ -1008,7 +1047,7 @@ namespace typeinterpreter {
               return iterator_type_result;
             }
             this->set_local(each_node->name, iterator_type_result->value);
-            this->set_local(iterator_name, value_result->value);
+            this->put_additional_node_before(jejalyk::js::var(iterator_name));
 
             const auto compiled_body =
                 loop_scope->compile_body(each_node->body);
@@ -1053,6 +1092,13 @@ namespace typeinterpreter {
             js_name_assign_node->value = js_name_assign_node_chain;
             js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
                                             js_name_assign_node);
+            js_for_node->cleanup = new jejalyk::js::JsBody();
+            const auto js_cleanup_iterator_assign =
+                new jejalyk::js::JsAssignNode();
+            js_cleanup_iterator_assign->identifier =
+                jejalyk::js::id(iterator_name);
+            js_cleanup_iterator_assign->value = jejalyk::js::id("undefined");
+            js_for_node->cleanup->nodes.push_back(js_cleanup_iterator_assign);
 
             return success(nullptr, js_for_node);
           } else {
@@ -1066,6 +1112,12 @@ namespace typeinterpreter {
                                           "\".");
         }
       } else {
+        if (this->has_local(each_node->name)) {
+          return error_1(node, each_node->name);
+        }
+        if (this->has_local(each_node->keyName)) {
+          return error_1(node, each_node->keyName);
+        }
         return error_from_ast(node, "Перебір з ключем тимчасово недоступний.");
       }
 
@@ -1910,6 +1962,11 @@ namespace typeinterpreter {
         result->js_body->nodes.insert(result->js_body->nodes.begin(),
                                       jejalyk::js::vars(var_names));
       }
+    }
+
+    for (const auto js_node_before : this->get_additional_nodes_before()) {
+      result->js_body->nodes.insert(result->js_body->nodes.begin(),
+                                    js_node_before);
     }
 
     return result;

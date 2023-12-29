@@ -181,6 +181,7 @@ namespace jejalyk::js {
     JsNode* condition;
     JsNode* update;
     JsBody* body;
+    JsBody* cleanup;
   };
 
   inline JsIdentifierNode* null() {
@@ -383,7 +384,13 @@ namespace jejalyk::js {
         head += stringify(js_for_node->update, depth);
       }
       head += ") {\n";
-      return head + stringify_body(js_for_node->body, depth + 1) + "\n}";
+      const auto result =
+          head + stringify_body(js_for_node->body, depth + 1) + "\n}";
+      if (js_for_node->cleanup) {
+        return result + "\n" + stringify_body(js_for_node->cleanup, depth) +
+               "\n";
+      }
+      return result;
     }
     return "[CANNOT STRINGIFY]";
   }

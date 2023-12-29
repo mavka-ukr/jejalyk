@@ -249,6 +249,7 @@ namespace typeinterpreter {
     bool is_loop = false;
     bool is_async = false;
     size_t iterator_count = 0;
+    std::vector<jejalyk::js::JsNode*> additional_nodes_before;
 
     Scope* make_child();
     Scope* make_proxy();
@@ -260,6 +261,9 @@ namespace typeinterpreter {
     size_t get_iterator_count();
     void increment_iterator_count();
 
+    void put_additional_node_before(jejalyk::js::JsNode* node);
+    std::vector<jejalyk::js::JsNode*> get_additional_nodes_before();
+
     Subject* create_object_instance_subject();
     Type* create_object_instance_type();
     Object* create_object_instance_object();
@@ -269,6 +273,7 @@ namespace typeinterpreter {
     void set_local(std::string name, Subject* value);
     bool has(std::string name);
     bool has_local(std::string name);
+    void delete_local(std::string name);
 
     bool assign(std::string name, Subject* value);
 
