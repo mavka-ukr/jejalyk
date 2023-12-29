@@ -291,18 +291,9 @@ namespace typeinterpreter {
       return error("empty node");
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::AnonDiiaNode>(node)) {
-      const auto anon_diia_node = dynamic_cast<mavka::ast::AnonDiiaNode*>(node);
-      const auto diia_scope = this->make_child();
-      return this->compile_diia(
-          diia_scope, anon_diia_node->async, "", anon_diia_node->generics,
-          anon_diia_node->params, anon_diia_node->return_types,
-          &anon_diia_node->body);
-    }
-
-    if (jejalyk::tools::instance_of<mavka::ast::ArgNode>(node)) {
-      const auto arg_node = dynamic_cast<mavka::ast::ArgNode*>(node);
-      std::cout << "ArgNode" << std::endl;
+    if (const auto anon_diia_node =
+            dynamic_cast<mavka::ast::AnonDiiaNode*>(node)) {
+      return compile_anon_diia_node(this, anon_diia_node);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ArithmeticNode>(node)) {

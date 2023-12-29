@@ -347,6 +347,113 @@ namespace typeinterpreter {
 
   Result* compile(std::string code);
 
+  Result* compile_anon_diia_node(Scope* scope,
+                                 mavka::ast::AnonDiiaNode* anon_diia_node);
+  Result* compile_arithmetic_node(Scope* scope,
+                                  mavka::ast::ArithmeticNode* arithmetic_node);
+  Result* compile_array_node(Scope* scope, mavka::ast::ArrayNode* array_node);
+  Result* compile_as_node(Scope* scope, mavka::ast::AsNode* as_node);
+  Result* compile_assign_by_element_node(
+      Scope* scope,
+      mavka::ast::AssignByElementNode* assign_by_element_node);
+  Result* compile_assign_by_identifier_node(
+      Scope* scope,
+      mavka::ast::AssignByIdentifierNode* assign_by_identifier_node);
+  Result* compile_assign_simple_node(
+      Scope* scope,
+      mavka::ast::AssignSimpleNode* assign_simple_node);
+  Result* compile_bitwise_node(Scope* scope,
+                               mavka::ast::BitwiseNode* bitwise_node);
+  Result* compile_bitwise_not_node(
+      Scope* scope,
+      mavka::ast::BitwiseNotNode* bitwise_not_node);
+  Result* compile_break_node(Scope* scope, mavka::ast::BreakNode* break_node);
+  Result* compile_call_node(Scope* scope, mavka::ast::CallNode* call_node);
+  Result* compile_chain_node(Scope* scope, mavka::ast::ChainNode* chain_node);
+  Result* compile_comparison_node(Scope* scope,
+                                  mavka::ast::ComparisonNode* comparison_node);
+  Result* compile_continue_node(Scope* scope,
+                                mavka::ast::ContinueNode* continue_node);
+  Result* compile_dictionary_node(Scope* scope,
+                                  mavka::ast::DictionaryNode* dictionary_node);
+  Result* compile_diia_node(Scope* scope, mavka::ast::DiiaNode* diia_node);
+  Result* compile_each_node(Scope* scope, mavka::ast::EachNode* each_node);
+  Result* compile_eval_node(Scope* scope, mavka::ast::EvalNode* eval_node);
+  Result* compile_from_to_complex_node(
+      Scope* scope,
+      mavka::ast::FromToComplexNode* from_to_complex_node);
+  Result* compile_from_to_simple_node(
+      Scope* scope,
+      mavka::ast::FromToSimpleNode* from_to_simple_node);
+  Result* compile_function_node(Scope* scope,
+                                mavka::ast::FunctionNode* function_node);
+  Result* compile_get_element_node(
+      Scope* scope,
+      mavka::ast::GetElementNode* get_element_node);
+  Result* compile_give_node(Scope* scope, mavka::ast::GiveNode* give_node);
+  Result* compile_god_node(Scope* scope, mavka::ast::GodNode* god_node);
+  Result* compile_identifier_node(Scope* scope,
+                                  mavka::ast::IdentifierNode* identifier_node);
+  Result* compile_if_node(Scope* scope, mavka::ast::IfNode* if_node);
+  Result* compile_method_declaration_node(
+      Scope* scope,
+      mavka::ast::MethodDeclarationNode* method_declaration_node);
+  Result* compile_mml_node(Scope* scope, mavka::ast::MMLNode* mml_node);
+  Result* compile_mockup_diia_node(
+      Scope* scope,
+      mavka::ast::MockupDiiaNode* mockup_diia_node);
+  Result* compile_mockup_module_node(
+      Scope* scope,
+      mavka::ast::MockupModuleNode* mockup_module_node);
+  Result* compile_mockup_structure_node(
+      Scope* scope,
+      mavka::ast::MockupStructureNode* mockup_structure_node);
+  Result* compile_mockup_subject_node(
+      Scope* scope,
+      mavka::ast::MockupSubjectNode* mockup_subject_node);
+  Result* compile_module_node(Scope* scope,
+                              mavka::ast::ModuleNode* module_node);
+  Result* compile_negative_node(Scope* scope,
+                                mavka::ast::NegativeNode* negative_node);
+  Result* compile_not_node(Scope* scope, mavka::ast::NotNode* not_node);
+  Result* compile_number_node(Scope* scope,
+                              mavka::ast::NumberNode* number_node);
+  Result* compile_positive_node(Scope* scope,
+                                mavka::ast::PositiveNode* positive_node);
+  Result* compile_post_decrement_node(
+      Scope* scope,
+      mavka::ast::PostDecrementNode* post_decrement_node);
+  Result* compile_post_increment_node(
+      Scope* scope,
+      mavka::ast::PostIncrementNode* post_increment_node);
+  Result* compile_pre_decrement_node(
+      Scope* scope,
+      mavka::ast::PreDecrementNode* pre_decrement_node);
+  Result* compile_pre_increment_node(
+      Scope* scope,
+      mavka::ast::PreIncrementNode* pre_increment_node);
+  Result* compile_return_node(Scope* scope,
+                              mavka::ast::ReturnNode* return_node);
+  Result* compile_string_node(Scope* scope,
+                              mavka::ast::StringNode* string_node);
+  Result* compile_structure_node(Scope* scope,
+                                 mavka::ast::StructureNode* structure_node);
+  Result* compile_take_module_node(
+      Scope* scope,
+      mavka::ast::TakeModuleNode* take_module_node);
+  Result* compile_take_pak_node(Scope* scope,
+                                mavka::ast::TakePakNode* take_pak_node);
+  Result* compile_ternary_node(Scope* scope,
+                               mavka::ast::TernaryNode* ternary_node);
+  Result* compile_test_node(Scope* scope, mavka::ast::TestNode* test_node);
+  Result* compile_throw_node(Scope* scope, mavka::ast::ThrowNode* throw_node);
+  Result* compile_try_node(Scope* scope, mavka::ast::TryNode* try_node);
+  Result* compile_type_value_single_node(
+      Scope* scope,
+      mavka::ast::TypeValueSingleNode* type_value_single_node);
+  Result* compile_wait_node(Scope* scope, mavka::ast::WaitNode* wait_node);
+  Result* compile_while_node(Scope* scope, mavka::ast::WhileNode* while_node);
+
   void debug_print_call(Type* value,
                         std::vector<Subject*> generic_types,
                         std::vector<Subject*> args);
