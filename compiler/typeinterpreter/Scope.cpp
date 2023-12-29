@@ -296,1642 +296,242 @@ namespace typeinterpreter {
       return compile_anon_diia_node(this, anon_diia_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::ArithmeticNode>(node)) {
-      const auto arithmetic_node =
-          dynamic_cast<mavka::ast::ArithmeticNode*>(node);
-
-      const auto left_result = this->compile_node(arithmetic_node->left);
-      if (left_result->error) {
-        return left_result;
-      }
-      const auto right_result = this->compile_node(arithmetic_node->right);
-      if (right_result->error) {
-        return right_result;
-      }
-
-      const auto js_arithmetic_node = new jejalyk::js::JsArithmeticNode();
-
-      Result* result;
-      std::string magic_diia;
-      std::string m_diia_name;
-
-      if (arithmetic_node->op == "+") {
-        result = left_result->value->plus(this, node, right_result->value);
-        magic_diia = "чародія_додати";
-        m_diia_name = "мДодати";
-      }
-      if (arithmetic_node->op == "-") {
-        result = left_result->value->minus(this, node, right_result->value);
-        magic_diia = "чародія_відняти";
-        m_diia_name = "мВідняти";
-      }
-      if (arithmetic_node->op == "*") {
-        result = left_result->value->multiply(this, node, right_result->value);
-        magic_diia = "чародія_помножити";
-        m_diia_name = "мПомножити";
-      }
-      if (arithmetic_node->op == "/") {
-        result = left_result->value->divide(this, node, right_result->value);
-        magic_diia = "чародія_поділити";
-        m_diia_name = "мПоділити";
-      }
-      if (arithmetic_node->op == "%") {
-        result = left_result->value->divmod(this, node, right_result->value);
-        magic_diia = "чародія_остача";
-        m_diia_name = "мОстача";
-      }
-      if (arithmetic_node->op == "//") {
-        result = left_result->value->divdiv(this, node, right_result->value);
-        magic_diia = "чародія_частка";
-        m_diia_name = "мЧастка";
-      }
-      if (arithmetic_node->op == "**") {
-        result = left_result->value->pow(this, node, right_result->value);
-        magic_diia = "чародія_степінь";
-        m_diia_name = "мСтепінь";
-      }
-
-      if (result != nullptr) {
-        if (result->error) {
-          return result;
-        }
-
-        if (left_result->value->is_number(this) &&
-            right_result->value->is_number(this)) {
-          if (arithmetic_node->op == "//") {
-            const auto js_chain_node = new jejalyk::js::JsChainNode();
-            js_chain_node->left = jejalyk::js::id("Math");
-            js_chain_node->right = jejalyk::js::id("floor");
-            const auto js_call_node = new jejalyk::js::JsCallNode();
-            js_call_node->value = js_chain_node;
-            const auto js_call_arithmetic = new jejalyk::js::JsArithmeticNode();
-            js_call_arithmetic->left = left_result->js_node;
-            js_call_arithmetic->right = right_result->js_node;
-            js_call_arithmetic->op = "/";
-            js_call_node->arguments = {js_call_arithmetic};
-            return success(result->value, js_call_node);
-          } else {
-            js_arithmetic_node->left = left_result->js_node;
-            js_arithmetic_node->right = right_result->js_node;
-            js_arithmetic_node->op = arithmetic_node->op;
-            return success(result->value, js_arithmetic_node);
-          }
-        }
-
-        if (arithmetic_node->op == "+") {
-          if (left_result->value->is_string(this) &&
-              right_result->value->is_string(this)) {
-            js_arithmetic_node->left = left_result->js_node;
-            js_arithmetic_node->right = right_result->js_node;
-            js_arithmetic_node->op = "+";
-            return success(result->value, js_arithmetic_node);
-          }
-        }
-
-        if (left_result->value->has_diia(this, magic_diia)) {
-          const auto js_chain_node = new jejalyk::js::JsChainNode();
-          js_chain_node->left = left_result->js_node;
-          const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-          js_chain_node_right->name = magic_diia;
-          js_chain_node->right = js_chain_node_right;
-          const auto js_call_node = new jejalyk::js::JsCallNode();
-          js_call_node->value = js_chain_node;
-          js_call_node->arguments = {right_result->js_node};
-          result->js_node = js_call_node;
-          return success(result->value, js_chain_node);
-        } else {
-          const auto js_call_node = new jejalyk::js::JsCallNode();
-          const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-          js_id_node->name = m_diia_name;
-          js_call_node->value = js_id_node;
-          js_call_node->arguments = {left_result->js_node,
-                                     right_result->js_node};
-          return success(result->value, js_call_node);
-        }
-
-        return result;
-      }
-
-      return error_from_ast(
-          node, "Невідома вказівка \"" + arithmetic_node->op + "\".");
+    if (const auto arithmetic_node =
+            dynamic_cast<mavka::ast::ArithmeticNode*>(node)) {
+      return compile_arithmetic_node(this, arithmetic_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::ArrayNode>(node)) {
-      const auto array_node = dynamic_cast<mavka::ast::ArrayNode*>(node);
-      const auto js_array_node = new jejalyk::js::JsArrayNode();
-      const auto array_structure_subject = this->get_root()->get("список");
-      const auto array_values_type_result =
-          this->compile_nodes(array_node->elements);
-      if (array_values_type_result->error) {
-        return array_values_type_result;
-      }
-      js_array_node->elements = array_values_type_result->js_body->nodes;
-      if (array_node->types.empty()) {
-        const auto result = array_structure_subject->create_instance(
-            this, {array_values_type_result->value});
-        result->js_node = js_array_node;
-        return result;
-      } else {
-        const auto array_type_subject = new Subject();
-        for (const auto type_value_single_node : array_node->types) {
-          const auto type_value_single_result =
-              this->compile_node(type_value_single_node);
-          if (type_value_single_result->error) {
-            return type_value_single_result;
-          }
-          for (const auto type : type_value_single_result->value->types) {
-            array_type_subject->add_type(type);
-          }
-        }
-
-        if (!array_node->elements.empty()) {
-          if (!this->check_subjects(array_values_type_result->value,
-                                    array_type_subject)) {
-            return error_from_ast(
-                node,
-                "Неправильний тип елементів масиву: очікується \"" +
-                    array_type_subject->types_string() + "\", отримано \"" +
-                    array_values_type_result->value->types_string() + "\".");
-          }
-        }
-
-        const auto result = array_structure_subject->create_instance(
-            this, {array_type_subject});
-        result->js_node = js_array_node;
-        return result;
-      }
+    if (const auto array_node = dynamic_cast<mavka::ast::ArrayNode*>(node)) {
+      return compile_array_node(this, array_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::AsNode>(node)) {
-      const auto as_node = dynamic_cast<mavka::ast::AsNode*>(node);
-      std::cout << "AsNode" << std::endl;
+    if (const auto as_node = dynamic_cast<mavka::ast::AsNode*>(node)) {
+      return compile_as_node(this, as_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::AssignByElementNode>(node)) {
-      const auto assign_by_element_node =
-          dynamic_cast<mavka::ast::AssignByElementNode*>(node);
-
-      const auto left_result = this->compile_node(assign_by_element_node->left);
-      if (left_result->error) {
-        return left_result;
-      }
-
-      const auto element_result =
-          this->compile_node(assign_by_element_node->element);
-      if (element_result->error) {
-        return element_result;
-      }
-
-      const auto value_result =
-          this->compile_node(assign_by_element_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      return left_result->value->set_element(this, node, element_result->value,
-                                             value_result->value);
+    if (const auto assign_by_element_node =
+            dynamic_cast<mavka::ast::AssignByElementNode*>(node)) {
+      return compile_assign_by_element_node(this, assign_by_element_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::AssignByIdentifierNode>(node)) {
-      const auto assign_by_identifier_node =
-          dynamic_cast<mavka::ast::AssignByIdentifierNode*>(node);
-
-      const auto left_result =
-          this->compile_node(assign_by_identifier_node->left);
-      if (left_result->error) {
-        return left_result;
-      }
-
-      const auto value_result =
-          this->compile_node(assign_by_identifier_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      return left_result->value->set(this, node,
-                                     assign_by_identifier_node->identifier,
-                                     value_result->value);
+    if (const auto assign_by_identifier_node =
+            dynamic_cast<mavka::ast::AssignByIdentifierNode*>(node)) {
+      return compile_assign_by_identifier_node(this, assign_by_identifier_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::AssignSimpleNode>(node)) {
-      const auto assign_simple_node =
-          dynamic_cast<mavka::ast::AssignSimpleNode*>(node);
-
-      if (this->get_root()->has(assign_simple_node->name)) {
-        return error_1(node, assign_simple_node->name);
-      }
-
-      const auto value_result = this->compile_node(assign_simple_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto js_assign_node = new jejalyk::js::JsAssignNode();
-      js_assign_node->identifier = new jejalyk::js::JsIdentifierNode();
-      js_assign_node->identifier->name = assign_simple_node->name;
-      js_assign_node->value = value_result->js_node;
-
-      if (assign_simple_node->types.empty()) {
-        if (this->has_local(assign_simple_node->name)) {
-          const auto local_subject = this->get_local(assign_simple_node->name);
-          if (!this->check_subjects(value_result->value, local_subject)) {
-            return error_0(node, assign_simple_node->name, local_subject,
-                           value_result->value);
-          }
-          return success(local_subject, js_assign_node);
-        } else {
-          this->set_local(assign_simple_node->name, value_result->value);
-          return success(value_result->value, js_assign_node);
-        }
-      } else {
-        if (this->has_local(assign_simple_node->name)) {
-          return error_1(node, assign_simple_node->name);
-        }
-
-        const auto types_result =
-            this->compile_types(assign_simple_node->types);
-        if (types_result->error) {
-          return types_result;
-        }
-
-        if (!this->check_subjects(value_result->value, types_result->value)) {
-          return error_0(node, assign_simple_node->name, types_result->value,
-                         value_result->value);
-        }
-
-        this->set_local(assign_simple_node->name, types_result->value);
-
-        return success(types_result->value, js_assign_node);
-      }
+    if (const auto assign_simple_node =
+            dynamic_cast<mavka::ast::AssignSimpleNode*>(node)) {
+      return compile_assign_simple_node(this, assign_simple_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::BitwiseNode>(node)) {
-      const auto bitwise_node = dynamic_cast<mavka::ast::BitwiseNode*>(node);
-
-      const auto left_result = this->compile_node(bitwise_node->left);
-      if (left_result->error) {
-        return left_result;
-      }
-      const auto right_result = this->compile_node(bitwise_node->right);
-      if (right_result->error) {
-        return right_result;
-      }
-
-      const auto js_arithmetic_node = new jejalyk::js::JsArithmeticNode();
-
-      Result* result;
-      std::string magic_diia;
-      std::string m_diia_name;
-
-      if (bitwise_node->op == "^") {
-        result = left_result->value->bw_xor(this, node, right_result->value);
-        magic_diia = "чародія_вабо";
-        m_diia_name = "мВабо";
-      }
-      if (bitwise_node->op == "|") {
-        result = left_result->value->bw_or(this, node, right_result->value);
-        magic_diia = "чародія_ді";
-        m_diia_name = "мДі";
-      }
-      if (bitwise_node->op == "&") {
-        result = left_result->value->bw_and(this, node, right_result->value);
-        magic_diia = "чародія_дабо";
-        m_diia_name = "мДабо";
-      }
-      if (bitwise_node->op == "<<") {
-        result =
-            left_result->value->bw_shift_left(this, node, right_result->value);
-        magic_diia = "чародія_вліво";
-        m_diia_name = "мВліво";
-      }
-      if (bitwise_node->op == ">>") {
-        result =
-            left_result->value->bw_shift_right(this, node, right_result->value);
-        magic_diia = "чародія_вправо";
-        m_diia_name = "мВправо";
-      }
-
-      if (result != nullptr) {
-        if (result->error) {
-          return result;
-        }
-
-        if (left_result->value->is_number(this) &&
-            right_result->value->is_number(this)) {
-          js_arithmetic_node->left = left_result->js_node;
-          js_arithmetic_node->right = right_result->js_node;
-          js_arithmetic_node->op = bitwise_node->op;
-          return success(result->value, js_arithmetic_node);
-        }
-
-        if (left_result->value->has_diia(this, magic_diia)) {
-          const auto js_chain_node = new jejalyk::js::JsChainNode();
-          js_chain_node->left = left_result->js_node;
-          const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-          js_chain_node_right->name = magic_diia;
-          js_chain_node->right = js_chain_node_right;
-          const auto js_call_node = new jejalyk::js::JsCallNode();
-          js_call_node->value = js_chain_node;
-          js_call_node->arguments = {right_result->js_node};
-          result->js_node = js_call_node;
-          return success(result->value, js_chain_node);
-        } else {
-          const auto js_call_node = new jejalyk::js::JsCallNode();
-          const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-          js_id_node->name = m_diia_name;
-          js_call_node->value = js_id_node;
-          js_call_node->arguments = {left_result->js_node,
-                                     right_result->js_node};
-          return success(result->value, js_call_node);
-        }
-
-        return result;
-      }
-
-      return error_from_ast(node,
-                            "Невідома вказівка \"" + bitwise_node->op + "\".");
+    if (const auto bitwise_node =
+            dynamic_cast<mavka::ast::BitwiseNode*>(node)) {
+      return compile_bitwise_node(this, bitwise_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::BitwiseNotNode>(node)) {
-      const auto bitwise_not_node =
-          dynamic_cast<mavka::ast::BitwiseNotNode*>(node);
-
-      const auto value_result = this->compile_node(bitwise_not_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto result = value_result->value->bw_not(this, node);
-      if (result->error) {
-        return result;
-      }
-
-      if (value_result->value->is_number(this)) {
-        const auto js_negative_node = new jejalyk::js::JsNegativeNode();
-        js_negative_node->value = value_result->js_node;
-        result->js_node = js_negative_node;
-      } else if (value_result->value->has_diia(this, "чародія_дні")) {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_chain_node = new jejalyk::js::JsChainNode();
-        js_chain_node->left = value_result->js_node;
-        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-        js_chain_node_right->name = "чародія_дні";
-        js_chain_node->right = js_chain_node_right;
-        js_call_node->value = js_chain_node;
-        js_call_node->arguments = {};
-        result->js_node = js_call_node;
-      } else {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = "мДні";
-        js_call_node->value = js_id_node;
-        js_call_node->arguments = {value_result->js_node};
-        result->js_node = js_call_node;
-      }
-
-      return result;
+    if (const auto bitwise_not_node =
+            dynamic_cast<mavka::ast::BitwiseNotNode*>(node)) {
+      return compile_bitwise_not_node(this, bitwise_not_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::BreakNode>(node)) {
-      const auto break_node = dynamic_cast<mavka::ast::BreakNode*>(node);
-
-      if (!this->get_is_loop()) {
-        return error_from_ast(node,
-                              "Вказівка \"перервати\" може бути "
-                              "використана тільки всередині циклу.");
-      }
-
-      const auto js_break_node = new jejalyk::js::JsBreakNode();
-
-      return success(nullptr, js_break_node);
+    if (const auto break_node = dynamic_cast<mavka::ast::BreakNode*>(node)) {
+      return compile_break_node(this, break_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::CallNode>(node)) {
-      const auto call_node = dynamic_cast<mavka::ast::CallNode*>(node);
-
-      const auto value_result = this->compile_node(call_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      std::vector<Subject*> generic_types;
-      for (const auto& generic_type_nodes : call_node->generics) {
-        Subject* generic_subject = nullptr;
-        for (const auto type_value_single_node : generic_type_nodes) {
-          const auto type_value_single_result =
-              this->compile_node(type_value_single_node);
-          if (type_value_single_result->error) {
-            return type_value_single_result;
-          }
-          generic_subject = type_value_single_result->value;
-        }
-        generic_types.push_back(generic_subject);
-      }
-
-      std::vector<Subject*> args;
-      std::vector<jejalyk::js::JsNode*> js_args;
-      for (const auto arg_node : call_node->args) {
-        const auto arg_result = this->compile_node(arg_node->value);
-        if (arg_result->error) {
-          return arg_result;
-        }
-        args.push_back(arg_result->value);
-        js_args.push_back(arg_result->js_node);
-      }
-
-      const auto result =
-          value_result->value->call(this, call_node, generic_types, args);
-
-      if (value_result->value->is_diia(this)) {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        js_call_node->value = value_result->js_node;
-        js_call_node->arguments = js_args;
-
-        result->js_node = js_call_node;
-      } else {
-        const auto js_chain_node = new jejalyk::js::JsChainNode();
-        js_chain_node->left = value_result->js_node;
-        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-        js_chain_node_right->name = "чародія_викликати";
-        js_chain_node->right = js_chain_node_right;
-
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        js_call_node->value = js_chain_node;
-        js_call_node->arguments = js_args;
-
-        result->js_node = js_call_node;
-      }
-
-      return result;
+    if (const auto call_node = dynamic_cast<mavka::ast::CallNode*>(node)) {
+      return compile_call_node(this, call_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::ChainNode>(node)) {
-      const auto chain_node = dynamic_cast<mavka::ast::ChainNode*>(node);
-
-      if (jejalyk::tools::instance_of<mavka::ast::IdentifierNode>(
-              chain_node->right)) {
-        const auto left_result = this->compile_node(chain_node->left);
-        if (left_result->error) {
-          return left_result;
-        }
-
-        const auto right_identifier_node =
-            dynamic_cast<mavka::ast::IdentifierNode*>(chain_node->right);
-
-        if (!left_result->value->has(right_identifier_node->name)) {
-          return error_2(node, right_identifier_node->name, left_result->value);
-        }
-
-        const auto subject_result =
-            left_result->value->get(right_identifier_node->name);
-        if (subject_result->error) {
-          return subject_result;
-        }
-
-        const auto js_chain_node = new jejalyk::js::JsChainNode();
-        js_chain_node->left = left_result->js_node;
-        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-        js_chain_node_right->name = right_identifier_node->name;
-        js_chain_node->right = js_chain_node_right;
-
-        return success(subject_result->value, js_chain_node);
-      } else {
-        const auto get_element_node = new mavka::ast::GetElementNode();
-        get_element_node->start_line = chain_node->start_line;
-        get_element_node->start_column = chain_node->start_column;
-        get_element_node->end_line = chain_node->end_line;
-        get_element_node->end_column = chain_node->end_column;
-        get_element_node->value = chain_node->left;
-        get_element_node->index = chain_node->right;
-        return this->compile_node(get_element_node);
-      }
+    if (const auto chain_node = dynamic_cast<mavka::ast::ChainNode*>(node)) {
+      return compile_chain_node(this, chain_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::ComparisonNode>(node)) {
-      const auto comparison_node =
-          dynamic_cast<mavka::ast::ComparisonNode*>(node);
-
-      const auto left_result = this->compile_node(comparison_node->left);
-      if (left_result->error) {
-        return left_result;
-      }
-      const auto right_result = this->compile_node(comparison_node->right);
-      if (right_result->error) {
-        return right_result;
-      }
-
-      Result* result;
-      std::string magic_diia;
-      std::string js_comp_symbol;
-      std::string m_diia_name;
-
-      if (comparison_node->op == "==" || comparison_node->op == "рівно") {
-        result = left_result->value->comp_eq(this, node, right_result->value);
-        magic_diia = "чародія_рівно";
-        js_comp_symbol = "==";
-        m_diia_name = "мРівн";
-      }
-      if (comparison_node->op == "!=" || comparison_node->op == "не рівно") {
-        result =
-            left_result->value->comp_not_eq(this, node, right_result->value);
-        magic_diia = "чародія_не_рівно";
-        js_comp_symbol = "!=";
-        m_diia_name = "мНеРівн";
-      }
-      if (comparison_node->op == ">" || comparison_node->op == "більше") {
-        result =
-            left_result->value->comp_greater(this, node, right_result->value);
-        magic_diia = "чародія_більше";
-        js_comp_symbol = ">";
-        m_diia_name = "мБілш";
-      }
-      if (comparison_node->op == "<" || comparison_node->op == "менше") {
-        result =
-            left_result->value->comp_lesser(this, node, right_result->value);
-        magic_diia = "чародія_менше";
-        js_comp_symbol = "<";
-        m_diia_name = "мМенш";
-      }
-      if (comparison_node->op == ">=" || comparison_node->op == "не менше") {
-        result = left_result->value->comp_greater_or_eq(this, node,
-                                                        right_result->value);
-        magic_diia = "чародія_не_менше";
-        js_comp_symbol = ">=";
-        m_diia_name = "мНеМенш";
-      }
-      if (comparison_node->op == "<=" || comparison_node->op == "не більше") {
-        result = left_result->value->comp_lesser_or_eq(this, node,
-                                                       right_result->value);
-        magic_diia = "чародія_не_більше";
-        js_comp_symbol = "<=";
-        m_diia_name = "мНеБілш";
-      }
-      if (comparison_node->op == "є") {
-        result = left_result->value->comp_is(this, node, right_result->value);
-        magic_diia = "чародія_є";
-        m_diia_name = "мЄ";
-      }
-      if (comparison_node->op == "не є") {
-        result =
-            left_result->value->comp_is_not(this, node, right_result->value);
-        magic_diia = "чародія_не_є";
-        m_diia_name = "мНеЄ";
-      }
-      if (comparison_node->op == "містить") {
-        result =
-            left_result->value->comp_contains(this, node, right_result->value);
-        magic_diia = "чародія_містить";
-        m_diia_name = "мМістить";
-      }
-      if (comparison_node->op == "не містить") {
-        result = left_result->value->comp_contains_not(this, node,
-                                                       right_result->value);
-        magic_diia = "чародія_не_містить";
-        m_diia_name = "мНеМістить";
-      }
-
-      if (result != nullptr) {
-        if (result->error) {
-          return result;
-        }
-
-        if (magic_diia == "чародія_рівно") {
-          const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
-          js_comparison_node->left = left_result->js_node;
-          js_comparison_node->right = right_result->js_node;
-          js_comparison_node->op = "==";
-          return success(result->value, js_comparison_node);
-        }
-
-        if (magic_diia == "чародія_не_рівно") {
-          const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
-          js_comparison_node->left = left_result->js_node;
-          js_comparison_node->right = right_result->js_node;
-          js_comparison_node->op = "!=";
-          return success(result->value, js_comparison_node);
-        }
-
-        if (magic_diia == "чародія_є") {
-          const auto js_call_node = new jejalyk::js::JsCallNode();
-          const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-          js_call_id_node->name = "мЄ";
-          js_call_node->value = js_call_id_node;
-          js_call_node->arguments = {left_result->js_node,
-                                     right_result->js_node};
-          return success(result->value, js_call_node);
-        }
-
-        if (magic_diia == "чародія_не_є") {
-          const auto js_call_node = new jejalyk::js::JsCallNode();
-          const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-          js_call_id_node->name = "мЄ";
-          js_call_node->value = js_call_id_node;
-          js_call_node->arguments = {left_result->js_node,
-                                     right_result->js_node};
-          const auto js_not_node = new jejalyk::js::JsNotNode();
-          js_not_node->value = js_call_node;
-          return success(result->value, js_not_node);
-        }
-
-        if (left_result->value->is_number(this) &&
-            right_result->value->is_number(this)) {
-          if (js_comp_symbol.empty()) {
-            return error_from_ast(node, "[INTERNAL BUG] Невідома вказівка \"" +
-                                            comparison_node->op + "\".");
-          }
-          const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
-          js_comparison_node->left = left_result->js_node;
-          js_comparison_node->right = right_result->js_node;
-          js_comparison_node->op = js_comp_symbol;
-          return success(result->value, js_comparison_node);
-        }
-
-        if (left_result->value->has_diia(this, magic_diia)) {
-          const auto js_chain_node = new jejalyk::js::JsChainNode();
-          js_chain_node->left = left_result->js_node;
-          const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-          js_chain_node_right->name = magic_diia;
-          js_chain_node->right = js_chain_node_right;
-          const auto js_call_node = new jejalyk::js::JsCallNode();
-          js_call_node->value = js_chain_node;
-          js_call_node->arguments = {right_result->js_node};
-          result->js_node = js_call_node;
-          return success(result->value, js_chain_node);
-        } else {
-          const auto js_call_node = new jejalyk::js::JsCallNode();
-          const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-          js_id_node->name = m_diia_name;
-          js_call_node->value = js_id_node;
-          js_call_node->arguments = {left_result->js_node,
-                                     right_result->js_node};
-          return success(result->value, js_call_node);
-        }
-
-        return result;
-      }
-
-      return error_from_ast(
-          node, "Невідома вказівка \"" + comparison_node->op + "\".");
+    if (const auto comparison_node =
+            dynamic_cast<mavka::ast::ComparisonNode*>(node)) {
+      return compile_comparison_node(this, comparison_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::ContinueNode>(node)) {
-      const auto continue_node = dynamic_cast<mavka::ast::ContinueNode*>(node);
-
-      if (!this->get_is_loop()) {
-        return error_from_ast(node,
-                              "Вказівка \"продовжити\" може бути "
-                              "використана тільки всередині циклу.");
-      }
-
-      const auto js_continue_node = new jejalyk::js::JsContinueNode();
-
-      return success(nullptr, js_continue_node);
+    if (const auto continue_node =
+            dynamic_cast<mavka::ast::ContinueNode*>(node)) {
+      return compile_continue_node(this, continue_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::DictionaryNode>(node)) {
-      const auto dictionary_node =
-          dynamic_cast<mavka::ast::DictionaryNode*>(node);
-      const auto dictionary_structure = this->get_root()->get("словник");
-
-      const auto js_map_node = new jejalyk::js::JsMapNode();
-
-      const auto key_types = new Subject();
-      const auto value_types = new Subject();
-
-      for (const auto element : dictionary_node->elements) {
-        const auto element_key_result = this->compile_node(element->key);
-        if (element_key_result->error) {
-          return element_key_result;
-        }
-        for (const auto type : element_key_result->value->types) {
-          key_types->add_type(type);
-        }
-
-        const auto element_value_result = this->compile_node(element->value);
-        if (element_value_result->error) {
-          return element_value_result;
-        }
-        for (const auto type : element_value_result->value->types) {
-          value_types->add_type(type);
-        }
-
-        const auto js_map_element_node = new jejalyk::js::JsMapElementNode();
-        js_map_element_node->key = element_key_result->js_node;
-        js_map_element_node->value = element_value_result->js_node;
-
-        js_map_node->elements.push_back(js_map_element_node);
-      }
-
-      const auto dictionary_result = dictionary_structure->create_instance(
-          this, {this->create_object_instance_subject(),
-                 this->create_object_instance_subject()});
-
-      dictionary_result->js_node = js_map_node;
-
-      return dictionary_result;
+    if (const auto dictionary_node =
+            dynamic_cast<mavka::ast::DictionaryNode*>(node)) {
+      return compile_dictionary_node(this, dictionary_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::DiiaNode>(node)) {
-      const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node);
-      const auto diia_scope = this->make_child();
-      const auto diia_compilation_result = this->compile_diia(
-          diia_scope, diia_node->async, diia_node->name, diia_node->generics,
-          diia_node->params, diia_node->return_types, &diia_node->body);
-      if (diia_compilation_result->error) {
-        return diia_compilation_result;
-      }
-      // todo: handle structure
-      this->set_local(diia_node->name, diia_compilation_result->value);
-      return diia_compilation_result;
+    if (const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node)) {
+      return compile_diia_node(this, diia_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::EachNode>(node)) {
-      const auto each_node = dynamic_cast<mavka::ast::EachNode*>(node);
-
-      const auto value_result = this->compile_node(each_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto loop_scope = this->make_proxy();
-      loop_scope->is_loop = true;
-
-      loop_scope->increment_iterator_count();
-      const auto iterator_count = loop_scope->get_iterator_count();
-      const auto iterator_name = "_мit_" + std::to_string(iterator_count);
-
-      if (each_node->keyName.empty()) {
-        if (this->has_local(each_node->name)) {
-          return error_1(node, each_node->name);
-        }
-        if (value_result->value->is_iterator(this)) {
-          const auto iterator_type_result =
-              value_result->value->get_iterator_type(this, each_node->value);
-          if (iterator_type_result->error) {
-            return iterator_type_result;
-          }
-          this->set_local(each_node->name, iterator_type_result->value);
-          this->put_additional_node_before(jejalyk::js::var(iterator_name));
-
-          const auto compiled_body = loop_scope->compile_body(each_node->body);
-          if (compiled_body->error) {
-            return compiled_body;
-          }
-
-          const auto js_for_node = new jejalyk::js::JsForNode();
-          const auto js_initial_assign = new jejalyk::js::JsAssignNode();
-          js_initial_assign->identifier = jejalyk::js::id(iterator_name);
-          js_initial_assign->value = value_result->js_node;
-          js_for_node->init = js_initial_assign;
-
-          const auto js_condition_chain = new jejalyk::js::JsChainNode();
-          js_condition_chain->left = jejalyk::js::id(iterator_name);
-          js_condition_chain->right = jejalyk::js::id("завершено");
-          const auto js_condition_not_node = new jejalyk::js::JsNotNode();
-          js_condition_not_node->value = js_condition_chain;
-          js_for_node->condition = js_condition_not_node;
-
-          const auto js_next_chain = new jejalyk::js::JsChainNode();
-          js_next_chain->left = jejalyk::js::id(iterator_name);
-          js_next_chain->right = jejalyk::js::id("далі");
-          const auto js_next_call_node = new jejalyk::js::JsCallNode();
-          js_next_call_node->value = js_next_chain;
-          js_for_node->update = js_next_call_node;
-
-          js_for_node->body = compiled_body->js_body;
-          const auto js_name_assign_node = new jejalyk::js::JsAssignNode();
-          js_name_assign_node->identifier = jejalyk::js::id(each_node->name);
-          const auto js_name_assign_node_chain = new jejalyk::js::JsChainNode();
-          js_name_assign_node_chain->left = jejalyk::js::id(iterator_name);
-          js_name_assign_node_chain->right = jejalyk::js::id("значення");
-          js_name_assign_node->value = js_name_assign_node_chain;
-          js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
-                                          js_name_assign_node);
-          js_for_node->cleanup = new jejalyk::js::JsBody();
-          const auto js_cleanup_iterator_assign =
-              new jejalyk::js::JsAssignNode();
-          js_cleanup_iterator_assign->identifier =
-              jejalyk::js::id(iterator_name);
-          js_cleanup_iterator_assign->value = jejalyk::js::id("undefined");
-          js_for_node->cleanup->nodes.push_back(js_cleanup_iterator_assign);
-
-          return success(nullptr, js_for_node);
-        } else if (value_result->value->has("чародія_перебір")) {
-          const auto iterator_diia_type_result =
-              value_result->value->get("чародія_перебір");
-          if (iterator_diia_type_result->error) {
-            return iterator_diia_type_result;
-          }
-          const auto iterator_diia_return_types =
-              iterator_diia_type_result->value->call(this, each_node->value, {},
-                                                     {});
-          if (iterator_diia_return_types->value->is_iterator(this)) {
-            const auto iterator_type_result =
-                iterator_diia_return_types->value->get_iterator_type(
-                    this, each_node->value);
-            if (iterator_type_result->error) {
-              return iterator_type_result;
-            }
-            this->set_local(each_node->name, iterator_type_result->value);
-            this->put_additional_node_before(jejalyk::js::var(iterator_name));
-
-            const auto compiled_body =
-                loop_scope->compile_body(each_node->body);
-            if (compiled_body->error) {
-              return compiled_body;
-            }
-
-            const auto js_for_node = new jejalyk::js::JsForNode();
-            const auto js_initial_assign = new jejalyk::js::JsAssignNode();
-            js_initial_assign->identifier = jejalyk::js::id(iterator_name);
-            const auto js_initial_assign_call_chain =
-                new jejalyk::js::JsChainNode();
-            js_initial_assign_call_chain->left = value_result->js_node;
-            js_initial_assign_call_chain->right =
-                jejalyk::js::id("чародія_перебір");
-            const auto js_initial_assign_call = new jejalyk::js::JsCallNode();
-            js_initial_assign_call->value = js_initial_assign_call_chain;
-            js_initial_assign->value = js_initial_assign_call;
-            js_for_node->init = js_initial_assign;
-
-            const auto js_condition_chain = new jejalyk::js::JsChainNode();
-            js_condition_chain->left = jejalyk::js::id(iterator_name);
-            js_condition_chain->right = jejalyk::js::id("завершено");
-            const auto js_condition_not_node = new jejalyk::js::JsNotNode();
-            js_condition_not_node->value = js_condition_chain;
-            js_for_node->condition = js_condition_not_node;
-
-            const auto js_next_chain = new jejalyk::js::JsChainNode();
-            js_next_chain->left = jejalyk::js::id(iterator_name);
-            js_next_chain->right = jejalyk::js::id("далі");
-            const auto js_next_call_node = new jejalyk::js::JsCallNode();
-            js_next_call_node->value = js_next_chain;
-            js_for_node->update = js_next_call_node;
-
-            js_for_node->body = compiled_body->js_body;
-            const auto js_name_assign_node = new jejalyk::js::JsAssignNode();
-            js_name_assign_node->identifier = jejalyk::js::id(each_node->name);
-            const auto js_name_assign_node_chain =
-                new jejalyk::js::JsChainNode();
-            js_name_assign_node_chain->left = jejalyk::js::id(iterator_name);
-            js_name_assign_node_chain->right = jejalyk::js::id("значення");
-            js_name_assign_node->value = js_name_assign_node_chain;
-            js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
-                                            js_name_assign_node);
-            js_for_node->cleanup = new jejalyk::js::JsBody();
-            const auto js_cleanup_iterator_assign =
-                new jejalyk::js::JsAssignNode();
-            js_cleanup_iterator_assign->identifier =
-                jejalyk::js::id(iterator_name);
-            js_cleanup_iterator_assign->value = jejalyk::js::id("undefined");
-            js_for_node->cleanup->nodes.push_back(js_cleanup_iterator_assign);
-
-            return success(nullptr, js_for_node);
-          } else {
-            return error_from_ast(
-                node, "Неможливо перебрати \"" +
-                          value_result->value->types_string() + "\".");
-          }
-        } else {
-          return error_from_ast(node, "Неможливо перебрати \"" +
-                                          value_result->value->types_string() +
-                                          "\".");
-        }
-      } else {
-        if (this->has_local(each_node->name)) {
-          return error_1(node, each_node->name);
-        }
-        if (this->has_local(each_node->keyName)) {
-          return error_1(node, each_node->keyName);
-        }
-        return error_from_ast(node, "Перебір з ключем тимчасово недоступний.");
-      }
-
-      return success(nullptr);
+    if (const auto each_node = dynamic_cast<mavka::ast::EachNode*>(node)) {
+      return compile_each_node(this, each_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::EvalNode>(node)) {
-      const auto eval_node = dynamic_cast<mavka::ast::EvalNode*>(node);
-      std::cout << "EvalNode" << std::endl;
+    if (const auto eval_node = dynamic_cast<mavka::ast::EvalNode*>(node)) {
+      return compile_eval_node(this, eval_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::FromToComplexNode>(node)) {
-      const auto from_to_complex_node =
-          dynamic_cast<mavka::ast::FromToComplexNode*>(node);
-      const auto iterator_structure_subject = this->get_root()->get("перебір");
-      const auto number_structure_subject = this->get_root()->get("число");
-      const auto number_instance_result =
-          number_structure_subject->create_instance(this, {});
-      if (number_instance_result->error) {
-        return number_instance_result;
-      }
-      const auto iterator_instance_result =
-          iterator_structure_subject->create_instance(
-              this, {number_instance_result->value});
-      if (iterator_instance_result->error) {
-        return iterator_instance_result;
-      }
-      return iterator_instance_result;
+    if (const auto from_to_complex_node =
+            dynamic_cast<mavka::ast::FromToComplexNode*>(node)) {
+      return compile_from_to_complex_node(this, from_to_complex_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::FromToSimpleNode>(node)) {
-      const auto from_to_simple_node =
-          dynamic_cast<mavka::ast::FromToSimpleNode*>(node);
-      const auto iterator_structure_subject = this->get_root()->get("перебір");
-      const auto number_structure_subject = this->get_root()->get("число");
-      const auto number_instance_result =
-          number_structure_subject->create_instance(this, {});
-      if (number_instance_result->error) {
-        return number_instance_result;
-      }
-      const auto iterator_instance_result =
-          iterator_structure_subject->create_instance(
-              this, {number_instance_result->value});
-      if (iterator_instance_result->error) {
-        return iterator_instance_result;
-      }
-      return iterator_instance_result;
+    if (const auto from_to_simple_node =
+            dynamic_cast<mavka::ast::FromToSimpleNode*>(node)) {
+      return compile_from_to_simple_node(this, from_to_simple_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::FunctionNode>(node)) {
-      const auto function_node = dynamic_cast<mavka::ast::FunctionNode*>(node);
-      const auto diia_scope = this->make_child();
-      return this->compile_diia(
-          diia_scope, function_node->async, "", {}, function_node->params,
-          function_node->return_types, &function_node->body);
+    if (const auto function_node =
+            dynamic_cast<mavka::ast::FunctionNode*>(node)) {
+      return compile_function_node(this, function_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::GetElementNode>(node)) {
-      const auto get_element_node =
-          dynamic_cast<mavka::ast::GetElementNode*>(node);
-
-      const auto value_result = this->compile_node(get_element_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto index_result = this->compile_node(get_element_node->index);
-      if (index_result->error) {
-        return index_result;
-      }
-
-      const auto result =
-          value_result->value->get_element(this, node, index_result->value);
-      if (result->error) {
-        return result;
-      }
-
-      if (value_result->value->is_array(this)) {
-        const auto js_access_node = new jejalyk::js::JsAccessNode();
-        js_access_node->value = value_result->js_node;
-        js_access_node->index = index_result->js_node;
-        result->js_node = js_access_node;
-      } else if (value_result->value->has_diia(this, "чародія_отримати")) {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_chain_node = new jejalyk::js::JsChainNode();
-        js_chain_node->left = value_result->js_node;
-        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-        js_chain_node_right->name = "чародія_отримати";
-        js_chain_node->right = js_chain_node_right;
-        js_call_node->value = js_chain_node;
-        js_call_node->arguments = {index_result->js_node};
-        result->js_node = js_call_node;
-      } else {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = "мОтрЕ";
-        js_call_node->value = js_id_node;
-        js_call_node->arguments = {value_result->js_node,
-                                   index_result->js_node};
-        result->js_node = js_call_node;
-      }
-
-      return result;
+    if (const auto get_element_node =
+            dynamic_cast<mavka::ast::GetElementNode*>(node)) {
+      return compile_get_element_node(this, get_element_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::GiveNode>(node)) {
-      const auto give_node = dynamic_cast<mavka::ast::GiveNode*>(node);
-
-      const auto module_object = this->get_module_object();
-      if (module_object == nullptr) {
-        return error_from_ast(node, "Вказівка \"дати\" працює лише в модулі.");
-      }
-
-      for (const auto element_node : give_node->elements) {
-        if (this->has_local(element_node->name)) {
-          const auto subject = this->get_local(element_node->name);
-          if (element_node->as.empty()) {
-            module_object->properties.insert_or_assign(element_node->name,
-                                                       subject);
-          } else {
-            module_object->properties.insert_or_assign(element_node->as,
-                                                       subject);
-          }
-        } else {
-          return error_from_ast(node, "Невідомий субʼєкт для давання \"" +
-                                          element_node->name + "\".");
-        }
-      }
-
-      return success(nullptr);
+    if (const auto give_node = dynamic_cast<mavka::ast::GiveNode*>(node)) {
+      return compile_give_node(this, give_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::GodNode>(node)) {
-      const auto god_node = dynamic_cast<mavka::ast::GodNode*>(node);
-      std::cout << "GodNode" << std::endl;
+    if (const auto god_node = dynamic_cast<mavka::ast::GodNode*>(node)) {
+      return compile_god_node(this, god_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::IdentifierNode>(node)) {
-      const auto identifier_node =
-          dynamic_cast<mavka::ast::IdentifierNode*>(node);
-      if (!this->has(identifier_node->name)) {
-        return error_from_ast(
-            node, "Субʼєкт \"" + identifier_node->name + "\" не визначено.");
-      }
-      const auto subject = this->get(identifier_node->name);
-      debug_print_got_from_scope(this, identifier_node->name, subject);
-      const auto js_identifier_node = new jejalyk::js::JsIdentifierNode();
-      js_identifier_node->name = identifier_node->name;
-      return success(subject, js_identifier_node);
+    if (const auto identifier_node =
+            dynamic_cast<mavka::ast::IdentifierNode*>(node)) {
+      return compile_identifier_node(this, identifier_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::IfNode>(node)) {
-      const auto if_node = dynamic_cast<mavka::ast::IfNode*>(node);
-
-      const auto condition_result = this->compile_node(if_node->condition);
-      if (condition_result->error) {
-        return condition_result;
-      }
-      const auto body_result = this->compile_body(if_node->body);
-      if (body_result->error) {
-        return body_result;
-      }
-
-      const auto else_body_result = this->compile_body(if_node->else_body);
-      if (else_body_result->error) {
-        return else_body_result;
-      }
-
-      const auto js_if_node = new jejalyk::js::JsIfNode();
-      js_if_node->condition = condition_result->js_node;
-      js_if_node->body = body_result->js_body;
-      js_if_node->else_body = else_body_result->js_body;
-      std::cout << "watafak " << if_node->else_body.size() << std::endl;
-
-      return success(nullptr, js_if_node);
+    if (const auto if_node = dynamic_cast<mavka::ast::IfNode*>(node)) {
+      return compile_if_node(this, if_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::MethodDeclarationNode>(node)) {
-      const auto method_declaration_node =
-          dynamic_cast<mavka::ast::MethodDeclarationNode*>(node);
-      const auto diia_scope = this->make_child();
-      return this->compile_diia(diia_scope, method_declaration_node->async,
-                                method_declaration_node->name,
-                                method_declaration_node->generics,
-                                method_declaration_node->params,
-                                method_declaration_node->return_types, nullptr);
+    if (const auto method_declaration_node =
+            dynamic_cast<mavka::ast::MethodDeclarationNode*>(node)) {
+      return compile_method_declaration_node(this, method_declaration_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::MMLNode>(node)) {
-      const auto mml_node = dynamic_cast<mavka::ast::MMLNode*>(node);
-      return error_from_ast(node, "МРМ тимчасово недоступна.");
+    if (const auto mml_node = dynamic_cast<mavka::ast::MMLNode*>(node)) {
+      return compile_mml_node(this, mml_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::MockupDiiaNode>(node)) {
-      const auto mockup_diia_node =
-          dynamic_cast<mavka::ast::MockupDiiaNode*>(node);
-      const auto diia_scope = this->make_child();
-      const auto diia_compilation_result = this->compile_diia(
-          diia_scope, mockup_diia_node->async, mockup_diia_node->name,
-          mockup_diia_node->generics, mockup_diia_node->params,
-          mockup_diia_node->return_types, nullptr);
-      if (diia_compilation_result->error) {
-        return diia_compilation_result;
-      }
-      // todo: handle structure
-      this->set_local(mockup_diia_node->name, diia_compilation_result->value);
-      return success(diia_compilation_result->value,
-                     new jejalyk::js::JsEmptyNode());
+    if (const auto mockup_diia_node =
+            dynamic_cast<mavka::ast::MockupDiiaNode*>(node)) {
+      return compile_mockup_diia_node(this, mockup_diia_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::MockupModuleNode>(node)) {
-      const auto mockup_module_node =
-          dynamic_cast<mavka::ast::MockupModuleNode*>(node);
-      if (!this->get_is_async()) {
-        return error_from_ast(
-            node, "Модуль може бути визначений лише всередині іншого модуля.");
-      }
-      const auto module_compilation_result = this->compile_module(
-          mockup_module_node->name, &mockup_module_node->elements);
-      if (module_compilation_result->error) {
-        return module_compilation_result;
-      }
-      this->set_local(mockup_module_node->name,
-                      module_compilation_result->value);
-      return success(module_compilation_result->value,
-                     new jejalyk::js::JsEmptyNode());
+    if (const auto mockup_module_node =
+            dynamic_cast<mavka::ast::MockupModuleNode*>(node)) {
+      return compile_mockup_module_node(this, mockup_module_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::MockupStructureNode>(node)) {
-      const auto mockup_structure_node =
-          dynamic_cast<mavka::ast::MockupStructureNode*>(node);
-      const auto structure_compilation_result = this->compile_structure(
-          mockup_structure_node->name, mockup_structure_node->generics, "", {},
-          mockup_structure_node->params, mockup_structure_node->methods);
-      if (structure_compilation_result->error) {
-        return structure_compilation_result;
-      }
-      this->set_local(mockup_structure_node->name,
-                      structure_compilation_result->value);
-      return success(structure_compilation_result->value,
-                     new jejalyk::js::JsEmptyNode());
+    if (const auto mockup_structure_node =
+            dynamic_cast<mavka::ast::MockupStructureNode*>(node)) {
+      return compile_mockup_structure_node(this, mockup_structure_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::MockupSubjectNode>(node)) {
-      const auto mockup_subject_node =
-          dynamic_cast<mavka::ast::MockupSubjectNode*>(node);
-
-      if (this->has_local(mockup_subject_node->name)) {
-        return error_from_ast(node, "Субʼєкт \"" + mockup_subject_node->name +
-                                        "\" вже визначено.");
-      }
-
-      const auto types_result = this->compile_types(mockup_subject_node->types);
-      if (types_result->error) {
-        return types_result;
-      }
-
-      this->set_local(mockup_subject_node->name, types_result->value);
-
-      return success(types_result->value, new jejalyk::js::JsEmptyNode());
+    if (const auto mockup_subject_node =
+            dynamic_cast<mavka::ast::MockupSubjectNode*>(node)) {
+      return compile_mockup_subject_node(this, mockup_subject_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::ModuleNode>(node)) {
-      const auto module_node = dynamic_cast<mavka::ast::ModuleNode*>(node);
-      if (!this->get_is_async()) {
-        return error_from_ast(
-            node, "Модуль може бути визначений лише всередині іншого модуля.");
-      }
-      const auto module_compilation_result =
-          this->compile_module(module_node->name, &module_node->body);
-      if (module_compilation_result->error) {
-        return module_compilation_result;
-      }
-      this->set_local(module_node->name, module_compilation_result->value);
-      return module_compilation_result;
+    if (const auto module_node = dynamic_cast<mavka::ast::ModuleNode*>(node)) {
+      return compile_module_node(this, module_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::NegativeNode>(node)) {
-      const auto negative_node = dynamic_cast<mavka::ast::NegativeNode*>(node);
-
-      const auto value_result = this->compile_node(negative_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto result = value_result->value->negative(this, node);
-      if (result->error) {
-        return result;
-      }
-
-      if (value_result->value->is_number(this)) {
-        const auto js_negative_node = new jejalyk::js::JsNegativeNode();
-        js_negative_node->value = value_result->js_node;
-        result->js_node = js_negative_node;
-      } else if (value_result->value->has_diia(this, "чародія_відʼємне")) {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_chain_node = new jejalyk::js::JsChainNode();
-        js_chain_node->left = value_result->js_node;
-        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-        js_chain_node_right->name = "чародія_відʼємне";
-        js_chain_node->right = js_chain_node_right;
-        js_call_node->value = js_chain_node;
-        js_call_node->arguments = {};
-        result->js_node = js_call_node;
-      } else {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = "мНегт";
-        js_call_node->value = js_id_node;
-        js_call_node->arguments = {value_result->js_node};
-        result->js_node = js_call_node;
-      }
-
-      return result;
+    if (const auto negative_node =
+            dynamic_cast<mavka::ast::NegativeNode*>(node)) {
+      return compile_negative_node(this, negative_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::NotNode>(node)) {
-      const auto not_node = dynamic_cast<mavka::ast::NotNode*>(node);
-
-      const auto value_result = this->compile_node(not_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto logical_structure_subject = this->get_root()->get("логічне");
-      const auto logical_instance_result =
-          logical_structure_subject->create_instance(this, {});
-      if (logical_instance_result->error) {
-        return logical_instance_result;
-      }
-
-      const auto js_not_node = new jejalyk::js::JsNotNode();
-      js_not_node->value = value_result->js_node;
-      logical_instance_result->js_node = js_not_node;
-
-      return logical_instance_result;
+    if (const auto not_node = dynamic_cast<mavka::ast::NotNode*>(node)) {
+      return compile_not_node(this, not_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::NumberNode>(node)) {
-      const auto number_node = dynamic_cast<mavka::ast::NumberNode*>(node);
-      const auto number_structure = this->get_root()->get("число");
-      const auto number_result = number_structure->create_instance(this, {});
-      const auto js_number_node = new jejalyk::js::JsNumberNode();
-      js_number_node->value = number_node->value;
-      return success(number_result->value, js_number_node);
+    if (const auto number_node = dynamic_cast<mavka::ast::NumberNode*>(node)) {
+      return compile_number_node(this, number_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::PositiveNode>(node)) {
-      const auto positive_node = dynamic_cast<mavka::ast::PositiveNode*>(node);
-
-      const auto value_result = this->compile_node(positive_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto result = value_result->value->positive(this, node);
-      if (result->error) {
-        return result;
-      }
-
-      if (value_result->value->is_number(this)) {
-        const auto js_negative_node = new jejalyk::js::JsPositiveNode();
-        js_negative_node->value = value_result->js_node;
-        result->js_node = js_negative_node;
-      } else if (value_result->value->has_diia(this, "чародія_додатнє")) {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_chain_node = new jejalyk::js::JsChainNode();
-        js_chain_node->left = value_result->js_node;
-        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-        js_chain_node_right->name = "чародія_додатнє";
-        js_chain_node->right = js_chain_node_right;
-        js_call_node->value = js_chain_node;
-        js_call_node->arguments = {};
-        result->js_node = js_call_node;
-      } else {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = "мПозт";
-        js_call_node->value = js_id_node;
-        js_call_node->arguments = {value_result->js_node};
-        result->js_node = js_call_node;
-      }
-
-      return result;
+    if (const auto positive_node =
+            dynamic_cast<mavka::ast::PositiveNode*>(node)) {
+      return compile_positive_node(this, positive_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::PostDecrementNode>(node)) {
-      const auto post_decrement_node =
-          dynamic_cast<mavka::ast::PostDecrementNode*>(node);
-
-      return error_from_ast(node,
-                            "Постфіксний декремент тимчасово недоступний.");
+    if (const auto post_decrement_node =
+            dynamic_cast<mavka::ast::PostDecrementNode*>(node)) {
+      return compile_post_decrement_node(this, post_decrement_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::PostIncrementNode>(node)) {
-      const auto post_increment_node =
-          dynamic_cast<mavka::ast::PostIncrementNode*>(node);
-
-      return error_from_ast(node,
-                            "Постфіксний інкремент тимчасово недоступний.");
+    if (const auto post_increment_node =
+            dynamic_cast<mavka::ast::PostIncrementNode*>(node)) {
+      return compile_post_increment_node(this, post_increment_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::PreDecrementNode>(node)) {
-      const auto pre_decrement_node =
-          dynamic_cast<mavka::ast::PreDecrementNode*>(node);
-
-      return error_from_ast(node,
-                            "Префіксний декремент тимчасово недоступний.");
-
-      const auto value_result = this->compile_node(pre_decrement_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      return value_result->value->pre_decrement(this, node);
+    if (const auto pre_decrement_node =
+            dynamic_cast<mavka::ast::PreDecrementNode*>(node)) {
+      return compile_pre_decrement_node(this, pre_decrement_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::PreIncrementNode>(node)) {
-      const auto pre_increment_node =
-          dynamic_cast<mavka::ast::PreIncrementNode*>(node);
-
-      return error_from_ast(node,
-                            "Префіксний інкремент тимчасово недоступний.");
+    if (const auto pre_increment_node =
+            dynamic_cast<mavka::ast::PreIncrementNode*>(node)) {
+      return compile_pre_increment_node(this, pre_increment_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::ReturnNode>(node)) {
-      const auto return_node = dynamic_cast<mavka::ast::ReturnNode*>(node);
-
-      const auto value_result = this->compile_node(return_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto diia_object = this->get_diia_object();
-      if (!diia_object) {
-        return error_from_ast(node, "Неможливо вернути за межами дії.");
-      }
-
-      Subject* return_types = nullptr;
-      if (diia_object->is_diia_async) {
-        const auto awaiting_value =
-            diia_object->return_types->get_awaiting_value(this, node);
-        if (awaiting_value->error) {
-          return awaiting_value;
-        }
-        return_types = awaiting_value->value;
-      } else {
-        return_types = diia_object->return_types;
-      }
-
-      if (!this->check_subjects(value_result->value, return_types)) {
-        return error_from_ast(
-            node, "Неправильний тип поверненого значення: очікується \"" +
-                      return_types->types_string() + "\", отримано \"" +
-                      value_result->value->types_string() + "\".");
-      }
-
-      const auto js_return_node = new jejalyk::js::JsReturnNode();
-      js_return_node->value = value_result->js_node;
-
-      value_result->js_node = js_return_node;
-
-      return value_result;
+    if (const auto return_node = dynamic_cast<mavka::ast::ReturnNode*>(node)) {
+      return compile_return_node(this, return_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::StringNode>(node)) {
-      const auto string_node = dynamic_cast<mavka::ast::StringNode*>(node);
-      // todo: interpolate
-      const auto string_structure = this->get("текст");
-      const auto string_result = string_structure->create_instance(this, {});
-      const auto js_string_node = new jejalyk::js::JsStringNode();
-      js_string_node->value = string_node->value;
-      return success(string_result->value, js_string_node);
+    if (const auto string_node = dynamic_cast<mavka::ast::StringNode*>(node)) {
+      return compile_string_node(this, string_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::StructureNode>(node)) {
-      const auto structure_node =
-          dynamic_cast<mavka::ast::StructureNode*>(node);
-      const auto structure_compilation_result = this->compile_structure(
-          structure_node->name, structure_node->generics, "", {},
-          structure_node->params, structure_node->methods);
-      if (structure_compilation_result->error) {
-        return structure_compilation_result;
-      }
-      this->set_local(structure_node->name,
-                      structure_compilation_result->value);
-      return structure_compilation_result;
+    if (const auto structure_node =
+            dynamic_cast<mavka::ast::StructureNode*>(node)) {
+      return compile_structure_node(this, structure_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::TakeModuleNode>(node)) {
-      const auto take_module_node =
-          dynamic_cast<mavka::ast::TakeModuleNode*>(node);
-      std::cout << "TakeModuleNode" << std::endl;
+    if (const auto take_module_node =
+            dynamic_cast<mavka::ast::TakeModuleNode*>(node)) {
+      return compile_take_module_node(this, take_module_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::TakePakNode>(node)) {
-      const auto take_pak_node = dynamic_cast<mavka::ast::TakePakNode*>(node);
-      std::cout << "TakePakNode" << std::endl;
+    if (const auto take_pak_node =
+            dynamic_cast<mavka::ast::TakePakNode*>(node)) {
+      return compile_take_pak_node(this, take_pak_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::TernaryNode>(node)) {
-      const auto ternary_node = dynamic_cast<mavka::ast::TernaryNode*>(node);
-
-      const auto condition_result = this->compile_node(ternary_node->condition);
-      if (condition_result->error) {
-        return condition_result;
-      }
-
-      const auto result =
-          this->compile_nodes({ternary_node->body, ternary_node->else_body});
-      if (result->error) {
-        return result;
-      }
-
-      const auto js_ternary_node = new jejalyk::js::JsTernaryNode();
-      js_ternary_node->condition = condition_result->js_node;
-      js_ternary_node->true_value = result->js_body->nodes[0];
-      js_ternary_node->false_value = result->js_body->nodes[1];
-
-      result->js_node = js_ternary_node;
-
-      return result;
+    if (const auto ternary_node =
+            dynamic_cast<mavka::ast::TernaryNode*>(node)) {
+      return compile_ternary_node(this, ternary_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::TestNode>(node)) {
-      const auto test_node = dynamic_cast<mavka::ast::TestNode*>(node);
-
-      const auto left_result = this->compile_node(test_node->left);
-      if (left_result->error) {
-        return left_result;
-      }
-      const auto right_result = this->compile_node(test_node->right);
-      if (right_result->error) {
-        return right_result;
-      }
-      if (test_node->op == "&&" || test_node->op == "і") {
-        const auto result =
-            left_result->value->test_and(this, node, right_result->value);
-        if (result->error) {
-          return result;
-        }
-
-        const auto js_and_node = new jejalyk::js::JsTestNode();
-        js_and_node->left = left_result->js_node;
-        js_and_node->right = right_result->js_node;
-        js_and_node->op = "&&";
-
-        result->js_node = js_and_node;
-
-        return result;
-      }
-      if (test_node->op == "||" || test_node->op == "або") {
-        const auto result =
-            left_result->value->test_or(this, node, right_result->value);
-        if (result->error) {
-          return result;
-        }
-
-        const auto js_or_node = new jejalyk::js::JsTestNode();
-        js_or_node->left = left_result->js_node;
-        js_or_node->right = right_result->js_node;
-        js_or_node->op = "||";
-
-        result->js_node = js_or_node;
-
-        return result;
-      }
-
-      return error_from_ast(node,
-                            "Невідома вказівка \"" + test_node->op + "\".");
+    if (const auto test_node = dynamic_cast<mavka::ast::TestNode*>(node)) {
+      return compile_test_node(this, test_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::ThrowNode>(node)) {
-      const auto throw_node = dynamic_cast<mavka::ast::ThrowNode*>(node);
-
-      const auto value_result = this->compile_node(throw_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto js_throw_node = new jejalyk::js::JsThrowNode();
-      js_throw_node->value = value_result->js_node;
-
-      value_result->js_node = js_throw_node;
-
-      return value_result;
+    if (const auto throw_node = dynamic_cast<mavka::ast::ThrowNode*>(node)) {
+      return compile_throw_node(this, throw_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::TryNode>(node)) {
-      const auto try_node = dynamic_cast<mavka::ast::TryNode*>(node);
-
-      const auto body_result = this->compile_body(try_node->body);
-      if (body_result->error) {
-        return body_result;
-      }
-
-      const auto object_structure_subject = this->get_root()->get("обʼєкт");
-      const auto object_instance_result =
-          object_structure_subject->create_instance(this, {});
-      if (object_instance_result->error) {
-        return object_instance_result;
-      }
-
-      const auto catch_scope = this->make_child();
-      catch_scope->is_async = this->is_async;
-      catch_scope->set_local(try_node->name, object_instance_result->value);
-      const auto catch_body_result =
-          catch_scope->compile_body(try_node->catch_body);
-      if (catch_body_result->error) {
-        return catch_body_result;
-      }
-
-      const auto js_try_node = new jejalyk::js::JsTryNode();
-      js_try_node->try_body = body_result->js_body;
-      js_try_node->catch_body = catch_body_result->js_body;
-      js_try_node->name = try_node->name;
-
-      return success(nullptr, js_try_node);
+    if (const auto try_node = dynamic_cast<mavka::ast::TryNode*>(node)) {
+      return compile_try_node(this, try_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::TypeValueSingleNode>(node)) {
-      const auto type_value_single_node =
-          dynamic_cast<mavka::ast::TypeValueSingleNode*>(node);
-
-      const auto value_compilation_result =
-          this->compile_node(type_value_single_node->value);
-      if (value_compilation_result->error) {
-        return value_compilation_result;
-      }
-
-      if (!value_compilation_result->value->types.empty()) {
-        if (value_compilation_result->value->types[0]->object) {
-          if (type_value_single_node->generics.size() >
-              value_compilation_result->value->types[0]
-                  ->object->generic_definitions.size()) {
-            return error_from_ast(node, "Забагато аргументів шаблону.");
-          }
-
-          if (type_value_single_node->generics.size() <
-              value_compilation_result->value->types[0]
-                  ->object->generic_definitions.size()) {
-            return error_from_ast(node, "Недостатньо аргументів шаблону.");
-          }
-        }
-      }
-
-      if (!type_value_single_node->generics.empty()) {
-        if (value_compilation_result->value->types.size() != 1) {
-          return error_from_ast(node,
-                                "Неможливо застосувати аргументи шаблону до "
-                                "типу з різними можливими значеннями.");
-        }
-
-        if (value_compilation_result->value->types[0]->generic_definition) {
-          return error_from_ast(
-              node, "Неможливо використовувати аргументи шаблону для шаблону.");
-        }
-
-        std::vector<Subject*> generic_types;
-        for (const auto& generic_type_value :
-             type_value_single_node->generics) {
-          const auto generic_type_subject = new Subject();
-          for (const auto generic_type_value_single_node : generic_type_value) {
-            const auto generic_type_value_single_result =
-                this->compile_node(generic_type_value_single_node);
-            if (generic_type_value_single_result->error) {
-              return generic_type_value_single_result;
-            }
-            for (const auto generic_generic_type_value :
-                 generic_type_value_single_result->value->types) {
-              generic_type_subject->add_type(generic_generic_type_value);
-            }
-          }
-          generic_types.push_back(generic_type_subject);
-        }
-
-        return value_compilation_result->value->create_instance(this,
-                                                                generic_types);
-      }
-
-      return value_compilation_result->value->create_instance(this, {});
+    if (const auto type_value_single_node =
+            dynamic_cast<mavka::ast::TypeValueSingleNode*>(node)) {
+      return compile_type_value_single_node(this, type_value_single_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::WaitNode>(node)) {
-      const auto wait_node = dynamic_cast<mavka::ast::WaitNode*>(node);
-
-      if (!this->get_is_async()) {
-        return error_from_ast(
-            node,
-            "Вказівка \"чекати\" доступна лише в модулі або тривалій дії.");
-      }
-
-      const auto value_result = this->compile_node(wait_node->value);
-      if (value_result->error) {
-        return value_result;
-      }
-
-      const auto result = value_result->value->get_awaiting_value(this, node);
-
-      const auto js_await_node = new jejalyk::js::JsAwaitNode();
-      js_await_node->value = value_result->js_node;
-
-      result->js_node = js_await_node;
-
-      return result;
+    if (const auto wait_node = dynamic_cast<mavka::ast::WaitNode*>(node)) {
+      return compile_wait_node(this, wait_node);
     }
 
-    if (jejalyk::tools::instance_of<mavka::ast::WhileNode>(node)) {
-      const auto while_node = dynamic_cast<mavka::ast::WhileNode*>(node);
-
-      const auto condition_result = this->compile_node(while_node->condition);
-      if (condition_result->error) {
-        return condition_result;
-      }
-
-      const auto loop_scope = this->make_proxy();
-      loop_scope->is_loop = true;
-
-      const auto body_result = loop_scope->compile_body(while_node->body);
-      if (body_result->error) {
-        return body_result;
-      }
-
-      const auto js_while_node = new jejalyk::js::JsWhileNode();
-      js_while_node->condition = condition_result->js_node;
-      js_while_node->body = body_result->js_body;
-
-      return success(nullptr, js_while_node);
+    if (const auto while_node = dynamic_cast<mavka::ast::WhileNode*>(node)) {
+      return compile_while_node(this, while_node);
     }
 
     return error("unsupported node");

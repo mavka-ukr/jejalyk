@@ -1,5 +1,24 @@
 #include "../typeinterpreter.h"
 
 namespace typeinterpreter {
-  Result* compile_while_node(Scope* scope, mavka::ast::WhileNode* while_node) {}
+  Result* compile_while_node(Scope* scope, mavka::ast::WhileNode* while_node) {
+    const auto condition_result = scope->compile_node(while_node->condition);
+    if (condition_result->error) {
+      return condition_result;
+    }
+
+    const auto loop_scope = scope->make_proxy();
+    loop_scope->is_loop = true;
+
+    const auto body_result = loop_scope->compile_body(while_node->body);
+    if (body_result->error) {
+      return body_result;
+    }
+
+    const auto js_while_node = new jejalyk::js::JsWhileNode();
+    js_while_node->condition = condition_result->js_node;
+    js_while_node->body = body_result->js_body;
+
+    return success(nullptr, js_while_node);
+  }
 } // namespace typeinterpreter
