@@ -483,7 +483,7 @@ namespace typeinterpreter {
   Result* Subject::comp_eq(Scope* scope,
                            mavka::ast::ASTNode* node,
                            Subject* value) {
-    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_structure_subject = scope->get_root_logical();
     const auto logical_instance_result =
         logical_structure_subject->create_instance(scope, {});
     if (logical_instance_result->error) {
@@ -495,7 +495,7 @@ namespace typeinterpreter {
   Result* Subject::comp_not_eq(Scope* scope,
                                mavka::ast::ASTNode* node,
                                Subject* value) {
-    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_structure_subject = scope->get_root_logical();
     const auto logical_instance_result =
         logical_structure_subject->create_instance(scope, {});
     if (logical_instance_result->error) {
@@ -580,7 +580,7 @@ namespace typeinterpreter {
                            mavka::ast::ASTNode* node,
                            Subject* value) {
     // todo: check if value is structure
-    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_structure_subject = scope->get_root_logical();
     const auto logical_instance_result =
         logical_structure_subject->create_instance(scope, {});
     if (logical_instance_result->error) {
@@ -592,7 +592,7 @@ namespace typeinterpreter {
                                mavka::ast::ASTNode* node,
                                Subject* value) {
     // todo: check if value is structure
-    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_structure_subject = scope->get_root_logical();
     const auto logical_instance_result =
         logical_structure_subject->create_instance(scope, {});
     if (logical_instance_result->error) {

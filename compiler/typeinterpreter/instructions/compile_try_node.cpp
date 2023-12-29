@@ -7,7 +7,7 @@ namespace typeinterpreter {
       return body_result;
     }
 
-    const auto object_structure_subject = scope->get_root()->get("обʼєкт");
+    const auto object_structure_subject = scope->get_root_object();
     const auto object_instance_result =
         object_structure_subject->create_instance(scope, {});
     if (object_instance_result->error) {

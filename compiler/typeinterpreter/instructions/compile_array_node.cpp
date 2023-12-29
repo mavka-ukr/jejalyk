@@ -3,7 +3,7 @@
 namespace typeinterpreter {
   Result* compile_array_node(Scope* scope, mavka::ast::ArrayNode* array_node) {
     const auto js_array_node = new jejalyk::js::JsArrayNode();
-    const auto array_structure_subject = scope->get_root()->get("список");
+    const auto array_structure_subject = scope->get_root_list();
     const auto array_values_type_result =
         scope->compile_nodes(array_node->elements);
     if (array_values_type_result->error) {

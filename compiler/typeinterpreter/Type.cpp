@@ -14,7 +14,7 @@ namespace typeinterpreter {
   }
 
   bool Type::is_diia(Scope* scope) {
-    const auto diia_structure_subject = scope->get_root()->get("Дія");
+    const auto diia_structure_subject = scope->get_root_diia();
     if (this->generic_definition) {
       return false;
     }
@@ -26,7 +26,7 @@ namespace typeinterpreter {
     if (this->is_empty(scope)) {
       return true;
     }
-    const auto structure_subject = scope->get_root()->get("Структура");
+    const auto structure_subject = scope->get_root_structure();
     if (this->generic_definition) {
       return false;
     }
@@ -35,7 +35,7 @@ namespace typeinterpreter {
   }
 
   bool Type::is_number(Scope* scope) {
-    const auto number_structure_subject = scope->get_root()->get("число");
+    const auto number_structure_subject = scope->get_root_number();
     if (this->generic_definition) {
       return false;
     }
@@ -44,7 +44,7 @@ namespace typeinterpreter {
   }
 
   bool Type::is_string(Scope* scope) {
-    const auto text_structure_subject = scope->get_root()->get("текст");
+    const auto text_structure_subject = scope->get_root_text();
     if (this->generic_definition) {
       return false;
     }
@@ -53,7 +53,7 @@ namespace typeinterpreter {
   }
 
   bool Type::is_array(Scope* scope) {
-    const auto text_structure_subject = scope->get_root()->get("список");
+    const auto text_structure_subject = scope->get_root_list();
     if (this->generic_definition) {
       return false;
     }
@@ -62,7 +62,7 @@ namespace typeinterpreter {
   }
 
   bool Type::is_object(Scope* scope) {
-    const auto object_structure_subject = scope->get_root()->get("обʼєкт");
+    const auto object_structure_subject = scope->get_root_object();
     if (this->generic_definition) {
       return false;
     }
@@ -71,7 +71,7 @@ namespace typeinterpreter {
   }
 
   bool Type::is_empty(Scope* scope) {
-    const auto empty_structure_subject = scope->get_root()->get("пусто");
+    const auto empty_structure_subject = scope->get_root_empty();
     if (this->generic_definition) {
       return false;
     }
@@ -513,7 +513,7 @@ namespace typeinterpreter {
   Result* Type::comp_contains_not(Scope* scope,
                             mavka::ast::ASTNode* node,
                             Subject* value) {
-    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_structure_subject = scope->get_root_logical();
     const auto logical_instance_result =
         logical_structure_subject->create_instance(scope, {value});
     if (logical_instance_result->error) {
@@ -523,7 +523,7 @@ namespace typeinterpreter {
   }
 
   bool Type::is_iterator(Scope* scope) {
-    const auto iterator_structure_subject = scope->get_root()->get("перебір");
+    const auto iterator_structure_subject = scope->get_root_iterator();
 
     if (this->generic_definition) {
       return false;

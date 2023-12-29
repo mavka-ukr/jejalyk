@@ -46,6 +46,50 @@ namespace typeinterpreter {
     return nullptr;
   }
 
+  Subject* Scope::get_root_object() {
+    return this->get_from_root("обʼєкт");
+  }
+
+  Subject* Scope::get_root_structure() {
+    return this->get_from_root("Структура");
+  }
+
+  Subject* Scope::get_root_empty() {
+    return this->get_from_root("пусто");
+  }
+
+  Subject* Scope::get_root_diia() {
+    return this->get_from_root("Дія");
+  }
+
+  Subject* Scope::get_root_number() {
+    return this->get_from_root("число");
+  }
+
+  Subject* Scope::get_root_text() {
+    return this->get_from_root("текст");
+  }
+
+  Subject* Scope::get_root_logical() {
+    return this->get_from_root("логічне");
+  }
+
+  Subject* Scope::get_root_list() {
+    return this->get_from_root("список");
+  }
+
+  Subject* Scope::get_root_dictionary() {
+    return this->get_from_root("словник");
+  }
+
+  Subject* Scope::get_root_iterator() {
+    return this->get_from_root("перебір");
+  }
+
+  Subject* Scope::get_root_iterator_with_key() {
+    return this->get_from_root("перебір_з_ключем");
+  }
+
   bool Scope::get_is_loop() {
     if (this->is_loop) {
       return true;
@@ -97,7 +141,7 @@ namespace typeinterpreter {
   }
 
   Subject* Scope::create_object_instance_subject() {
-    const auto object_structure_subject = this->get_root()->get("обʼєкт");
+    const auto object_structure_subject = this->get_root_object();
     const auto object_instance_subject =
         object_structure_subject->create_instance(this, {});
     if (object_instance_subject->error) {
@@ -253,11 +297,9 @@ namespace typeinterpreter {
       return compiled_nodes;
     }
     if (nodes.empty()) {
-      const auto object_structure = this->get_root()->get("обʼєкт");
-      const auto object_instance_subject =
-          object_structure->create_instance(this, {});
       compiled_nodes->js_body->nodes.push_back(jejalyk::js::id("обʼєкт"));
-      return success(object_instance_subject->value, compiled_nodes->js_body);
+      return success(this->create_object_instance_subject(),
+                     compiled_nodes->js_body);
     }
     return success(compiled_nodes->value, compiled_nodes->js_body);
   }
@@ -279,7 +321,7 @@ namespace typeinterpreter {
       }
     }
     if (subject->types.empty()) {
-      const auto object_structure_subject = this->get_root()->get("обʼєкт");
+      const auto object_structure_subject = this->get_root_object();
       const auto object_instance_subject =
           object_structure_subject->create_instance(this, {});
       if (object_instance_subject->error) {
@@ -681,8 +723,8 @@ namespace typeinterpreter {
       std::vector<mavka::ast::GenericNode*> generic_definitions,
       mavka::ast::ASTNode* parent,
       std::vector<mavka::ast::GenericNode*> parent_generic_definitions) {
-    const auto structure_structure_subject = this->get_from_root("Структура");
-    const auto object_subject = this->get_from_root("обʼєкт");
+    const auto structure_structure_subject = this->get_root_structure();
+    const auto object_subject = this->get_root_object();
 
     const auto structure_object = new Object();
     Scope* scope_with_generics = this->make_proxy();
@@ -850,7 +892,7 @@ namespace typeinterpreter {
       }
     }
 
-    const auto diia_structure_subject = this->get_root()->get("Дія");
+    const auto diia_structure_subject = this->get_root_diia();
 
     const auto diia_object = new Object();
     diia_object->structure = diia_structure_subject->types[0];
@@ -890,7 +932,7 @@ namespace typeinterpreter {
       std::vector<mavka::ast::GenericNode*> generic_definitions,
       std::vector<mavka::ast::ParamNode*> params,
       std::vector<mavka::ast::TypeValueSingleNode*> return_types) {
-    const auto diia_structure_subject = this->get_root()->get("Дія");
+    const auto diia_structure_subject = this->get_root_diia();
 
     Object* diia_object = new Object();
     diia_object->structure = diia_structure_subject->types[0];

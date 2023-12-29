@@ -3,7 +3,7 @@
 namespace typeinterpreter {
   Result* compile_dictionary_node(Scope* scope,
                                   mavka::ast::DictionaryNode* dictionary_node) {
-    const auto dictionary_structure = scope->get_root()->get("словник");
+    const auto dictionary_structure = scope->get_root_dictionary();
 
     const auto js_map_node = new jejalyk::js::JsMapNode();
 

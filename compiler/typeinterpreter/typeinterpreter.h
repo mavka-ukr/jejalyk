@@ -22,7 +22,6 @@ namespace typeinterpreter {
   class Subject;
   class Scope;
   class Param;
-  class Method;
   class GenericDefinition;
 
   class Error final {
@@ -266,6 +265,17 @@ namespace typeinterpreter {
     Subject* get_from_root(std::string name);
     Object* get_diia_object();
     Object* get_module_object();
+    Subject* get_root_object();
+    Subject* get_root_structure();
+    Subject* get_root_empty();
+    Subject* get_root_diia();
+    Subject* get_root_number();
+    Subject* get_root_text();
+    Subject* get_root_logical();
+    Subject* get_root_list();
+    Subject* get_root_dictionary();
+    Subject* get_root_iterator();
+    Subject* get_root_iterator_with_key();
     bool get_is_loop();
     bool get_is_async();
     size_t get_iterator_count();

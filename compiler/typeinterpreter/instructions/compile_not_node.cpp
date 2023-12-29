@@ -7,7 +7,7 @@ namespace typeinterpreter {
       return value_result;
     }
 
-    const auto logical_structure_subject = scope->get_root()->get("логічне");
+    const auto logical_structure_subject = scope->get_root_logical();
     const auto logical_instance_result =
         logical_structure_subject->create_instance(scope, {});
     if (logical_instance_result->error) {
