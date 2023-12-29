@@ -97,6 +97,7 @@ namespace mavka::ast {
   class AnonDiiaNode final : public ASTValueNode {
    public:
     bool async;
+    std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
     std::vector<TypeValueSingleNode*> return_types;
     std::vector<ASTNode*> body;

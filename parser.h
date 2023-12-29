@@ -1490,7 +1490,13 @@ namespace mavka::parser {
       if (context->f_body) {
         const auto function_node_body =
             any_to_ast_result(_visitContext(context->f_body))->node;
-        function_node->body.push_back(function_node_body);
+        const auto return_node = new ast::ReturnNode();
+        return_node->start_line = function_node_body->start_line;
+        return_node->start_column = function_node_body->start_column;
+        return_node->end_line = function_node_body->end_line;
+        return_node->end_column = function_node_body->end_column;
+        return_node->value = function_node_body;
+        function_node->body.push_back(return_node);
       }
       return create_ast_result(function_node);
     }
@@ -1504,6 +1510,11 @@ namespace mavka::parser {
       anon_diia_node->end_line = context->getStop()->getLine();
       anon_diia_node->end_column = context->getStop()->getCharPositionInLine();
       anon_diia_node->async = context->d_async != nullptr;
+      if (context->d_generics) {
+        anon_diia_node->generics =
+            std::any_cast<std::vector<ast::GenericNode*>>(
+                visitGenerics(context->d_generics));
+      }
       if (context->d_params) {
         anon_diia_node->params = std::any_cast<std::vector<ast::ParamNode*>>(
             visitParams(context->d_params));

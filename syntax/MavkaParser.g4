@@ -103,7 +103,7 @@ expr: 'предок' nls '.' nls cp_id=identifier '(' (cp_args=args | cp_named_a
     | atom ('та' atom)+ #god
     | 'чекати' w_value=value #wait
     | (f_async='тривала')? '(' f_params=params? ')' f_type=type_value? ':' f_body=expr #function
-    | (d_async='тривала')? 'дія' '(' ( nls d_params=params? nls ) ')' (d_type=type_value)? nl (d_body=body nl)? nls 'кінець' #anonymous_diia
+    | (d_async='тривала')? 'дія' ('<' d_generics=generics '>')? '(' ( nls d_params=params? nls ) ')' (d_type=type_value)? nl (d_body=body nl)? nls 'кінець' #anonymous_diia
     | MML #expr_mml
     ;
 

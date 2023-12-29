@@ -1512,6 +1512,7 @@ public:
     Anonymous_diiaContext(ExprContext *ctx);
 
     antlr4::Token *d_async = nullptr;
+    MavkaParser::GenericsContext *d_generics = nullptr;
     MavkaParser::ParamsContext *d_params = nullptr;
     MavkaParser::Type_valueContext *d_type = nullptr;
     MavkaParser::BodyContext *d_body = nullptr;
@@ -1523,7 +1524,10 @@ public:
     std::vector<NlsContext *> nls();
     NlsContext* nls(size_t i);
     antlr4::tree::TerminalNode *END();
+    antlr4::tree::TerminalNode *SMALLER();
+    antlr4::tree::TerminalNode *GREATER();
     antlr4::tree::TerminalNode *ASYNC();
+    GenericsContext *generics();
     Type_valueContext *type_value();
     BodyContext *body();
     ParamsContext *params();

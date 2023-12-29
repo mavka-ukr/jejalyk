@@ -253,8 +253,9 @@ namespace typeinterpreter {
       const auto anon_diia_node = dynamic_cast<mavka::ast::AnonDiiaNode*>(node);
       const auto diia_scope = this->make_child();
       return this->compile_diia(
-          diia_scope, anon_diia_node->async, "", {}, anon_diia_node->params,
-          anon_diia_node->return_types, &anon_diia_node->body);
+          diia_scope, anon_diia_node->async, "", anon_diia_node->generics,
+          anon_diia_node->params, anon_diia_node->return_types,
+          &anon_diia_node->body);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ArgNode>(node)) {
@@ -468,6 +469,10 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::AssignSimpleNode>(node)) {
       const auto assign_simple_node =
           dynamic_cast<mavka::ast::AssignSimpleNode*>(node);
+
+      if (this->get_root()->has(assign_simple_node->name)) {
+        return error_1(node, assign_simple_node->name);
+      }
 
       const auto value_result = this->compile_node(assign_simple_node->value);
       if (value_result->error) {
@@ -1989,7 +1994,7 @@ namespace typeinterpreter {
     Scope* scope_with_generics = nullptr;
     std::vector<Subject*> generic_definition_subjects;
 
-    if (this->has_local(name)) {
+    if (!name.empty() && this->has_local(name)) {
       diia_subject = this->get_local(name);
       diia_type = diia_subject->types[0];
       diia_object = diia_type->object;
@@ -2144,7 +2149,40 @@ namespace typeinterpreter {
         param->variadic = param_node->variadic;
 
         diia_object->params.push_back(param);
+        diia_scope->set_local(param->name, param->types);
       }
+
+      Result* compiled_body = nullptr;
+
+      if (body != nullptr) {
+        diia_scope->diia_object = diia_object;
+        diia_scope->is_async = async;
+
+        compiled_body = diia_scope->compile_body(*body);
+        if (compiled_body->error) {
+          return compiled_body;
+        }
+      }
+
+      const auto js_function_node = new jejalyk::js::JsFunctionNode();
+      js_function_node->async = async;
+      for (const auto param : diia_object->params) {
+        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+        js_id_node->name = param->name;
+        js_function_node->params.push_back(js_id_node);
+      }
+      if (compiled_body) {
+        js_function_node->body = compiled_body->js_body;
+      }
+
+      const auto js_call_node = new jejalyk::js::JsCallNode();
+      const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
+      js_call_id_node->name = "мДія";
+      js_call_node->value = js_call_id_node;
+      js_call_node->arguments = {jejalyk::js::string(name), jejalyk::js::null(),
+                                 js_function_node};
+
+      return success(diia_subject, js_call_node);
     }
 
     return success(diia_subject);

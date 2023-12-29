@@ -4,15 +4,14 @@
 
 int main() {
   const auto code = R"(
-структура А
+дія друк(значення текст) пусто
 кінець
 
-дія сум(а, б)
-  а + б
+поки так
+  друк("так")
 кінець
 
-рез = сум(1, 2)
-2 - 2
+ауф = (а текст, б, в) пусто: друк(а)
 )";
   const auto result = typeinterpreter::compile(code);
   if (result->error) {
