@@ -150,6 +150,26 @@ namespace jejalyk::js {
   class JsContinueNode : public JsNode {};
   class JsBreakNode : public JsNode {};
 
+  class JsFunctionNode : public JsNode {
+   public:
+    bool async;
+    std::string name;
+    std::vector<JsIdentifierNode*> params;
+    JsBody* body;
+  };
+
+  inline JsIdentifierNode* null() {
+    const auto js_identifier_node = new JsIdentifierNode();
+    js_identifier_node->name = "null";
+    return js_identifier_node;
+  }
+
+  inline JsStringNode* string(std::string value) {
+    const auto js_string_node = new JsStringNode();
+    js_string_node->value = value;
+    return js_string_node;
+  }
+
   std::string stringify(JsNode* js_node);
   std::string stringify_body(JsBody* js_body);
 
@@ -279,6 +299,22 @@ namespace jejalyk::js {
     }
     if (const auto js_break_node = dynamic_cast<JsBreakNode*>(js_node)) {
       return "break";
+    }
+    if (const auto js_function_node = dynamic_cast<JsFunctionNode*>(js_node)) {
+      std::vector<std::string> params;
+      for (const auto param : js_function_node->params) {
+        params.push_back(stringify(param));
+      }
+      std::string head;
+      if (js_function_node->async) {
+        head += "async ";
+      }
+      head += "function";
+      if (!js_function_node->name.empty()) {
+        head += " " + js_function_node->name;
+      }
+      head += "(" + tools::implode(params, ", ") + ") {\n";
+      return head + stringify_body(js_function_node->body) + "\n}";
     }
     return "[CANNOT STRINGIFY]";
   }

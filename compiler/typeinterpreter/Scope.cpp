@@ -1704,7 +1704,7 @@ namespace typeinterpreter {
       diia_object = diia_type->object;
 
       if (!diia_object->this_is_declaration) {
-        return error("Структура \"" + name + "\" вже визначена.");
+        return error("Дія \"" + name + "\" вже визначена.");
       }
 
       diia_object->this_is_declaration = false;
@@ -1724,14 +1724,45 @@ namespace typeinterpreter {
         diia_scope->set_local(param->name, param->types);
       }
 
+      Result* compiled_body = nullptr;
+
       if (body != nullptr) {
         diia_scope->diia_object = diia_object;
         diia_scope->is_async = async;
 
-        const auto compiled_body = diia_scope->compile_body(*body);
+        compiled_body = diia_scope->compile_body(*body);
         if (compiled_body->error) {
           return compiled_body;
         }
+      }
+
+      if (ee) {
+      } else {
+        const auto js_function_node = new jejalyk::js::JsFunctionNode();
+        js_function_node->async = async;
+        for (const auto param : diia_object->params) {
+          const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+          js_id_node->name = param->name;
+          js_function_node->params.push_back(js_id_node);
+        }
+        if (compiled_body) {
+          js_function_node->body = compiled_body->js_body;
+        }
+
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
+        js_call_id_node->name = "мДія";
+        js_call_node->value = js_call_id_node;
+        js_call_node->arguments = {jejalyk::js::string(name),
+                                   jejalyk::js::null(), js_function_node};
+
+        const auto js_assign_node = new jejalyk::js::JsAssignNode();
+        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+        js_id_node->name = name;
+        js_assign_node->identifier = js_id_node;
+        js_assign_node->value = js_call_node;
+
+        return success(diia_subject, js_assign_node);
       }
     } else {
       const auto diia_structure_subject = this->get_root()->get("Дія");
