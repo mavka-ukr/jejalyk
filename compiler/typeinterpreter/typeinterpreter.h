@@ -278,7 +278,6 @@ namespace typeinterpreter {
     Result* compile_diia(
         Scope* diia_scope,
         bool async,
-        bool ee,
         std::string name,
         std::vector<mavka::ast::GenericNode*> generic_definitions,
         std::vector<mavka::ast::ParamNode*> params,

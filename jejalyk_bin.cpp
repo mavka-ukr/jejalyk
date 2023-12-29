@@ -108,6 +108,11 @@ int main() {
 тривала дія запустити(а число, б текст) обʼєкт
   а = 3
 кінець
+
+структура А
+кінець
+
+привіт(1, "2")
 )";
   const auto parser_result = mavka::parser::parse(code);
   if (parser_result->error) {

@@ -220,10 +220,9 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::AnonDiiaNode>(node)) {
       const auto anon_diia_node = dynamic_cast<mavka::ast::AnonDiiaNode*>(node);
       const auto diia_scope = this->make_child();
-      return this->compile_diia(diia_scope, anon_diia_node->async, false, "",
-                                {}, anon_diia_node->params,
-                                anon_diia_node->return_types,
-                                &anon_diia_node->body);
+      return this->compile_diia(
+          diia_scope, anon_diia_node->async, "", {}, anon_diia_node->params,
+          anon_diia_node->return_types, &anon_diia_node->body);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ArgNode>(node)) {
@@ -556,15 +555,26 @@ namespace typeinterpreter {
       }
 
       std::vector<Subject*> args;
+      std::vector<jejalyk::js::JsNode*> js_args;
       for (const auto arg_node : call_node->args) {
         const auto arg_result = this->compile_node(arg_node->value);
         if (arg_result->error) {
           return arg_result;
         }
         args.push_back(arg_result->value);
+        js_args.push_back(arg_result->js_node);
       }
 
-      return value_result->value->call(this, call_node, generic_types, args);
+      const auto result =
+          value_result->value->call(this, call_node, generic_types, args);
+
+      const auto js_call_node = new jejalyk::js::JsCallNode();
+      js_call_node->value = value_result->js_node;
+      js_call_node->arguments = js_args;
+
+      result->js_node = js_call_node;
+
+      return result;
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::ChainNode>(node)) {
@@ -686,9 +696,8 @@ namespace typeinterpreter {
       const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node);
       const auto diia_scope = this->make_child();
       const auto diia_compilation_result = this->compile_diia(
-          diia_scope, diia_node->async, diia_node->ee, diia_node->name,
-          diia_node->generics, diia_node->params, diia_node->return_types,
-          &diia_node->body);
+          diia_scope, diia_node->async, diia_node->name, diia_node->generics,
+          diia_node->params, diia_node->return_types, &diia_node->body);
       if (diia_compilation_result->error) {
         return diia_compilation_result;
       }
@@ -803,10 +812,9 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::FunctionNode>(node)) {
       const auto function_node = dynamic_cast<mavka::ast::FunctionNode*>(node);
       const auto diia_scope = this->make_child();
-      return this->compile_diia(diia_scope, function_node->async, false, "", {},
-                                function_node->params,
-                                function_node->return_types,
-                                &function_node->body);
+      return this->compile_diia(
+          diia_scope, function_node->async, "", {}, function_node->params,
+          function_node->return_types, &function_node->body);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::GetElementNode>(node)) {
@@ -933,11 +941,11 @@ namespace typeinterpreter {
       const auto method_declaration_node =
           dynamic_cast<mavka::ast::MethodDeclarationNode*>(node);
       const auto diia_scope = this->make_child();
-      return this->compile_diia(
-          diia_scope, method_declaration_node->async,
-          method_declaration_node->ee, method_declaration_node->name,
-          method_declaration_node->generics, method_declaration_node->params,
-          method_declaration_node->return_types, nullptr);
+      return this->compile_diia(diia_scope, method_declaration_node->async,
+                                method_declaration_node->name,
+                                method_declaration_node->generics,
+                                method_declaration_node->params,
+                                method_declaration_node->return_types, nullptr);
     }
 
     if (jejalyk::tools::instance_of<mavka::ast::MMLNode>(node)) {
@@ -950,9 +958,9 @@ namespace typeinterpreter {
           dynamic_cast<mavka::ast::MockupDiiaNode*>(node);
       const auto diia_scope = this->make_child();
       const auto diia_compilation_result = this->compile_diia(
-          diia_scope, mockup_diia_node->async, mockup_diia_node->ee,
-          mockup_diia_node->name, mockup_diia_node->generics,
-          mockup_diia_node->params, mockup_diia_node->return_types, nullptr);
+          diia_scope, mockup_diia_node->async, mockup_diia_node->name,
+          mockup_diia_node->generics, mockup_diia_node->params,
+          mockup_diia_node->return_types, nullptr);
       if (diia_compilation_result->error) {
         return diia_compilation_result;
       }
@@ -1523,9 +1531,9 @@ namespace typeinterpreter {
             dynamic_cast<mavka::ast::MockupDiiaNode*>(node);
         const auto diia_scope = this->make_child();
         const auto compiled_diia_result = this->compile_diia(
-            diia_scope, mockup_diia_node->async, mockup_diia_node->ee,
-            mockup_diia_node->name, mockup_diia_node->generics,
-            mockup_diia_node->params, mockup_diia_node->return_types, nullptr);
+            diia_scope, mockup_diia_node->async, mockup_diia_node->name,
+            mockup_diia_node->generics, mockup_diia_node->params,
+            mockup_diia_node->return_types, nullptr);
         if (compiled_diia_result->error) {
           return compiled_diia_result;
         }
@@ -1538,9 +1546,8 @@ namespace typeinterpreter {
         const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node);
         const auto diia_scope = this->make_child();
         const auto compiled_diia_result = this->compile_diia(
-            diia_scope, diia_node->async, diia_node->ee, diia_node->name,
-            diia_node->generics, diia_node->params, diia_node->return_types,
-            nullptr);
+            diia_scope, diia_node->async, diia_node->name, diia_node->generics,
+            diia_node->params, diia_node->return_types, nullptr);
         if (compiled_diia_result->error) {
           return compiled_diia_result;
         }
@@ -1602,6 +1609,21 @@ namespace typeinterpreter {
             generic_definition->name, generic_definition_subject);
         generic_definition_subjects.push_back(generic_definition_subject);
       }
+
+      const auto js_call_node = new jejalyk::js::JsCallNode();
+      const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
+      js_call_id_node->name = "мСтрк";
+      js_call_node->value = js_call_id_node;
+      js_call_node->arguments = {jejalyk::js::string(name),
+                                 jejalyk::js::null()};
+
+      const auto js_assign_node = new jejalyk::js::JsAssignNode();
+      const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+      js_id_node->name = name;
+      js_assign_node->identifier = js_id_node;
+      js_assign_node->value = js_call_node;
+
+      return success(structure_subject, js_assign_node);
     } else {
       const auto structure_structure_subject =
           this->get_root()->get("Структура");
@@ -1686,7 +1708,6 @@ namespace typeinterpreter {
   Result* Scope::compile_diia(
       Scope* diia_scope,
       bool async,
-      bool ee,
       std::string name,
       std::vector<mavka::ast::GenericNode*> generic_definitions,
       std::vector<mavka::ast::ParamNode*> params,
@@ -1736,34 +1757,31 @@ namespace typeinterpreter {
         }
       }
 
-      if (ee) {
-      } else {
-        const auto js_function_node = new jejalyk::js::JsFunctionNode();
-        js_function_node->async = async;
-        for (const auto param : diia_object->params) {
-          const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-          js_id_node->name = param->name;
-          js_function_node->params.push_back(js_id_node);
-        }
-        if (compiled_body) {
-          js_function_node->body = compiled_body->js_body;
-        }
-
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-        js_call_id_node->name = "мДія";
-        js_call_node->value = js_call_id_node;
-        js_call_node->arguments = {jejalyk::js::string(name),
-                                   jejalyk::js::null(), js_function_node};
-
-        const auto js_assign_node = new jejalyk::js::JsAssignNode();
+      const auto js_function_node = new jejalyk::js::JsFunctionNode();
+      js_function_node->async = async;
+      for (const auto param : diia_object->params) {
         const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = name;
-        js_assign_node->identifier = js_id_node;
-        js_assign_node->value = js_call_node;
-
-        return success(diia_subject, js_assign_node);
+        js_id_node->name = param->name;
+        js_function_node->params.push_back(js_id_node);
       }
+      if (compiled_body) {
+        js_function_node->body = compiled_body->js_body;
+      }
+
+      const auto js_call_node = new jejalyk::js::JsCallNode();
+      const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
+      js_call_id_node->name = "мДія";
+      js_call_node->value = js_call_id_node;
+      js_call_node->arguments = {jejalyk::js::string(name), jejalyk::js::null(),
+                                 js_function_node};
+
+      const auto js_assign_node = new jejalyk::js::JsAssignNode();
+      const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+      js_id_node->name = name;
+      js_assign_node->identifier = js_id_node;
+      js_assign_node->value = js_call_node;
+
+      return success(diia_subject, js_assign_node);
     } else {
       const auto diia_structure_subject = this->get_root()->get("Дія");
 
