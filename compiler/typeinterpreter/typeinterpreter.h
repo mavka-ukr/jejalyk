@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "../../ast.h"
+#include "../../parser.h"
 #include "../../tools.h"
 #include "../js/js.h"
 
@@ -124,7 +125,8 @@ namespace typeinterpreter {
     Type* structure = nullptr;
     std::map<std::string, Subject*> properties;
 
-    bool this_is_declaration = false;
+    bool this_is_declaration = false; // for structure and diia
+    bool is_diia_async = false; // for diia
 
     std::string name; // for structure, diia and module
     std::vector<GenericDefinition*>
@@ -326,7 +328,7 @@ namespace typeinterpreter {
   Result* success(Subject* value, jejalyk::js::JsNode* js_node);
   Result* success(Subject* value, jejalyk::js::JsBody* js_body);
 
-  Result* compile(mavka::ast::ProgramNode* program_node);
+  Result* compile(std::string code);
 
   void debug_print_call(Type* value,
                         std::vector<Subject*> generic_types,

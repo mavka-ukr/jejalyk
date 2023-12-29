@@ -96,11 +96,115 @@ namespace typeinterpreter {
     return result;
   }
 
-  Result* compile(mavka::ast::ProgramNode* program_node) {
-    const auto result = new Result();
+  Result* compile(std::string code) {
+    const auto root_code = R"(
+макет структура Дія
+  назва текст
+кінець
 
-    const auto scope = new Scope();
-    scope->is_async = true;
+макет структура Модуль
+  назва текст
+кінець
+
+макет структура очікування<Т>
+кінець
+
+макет структура перебір<З>
+  завершено логічне
+  значення З
+  далі()
+кінець
+
+макет структура перебір_з_ключем<К, З>
+  завершено логічне
+  ключ К
+  значення З
+  далі()
+кінець
+
+макет структура логічне
+  чародія_логічне() логічне
+  чародія_число() число
+  чародія_текст() текст
+кінець
+
+макет субʼєкт так логічне
+макет субʼєкт ні логічне
+
+макет структура число
+  чародія_додати(значення число) число
+  чародія_відняти(значення число) число
+  чародія_помножити(значення число) число
+  чародія_поділити(значення число) число
+  чародія_бні() число
+  чародія_додатнє() число
+  чародія_відʼємне() число
+  чародія_більше(значення число) логічне
+  чародія_менше(значення число) логічне
+  чародія_не_більше(значення число) логічне
+  чародія_не_менше(значення число) логічне
+  чародія_зменшити_після() число
+  чародія_збільшити_після() число
+  чародія_логічне() логічне
+  чародія_число() число
+  чародія_текст() текст
+кінець
+
+макет структура текст
+  довжина число
+
+  чародія_додати(значення текст) текст
+  чародія_логічне() логічне
+  чародія_число() число
+  чародія_текст() текст
+  чародія_перебір() перебір<текст>
+  чародія_перебір_з_ключем() перебір_з_ключем<число, текст>
+кінець
+
+макет структура список<Т>
+  довжина число
+
+  додати(значення Т) список<Т>
+  отримати(позиція число) Т або пусто
+  очистити() список<Т>
+
+  чародія_отримати(позиція число) Т
+  чародія_покласти(позиція число, значення Т) Т
+  чародія_логічне() логічне
+  чародія_число() число
+  чародія_текст() текст
+  чародія_перебір() перебір<Т>
+  чародія_перебір_з_ключем() перебір_з_ключем<число, Т>
+  чародія_додатнє()
+кінець
+
+макет структура словник<К, З>
+  розмір число
+
+  отримати(ключ К) З або пусто
+  ключі() перебір<К>
+  значення() перебір<З>
+  очистити() словник<К, З>
+
+  чародія_отримати(ключ К) З
+  чародія_покласти(ключ К, значення З) З
+  чародія_перебір() перебір<К>
+  чародія_перебір_з_ключем() перебір_з_ключем<К, З>
+кінець
+)";
+
+    const auto root_parser_result = mavka::parser::parse(root_code);
+    if (root_parser_result->error) {
+      return error(root_parser_result->error->message);
+    }
+
+    const auto parser_result = mavka::parser::parse(code);
+    if (parser_result->error) {
+      return error(root_parser_result->error->message);
+    }
+
+    const auto root_scope = new Scope();
+    root_scope->is_async = true;
 
     const auto empty_object = new Object();
     empty_object->name = "пусто";
@@ -125,11 +229,19 @@ namespace typeinterpreter {
     empty_object->structure = object_type;
     object_object->structure = structure_type;
 
-    scope->set_local("пусто", empty_subject);
-    scope->set_local("обʼєкт", object_subject);
-    scope->set_local("Структура", structure_subject);
+    root_scope->set_local("пусто", empty_subject);
+    root_scope->set_local("обʼєкт", object_subject);
+    root_scope->set_local("Структура", structure_subject);
 
-    const auto compiled_body = scope->compile_body(program_node->body);
+    const auto compiled_root_body =
+        root_scope->compile_body(root_parser_result->program_node->body);
+    if (compiled_root_body->error) {
+      return compiled_root_body;
+    }
+
+    const auto program_scope = root_scope->make_child();
+    const auto compiled_body =
+        program_scope->compile_body(parser_result->program_node->body);
     if (compiled_body->error) {
       return compiled_body;
     }

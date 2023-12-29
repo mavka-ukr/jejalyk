@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "typeinterpreter.h"
 
 namespace typeinterpreter {
@@ -244,30 +246,45 @@ namespace typeinterpreter {
       }
 
       const auto js_arithmetic_node = new jejalyk::js::JsArithmeticNode();
-      const auto js_call_node = new jejalyk::js::JsCallNode();
 
       Result* result;
+      std::string magic_diia;
+      std::string m_diia_name;
 
       if (arithmetic_node->op == "+") {
         result = left_result->value->plus(this, node, right_result->value);
+        magic_diia = "чародія_додати";
+        m_diia_name = "мДодати";
       }
       if (arithmetic_node->op == "-") {
         result = left_result->value->minus(this, node, right_result->value);
+        magic_diia = "чародія_відняти";
+        m_diia_name = "мВідняти";
       }
       if (arithmetic_node->op == "*") {
         result = left_result->value->multiply(this, node, right_result->value);
+        magic_diia = "чародія_помножити";
+        m_diia_name = "мПомножити";
       }
       if (arithmetic_node->op == "/") {
         result = left_result->value->divide(this, node, right_result->value);
+        magic_diia = "чародія_поділити";
+        m_diia_name = "мПоділити";
       }
       if (arithmetic_node->op == "%") {
         result = left_result->value->divmod(this, node, right_result->value);
+        magic_diia = "чародія_остача";
+        m_diia_name = "мОстача";
       }
       if (arithmetic_node->op == "//") {
         result = left_result->value->divdiv(this, node, right_result->value);
+        magic_diia = "чародія_частка";
+        m_diia_name = "мЧастка";
       }
       if (arithmetic_node->op == "**") {
         result = left_result->value->pow(this, node, right_result->value);
+        magic_diia = "чародія_степінь";
+        m_diia_name = "мСтепінь";
       }
 
       if (result != nullptr) {
@@ -291,6 +308,27 @@ namespace typeinterpreter {
             js_arithmetic_node->op = "+";
             return success(result->value, js_arithmetic_node);
           }
+        }
+
+        if (left_result->value->has_diia(this, magic_diia)) {
+          const auto js_chain_node = new jejalyk::js::JsChainNode();
+          js_chain_node->left = left_result->js_node;
+          const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
+          js_chain_node_right->name = magic_diia;
+          js_chain_node->right = js_chain_node_right;
+          const auto js_call_node = new jejalyk::js::JsCallNode();
+          js_call_node->value = js_chain_node;
+          js_call_node->arguments = {right_result->js_node};
+          result->js_node = js_call_node;
+          return success(result->value, js_chain_node);
+        } else {
+          const auto js_call_node = new jejalyk::js::JsCallNode();
+          const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+          js_id_node->name = m_diia_name;
+          js_call_node->value = js_id_node;
+          js_call_node->arguments = {left_result->js_node,
+                                     right_result->js_node};
+          return success(result->value, js_call_node);
         }
 
         return result;
@@ -622,40 +660,155 @@ namespace typeinterpreter {
       if (right_result->error) {
         return right_result;
       }
+
+      Result* result;
+      std::string magic_diia;
+      std::string js_comp_symbol;
+      std::string m_diia_name;
+
       if (comparison_node->op == "==" || comparison_node->op == "рівно") {
-        return left_result->value->comp_eq(this, node, right_result->value);
+        result = left_result->value->comp_eq(this, node, right_result->value);
+        magic_diia = "чародія_рівно";
+        js_comp_symbol = "==";
+        m_diia_name = "мРівн";
       }
       if (comparison_node->op == "!=" || comparison_node->op == "не рівно") {
-        return left_result->value->comp_not_eq(this, node, right_result->value);
+        result =
+            left_result->value->comp_not_eq(this, node, right_result->value);
+        magic_diia = "чародія_не_рівно";
+        js_comp_symbol = "!=";
+        m_diia_name = "мНеРівн";
       }
       if (comparison_node->op == ">" || comparison_node->op == "більше") {
-        return left_result->value->comp_greater(this, node,
-                                                right_result->value);
+        result =
+            left_result->value->comp_greater(this, node, right_result->value);
+        magic_diia = "чародія_більше";
+        js_comp_symbol = ">";
+        m_diia_name = "мБілш";
       }
       if (comparison_node->op == "<" || comparison_node->op == "менше") {
-        return left_result->value->comp_lesser(this, node, right_result->value);
+        result =
+            left_result->value->comp_lesser(this, node, right_result->value);
+        magic_diia = "чародія_менше";
+        js_comp_symbol = "<";
+        m_diia_name = "мМенш";
       }
       if (comparison_node->op == ">=" || comparison_node->op == "не менше") {
-        return left_result->value->comp_greater_or_eq(this, node,
-                                                      right_result->value);
+        result = left_result->value->comp_greater_or_eq(this, node,
+                                                        right_result->value);
+        magic_diia = "чародія_не_менше";
+        js_comp_symbol = ">=";
+        m_diia_name = "мНеМенш";
       }
       if (comparison_node->op == "<=" || comparison_node->op == "не більше") {
-        return left_result->value->comp_lesser_or_eq(this, node,
-                                                     right_result->value);
+        result = left_result->value->comp_lesser_or_eq(this, node,
+                                                       right_result->value);
+        magic_diia = "чародія_не_більше";
+        js_comp_symbol = "<=";
+        m_diia_name = "мНеБілш";
       }
       if (comparison_node->op == "є") {
-        return left_result->value->comp_is(this, node, right_result->value);
+        result = left_result->value->comp_is(this, node, right_result->value);
+        magic_diia = "чародія_є";
+        m_diia_name = "мЄ";
       }
       if (comparison_node->op == "не є") {
-        return left_result->value->comp_is_not(this, node, right_result->value);
+        result =
+            left_result->value->comp_is_not(this, node, right_result->value);
+        magic_diia = "чародія_не_є";
+        m_diia_name = "мНеЄ";
       }
       if (comparison_node->op == "містить") {
-        return left_result->value->comp_contains(this, node,
-                                                 right_result->value);
+        result =
+            left_result->value->comp_contains(this, node, right_result->value);
+        magic_diia = "чародія_містить";
+        m_diia_name = "мМістить";
       }
       if (comparison_node->op == "не містить") {
-        return left_result->value->comp_contains_not(this, node,
-                                                     right_result->value);
+        result = left_result->value->comp_contains_not(this, node,
+                                                       right_result->value);
+        magic_diia = "чародія_не_містить";
+        m_diia_name = "мНеМістить";
+      }
+
+      if (result != nullptr) {
+        if (result->error) {
+          return result;
+        }
+
+        if (magic_diia == "чародія_рівно") {
+          const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
+          js_comparison_node->left = left_result->js_node;
+          js_comparison_node->right = right_result->js_node;
+          js_comparison_node->op = "==";
+          return success(result->value, js_comparison_node);
+        }
+
+        if (magic_diia == "чародія_не_рівно") {
+          const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
+          js_comparison_node->left = left_result->js_node;
+          js_comparison_node->right = right_result->js_node;
+          js_comparison_node->op = "!=";
+          return success(result->value, js_comparison_node);
+        }
+
+        if (magic_diia == "чародія_є") {
+          const auto js_call_node = new jejalyk::js::JsCallNode();
+          const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
+          js_call_id_node->name = "мЄ";
+          js_call_node->value = js_call_id_node;
+          js_call_node->arguments = {left_result->js_node,
+                                     right_result->js_node};
+          return success(result->value, js_call_node);
+        }
+
+        if (magic_diia == "чародія_не_є") {
+          const auto js_call_node = new jejalyk::js::JsCallNode();
+          const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
+          js_call_id_node->name = "мЄ";
+          js_call_node->value = js_call_id_node;
+          js_call_node->arguments = {left_result->js_node,
+                                     right_result->js_node};
+          const auto js_not_node = new jejalyk::js::JsNotNode();
+          js_not_node->value = js_call_node;
+          return success(result->value, js_not_node);
+        }
+
+        if (left_result->value->is_number(this) &&
+            right_result->value->is_number(this)) {
+          if (js_comp_symbol.empty()) {
+            return error_from_ast(node, "[INTERNAL BUG] Невідома вказівка \"" +
+                                            comparison_node->op + "\".");
+          }
+          const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
+          js_comparison_node->left = left_result->js_node;
+          js_comparison_node->right = right_result->js_node;
+          js_comparison_node->op = js_comp_symbol;
+          return success(result->value, js_comparison_node);
+        }
+
+        if (left_result->value->has_diia(this, magic_diia)) {
+          const auto js_chain_node = new jejalyk::js::JsChainNode();
+          js_chain_node->left = left_result->js_node;
+          const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
+          js_chain_node_right->name = magic_diia;
+          js_chain_node->right = js_chain_node_right;
+          const auto js_call_node = new jejalyk::js::JsCallNode();
+          js_call_node->value = js_chain_node;
+          js_call_node->arguments = {right_result->js_node};
+          result->js_node = js_call_node;
+          return success(result->value, js_chain_node);
+        } else {
+          const auto js_call_node = new jejalyk::js::JsCallNode();
+          const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+          js_id_node->name = m_diia_name;
+          js_call_node->value = js_id_node;
+          js_call_node->arguments = {left_result->js_node,
+                                     right_result->js_node};
+          return success(result->value, js_call_node);
+        }
+
+        return result;
       }
 
       return error_from_ast(
@@ -1198,13 +1351,23 @@ namespace typeinterpreter {
         return error_from_ast(node, "Неможливо вернути за межами дії.");
       }
 
-      if (!this->check_subjects(value_result->value,
-                                diia_object->return_types)) {
+      Subject* return_types = nullptr;
+      if (diia_object->is_diia_async) {
+        const auto awaiting_value =
+            diia_object->return_types->get_awaiting_value(this, node);
+        if (awaiting_value->error) {
+          return awaiting_value;
+        }
+        return_types = awaiting_value->value;
+      } else {
+        return_types = diia_object->return_types;
+      }
+
+      if (!this->check_subjects(value_result->value, return_types)) {
         return error_from_ast(
             node, "Неправильний тип поверненого значення: очікується \"" +
-                      diia_object->return_types->types_string() +
-                      "\", отримано \"" + value_result->value->types_string() +
-                      "\".");
+                      return_types->types_string() + "\", отримано \"" +
+                      value_result->value->types_string() + "\".");
       }
 
       const auto js_return_node = new jejalyk::js::JsReturnNode();
@@ -1570,6 +1733,15 @@ namespace typeinterpreter {
       result->js_body->nodes.push_back(compiled_node_result->js_node);
     }
 
+    std::vector<std::string> var_names;
+    if (!this->proxy) {
+      for (const auto& [variable_name, variable_subject] : this->variables) {
+        var_names.push_back(variable_name);
+      }
+      result->js_body->nodes.insert(result->js_body->nodes.begin(),
+                                    jejalyk::js::vars(var_names));
+    }
+
     return result;
   }
 
@@ -1729,6 +1901,7 @@ namespace typeinterpreter {
       }
 
       diia_object->this_is_declaration = false;
+      diia_object->is_diia_async = async;
       scope_with_generics = this->make_proxy();
 
       for (const auto generic_definition : diia_object->generic_definitions) {
@@ -1788,6 +1961,7 @@ namespace typeinterpreter {
       diia_object = new Object();
       diia_object->structure = diia_structure_subject->types[0];
       diia_object->name = name;
+      diia_object->is_diia_async = async;
 
       scope_with_generics = this->make_proxy();
 

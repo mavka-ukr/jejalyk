@@ -117,6 +117,13 @@ namespace jejalyk::js {
     std::string op;
   };
 
+  class JsComparisonNode : public JsNode {
+   public:
+    JsNode* left;
+    JsNode* right;
+    std::string op;
+  };
+
   class JsThrowNode : public JsNode {
    public:
     JsNode* value;
@@ -158,6 +165,16 @@ namespace jejalyk::js {
     JsBody* body;
   };
 
+  class JsVarNode : public JsNode {
+   public:
+    std::string name;
+  };
+
+  class JsVarsNode : public JsNode {
+   public:
+    std::vector<std::string> names;
+  };
+
   inline JsIdentifierNode* null() {
     const auto js_identifier_node = new JsIdentifierNode();
     js_identifier_node->name = "null";
@@ -170,10 +187,22 @@ namespace jejalyk::js {
     return js_string_node;
   }
 
-  std::string stringify(JsNode* js_node);
-  std::string stringify_body(JsBody* js_body);
+  inline JsVarNode* var(std::string name) {
+    const auto js_var_node = new JsVarNode();
+    js_var_node->name = name;
+    return js_var_node;
+  }
 
-  inline std::string stringify(JsNode* js_node) {
+  inline JsVarsNode* vars(std::vector<std::string> names) {
+    const auto js_vars_node = new JsVarsNode();
+    js_vars_node->names = names;
+    return js_vars_node;
+  }
+
+  std::string stringify(JsNode* js_node, size_t depth = 0);
+  std::string stringify_body(JsBody* js_body, size_t depth = 0);
+
+  inline std::string stringify(JsNode* js_node, size_t depth) {
     if (const auto js_empty_node = dynamic_cast<JsEmptyNode*>(js_node)) {
       return "";
     }
@@ -188,110 +217,111 @@ namespace jejalyk::js {
       return js_identifier_node->name;
     }
     if (const auto js_assign_node = dynamic_cast<JsAssignNode*>(js_node)) {
-      return stringify(js_assign_node->identifier) + " = " +
-             stringify(js_assign_node->value);
+      return stringify(js_assign_node->identifier, depth) + " = " +
+             stringify(js_assign_node->value, depth);
     }
     if (const auto js_arithmetic_node =
             dynamic_cast<JsArithmeticNode*>(js_node)) {
-      return "(" + stringify(js_arithmetic_node->left) + " " +
+      return "(" + stringify(js_arithmetic_node->left, depth) + " " +
              js_arithmetic_node->op + " " +
-             stringify(js_arithmetic_node->right) + ")";
+             stringify(js_arithmetic_node->right, depth) + ")";
     }
     if (const auto js_array_node = dynamic_cast<JsArrayNode*>(js_node)) {
       std::vector<std::string> elements;
       for (const auto element : js_array_node->elements) {
-        elements.push_back(stringify(element));
+        elements.push_back(stringify(element, depth));
       }
       return "[" + tools::implode(elements, ", ") + "]";
     }
     if (const auto js_call_node = dynamic_cast<JsCallNode*>(js_node)) {
       std::vector<std::string> args;
       for (const auto arg_js_node : js_call_node->arguments) {
-        args.push_back(stringify(arg_js_node));
+        args.push_back(stringify(arg_js_node, depth));
       }
-      return stringify(js_call_node->value) + "(" + tools::implode(args, ", ") +
-             ")";
+      return stringify(js_call_node->value, depth) + "(" +
+             tools::implode(args, ", ") + ")";
     }
     if (const auto js_access_node = dynamic_cast<JsAccessNode*>(js_node)) {
-      return stringify(js_access_node->value) + "[" +
-             stringify(js_access_node->index) + "]";
+      return stringify(js_access_node->value, depth) + "[" +
+             stringify(js_access_node->index, depth) + "]";
     }
     if (const auto js_chain_node = dynamic_cast<JsChainNode*>(js_node)) {
-      return "" + stringify(js_chain_node->left) + "." +
-             stringify(js_chain_node->right) + "";
+      return "" + stringify(js_chain_node->left, depth) + "." +
+             stringify(js_chain_node->right, depth) + "";
     }
     if (const auto js_negative_node = dynamic_cast<JsNegativeNode*>(js_node)) {
       if (dynamic_cast<JsNumberNode*>(js_negative_node->value)) {
-        return "-" + stringify(js_negative_node->value);
+        return "-" + stringify(js_negative_node->value, depth);
       } else {
-        return "-(" + stringify(js_negative_node->value) + ")";
+        return "-(" + stringify(js_negative_node->value, depth) + ")";
       }
     }
     if (const auto js_positive_node = dynamic_cast<JsPositiveNode*>(js_node)) {
       if (dynamic_cast<JsNumberNode*>(js_positive_node->value)) {
-        return "+" + stringify(js_positive_node->value);
+        return "+" + stringify(js_positive_node->value, depth);
       } else {
-        return "+(" + stringify(js_positive_node->value) + ")";
+        return "+(" + stringify(js_positive_node->value, depth) + ")";
       }
     }
     if (const auto js_not_node = dynamic_cast<JsNotNode*>(js_node)) {
       if (dynamic_cast<JsNumberNode*>(js_not_node->value)) {
-        return "!" + stringify(js_not_node->value);
+        return "!" + stringify(js_not_node->value, depth);
       } else {
-        return "!(" + stringify(js_not_node->value) + ")";
+        return "!(" + stringify(js_not_node->value, depth) + ")";
       }
     }
     if (const auto js_post_decrement =
             dynamic_cast<JsPostDecrementNode*>(js_node)) {
       if (dynamic_cast<JsNumberNode*>(js_post_decrement->value)) {
-        return stringify(js_post_decrement->value) + "--";
+        return stringify(js_post_decrement->value, depth) + "--";
       } else {
-        return "(" + stringify(js_post_decrement->value) + ")--";
+        return "(" + stringify(js_post_decrement->value, depth) + ")--";
       }
     }
     if (const auto js_post_increment =
             dynamic_cast<JsPostIncrementNode*>(js_node)) {
       if (dynamic_cast<JsNumberNode*>(js_post_increment->value)) {
-        return stringify(js_post_increment->value) + "++";
+        return stringify(js_post_increment->value, depth) + "++";
       } else {
-        return "(" + stringify(js_post_increment->value) + ")++";
+        return "(" + stringify(js_post_increment->value, depth) + ")++";
       }
     }
     if (const auto js_return_node = dynamic_cast<JsReturnNode*>(js_node)) {
-      return "return " + stringify(js_return_node->value);
+      return "return " + stringify(js_return_node->value, depth);
     }
     if (const auto js_ternary_node = dynamic_cast<JsTernaryNode*>(js_node)) {
-      return "((" + stringify(js_ternary_node->condition) + ") ? (" +
-             stringify(js_ternary_node->true_value) + ") : (" +
-             stringify(js_ternary_node->false_value) + "))";
+      return "((" + stringify(js_ternary_node->condition, depth) + ") ? (" +
+             stringify(js_ternary_node->true_value, depth) + ") : (" +
+             stringify(js_ternary_node->false_value, depth) + "))";
     }
     if (const auto js_test_node = dynamic_cast<JsTestNode*>(js_node)) {
-      return "(" + stringify(js_test_node->left) + " " + js_test_node->op +
-             " " + stringify(js_test_node->right) + ")";
+      return "(" + stringify(js_test_node->left, depth) + " " +
+             js_test_node->op + " " + stringify(js_test_node->right, depth) +
+             ")";
     }
     if (const auto js_throw_node = dynamic_cast<JsThrowNode*>(js_node)) {
-      return "throw " + stringify(js_throw_node->value);
+      return "throw " + stringify(js_throw_node->value, depth);
     }
     if (const auto js_try_node = dynamic_cast<JsTryNode*>(js_node)) {
-      return "try {\n" + stringify_body(js_try_node->try_body) + "\n} catch (" +
-             js_try_node->name + ") {\n" +
-             stringify_body(js_try_node->catch_body) + "\n}";
+      return "try {\n" + stringify_body(js_try_node->try_body, depth + 1) +
+             "\n} catch (" + js_try_node->name + ") {\n" +
+             stringify_body(js_try_node->catch_body, depth + 1) + "\n}";
     }
     if (const auto js_await_node = dynamic_cast<JsAwaitNode*>(js_node)) {
-      return "await " + stringify(js_await_node->value);
+      return "await " + stringify(js_await_node->value, depth);
     }
     if (const auto js_while_node = dynamic_cast<JsWhileNode*>(js_node)) {
-      return "while (" + stringify(js_while_node->condition) + ") {\n" +
-             stringify_body(js_while_node->body) + "\n}";
+      return "while (" + stringify(js_while_node->condition, depth) + ") {\n" +
+             stringify_body(js_while_node->body, depth + 1) + "\n}";
     }
     if (const auto js_if_node = dynamic_cast<JsIfNode*>(js_node)) {
       if (js_if_node->else_body && !js_if_node->else_body->nodes.empty()) {
-        return "if (" + stringify(js_if_node->condition) + ") {\n" +
-               stringify_body(js_if_node->body) + "\n} else {\n" +
-               stringify_body(js_if_node->else_body) + "\n}";
+        return "if (" + stringify(js_if_node->condition, depth) + ") {\n" +
+               stringify_body(js_if_node->body, depth + 1) + "\n} else {\n" +
+               stringify_body(js_if_node->else_body, depth + 1) + "\n}";
       } else {
-        return "if (" + stringify(js_if_node->condition) + ") {\n" +
-               stringify_body(js_if_node->body) + "\n}";
+        return "if (" + stringify(js_if_node->condition, depth) + ") {\n" +
+               stringify_body(js_if_node->body, depth + 1) + "\n}";
       }
     }
     if (const auto js_continue_node = dynamic_cast<JsContinueNode*>(js_node)) {
@@ -303,7 +333,7 @@ namespace jejalyk::js {
     if (const auto js_function_node = dynamic_cast<JsFunctionNode*>(js_node)) {
       std::vector<std::string> params;
       for (const auto param : js_function_node->params) {
-        params.push_back(stringify(param));
+        params.push_back(stringify(param, depth));
       }
       std::string head;
       if (js_function_node->async) {
@@ -314,20 +344,30 @@ namespace jejalyk::js {
         head += " " + js_function_node->name;
       }
       head += "(" + tools::implode(params, ", ") + ") {\n";
-      return head + stringify_body(js_function_node->body) + "\n}";
+      return head + stringify_body(js_function_node->body, depth + 1) + "\n}";
+    }
+    if (const auto js_var_node = dynamic_cast<JsVarNode*>(js_node)) {
+      return "var " + js_var_node->name;
+    }
+    if (const auto js_vars_node = dynamic_cast<JsVarsNode*>(js_node)) {
+      return "var " + tools::implode(js_vars_node->names, ", ");
     }
     return "[CANNOT STRINGIFY]";
   }
 
-  inline std::string stringify_body(JsBody* js_body) {
+  inline std::string stringify_body(JsBody* js_body, size_t depth) {
     std::vector<std::string> lines;
     for (const auto js_node : js_body->nodes) {
       if (const auto js_empty_node = dynamic_cast<JsEmptyNode*>(js_node)) {
       } else {
-        lines.push_back(stringify(js_node));
+        lines.push_back(stringify(js_node, depth));
       }
     }
-    return tools::implode(lines, ";\n");
+    std::string prefix = "";
+    for (size_t i = 0; i < depth; ++i) {
+      prefix += " ";
+    }
+    return tools::implode_with_prefix(lines, ";\n", prefix);
   }
 } // namespace jejalyk::js
 
