@@ -49,6 +49,7 @@ namespace typeinterpreter {
     bool is_number(Scope* scope);
     bool is_string(Scope* scope);
     bool is_array(Scope* scope);
+    bool is_object(Scope* scope);
     std::string get_name();
     std::string get_type_name();
 
@@ -251,6 +252,10 @@ namespace typeinterpreter {
     Object* get_module_object();
     bool get_is_loop();
     bool get_is_async();
+
+    Subject* create_object_instance_subject();
+    Type* create_object_instance_type();
+    Object* create_object_instance_object();
 
     Subject* get(std::string name);
     Subject* get_local(std::string name);

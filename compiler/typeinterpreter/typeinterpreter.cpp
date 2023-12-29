@@ -98,10 +98,6 @@ namespace typeinterpreter {
 
   Result* compile(std::string code) {
     const auto root_code = R"(
-макет структура Дія
-  назва текст
-кінець
-
 макет структура Модуль
   назва текст
 кінець
@@ -127,9 +123,6 @@ namespace typeinterpreter {
   чародія_число() число
   чародія_текст() текст
 кінець
-
-макет субʼєкт так логічне
-макет субʼєкт ні логічне
 
 макет структура число
   чародія_додати(значення число) число
@@ -191,6 +184,9 @@ namespace typeinterpreter {
   чародія_перебір() перебір<К>
   чародія_перебір_з_ключем() перебір_з_ключем<К, З>
 кінець
+
+макет субʼєкт так логічне
+макет субʼєкт ні логічне
 )";
 
     const auto root_parser_result = mavka::parser::parse(root_code);
@@ -226,12 +222,21 @@ namespace typeinterpreter {
     const auto structure_subject = new Subject();
     structure_subject->add_type(structure_type);
 
-    empty_object->structure = object_type;
+    const auto diia_object = new Object();
+    diia_object->name = "Дія";
+    diia_object->structure = structure_type;
+    const auto diia_type = new Type(diia_object);
+    const auto diia_subject = new Subject();
+    diia_subject->add_type(diia_type);
+
+    empty_object->structure = empty_type;
+    empty_object->parent = object_type;
     object_object->structure = structure_type;
 
     root_scope->set_local("пусто", empty_subject);
     root_scope->set_local("обʼєкт", object_subject);
     root_scope->set_local("Структура", structure_subject);
+    root_scope->set_local("Дія", diia_subject);
 
     const auto compiled_root_body =
         root_scope->compile_body(root_parser_result->program_node->body);

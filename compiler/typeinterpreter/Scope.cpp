@@ -63,6 +63,25 @@ namespace typeinterpreter {
     return false;
   }
 
+  Subject* Scope::create_object_instance_subject() {
+    const auto object_structure_subject = this->get_root()->get("обʼєкт");
+    const auto object_instance_subject =
+        object_structure_subject->create_instance(this, {});
+    if (object_instance_subject->error) {
+      debug_print_bug(object_instance_subject->error->message);
+      return nullptr;
+    }
+    return object_instance_subject->value;
+  }
+
+  Type* Scope::create_object_instance_type() {
+    return this->create_object_instance_subject()->types[0];
+  }
+
+  Object* Scope::create_object_instance_object() {
+    return this->create_object_instance_subject()->types[0]->object;
+  }
+
   Subject* Scope::get(std::string name) {
     if (this->has_local(name)) {
       return this->get_local(name);
@@ -183,7 +202,18 @@ namespace typeinterpreter {
     for (const auto type : types) {
       nodes.push_back(type);
     }
-    return this->compile_nodes(nodes);
+    const auto compiled_nodes = this->compile_nodes(nodes);
+    if (compiled_nodes->error) {
+      return compiled_nodes;
+    }
+    if (nodes.empty()) {
+      const auto object_structure = this->get_root()->get("обʼєкт");
+      const auto object_instance_subject =
+          object_structure->create_instance(this, {});
+      compiled_nodes->js_body->nodes.push_back(jejalyk::js::id("обʼєкт"));
+      return success(object_instance_subject->value, compiled_nodes->js_body);
+    }
+    return success(compiled_nodes->value, compiled_nodes->js_body);
   }
 
   Result* Scope::compile_nodes(std::vector<mavka::ast::ASTNode*> nodes) {
@@ -606,11 +636,25 @@ namespace typeinterpreter {
       const auto result =
           value_result->value->call(this, call_node, generic_types, args);
 
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      js_call_node->value = value_result->js_node;
-      js_call_node->arguments = js_args;
+      if (value_result->value->is_diia(this)) {
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        js_call_node->value = value_result->js_node;
+        js_call_node->arguments = js_args;
 
-      result->js_node = js_call_node;
+        result->js_node = js_call_node;
+      } else {
+        const auto js_chain_node = new jejalyk::js::JsChainNode();
+        js_chain_node->left = value_result->js_node;
+        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
+        js_chain_node_right->name = "чародія_викликати";
+        js_chain_node->right = js_chain_node_right;
+
+        const auto js_call_node = new jejalyk::js::JsCallNode();
+        js_call_node->value = js_chain_node;
+        js_call_node->arguments = js_args;
+
+        result->js_node = js_call_node;
+      }
 
       return result;
     }
@@ -618,13 +662,13 @@ namespace typeinterpreter {
     if (jejalyk::tools::instance_of<mavka::ast::ChainNode>(node)) {
       const auto chain_node = dynamic_cast<mavka::ast::ChainNode*>(node);
 
-      const auto left_result = this->compile_node(chain_node->left);
-      if (left_result->error) {
-        return left_result;
-      }
-
       if (jejalyk::tools::instance_of<mavka::ast::IdentifierNode>(
               chain_node->right)) {
+        const auto left_result = this->compile_node(chain_node->left);
+        if (left_result->error) {
+          return left_result;
+        }
+
         const auto right_identifier_node =
             dynamic_cast<mavka::ast::IdentifierNode*>(chain_node->right);
 
@@ -637,14 +681,23 @@ namespace typeinterpreter {
         if (subject_result->error) {
           return subject_result;
         }
-        return success(subject_result->value);
-      } else {
-        const auto right_result = this->compile_node(chain_node->right);
-        if (right_result->error) {
-          return right_result;
-        }
 
-        return left_result->value->get_element(this, node, right_result->value);
+        const auto js_chain_node = new jejalyk::js::JsChainNode();
+        js_chain_node->left = left_result->js_node;
+        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
+        js_chain_node_right->name = right_identifier_node->name;
+        js_chain_node->right = js_chain_node_right;
+
+        return success(subject_result->value, js_chain_node);
+      } else {
+        const auto get_element_node = new mavka::ast::GetElementNode();
+        get_element_node->start_line = chain_node->start_line;
+        get_element_node->start_column = chain_node->start_column;
+        get_element_node->end_line = chain_node->end_line;
+        get_element_node->end_column = chain_node->end_column;
+        get_element_node->value = chain_node->left;
+        get_element_node->index = chain_node->right;
+        return this->compile_node(get_element_node);
       }
     }
 
@@ -1735,11 +1788,28 @@ namespace typeinterpreter {
 
     std::vector<std::string> var_names;
     if (!this->proxy) {
+      const auto diia_object = this->get_diia_object();
+
       for (const auto& [variable_name, variable_subject] : this->variables) {
+        if (diia_object) {
+          bool is_param = false;
+          for (const auto& param : diia_object->params) {
+            if (param->name == variable_name) {
+              is_param = true;
+              break;
+            }
+          }
+          if (is_param) {
+            continue;
+          }
+        }
+
         var_names.push_back(variable_name);
       }
-      result->js_body->nodes.insert(result->js_body->nodes.begin(),
-                                    jejalyk::js::vars(var_names));
+      if (!var_names.empty()) {
+        result->js_body->nodes.insert(result->js_body->nodes.begin(),
+                                      jejalyk::js::vars(var_names));
+      }
     }
 
     return result;
@@ -1781,21 +1851,6 @@ namespace typeinterpreter {
             generic_definition->name, generic_definition_subject);
         generic_definition_subjects.push_back(generic_definition_subject);
       }
-
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-      js_call_id_node->name = "мСтрк";
-      js_call_node->value = js_call_id_node;
-      js_call_node->arguments = {jejalyk::js::string(name),
-                                 jejalyk::js::null()};
-
-      const auto js_assign_node = new jejalyk::js::JsAssignNode();
-      const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-      js_id_node->name = name;
-      js_assign_node->identifier = js_id_node;
-      js_assign_node->value = js_call_node;
-
-      return success(structure_subject, js_assign_node);
     } else {
       const auto structure_structure_subject =
           this->get_root()->get("Структура");
@@ -1856,6 +1911,16 @@ namespace typeinterpreter {
           param->types->add_type(param_type);
         }
       }
+      if (param->types->types.empty()) {
+        const auto object_subject = this->get_root()->get("обʼєкт");
+        const auto object_instance_result =
+            object_subject->create_instance(this, {});
+        if (object_instance_result->error) {
+          return object_instance_result;
+        }
+        const auto object_type = object_instance_result->value->types[0];
+        param->types->add_type(object_type);
+      }
       param->value = nullptr;
       param->variadic = param_node->variadic;
 
@@ -1874,7 +1939,40 @@ namespace typeinterpreter {
           method_declaration_result->value->types[0]);
     }
 
-    return success(structure_subject);
+    const auto diia_structure_subject = this->get_root()->get("Дія");
+
+    const auto structure_constuctor_diia_object = new Object();
+    structure_constuctor_diia_object->structure =
+        diia_structure_subject->types[0];
+    structure_constuctor_diia_object->name = "створити";
+    structure_constuctor_diia_object->this_is_declaration = true;
+    structure_constuctor_diia_object->is_diia_async = false;
+    structure_constuctor_diia_object->params = structure_object->params;
+    structure_constuctor_diia_object->return_types =
+        structure_object->return_types;
+    const auto structure_constuctor_diia_type = new Type();
+    structure_constuctor_diia_type->object = structure_constuctor_diia_object;
+    const auto structure_constuctor_diia_subject = new Subject();
+    structure_constuctor_diia_subject->add_type(structure_constuctor_diia_type);
+
+    structure_object->properties.insert_or_assign(
+        "створити", structure_constuctor_diia_subject);
+    structure_object->properties.insert_or_assign(
+        "чародія_викликати", structure_constuctor_diia_subject);
+
+    const auto js_call_node = new jejalyk::js::JsCallNode();
+    const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
+    js_call_id_node->name = "мСтрк";
+    js_call_node->value = js_call_id_node;
+    js_call_node->arguments = {jejalyk::js::string(name), jejalyk::js::null()};
+
+    const auto js_assign_node = new jejalyk::js::JsAssignNode();
+    const auto js_id_node = new jejalyk::js::JsIdentifierNode();
+    js_id_node->name = name;
+    js_assign_node->identifier = js_id_node;
+    js_assign_node->value = js_call_node;
+
+    return success(structure_subject, js_assign_node);
   }
 
   Result* Scope::compile_diia(
@@ -2000,6 +2098,10 @@ namespace typeinterpreter {
           return_types_subject->add_type(return_type_single);
         }
       }
+      if (return_types.empty()) {
+        return_types_subject->types.push_back(
+            this->create_object_instance_type());
+      }
       if (async) {
         const auto awaiting_structure_subject =
             this->get_root()->get("очікування");
@@ -2027,6 +2129,16 @@ namespace typeinterpreter {
           for (const auto param_type : type_value_single_result->value->types) {
             param->types->add_type(param_type);
           }
+        }
+        if (param->types->types.empty()) {
+          const auto object_subject = this->get_root()->get("обʼєкт");
+          const auto object_instance_result =
+              object_subject->create_instance(this, {});
+          if (object_instance_result->error) {
+            return object_instance_result;
+          }
+          const auto object_type = object_instance_result->value->types[0];
+          param->types->add_type(object_type);
         }
         param->value = nullptr;
         param->variadic = param_node->variadic;

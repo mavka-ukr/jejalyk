@@ -199,6 +199,12 @@ namespace jejalyk::js {
     return js_vars_node;
   }
 
+  inline JsIdentifierNode* id(std::string name) {
+    const auto js_identifier_node = new JsIdentifierNode();
+    js_identifier_node->name = name;
+    return js_identifier_node;
+  }
+
   std::string stringify(JsNode* js_node, size_t depth = 0);
   std::string stringify_body(JsBody* js_body, size_t depth = 0);
 
@@ -350,6 +356,9 @@ namespace jejalyk::js {
       return "var " + js_var_node->name;
     }
     if (const auto js_vars_node = dynamic_cast<JsVarsNode*>(js_node)) {
+      if (js_vars_node->names.empty()) {
+        return "";
+      }
       return "var " + tools::implode(js_vars_node->names, ", ");
     }
     return "[CANNOT STRINGIFY]";
@@ -360,10 +369,13 @@ namespace jejalyk::js {
     for (const auto js_node : js_body->nodes) {
       if (const auto js_empty_node = dynamic_cast<JsEmptyNode*>(js_node)) {
       } else {
-        lines.push_back(stringify(js_node, depth));
+        const auto line = stringify(js_node, depth);
+        if (!line.empty()) {
+          lines.push_back(line);
+        }
       }
     }
-    std::string prefix = "";
+    std::string prefix;
     for (size_t i = 0; i < depth; ++i) {
       prefix += " ";
     }

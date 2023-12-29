@@ -46,6 +46,15 @@ namespace typeinterpreter {
            text_structure_subject->types[0]->object;
   }
 
+  bool Type::is_object(Scope* scope) {
+    const auto text_structure_subject = scope->get_root()->get("обʼєкт");
+    if (this->generic_definition) {
+      return false;
+    }
+    return this->object->structure->object ==
+           text_structure_subject->types[0]->object;
+  }
+
   std::string Type::get_name() {
     if (this->generic_definition) {
       return this->generic_definition->name;
@@ -176,7 +185,7 @@ namespace typeinterpreter {
                      std::vector<Subject*> generic_types,
                      std::vector<Subject*> args) {
     debug_print_call(this, generic_types, args);
-    if (this->is_diia(scope) || this->is_structure(scope)) {
+    if (this->is_diia(scope)) {
       // if (this->object->this_is_declaration) {
       //   return error_from_ast(
       //       node, "Неможливо викликати \"" + this->object->name + "\".");
@@ -252,6 +261,9 @@ namespace typeinterpreter {
   Result* Type::plus(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
     if (this->has("чародія_додати")) {
       return this->get("чародія_додати")->call(scope, node, {}, {value});
+    }
+    if (this->is_object(scope)) {
+      return success(scope->create_object_instance_subject());
     }
     return error_from_ast(node, "Неможливо виконати додавання для типу \"" +
                                     this->get_type_name() + "\".");

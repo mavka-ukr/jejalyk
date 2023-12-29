@@ -110,7 +110,7 @@ namespace typeinterpreter {
 
   Result* Subject::get(const std::string& name) {
     if (types.empty()) {
-      return error("Неможливо отримати властивість \"" + name +
+      return error("[INTERNAL BUG] Неможливо отримати властивість \"" + name +
                    "\" з субʼєкта невідомого типу.");
     }
     if (types.size() > 1) {
@@ -125,7 +125,7 @@ namespace typeinterpreter {
                        const std::string& name,
                        Subject* value) {
     if (types.empty()) {
-      return error("Неможливо встановити властивість \"" + name +
+      return error("[INTERNAL BUG] Неможливо встановити властивість \"" + name +
                    "\" субʼєкта невідомого типу.");
     }
     if (types.size() > 1) {
@@ -151,7 +151,8 @@ namespace typeinterpreter {
                         std::vector<Subject*> generic_types,
                         std::vector<Subject*> args) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо викликати субʼєкт без типів.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо викликати субʼєкт без типів.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -164,10 +165,10 @@ namespace typeinterpreter {
                                mavka::ast::ASTNode* node,
                                Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
-          node,
-          "Неможливо отримати спеціальну властивість з субʼєкта невідомого "
-          "типу.");
+      return error_from_ast(node,
+                            "[INTERNAL BUG] Неможливо отримати спеціальну "
+                            "властивість з субʼєкта невідомого "
+                            "типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(
@@ -183,10 +184,10 @@ namespace typeinterpreter {
                                Subject* element,
                                Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
-          node,
-          "Неможливо встановити спеціальну властивість субʼєкта невідомого "
-          "типу.");
+      return error_from_ast(node,
+                            "[INTERNAL BUG] Неможливо встановити спеціальну "
+                            "властивість субʼєкта невідомого "
+                            "типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(
@@ -201,7 +202,8 @@ namespace typeinterpreter {
                         mavka::ast::ASTNode* node,
                         Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо додати субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо додати субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо додати субʼєкт декількох типів.");
@@ -213,7 +215,8 @@ namespace typeinterpreter {
                          mavka::ast::ASTNode* node,
                          Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо відняти субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо відняти субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо відняти субʼєкт декількох типів.");
@@ -225,8 +228,8 @@ namespace typeinterpreter {
                             mavka::ast::ASTNode* node,
                             Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо помножити субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо помножити субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -239,8 +242,8 @@ namespace typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо поділити субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо поділити субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -253,7 +256,8 @@ namespace typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо divmod субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо divmod субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо divmod субʼєкт декількох типів.");
@@ -265,7 +269,8 @@ namespace typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо divdiv субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо divdiv субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо divdiv субʼєкт декількох типів.");
@@ -277,8 +282,9 @@ namespace typeinterpreter {
                        mavka::ast::ASTNode* node,
                        Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
-          node, "Неможливо піднести субʼєкт невідомого типу до степеня.");
+      return error_from_ast(node,
+                            "[INTERNAL BUG] Неможливо піднести субʼєкт "
+                            "невідомого типу до степеня.");
     }
     if (types.size() > 1) {
       return error_from_ast(
@@ -289,7 +295,8 @@ namespace typeinterpreter {
 
   Result* Subject::bw_not(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо bw_not субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо bw_not субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо bw_not субʼєкт декількох типів.");
@@ -301,7 +308,8 @@ namespace typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо bw_xor субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо bw_xor субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо bw_xor субʼєкт декількох типів.");
@@ -313,7 +321,8 @@ namespace typeinterpreter {
                          mavka::ast::ASTNode* node,
                          Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо bw_or субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо bw_or субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо bw_or субʼєкт декількох типів.");
@@ -325,7 +334,8 @@ namespace typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо bw_and субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо bw_and субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо bw_and субʼєкт декількох типів.");
@@ -337,8 +347,9 @@ namespace typeinterpreter {
                                  mavka::ast::ASTNode* node,
                                  Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо bw_shift_left субʼєкт невідомого типу.");
+      return error_from_ast(
+          node,
+          "[INTERNAL BUG] Неможливо bw_shift_left субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -352,7 +363,8 @@ namespace typeinterpreter {
                                   Subject* value) {
     if (types.empty()) {
       return error_from_ast(
-          node, "Неможливо bw_shift_right субʼєкт невідомого типу.");
+          node,
+          "[INTERNAL BUG] Неможливо bw_shift_right субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(
@@ -363,8 +375,8 @@ namespace typeinterpreter {
 
   Result* Subject::negative(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо negative субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо negative субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -375,8 +387,8 @@ namespace typeinterpreter {
 
   Result* Subject::positive(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо positive субʼєкт невідомого типу.");
+      return error_from_ast(
+          node, "[INTERNAL BUG] Неможливо positive субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -388,7 +400,8 @@ namespace typeinterpreter {
   Result* Subject::post_decrement(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
       return error_from_ast(
-          node, "Неможливо post_decrement субʼєкт невідомого типу.");
+          node,
+          "[INTERNAL BUG] Неможливо post_decrement субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(
@@ -400,7 +413,8 @@ namespace typeinterpreter {
   Result* Subject::post_increment(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
       return error_from_ast(
-          node, "Неможливо post_increment субʼєкт невідомого типу.");
+          node,
+          "[INTERNAL BUG] Неможливо post_increment субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(
@@ -411,8 +425,9 @@ namespace typeinterpreter {
 
   Result* Subject::pre_decrement(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо pre_decrement субʼєкт невідомого типу.");
+      return error_from_ast(
+          node,
+          "[INTERNAL BUG] Неможливо pre_decrement субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -423,8 +438,9 @@ namespace typeinterpreter {
 
   Result* Subject::pre_increment(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо pre_increment субʼєкт невідомого типу.");
+      return error_from_ast(
+          node,
+          "[INTERNAL BUG] Неможливо pre_increment субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -461,9 +477,10 @@ namespace typeinterpreter {
                                 mavka::ast::ASTNode* node,
                                 Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт невідомого "
-                            "типу на більше з іншим субʼєктом.");
+      return error_from_ast(
+          node,
+          "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого "
+          "типу на більше з іншим субʼєктом.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -477,9 +494,10 @@ namespace typeinterpreter {
                                mavka::ast::ASTNode* node,
                                Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт невідомого "
-                            "типу на менше з іншим субʼєктом.");
+      return error_from_ast(
+          node,
+          "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого "
+          "типу на менше з іншим субʼєктом.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -493,10 +511,11 @@ namespace typeinterpreter {
                                       mavka::ast::ASTNode* node,
                                       Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт невідомого "
-                            "типу на більше або дорівнює з іншим "
-                            "субʼєктом.");
+      return error_from_ast(
+          node,
+          "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого "
+          "типу на більше або дорівнює з іншим "
+          "субʼєктом.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -511,10 +530,11 @@ namespace typeinterpreter {
                                      mavka::ast::ASTNode* node,
                                      Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт невідомого "
-                            "типу на менше або дорівнює з іншим "
-                            "субʼєктом.");
+      return error_from_ast(
+          node,
+          "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого "
+          "типу на менше або дорівнює з іншим "
+          "субʼєктом.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -554,9 +574,10 @@ namespace typeinterpreter {
                                  mavka::ast::ASTNode* node,
                                  Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт невідомого типу на "
-                            "наявність в іншому субʼєкті.");
+      return error_from_ast(
+          node,
+          "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого типу на "
+          "наявність в іншому субʼєкті.");
     }
     if (types.size() > 1) {
       return error_from_ast(node,
@@ -570,7 +591,7 @@ namespace typeinterpreter {
                             mavka::ast::ASTNode* node,
                             Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "Неможливо порівняти субʼєкт невідомого типу на відсутність в іншому субʼєкті.");
+      return error_from_ast(node, "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого типу на відсутність в іншому субʼєкті.");
     }
     if (types.size() > 1) {
       return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на відсутність в іншому субʼєкті.");
