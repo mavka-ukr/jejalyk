@@ -276,6 +276,7 @@ namespace typeinterpreter {
     Subject* get_root_dictionary();
     Subject* get_root_iterator();
     Subject* get_root_iterator_with_key();
+    Subject* get_root_awaiting();
     bool get_is_loop();
     bool get_is_async();
     size_t get_iterator_count();
@@ -304,33 +305,6 @@ namespace typeinterpreter {
     Result* compile_nodes(std::vector<mavka::ast::ASTNode*> nodes);
     Result* compile_node(mavka::ast::ASTNode* node);
     Result* compile_body(std::vector<mavka::ast::ASTNode*> body);
-
-    Result* declare_structure(
-        mavka::ast::ASTNode* node,
-        std::string name,
-        std::vector<mavka::ast::GenericNode*> generic_definitions,
-        mavka::ast::ASTNode* parent,
-        std::vector<mavka::ast::GenericNode*> parent_generic_definitions);
-    Result* complete_structure(
-        bool mockup,
-        mavka::ast::ASTNode* node,
-        Subject* structure_subject,
-        std::vector<mavka::ast::ParamNode*> params,
-        std::vector<mavka::ast::MethodDeclarationNode*> method_declarations);
-
-    Result* declare_diia(
-        Scope* diia_scope,
-        mavka::ast::ASTNode* node,
-        bool async,
-        std::string name,
-        std::vector<mavka::ast::GenericNode*> generic_definitions,
-        std::vector<mavka::ast::ParamNode*> params,
-        std::vector<mavka::ast::TypeValueSingleNode*> return_types);
-    Result* complete_diia(bool mockup,
-                          Scope* diia_scope,
-                          mavka::ast::ASTNode* node,
-                          Subject* diia_subject,
-                          std::vector<mavka::ast::ASTNode*>* body);
 
     Result* compile_module(std::string name,
                            std::vector<mavka::ast::ASTNode*>* body);
@@ -482,6 +456,37 @@ namespace typeinterpreter {
       mavka::ast::TypeValueSingleNode* type_value_single_node);
   Result* compile_wait_node(Scope* scope, mavka::ast::WaitNode* wait_node);
   Result* compile_while_node(Scope* scope, mavka::ast::WhileNode* while_node);
+
+  Result* declare_structure(
+      Scope* scope,
+      mavka::ast::ASTNode* node,
+      std::string name,
+      std::vector<mavka::ast::GenericNode*> generic_definitions,
+      mavka::ast::ASTNode* parent,
+      std::vector<mavka::ast::GenericNode*> parent_generic_definitions);
+  Result* complete_structure(
+      Scope* scope,
+      bool mockup,
+      mavka::ast::ASTNode* node,
+      Subject* structure_subject,
+      std::vector<mavka::ast::ParamNode*> params,
+      std::vector<mavka::ast::MethodDeclarationNode*> method_declarations);
+
+  Result* declare_diia(
+      Scope* scope,
+      Scope* diia_scope,
+      mavka::ast::ASTNode* node,
+      bool async,
+      std::string name,
+      std::vector<mavka::ast::GenericNode*> generic_definitions,
+      std::vector<mavka::ast::ParamNode*> params,
+      std::vector<mavka::ast::TypeValueSingleNode*> return_types);
+  Result* complete_diia(Scope* scope,
+                        bool mockup,
+                        Scope* diia_scope,
+                        mavka::ast::ASTNode* node,
+                        Subject* diia_subject,
+                        std::vector<mavka::ast::ASTNode*>* body);
 
   void debug_print_call(Type* value,
                         std::vector<Subject*> generic_types,

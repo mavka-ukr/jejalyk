@@ -4,7 +4,8 @@
 
 int main() {
   const auto code = R"(
-а = () текст: "привіт"
+числа = 2
+числа = []
 )";
   const auto result = typeinterpreter::compile(code);
   if (result->error) {

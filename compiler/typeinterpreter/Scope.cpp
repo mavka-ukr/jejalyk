@@ -90,6 +90,10 @@ namespace typeinterpreter {
     return this->get_from_root("перебір_з_ключем");
   }
 
+  Subject* Scope::get_root_awaiting() {
+    return this->get_from_root("очікування");
+  }
+
   bool Scope::get_is_loop() {
     if (this->is_loop) {
       return true;
@@ -594,13 +598,14 @@ namespace typeinterpreter {
 
       if (const auto mockup_structure_node =
               dynamic_cast<mavka::ast::MockupStructureNode*>(node)) {
-        if (this->has_local(mockup_structure_node->name)) {
+        if (this->has_local(mockup_structure_node->name) ||
+            this->get_root()->has_local(mockup_structure_node->name)) {
           return error_from_ast(
               node,
               "Субʼєкт \"" + mockup_structure_node->name + "\" вже визначено.");
         }
-        const auto structure_declaration_result = this->declare_structure(
-            mockup_structure_node, mockup_structure_node->name,
+        const auto structure_declaration_result = declare_structure(
+            this, mockup_structure_node, mockup_structure_node->name,
             mockup_structure_node->generics, mockup_structure_node->parent,
             mockup_structure_node->parent_generics);
         if (structure_declaration_result->error) {
@@ -612,13 +617,15 @@ namespace typeinterpreter {
 
       if (const auto structure_node =
               dynamic_cast<mavka::ast::StructureNode*>(node)) {
-        if (this->has_local(structure_node->name)) {
+        if (this->has_local(structure_node->name) ||
+            this->get_root()->has_local(structure_node->name)) {
           return error_from_ast(
               node, "Субʼєкт \"" + structure_node->name + "\" вже визначено.");
         }
-        const auto structure_declaration_result = this->declare_structure(
-            structure_node, structure_node->name, structure_node->generics,
-            structure_node->parent, structure_node->parent_generics);
+        const auto structure_declaration_result =
+            declare_structure(this, structure_node, structure_node->name,
+                              structure_node->generics, structure_node->parent,
+                              structure_node->parent_generics);
         if (structure_declaration_result->error) {
           return structure_declaration_result;
         }
@@ -635,13 +642,14 @@ namespace typeinterpreter {
       if (const auto mockup_diia_node =
               dynamic_cast<mavka::ast::MockupDiiaNode*>(node)) {
         if (mockup_diia_node->structure.empty()) {
-          if (this->has_local(mockup_diia_node->name)) {
+          if (this->has_local(mockup_diia_node->name) ||
+              this->get_root()->has_local(mockup_diia_node->name)) {
             return error_from_ast(node, "Субʼєкт \"" + mockup_diia_node->name +
                                             "\" вже визначено.");
           }
           const auto scope = this->make_child();
-          const auto diia_declaration_result = this->declare_diia(
-              scope, mockup_diia_node, mockup_diia_node->async,
+          const auto diia_declaration_result = declare_diia(
+              this, scope, mockup_diia_node, mockup_diia_node->async,
               mockup_diia_node->name, mockup_diia_node->generics,
               mockup_diia_node->params, mockup_diia_node->return_types);
           if (diia_declaration_result->error) {
@@ -654,13 +662,14 @@ namespace typeinterpreter {
 
       if (const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node)) {
         if (diia_node->structure.empty()) {
-          if (this->has_local(diia_node->name)) {
+          if (this->has_local(diia_node->name) ||
+              this->get_root()->has_local(diia_node->name)) {
             return error_from_ast(
                 node, "Субʼєкт \"" + diia_node->name + "\" вже визначено.");
           }
           const auto scope = this->make_child();
-          const auto diia_declaration_result = this->declare_diia(
-              scope, diia_node, diia_node->async, diia_node->name,
+          const auto diia_declaration_result = declare_diia(
+              this, scope, diia_node, diia_node->async, diia_node->name,
               diia_node->generics, diia_node->params, diia_node->return_types);
           if (diia_declaration_result->error) {
             return diia_declaration_result;
@@ -715,348 +724,6 @@ namespace typeinterpreter {
     }
 
     return result;
-  }
-
-  Result* Scope::declare_structure(
-      mavka::ast::ASTNode* node,
-      std::string name,
-      std::vector<mavka::ast::GenericNode*> generic_definitions,
-      mavka::ast::ASTNode* parent,
-      std::vector<mavka::ast::GenericNode*> parent_generic_definitions) {
-    const auto structure_structure_subject = this->get_root_structure();
-    const auto object_subject = this->get_root_object();
-
-    const auto structure_object = new Object();
-    Scope* scope_with_generics = this->make_proxy();
-
-    structure_object->structure = structure_structure_subject->types[0];
-    structure_object->name = name;
-    structure_object->this_is_declaration = true;
-
-    for (int i = 0; i < generic_definitions.size(); ++i) {
-      const auto generic_definition_node = generic_definitions[i];
-
-      const auto generic_definition = new GenericDefinition();
-      generic_definition->object = structure_object;
-      generic_definition->index = i;
-      generic_definition->name = generic_definition_node->name;
-
-      structure_object->generic_definitions.push_back(generic_definition);
-      scope_with_generics->variables.insert_or_assign(
-          generic_definition->name, Subject::create(generic_definition));
-    }
-
-    if (parent == nullptr) {
-      structure_object->parent = object_subject->types[0];
-    } else {
-      // todo: handle parent
-    }
-
-    return success(Subject::create(structure_object));
-  }
-
-  Result* Scope::complete_structure(
-      bool mockup,
-      mavka::ast::ASTNode* node,
-      Subject* structure_subject,
-      std::vector<mavka::ast::ParamNode*> params,
-      std::vector<mavka::ast::MethodDeclarationNode*> method_declarations) {
-    Type* structure_type = nullptr;
-    Object* structure_object = nullptr;
-    Scope* scope_with_generics = this->make_proxy();
-    std::vector<Subject*> generic_definition_subjects;
-
-    structure_type = structure_subject->types[0];
-    structure_object = structure_type->object;
-
-    if (!structure_object->this_is_declaration) {
-      return error("[INTERNAL BUG] Структура \"" + structure_object->name +
-                   "\" вже визначена.");
-    }
-
-    structure_object->this_is_declaration = false;
-
-    for (const auto generic_definition :
-         structure_object->generic_definitions) {
-      const auto generic_definition_subject =
-          Subject::create(generic_definition);
-
-      scope_with_generics->variables.insert_or_assign(
-          generic_definition->name, generic_definition_subject);
-
-      generic_definition_subjects.push_back(generic_definition_subject);
-    }
-
-    for (const auto param_node : params) {
-      const auto param = new Param();
-      param->name = param_node->name;
-      param->types = new Subject();
-      for (const auto type_value_single_node : param_node->types) {
-        const auto type_value_single_result =
-            scope_with_generics->compile_node(type_value_single_node);
-        if (type_value_single_result->error) {
-          return type_value_single_result;
-        }
-
-        param->types->merge_types(type_value_single_result->value);
-      }
-      param->types->fix_types(this);
-      param->value = nullptr;
-      param->variadic = param_node->variadic;
-
-      if (param_node->ee) {
-        if (param_node->name == "створити") {
-          return error_from_ast(
-              param_node,
-              "Неможливо перевизначити спеціальну властивість \"створити\".");
-        }
-        for (const auto& [property_name, property_subject] :
-             structure_object->properties) {
-          if (property_name == param_node->name) {
-            return error_from_ast(param_node, "Спеціальну властивість \"" +
-                                                  param_node->name +
-                                                  "\" вже визначено.");
-          }
-        }
-        structure_object->properties.insert_or_assign(param_node->name,
-                                                      param->types);
-      } else {
-        for (const auto param : structure_object->params) {
-          if (param->name == param_node->name) {
-            return error_from_ast(
-                param_node,
-                "Властивість \"" + param_node->name + "\" вже визначено.");
-          }
-        }
-        for (const auto& [method_name, method_type] :
-             structure_object->methods) {
-          if (method_name == param_node->name) {
-            return error_from_ast(
-                param_node, "Дію \"" + param_node->name + "\" вже визначено.");
-          }
-        }
-
-        // todo: handle parent
-
-        structure_object->params.push_back(param);
-      }
-    }
-
-    for (const auto method_declaration_node : method_declarations) {
-      const auto method_declaration_result =
-          scope_with_generics->compile_node(method_declaration_node);
-      if (method_declaration_result->error) {
-        return method_declaration_result;
-      }
-
-      if (method_declaration_node->ee) {
-        if (method_declaration_node->name == "створити") {
-          return error_from_ast(
-              method_declaration_node,
-              "Неможливо перевизначити спеціальну властивість \"створити\".");
-        }
-        for (const auto& [property_name, property_subject] :
-             structure_object->properties) {
-          if (property_name == method_declaration_node->name) {
-            return error_from_ast(method_declaration_node,
-                                  "Спеціальну властивість \"" +
-                                      method_declaration_node->name +
-                                      "\" вже визначено.");
-          }
-        }
-        structure_object->properties.insert_or_assign(
-            method_declaration_node->name, method_declaration_result->value);
-      } else {
-        for (const auto param : structure_object->params) {
-          if (param->name == method_declaration_node->name) {
-            return error_from_ast(method_declaration_node,
-                                  "Властивість \"" +
-                                      method_declaration_node->name +
-                                      "\" вже визначено.");
-          }
-        }
-        for (const auto& [method_name, method_type] :
-             structure_object->methods) {
-          if (method_name == method_declaration_node->name) {
-            return error_from_ast(
-                method_declaration_node,
-                "Дію \"" + method_declaration_node->name + "\" вже визначено.");
-          }
-        }
-
-        // todo: handle parent
-
-        structure_object->methods.insert_or_assign(
-            method_declaration_node->name,
-            method_declaration_result->value->types[0]);
-      }
-    }
-
-    const auto diia_structure_subject = this->get_root_diia();
-
-    const auto diia_object = new Object();
-    diia_object->structure = diia_structure_subject->types[0];
-    diia_object->name = "створити";
-    diia_object->is_diia_async = false;
-    diia_object->params = structure_object->params;
-    diia_object->return_types = Subject::create(
-        structure_type->create_instance(this, generic_definition_subjects));
-    const auto diia_subject = Subject::create(diia_object);
-
-    structure_object->properties.insert_or_assign("створити", diia_subject);
-
-    if (!structure_object->properties.contains("чародія_викликати")) {
-      structure_object->properties.insert_or_assign("чародія_викликати",
-                                                    diia_subject);
-    }
-
-    if (mockup) {
-      return success(structure_subject, new jejalyk::js::JsEmptyNode());
-    } else {
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-      js_call_id_node->name = "мСтрк";
-      js_call_node->value = js_call_id_node;
-      js_call_node->arguments = {jejalyk::js::string(structure_object->name),
-                                 jejalyk::js::null()};
-
-      return success(structure_subject, js_call_node);
-    }
-  }
-
-  Result* Scope::declare_diia(
-      Scope* diia_scope,
-      mavka::ast::ASTNode* node,
-      bool async,
-      std::string name,
-      std::vector<mavka::ast::GenericNode*> generic_definitions,
-      std::vector<mavka::ast::ParamNode*> params,
-      std::vector<mavka::ast::TypeValueSingleNode*> return_types) {
-    const auto diia_structure_subject = this->get_root_diia();
-
-    Object* diia_object = new Object();
-    diia_object->structure = diia_structure_subject->types[0];
-    diia_object->name = name;
-    diia_object->is_diia_async = async;
-
-    Subject* diia_subject = Subject::create(diia_object);
-    Scope* scope_with_generics = diia_scope->make_proxy();
-    std::vector<Subject*> generic_definition_subjects;
-
-    for (int i = 0; i < generic_definitions.size(); ++i) {
-      const auto generic_definition_node = generic_definitions[i];
-
-      const auto generic_definition = new GenericDefinition();
-      generic_definition->object = diia_object;
-      generic_definition->index = i;
-      generic_definition->name = generic_definition_node->name;
-
-      diia_object->generic_definitions.push_back(generic_definition);
-
-      const auto generic_definition_subject =
-          Subject::create(generic_definition);
-
-      scope_with_generics->variables.insert_or_assign(
-          generic_definition->name, generic_definition_subject);
-
-      generic_definition_subjects.push_back(generic_definition_subject);
-    }
-
-    const auto return_types_subject = new Subject();
-    for (const auto return_type_node : return_types) {
-      const auto compiled_return_type =
-          scope_with_generics->compile_node(return_type_node);
-      if (compiled_return_type->error) {
-        return compiled_return_type;
-      }
-      return_types_subject->merge_types(compiled_return_type->value);
-    }
-    return_types_subject->fix_types(this);
-    if (async) {
-      const auto awaiting_structure_subject = this->get_from_root("очікування");
-      const auto awaiting_instance_result =
-          awaiting_structure_subject->create_instance(this,
-                                                      {return_types_subject});
-      if (awaiting_instance_result->error) {
-        return awaiting_instance_result;
-      }
-      diia_object->return_types = awaiting_instance_result->value;
-    } else {
-      diia_object->return_types = return_types_subject;
-    }
-
-    for (const auto param_node : params) {
-      for (const auto param : diia_object->params) {
-        if (param->name == param_node->name) {
-          return error_from_ast(param_node, "Параметр \"" + param_node->name +
-                                                "\" вже визначено.");
-        }
-      }
-
-      const auto param = new Param();
-      param->name = param_node->name;
-      param->types = new Subject();
-      for (const auto type_value_single_node : param_node->types) {
-        const auto type_value_single_result =
-            scope_with_generics->compile_node(type_value_single_node);
-        if (type_value_single_result->error) {
-          return type_value_single_result;
-        }
-        for (const auto param_type : type_value_single_result->value->types) {
-          param->types->add_type(param_type);
-        }
-      }
-      param->types->fix_types(this);
-      param->value = nullptr;
-      param->variadic = param_node->variadic;
-
-      diia_object->params.push_back(param);
-    }
-
-    return success(diia_subject);
-  }
-
-  Result* Scope::complete_diia(bool mockup,
-                               Scope* diia_scope,
-                               mavka::ast::ASTNode* node,
-                               Subject* diia_subject,
-                               std::vector<mavka::ast::ASTNode*>* body) {
-    Result* compiled_body = nullptr;
-    Object* diia_object = diia_subject->types[0]->object;
-
-    if (mockup) {
-      return success(diia_subject, new jejalyk::js::JsEmptyNode());
-    } else {
-      if (body != nullptr) {
-        diia_scope->diia_object = diia_object;
-        diia_scope->is_async = diia_object->is_diia_async;
-
-        compiled_body = diia_scope->compile_body(*body);
-        if (compiled_body->error) {
-          return compiled_body;
-        }
-      }
-
-      const auto js_function_node = new jejalyk::js::JsFunctionNode();
-      js_function_node->async = diia_object->is_diia_async;
-      for (const auto param : diia_object->params) {
-        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = param->name;
-        js_function_node->params.push_back(js_id_node);
-      }
-      if (compiled_body) {
-        js_function_node->body = compiled_body->js_body;
-      }
-
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-      js_call_id_node->name = "мДія";
-      js_call_node->value = js_call_id_node;
-      js_call_node->arguments = {jejalyk::js::string(diia_object->name),
-                                 jejalyk::js::null(), js_function_node};
-
-      return success(diia_subject, js_call_node);
-    }
   }
 
   Result* Scope::compile_module(std::string name,

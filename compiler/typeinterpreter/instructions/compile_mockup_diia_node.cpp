@@ -17,7 +17,7 @@ namespace typeinterpreter {
 
     const auto diia_scope = scope->make_child();
 
-    return scope->complete_diia(true, diia_scope, mockup_diia_node,
-                                diia_subject, nullptr);
+    return complete_diia(scope, true, diia_scope, mockup_diia_node,
+                         diia_subject, nullptr);
   }
 } // namespace typeinterpreter

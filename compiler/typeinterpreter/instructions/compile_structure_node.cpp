@@ -11,9 +11,9 @@ namespace typeinterpreter {
 
     const auto structure_subject = scope->get_local(structure_node->name);
 
-    const auto result = scope->complete_structure(
-        false, structure_node, structure_subject, structure_node->params,
-        structure_node->methods);
+    const auto result =
+        complete_structure(scope, false, structure_node, structure_subject,
+                           structure_node->params, structure_node->methods);
 
     const auto js_assign_node = new jejalyk::js::JsAssignNode();
     js_assign_node->identifier = jejalyk::js::id(structure_node->name);

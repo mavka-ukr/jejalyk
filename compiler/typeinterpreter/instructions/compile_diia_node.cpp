@@ -15,8 +15,8 @@ namespace typeinterpreter {
 
     const auto diia_scope = scope->make_child();
 
-    const auto result = scope->complete_diia(false, diia_scope, diia_node,
-                                             diia_subject, &diia_node->body);
+    const auto result = complete_diia(scope, false, diia_scope, diia_node,
+                                      diia_subject, &diia_node->body);
     if (result->error) {
       return result;
     }

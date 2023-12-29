@@ -17,6 +17,8 @@ set(JEJALYK_COMPILER_SRC
         compiler/typeinterpreter/Object.cpp
         compiler/typeinterpreter/Subject.cpp
         compiler/typeinterpreter/Scope.cpp
+        compiler/typeinterpreter/diia.cpp
+        compiler/typeinterpreter/structure.cpp
         compiler/typeinterpreter/instructions/compile_anon_diia.cpp
         compiler/typeinterpreter/instructions/compile_arithmetic_node.cpp
         compiler/typeinterpreter/instructions/compile_array_node.cpp
