@@ -1154,6 +1154,20 @@ public:
     virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
   };
 
+  class  Typeless_dictionaryContext : public AtomContext {
+  public:
+    Typeless_dictionaryContext(AtomContext *ctx);
+
+    MavkaParser::Dictionary_argsContext *d_args = nullptr;
+    antlr4::tree::TerminalNode *OPEN_PAREN();
+    antlr4::tree::TerminalNode *CLOSE_PAREN();
+    Dictionary_argsContext *dictionary_args();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
   class  PositiveContext : public AtomContext {
   public:
     PositiveContext(AtomContext *ctx);
@@ -1235,6 +1249,20 @@ public:
     MavkaParser::AtomContext *n_value = nullptr;
     antlr4::tree::TerminalNode *NOT();
     AtomContext *atom();
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+  };
+
+  class  Typeless_arrayContext : public AtomContext {
+  public:
+    Typeless_arrayContext(AtomContext *ctx);
+
+    MavkaParser::Array_elementsContext *a_elements = nullptr;
+    antlr4::tree::TerminalNode *OPEN_ARRAY();
+    antlr4::tree::TerminalNode *CLOSE_ARRAY();
+    Array_elementsContext *array_elements();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 
@@ -1572,11 +1600,11 @@ public:
     MavkaParser::Type_valueContext *d_key_type = nullptr;
     MavkaParser::Type_valueContext *d_value_type = nullptr;
     MavkaParser::Dictionary_argsContext *d_args = nullptr;
-    antlr4::tree::TerminalNode *OPEN_PAREN();
-    antlr4::tree::TerminalNode *CLOSE_PAREN();
     antlr4::tree::TerminalNode *SMALLER();
     antlr4::tree::TerminalNode *COMMA();
     antlr4::tree::TerminalNode *GREATER();
+    antlr4::tree::TerminalNode *OPEN_PAREN();
+    antlr4::tree::TerminalNode *CLOSE_PAREN();
     std::vector<Type_valueContext *> type_value();
     Type_valueContext* type_value(size_t i);
     Dictionary_argsContext *dictionary_args();
@@ -1592,10 +1620,10 @@ public:
 
     MavkaParser::Type_valueContext *a_type = nullptr;
     MavkaParser::Array_elementsContext *a_elements = nullptr;
-    antlr4::tree::TerminalNode *OPEN_ARRAY();
-    antlr4::tree::TerminalNode *CLOSE_ARRAY();
     antlr4::tree::TerminalNode *SMALLER();
     antlr4::tree::TerminalNode *GREATER();
+    antlr4::tree::TerminalNode *OPEN_ARRAY();
+    antlr4::tree::TerminalNode *CLOSE_ARRAY();
     Type_valueContext *type_value();
     Array_elementsContext *array_elements();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;

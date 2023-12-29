@@ -11,6 +11,9 @@ namespace typeinterpreter {
   }
 
   bool Type::is_structure(Scope* scope) {
+    if (this->is_empty(scope)) {
+      return true;
+    }
     const auto structure_subject = scope->get_root()->get("Структура");
     if (this->generic_definition) {
       return false;
@@ -47,12 +50,22 @@ namespace typeinterpreter {
   }
 
   bool Type::is_object(Scope* scope) {
-    const auto text_structure_subject = scope->get_root()->get("обʼєкт");
+    const auto object_structure_subject = scope->get_root()->get("обʼєкт");
     if (this->generic_definition) {
       return false;
     }
     return this->object->structure->object ==
-           text_structure_subject->types[0]->object;
+           object_structure_subject->types[0]->object;
+  }
+
+  bool Type::is_empty(Scope* scope) {
+    const auto empty_structure_subject = scope->get_root()->get("пусто");
+    if (this->generic_definition) {
+      return false;
+    }
+    return this->object == empty_structure_subject->types[0]->object ||
+           this->object->structure->object ==
+               empty_structure_subject->types[0]->object;
   }
 
   std::string Type::get_name() {
@@ -79,9 +92,8 @@ namespace typeinterpreter {
   Type* Type::create_instance(Scope* scope,
                               std::vector<Subject*> generic_types) {
     if (!this->generic_types.empty()) {
-      std::cout
-          << "[BUG] Type::create_instance() called for type with generic_types"
-          << std::endl;
+      debug_print_bug(
+          "Type::create_instance() called for type with generic_types");
     }
 
     if (this->generic_definition) {
@@ -89,8 +101,7 @@ namespace typeinterpreter {
     }
 
     if (!this->is_structure(scope)) {
-      std::cout << "[BUG] Type::create_instance() called for non-structure"
-                << std::endl;
+      debug_print_bug("Type::create_instance() called for non-structure");
     }
 
     const auto object = new Object();

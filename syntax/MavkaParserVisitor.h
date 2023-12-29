@@ -111,6 +111,8 @@ public:
 
     virtual std::any visitBitwise_not(MavkaParser::Bitwise_notContext *context) = 0;
 
+    virtual std::any visitTypeless_dictionary(MavkaParser::Typeless_dictionaryContext *context) = 0;
+
     virtual std::any visitPositive(MavkaParser::PositiveContext *context) = 0;
 
     virtual std::any visitNested(MavkaParser::NestedContext *context) = 0;
@@ -122,6 +124,8 @@ public:
     virtual std::any visitNegative(MavkaParser::NegativeContext *context) = 0;
 
     virtual std::any visitNot(MavkaParser::NotContext *context) = 0;
+
+    virtual std::any visitTypeless_array(MavkaParser::Typeless_arrayContext *context) = 0;
 
     virtual std::any visitPre_decrement(MavkaParser::Pre_decrementContext *context) = 0;
 

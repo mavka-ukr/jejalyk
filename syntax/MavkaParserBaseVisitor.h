@@ -199,6 +199,10 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitTypeless_dictionary(MavkaParser::Typeless_dictionaryContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitPositive(MavkaParser::PositiveContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -220,6 +224,10 @@ public:
   }
 
   virtual std::any visitNot(MavkaParser::NotContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTypeless_array(MavkaParser::Typeless_arrayContext *ctx) override {
     return visitChildren(ctx);
   }
 

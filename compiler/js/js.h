@@ -175,6 +175,14 @@ namespace jejalyk::js {
     std::vector<std::string> names;
   };
 
+  class JsForNode : public JsNode {
+   public:
+    JsNode* init;
+    JsNode* condition;
+    JsNode* update;
+    JsBody* body;
+  };
+
   inline JsIdentifierNode* null() {
     const auto js_identifier_node = new JsIdentifierNode();
     js_identifier_node->name = "null";
@@ -360,6 +368,22 @@ namespace jejalyk::js {
         return "";
       }
       return "var " + tools::implode(js_vars_node->names, ", ");
+    }
+    if (const auto js_for_node = dynamic_cast<JsForNode*>(js_node)) {
+      std::string head = "for (";
+      if (js_for_node->init) {
+        head += stringify(js_for_node->init, depth);
+      }
+      head += "; ";
+      if (js_for_node->condition) {
+        head += stringify(js_for_node->condition, depth);
+      }
+      head += "; ";
+      if (js_for_node->update) {
+        head += stringify(js_for_node->update, depth);
+      }
+      head += ") {\n";
+      return head + stringify_body(js_for_node->body, depth + 1) + "\n}";
     }
     return "[CANNOT STRINGIFY]";
   }

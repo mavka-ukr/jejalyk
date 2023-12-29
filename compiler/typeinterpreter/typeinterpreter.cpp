@@ -257,41 +257,47 @@ namespace typeinterpreter {
   void debug_print_call(Type* value,
                         std::vector<Subject*> generic_types,
                         std::vector<Subject*> args) {
-    std::cout << "[debug] CALL " << value->get_name();
-    if (generic_types.size()) {
-      std::cout << "<";
-      for (int i = 0; i < generic_types.size(); ++i) {
+    if (JJ_DEBUG) {
+      std::cout << "[debug] CALL " << value->get_name();
+      if (generic_types.size()) {
+        std::cout << "<";
+        for (int i = 0; i < generic_types.size(); ++i) {
+          if (i > 0) {
+            std::cout << ", ";
+          }
+          std::cout << generic_types[i]->types_string();
+        }
+        std::cout << ">";
+      }
+      std::cout << "(";
+      for (int i = 0; i < args.size(); ++i) {
         if (i > 0) {
           std::cout << ", ";
         }
-        std::cout << generic_types[i]->types_string();
+        std::cout << args[i]->types_string();
       }
-      std::cout << ">";
+      std::cout << ")" << std::endl;
     }
-    std::cout << "(";
-    for (int i = 0; i < args.size(); ++i) {
-      if (i > 0) {
-        std::cout << ", ";
-      }
-      std::cout << args[i]->types_string();
-    }
-    std::cout << ")" << std::endl;
   }
 
   void debug_print_check_subjects(Subject* value, Subject* types) {
-    std::cout << "[debug] CHECK " << value->types_string() << " AND "
-              << types->types_string() << std::endl;
+    if (JJ_DEBUG) {
+      std::cout << "[debug] CHECK " << value->types_string() << " AND "
+                << types->types_string() << std::endl;
+    }
   }
 
   void debug_print_got_from_scope(Scope* scope,
                                   std::string name,
                                   Subject* value) {
-    std::cout << "[debug] GOT " << name << " " << value->types_string()
-              << std::endl;
+    if (JJ_DEBUG) {
+      std::cout << "[debug] GOT " << name << " " << value->types_string()
+                << std::endl;
+    }
   }
 
   void debug_print_bug(const std::vector<std::string>& messages) {
-    std::cout << "[BUG]";
+    std::cout << "[INTERNAL BUG]";
     for (const auto& message : messages) {
       std::cout << " " << message;
     }
@@ -299,6 +305,6 @@ namespace typeinterpreter {
   }
 
   void debug_print_bug(const std::string& message) {
-    std::cout << "[BUG] " << message << std::endl;
+    std::cout << "[INTERNAL BUG] " << message << std::endl;
   }
 } // namespace typeinterpreter

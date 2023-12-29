@@ -152,6 +152,9 @@ public:
   virtual void enterBitwise_not(MavkaParser::Bitwise_notContext *ctx) = 0;
   virtual void exitBitwise_not(MavkaParser::Bitwise_notContext *ctx) = 0;
 
+  virtual void enterTypeless_dictionary(MavkaParser::Typeless_dictionaryContext *ctx) = 0;
+  virtual void exitTypeless_dictionary(MavkaParser::Typeless_dictionaryContext *ctx) = 0;
+
   virtual void enterPositive(MavkaParser::PositiveContext *ctx) = 0;
   virtual void exitPositive(MavkaParser::PositiveContext *ctx) = 0;
 
@@ -169,6 +172,9 @@ public:
 
   virtual void enterNot(MavkaParser::NotContext *ctx) = 0;
   virtual void exitNot(MavkaParser::NotContext *ctx) = 0;
+
+  virtual void enterTypeless_array(MavkaParser::Typeless_arrayContext *ctx) = 0;
+  virtual void exitTypeless_array(MavkaParser::Typeless_arrayContext *ctx) = 0;
 
   virtual void enterPre_decrement(MavkaParser::Pre_decrementContext *ctx) = 0;
   virtual void exitPre_decrement(MavkaParser::Pre_decrementContext *ctx) = 0;

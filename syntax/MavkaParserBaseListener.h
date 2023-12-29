@@ -154,6 +154,9 @@ public:
   virtual void enterBitwise_not(MavkaParser::Bitwise_notContext * /*ctx*/) override { }
   virtual void exitBitwise_not(MavkaParser::Bitwise_notContext * /*ctx*/) override { }
 
+  virtual void enterTypeless_dictionary(MavkaParser::Typeless_dictionaryContext * /*ctx*/) override { }
+  virtual void exitTypeless_dictionary(MavkaParser::Typeless_dictionaryContext * /*ctx*/) override { }
+
   virtual void enterPositive(MavkaParser::PositiveContext * /*ctx*/) override { }
   virtual void exitPositive(MavkaParser::PositiveContext * /*ctx*/) override { }
 
@@ -171,6 +174,9 @@ public:
 
   virtual void enterNot(MavkaParser::NotContext * /*ctx*/) override { }
   virtual void exitNot(MavkaParser::NotContext * /*ctx*/) override { }
+
+  virtual void enterTypeless_array(MavkaParser::Typeless_arrayContext * /*ctx*/) override { }
+  virtual void exitTypeless_array(MavkaParser::Typeless_arrayContext * /*ctx*/) override { }
 
   virtual void enterPre_decrement(MavkaParser::Pre_decrementContext * /*ctx*/) override { }
   virtual void exitPre_decrement(MavkaParser::Pre_decrementContext * /*ctx*/) override { }

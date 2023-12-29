@@ -4,7 +4,7 @@
 
 int main() {
   const auto code = R"(
-дія друк(значення текст) пусто
+дія друк(значення обʼєкт) пусто
 кінець
 
 поки так
@@ -12,6 +12,8 @@ int main() {
 кінець
 
 ауф = (а текст, б, в) пусто: друк(а)
+
+а = 2.чародія_додати(2)
 )";
   const auto result = typeinterpreter::compile(code);
   if (result->error) {

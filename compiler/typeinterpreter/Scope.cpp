@@ -1,5 +1,3 @@
-#include <algorithm>
-
 #include "typeinterpreter.h"
 
 namespace typeinterpreter {
@@ -61,6 +59,21 @@ namespace typeinterpreter {
       return this->parent->get_is_async();
     }
     return false;
+  }
+
+  size_t Scope::get_iterator_count() {
+    if (this->parent) {
+      return this->parent->get_iterator_count();
+    }
+    return this->iterator_count;
+  }
+
+  void Scope::increment_iterator_count() {
+    if (this->parent) {
+      this->parent->increment_iterator_count();
+    } else {
+      this->iterator_count++;
+    }
   }
 
   Subject* Scope::create_object_instance_subject() {
@@ -925,6 +938,13 @@ namespace typeinterpreter {
         return value_result;
       }
 
+      const auto loop_scope = this->make_proxy();
+      loop_scope->is_loop = true;
+
+      loop_scope->increment_iterator_count();
+      const auto iterator_count = loop_scope->get_iterator_count();
+      const auto iterator_name = "_мit_" + std::to_string(iterator_count);
+
       if (each_node->keyName.empty()) {
         if (value_result->value->is_iterator(this)) {
           const auto iterator_type_result =
@@ -933,6 +953,44 @@ namespace typeinterpreter {
             return iterator_type_result;
           }
           this->set_local(each_node->name, iterator_type_result->value);
+          this->set_local(iterator_name, value_result->value);
+
+          const auto compiled_body = loop_scope->compile_body(each_node->body);
+          if (compiled_body->error) {
+            return compiled_body;
+          }
+
+          const auto js_for_node = new jejalyk::js::JsForNode();
+          const auto js_initial_assign = new jejalyk::js::JsAssignNode();
+          js_initial_assign->identifier = jejalyk::js::id(iterator_name);
+          js_initial_assign->value = value_result->js_node;
+          js_for_node->init = js_initial_assign;
+
+          const auto js_condition_chain = new jejalyk::js::JsChainNode();
+          js_condition_chain->left = jejalyk::js::id(iterator_name);
+          js_condition_chain->right = jejalyk::js::id("завершено");
+          const auto js_condition_not_node = new jejalyk::js::JsNotNode();
+          js_condition_not_node->value = js_condition_chain;
+          js_for_node->condition = js_condition_not_node;
+
+          const auto js_next_chain = new jejalyk::js::JsChainNode();
+          js_next_chain->left = jejalyk::js::id(iterator_name);
+          js_next_chain->right = jejalyk::js::id("далі");
+          const auto js_next_call_node = new jejalyk::js::JsCallNode();
+          js_next_call_node->value = js_next_chain;
+          js_for_node->update = js_next_call_node;
+
+          js_for_node->body = compiled_body->js_body;
+          const auto js_name_assign_node = new jejalyk::js::JsAssignNode();
+          js_name_assign_node->identifier = jejalyk::js::id(each_node->name);
+          const auto js_name_assign_node_chain = new jejalyk::js::JsChainNode();
+          js_name_assign_node_chain->left = jejalyk::js::id(iterator_name);
+          js_name_assign_node_chain->right = jejalyk::js::id("значення");
+          js_name_assign_node->value = js_name_assign_node_chain;
+          js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
+                                          js_name_assign_node);
+
+          return success(nullptr, js_for_node);
         } else if (value_result->value->has("чародія_перебір")) {
           const auto iterator_diia_type_result =
               value_result->value->get("чародія_перебір");
@@ -950,6 +1008,53 @@ namespace typeinterpreter {
               return iterator_type_result;
             }
             this->set_local(each_node->name, iterator_type_result->value);
+            this->set_local(iterator_name, value_result->value);
+
+            const auto compiled_body =
+                loop_scope->compile_body(each_node->body);
+            if (compiled_body->error) {
+              return compiled_body;
+            }
+
+            const auto js_for_node = new jejalyk::js::JsForNode();
+            const auto js_initial_assign = new jejalyk::js::JsAssignNode();
+            js_initial_assign->identifier = jejalyk::js::id(iterator_name);
+            const auto js_initial_assign_call_chain =
+                new jejalyk::js::JsChainNode();
+            js_initial_assign_call_chain->left = value_result->js_node;
+            js_initial_assign_call_chain->right =
+                jejalyk::js::id("чародія_перебір");
+            const auto js_initial_assign_call = new jejalyk::js::JsCallNode();
+            js_initial_assign_call->value = js_initial_assign_call_chain;
+            js_initial_assign->value = js_initial_assign_call;
+            js_for_node->init = js_initial_assign;
+
+            const auto js_condition_chain = new jejalyk::js::JsChainNode();
+            js_condition_chain->left = jejalyk::js::id(iterator_name);
+            js_condition_chain->right = jejalyk::js::id("завершено");
+            const auto js_condition_not_node = new jejalyk::js::JsNotNode();
+            js_condition_not_node->value = js_condition_chain;
+            js_for_node->condition = js_condition_not_node;
+
+            const auto js_next_chain = new jejalyk::js::JsChainNode();
+            js_next_chain->left = jejalyk::js::id(iterator_name);
+            js_next_chain->right = jejalyk::js::id("далі");
+            const auto js_next_call_node = new jejalyk::js::JsCallNode();
+            js_next_call_node->value = js_next_chain;
+            js_for_node->update = js_next_call_node;
+
+            js_for_node->body = compiled_body->js_body;
+            const auto js_name_assign_node = new jejalyk::js::JsAssignNode();
+            js_name_assign_node->identifier = jejalyk::js::id(each_node->name);
+            const auto js_name_assign_node_chain =
+                new jejalyk::js::JsChainNode();
+            js_name_assign_node_chain->left = jejalyk::js::id(iterator_name);
+            js_name_assign_node_chain->right = jejalyk::js::id("значення");
+            js_name_assign_node->value = js_name_assign_node_chain;
+            js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
+                                            js_name_assign_node);
+
+            return success(nullptr, js_for_node);
           } else {
             return error_from_ast(
                 node, "Неможливо перебрати \"" +
@@ -961,17 +1066,7 @@ namespace typeinterpreter {
                                           "\".");
         }
       } else {
-        return error_from_ast(node, "Неможливо перебрати \"" +
-                                        value_result->value->types_string() +
-                                        "\".");
-      }
-
-      const auto loop_scope = this->make_proxy();
-      loop_scope->is_loop = true;
-
-      const auto compiled_body = loop_scope->compile_body(each_node->body);
-      if (compiled_body->error) {
-        return compiled_body;
+        return error_from_ast(node, "Перебір з ключем тимчасово недоступний.");
       }
 
       return success(nullptr);

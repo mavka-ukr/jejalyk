@@ -1,6 +1,7 @@
 #ifndef TYPEINTERPRETER_H
 #define TYPEINTERPRETER_H
 
+#include <algorithm>
 #include <iostream>
 #include <map>
 #include <string>
@@ -10,6 +11,8 @@
 #include "../../parser.h"
 #include "../../tools.h"
 #include "../js/js.h"
+
+#define JJ_DEBUG 0
 
 namespace typeinterpreter {
   class Error;
@@ -50,6 +53,7 @@ namespace typeinterpreter {
     bool is_string(Scope* scope);
     bool is_array(Scope* scope);
     bool is_object(Scope* scope);
+    bool is_empty(Scope* scope);
     std::string get_name();
     std::string get_type_name();
 
@@ -244,6 +248,7 @@ namespace typeinterpreter {
     Object* module_object = nullptr;
     bool is_loop = false;
     bool is_async = false;
+    size_t iterator_count = 0;
 
     Scope* make_child();
     Scope* make_proxy();
@@ -252,6 +257,8 @@ namespace typeinterpreter {
     Object* get_module_object();
     bool get_is_loop();
     bool get_is_async();
+    size_t get_iterator_count();
+    void increment_iterator_count();
 
     Subject* create_object_instance_subject();
     Type* create_object_instance_type();
