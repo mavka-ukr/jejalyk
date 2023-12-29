@@ -4,9 +4,7 @@
 
 int main() {
   const auto code = R"(
-х = 3
-перебрати [1, 2, 3] як м
-кінець
+а = (а=2)
 )";
   const auto result = typeinterpreter::compile(code);
   if (result->error) {

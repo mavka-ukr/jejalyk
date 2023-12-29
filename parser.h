@@ -1443,7 +1443,17 @@ namespace mavka::parser {
               dictionary_arg->getStop()->getLine();
           dictionary_element_node->end_column =
               dictionary_arg->getStop()->getCharPositionInLine();
-          dictionary_element_node->key = dictionary_arg->da_name_id->getText();
+          const auto string_node = new ast::StringNode();
+          string_node->start_line =
+              dictionary_arg->da_name_id->getStart()->getLine();
+          string_node->start_column =
+              dictionary_arg->da_name_id->getStart()->getCharPositionInLine();
+          string_node->end_line =
+              dictionary_arg->da_name_id->getStop()->getLine();
+          string_node->end_column =
+              dictionary_arg->da_name_id->getStop()->getCharPositionInLine();
+          string_node->value = dictionary_arg->da_name_id->getText();
+          dictionary_element_node->key = string_node;
           dictionary_element_node->value = value;
           elements.push_back(dictionary_element_node);
         } else if (dictionary_arg->da_name_string) {
@@ -1459,8 +1469,16 @@ namespace mavka::parser {
                 dictionary_arg->getStop()->getLine();
             dictionary_element_node->end_column =
                 dictionary_arg->getStop()->getCharPositionInLine();
-            dictionary_element_node->key =
+            const auto string_node = new ast::StringNode();
+            string_node->start_line = dictionary_arg->getStart()->getLine();
+            string_node->start_column =
+                dictionary_arg->getStart()->getCharPositionInLine();
+            string_node->end_line = dictionary_arg->getStop()->getLine();
+            string_node->end_column =
+                dictionary_arg->getStop()->getCharPositionInLine();
+            string_node->value =
                 name_string.substr(3, name_string.length() - 6);
+            dictionary_element_node->key = string_node;
             dictionary_element_node->value = value;
             elements.push_back(dictionary_element_node);
           } else {
@@ -1474,8 +1492,16 @@ namespace mavka::parser {
                 dictionary_arg->getStop()->getLine();
             dictionary_element_node->end_column =
                 dictionary_arg->getStop()->getCharPositionInLine();
-            dictionary_element_node->key =
+            const auto string_node = new ast::StringNode();
+            string_node->start_line = dictionary_arg->getStart()->getLine();
+            string_node->start_column =
+                dictionary_arg->getStart()->getCharPositionInLine();
+            string_node->end_line = dictionary_arg->getStop()->getLine();
+            string_node->end_column =
+                dictionary_arg->getStop()->getCharPositionInLine();
+            string_node->value =
                 name_string.substr(1, name_string.length() - 2);
+            dictionary_element_node->key = string_node;
             dictionary_element_node->value = value;
             elements.push_back(dictionary_element_node);
           }

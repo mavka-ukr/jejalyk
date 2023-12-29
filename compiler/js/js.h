@@ -184,6 +184,17 @@ namespace jejalyk::js {
     JsBody* cleanup;
   };
 
+  class JsMapElementNode : public JsNode {
+   public:
+    JsNode* key;
+    JsNode* value;
+  };
+
+  class JsMapNode : public JsNode {
+   public:
+    std::vector<JsMapElementNode*> elements;
+  };
+
   inline JsIdentifierNode* null() {
     const auto js_identifier_node = new JsIdentifierNode();
     js_identifier_node->name = "null";
@@ -391,6 +402,18 @@ namespace jejalyk::js {
                "\n";
       }
       return result;
+    }
+    if (const auto js_map_element_node =
+            dynamic_cast<JsMapElementNode*>(js_node)) {
+      return "[" + stringify(js_map_element_node->key, depth) + ", " +
+             stringify(js_map_element_node->value, depth) + "]";
+    }
+    if (const auto js_map_node = dynamic_cast<JsMapNode*>(js_node)) {
+      std::vector<std::string> elements;
+      for (const auto element : js_map_node->elements) {
+        elements.push_back(stringify(element, depth));
+      }
+      return "new Map([" + tools::implode(elements, ", ") + "])";
     }
     return "[CANNOT STRINGIFY]";
   }

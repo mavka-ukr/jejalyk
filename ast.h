@@ -192,7 +192,7 @@ namespace mavka::ast {
 
   class DictionaryElementNode final : public ASTExprNode {
    public:
-    std::string key;
+    ASTNode* key;
     ASTNode* value;
   };
 
