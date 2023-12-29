@@ -328,6 +328,7 @@ namespace mavka::ast {
     std::string name;
     std::vector<GenericNode*> generics;
     ASTNode* parent;
+    std::vector<GenericNode*> parent_generics;
     std::vector<ParamNode*> params;
     std::vector<MethodDeclarationNode*> methods;
   };
@@ -404,6 +405,7 @@ namespace mavka::ast {
     std::string name;
     std::vector<GenericNode*> generics;
     ASTNode* parent;
+    std::vector<GenericNode*> parent_generics;
     std::vector<ParamNode*> params;
     std::vector<MethodDeclarationNode*> methods;
   };

@@ -7,10 +7,10 @@
 namespace jejalyk::js {
   class JsNode {
    public:
-    size_t start_line;
-    size_t start_column;
-    size_t end_line;
-    size_t end_column;
+    size_t start_line = 0;
+    size_t start_column = 0;
+    size_t end_line = 0;
+    size_t end_column = 0;
 
     virtual ~JsNode() = default;
   };

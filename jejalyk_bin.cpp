@@ -4,7 +4,7 @@
 
 int main() {
   const auto code = R"(
-а = (а=2)
+а = () текст: "привіт"
 )";
   const auto result = typeinterpreter::compile(code);
   if (result->error) {

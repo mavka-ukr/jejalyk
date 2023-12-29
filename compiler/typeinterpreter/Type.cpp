@@ -1,6 +1,18 @@
 #include "typeinterpreter.h"
 
 namespace typeinterpreter {
+  Type* Type::create(Object* object) {
+    const auto type = new Type();
+    type->object = object;
+    return type;
+  }
+
+  Type* Type::create(GenericDefinition* generic_definition) {
+    const auto type = new Type();
+    type->generic_definition = generic_definition;
+    return type;
+  }
+
   bool Type::is_diia(Scope* scope) {
     const auto diia_structure_subject = scope->get_root()->get("Дія");
     if (this->generic_definition) {

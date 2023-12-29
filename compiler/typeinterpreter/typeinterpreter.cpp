@@ -260,7 +260,7 @@ namespace typeinterpreter {
   void debug_print_call(Type* value,
                         std::vector<Subject*> generic_types,
                         std::vector<Subject*> args) {
-    if (JJ_DEBUG) {
+    if constexpr (JJ_DEBUG) {
       std::cout << "[debug] CALL " << value->get_name();
       if (generic_types.size()) {
         std::cout << "<";
@@ -284,7 +284,7 @@ namespace typeinterpreter {
   }
 
   void debug_print_check_subjects(Subject* value, Subject* types) {
-    if (JJ_DEBUG) {
+    if constexpr (JJ_DEBUG) {
       std::cout << "[debug] CHECK " << value->types_string() << " AND "
                 << types->types_string() << std::endl;
     }
@@ -293,7 +293,7 @@ namespace typeinterpreter {
   void debug_print_got_from_scope(Scope* scope,
                                   std::string name,
                                   Subject* value) {
-    if (JJ_DEBUG) {
+    if constexpr (JJ_DEBUG) {
       std::cout << "[debug] GOT " << name << " " << value->types_string()
                 << std::endl;
     }

@@ -3,13 +3,22 @@
 namespace typeinterpreter {
   Result* compile_structure_node(Scope* scope,
                                  mavka::ast::StructureNode* structure_node) {
-    const auto structure_compilation_result = scope->compile_structure(
-        structure_node->name, structure_node->generics, "", {},
-        structure_node->params, structure_node->methods);
-    if (structure_compilation_result->error) {
-      return structure_compilation_result;
+    if (!scope->has_local(structure_node->name)) {
+      return error_from_ast(structure_node, "[INTERNAL BUG] Структура \"" +
+                                                structure_node->name +
+                                                "\" не визначена.");
     }
-    scope->set_local(structure_node->name, structure_compilation_result->value);
-    return structure_compilation_result;
+
+    const auto structure_subject = scope->get_local(structure_node->name);
+
+    const auto result = scope->complete_structure(
+        false, structure_node, structure_subject, structure_node->params,
+        structure_node->methods);
+
+    const auto js_assign_node = new jejalyk::js::JsAssignNode();
+    js_assign_node->identifier = jejalyk::js::id(structure_node->name);
+    js_assign_node->value = result->js_node;
+
+    return success(result->value, js_assign_node);
   }
 } // namespace typeinterpreter

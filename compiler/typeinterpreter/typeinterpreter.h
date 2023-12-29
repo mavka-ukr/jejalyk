@@ -43,6 +43,9 @@ namespace typeinterpreter {
 
   class Type final {
    public:
+    static Type* create(Object* object);
+    static Type* create(GenericDefinition* generic_definition);
+
     Object* object = nullptr;
     GenericDefinition* generic_definition = nullptr;
     std::vector<Subject*> generic_types;
@@ -144,9 +147,15 @@ namespace typeinterpreter {
 
   class Subject {
    public:
+    static Subject* create(Type* type);
+    static Subject* create(Object* object);
+    static Subject* create(GenericDefinition* generic_definition);
+
     std::vector<Type*> types;
 
     void add_type(Type* type);
+    Subject* merge_types(Subject* subject);
+    void fix_types(Scope* scope);
 
     std::string get_name();
     std::string types_string();
@@ -254,6 +263,7 @@ namespace typeinterpreter {
     Scope* make_child();
     Scope* make_proxy();
     Scope* get_root();
+    Subject* get_from_root(std::string name);
     Object* get_diia_object();
     Object* get_module_object();
     bool get_is_loop();
@@ -285,23 +295,32 @@ namespace typeinterpreter {
     Result* compile_node(mavka::ast::ASTNode* node);
     Result* compile_body(std::vector<mavka::ast::ASTNode*> body);
 
-    Result* compile_structure(
+    Result* declare_structure(
+        mavka::ast::ASTNode* node,
         std::string name,
         std::vector<mavka::ast::GenericNode*> generic_definitions,
-        std::string parent,
-        std::vector<std::vector<mavka::ast::TypeValueSingleNode*>>
-            parent_generics,
+        mavka::ast::ASTNode* parent,
+        std::vector<mavka::ast::GenericNode*> parent_generic_definitions);
+    Result* complete_structure(
+        bool mockup,
+        mavka::ast::ASTNode* node,
+        Subject* structure_subject,
         std::vector<mavka::ast::ParamNode*> params,
         std::vector<mavka::ast::MethodDeclarationNode*> method_declarations);
 
-    Result* compile_diia(
+    Result* declare_diia(
         Scope* diia_scope,
+        mavka::ast::ASTNode* node,
         bool async,
         std::string name,
         std::vector<mavka::ast::GenericNode*> generic_definitions,
         std::vector<mavka::ast::ParamNode*> params,
-        std::vector<mavka::ast::TypeValueSingleNode*> return_types,
-        std::vector<mavka::ast::ASTNode*>* body);
+        std::vector<mavka::ast::TypeValueSingleNode*> return_types);
+    Result* complete_diia(bool mockup,
+                          Scope* diia_scope,
+                          mavka::ast::ASTNode* node,
+                          Subject* diia_subject,
+                          std::vector<mavka::ast::ASTNode*>* body);
 
     Result* compile_module(std::string name,
                            std::vector<mavka::ast::ASTNode*>* body);

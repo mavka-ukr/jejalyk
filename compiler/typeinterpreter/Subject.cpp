@@ -1,6 +1,24 @@
 #include "typeinterpreter.h"
 
 namespace typeinterpreter {
+  Subject* Subject::create(Type* type) {
+    const auto subject = new Subject();
+    subject->add_type(type);
+    return subject;
+  }
+
+  Subject* Subject::create(Object* object) {
+    const auto subject = new Subject();
+    subject->add_type(Type::create(object));
+    return subject;
+  }
+
+  Subject* Subject::create(GenericDefinition* generic_definition) {
+    const auto subject = new Subject();
+    subject->add_type(Type::create(generic_definition));
+    return subject;
+  }
+
   void Subject::add_type(Type* type) {
     for (const auto& existing_type : types) {
       if (existing_type->generic_definition) {
@@ -36,6 +54,19 @@ namespace typeinterpreter {
       }
     }
     types.push_back(type);
+  }
+
+  Subject* Subject::merge_types(Subject* subject) {
+    for (const auto& type : subject->types) {
+      this->add_type(type);
+    }
+    return this;
+  }
+
+  void Subject::fix_types(Scope* scope) {
+    if (this->types.empty()) {
+      this->types.push_back(scope->create_object_instance_type());
+    }
   }
 
   std::string Subject::get_name() {
