@@ -1,6 +1,6 @@
 #include "typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Scope* Scope::make_child() {
     const auto child = new Scope();
     child->parent = this;

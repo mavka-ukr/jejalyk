@@ -1,6 +1,6 @@
 #include "typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Type* Type::create(Object* object) {
     const auto type = new Type();
     type->object = object;

@@ -1,6 +1,6 @@
 #include "typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* declare_structure(
       Scope* scope,
       mavka::ast::ASTNode* node,

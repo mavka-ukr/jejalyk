@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_function_node(Scope* scope,
                                 mavka::ast::FunctionNode* function_node) {
     const auto diia_scope = scope->make_child();

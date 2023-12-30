@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_structure_node(Scope* scope,
                                  mavka::ast::StructureNode* structure_node) {
     if (!scope->has_local(structure_node->name)) {

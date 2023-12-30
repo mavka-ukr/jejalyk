@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_get_element_node(
       Scope* scope,
       mavka::ast::GetElementNode* get_element_node) {

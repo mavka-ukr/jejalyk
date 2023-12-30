@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_number_node(Scope* scope,
                               mavka::ast::NumberNode* number_node) {
     const auto number_structure = scope->get_root_number();

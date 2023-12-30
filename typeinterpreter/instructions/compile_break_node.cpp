@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_break_node(Scope* scope, mavka::ast::BreakNode* break_node) {
     if (!scope->get_is_loop()) {
       return error_from_ast(break_node,

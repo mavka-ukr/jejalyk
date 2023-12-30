@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_continue_node(Scope* scope,
                                 mavka::ast::ContinueNode* continue_node) {
     if (!scope->get_is_loop()) {

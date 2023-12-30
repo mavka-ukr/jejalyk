@@ -14,7 +14,7 @@
 
 #define JJ_DEBUG 0
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   class Error;
   class Result;
   class Type;

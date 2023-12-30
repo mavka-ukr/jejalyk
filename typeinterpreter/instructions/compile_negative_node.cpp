@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_negative_node(Scope* scope,
                                 mavka::ast::NegativeNode* negative_node) {
     const auto value_result = scope->compile_node(negative_node->value);

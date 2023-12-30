@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_identifier_node(Scope* scope,
                                   mavka::ast::IdentifierNode* identifier_node) {
     if (!scope->has(identifier_node->name)) {

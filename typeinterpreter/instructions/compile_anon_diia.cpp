@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_anon_diia_node(Scope* scope,
                                  mavka::ast::AnonDiiaNode* anon_diia_node) {
     const auto diia_scope = scope->make_child();
@@ -15,4 +15,4 @@ namespace typeinterpreter {
     return complete_diia(scope, false, diia_scope, anon_diia_node,
                          diia_declaration_result->value, &anon_diia_node->body);
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

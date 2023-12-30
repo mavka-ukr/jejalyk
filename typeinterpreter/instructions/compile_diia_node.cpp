@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_diia_node(Scope* scope, mavka::ast::DiiaNode* diia_node) {
     if (!diia_node->structure.empty()) {
       return error_from_ast(diia_node, "Методи тимчасово недоступні.");

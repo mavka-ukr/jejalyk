@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_assign_simple_node(
       Scope* scope,
       mavka::ast::AssignSimpleNode* assign_simple_node) {

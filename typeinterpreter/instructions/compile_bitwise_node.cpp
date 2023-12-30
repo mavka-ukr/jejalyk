@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_bitwise_node(Scope* scope,
                                mavka::ast::BitwiseNode* bitwise_node) {
     const auto left_result = scope->compile_node(bitwise_node->left);

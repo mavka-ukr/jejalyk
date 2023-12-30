@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_throw_node(Scope* scope, mavka::ast::ThrowNode* throw_node) {
     const auto value_result = scope->compile_node(throw_node->value);
     if (value_result->error) {

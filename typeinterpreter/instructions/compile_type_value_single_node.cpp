@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_type_value_single_node(
       Scope* scope,
       mavka::ast::TypeValueSingleNode* type_value_single_node) {

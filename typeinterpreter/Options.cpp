@@ -1,6 +1,6 @@
 #include "typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Options* Options::clone() {
     const auto options_clone = new Options();
     options_clone->parent = this;

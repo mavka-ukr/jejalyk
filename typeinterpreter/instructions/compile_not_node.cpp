@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_not_node(Scope* scope, mavka::ast::NotNode* not_node) {
     const auto value_result = scope->compile_node(not_node->value);
     if (value_result->error) {

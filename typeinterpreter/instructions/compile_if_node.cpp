@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_if_node(Scope* scope, mavka::ast::IfNode* if_node) {
     const auto condition_result = scope->compile_node(if_node->condition);
     if (condition_result->error) {

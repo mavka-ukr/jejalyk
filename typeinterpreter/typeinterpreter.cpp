@@ -1,6 +1,6 @@
 #include "typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Subject* process_subject_generics(Object* object,
                                     std::vector<Subject*> generic_types,
                                     Subject* subject) {

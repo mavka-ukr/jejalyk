@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_module_node(Scope* scope,
                               mavka::ast::ModuleNode* module_node) {
     if (!scope->get_is_async()) {

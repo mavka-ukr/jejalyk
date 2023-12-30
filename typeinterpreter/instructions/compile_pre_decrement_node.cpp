@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_pre_decrement_node(
       Scope* scope,
       mavka::ast::PreDecrementNode* pre_decrement_node) {

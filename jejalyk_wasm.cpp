@@ -7,7 +7,7 @@
 
 using namespace emscripten;
 
-val compilation_options_to_val(typeinterpreter::Options* options) {
+val compilation_options_to_val(jejalyk::typeinterpreter::Options* options) {
   const auto options_val = val::object();
   options_val.set(std::string("root_module_path"),
                   std::string(options->root_module_path));
@@ -25,18 +25,20 @@ val compilation_error_to_val(jejalyk::CompilationError* error) {
   return error_val;
 }
 
-typeinterpreter::GetModuleResult* val_to_get_module_result(val result) {
-  const auto get_module_result = new typeinterpreter::GetModuleResult();
+jejalyk::typeinterpreter::GetModuleResult* val_to_get_module_result(
+    val result) {
+  const auto get_module_result =
+      new jejalyk::typeinterpreter::GetModuleResult();
   get_module_result->error = result["error"].as<std::string>();
   get_module_result->result = result["result"].as<std::string>();
   get_module_result->builtin = result["builtin"].as<bool>();
   return get_module_result;
 }
 
-typeinterpreter::GetModuleResult* get_module_name(
+jejalyk::typeinterpreter::GetModuleResult* get_module_name(
     bool relative,
     std::string module,
-    typeinterpreter::Options* options) {
+    jejalyk::typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_module_name"];
   const auto answer =
@@ -45,10 +47,10 @@ typeinterpreter::GetModuleResult* get_module_name(
   return val_to_get_module_result(answer);
 }
 
-typeinterpreter::GetModuleResult* get_module_path(
+jejalyk::typeinterpreter::GetModuleResult* get_module_path(
     bool relative,
     std::string module,
-    typeinterpreter::Options* options) {
+    jejalyk::typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_module_path"];
   const auto answer =
@@ -57,10 +59,10 @@ typeinterpreter::GetModuleResult* get_module_path(
   return val_to_get_module_result(answer);
 }
 
-typeinterpreter::GetModuleResult* get_module_code(
+jejalyk::typeinterpreter::GetModuleResult* get_module_code(
     bool relative,
     std::string module,
-    typeinterpreter::Options* options) {
+    jejalyk::typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_module_code"];
   const auto answer =
@@ -69,9 +71,9 @@ typeinterpreter::GetModuleResult* get_module_code(
   return val_to_get_module_result(answer);
 }
 
-typeinterpreter::GetModuleResult* get_remote_module_name(
+jejalyk::typeinterpreter::GetModuleResult* get_remote_module_name(
     std::string module,
-    typeinterpreter::Options* options) {
+    jejalyk::typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_remote_module_name"];
   const auto answer =
@@ -79,9 +81,9 @@ typeinterpreter::GetModuleResult* get_remote_module_name(
   return val_to_get_module_result(answer);
 }
 
-typeinterpreter::GetModuleResult* get_remote_module_path(
+jejalyk::typeinterpreter::GetModuleResult* get_remote_module_path(
     std::string module,
-    typeinterpreter::Options* options) {
+    jejalyk::typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_remote_module_path"];
   const auto answer =
@@ -89,9 +91,9 @@ typeinterpreter::GetModuleResult* get_remote_module_path(
   return val_to_get_module_result(answer);
 }
 
-typeinterpreter::GetModuleResult* get_remote_module_code(
+jejalyk::typeinterpreter::GetModuleResult* get_remote_module_code(
     std::string module,
-    typeinterpreter::Options* options) {
+    jejalyk::typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_remote_module_code"];
   const auto answer =
@@ -101,7 +103,7 @@ typeinterpreter::GetModuleResult* get_remote_module_code(
 
 val compile(std::string code) {
   const auto mco = val::global("mavka_compilation_options");
-  const auto options = new typeinterpreter::Options();
+  const auto options = new jejalyk::typeinterpreter::Options();
   options->args = mco["args"].as<std::string>();
   options->std_code = mco["std_code"].as<std::string>();
   options->root_module_path = mco["root_module_path"].as<std::string>();

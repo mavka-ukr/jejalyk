@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_give_node(Scope* scope, mavka::ast::GiveNode* give_node) {
     const auto module_object = scope->get_module_object();
     if (module_object == nullptr) {

@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_while_node(Scope* scope, mavka::ast::WhileNode* while_node) {
     const auto condition_result = scope->compile_node(while_node->condition);
     if (condition_result->error) {

@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_ternary_node(Scope* scope,
                                mavka::ast::TernaryNode* ternary_node) {
     const auto condition_result = scope->compile_node(ternary_node->condition);

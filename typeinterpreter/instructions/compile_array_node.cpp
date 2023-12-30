@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_array_node(Scope* scope, mavka::ast::ArrayNode* array_node) {
     const auto js_array_node = new jejalyk::js::JsArrayNode();
     const auto array_structure_subject = scope->get_root_list();

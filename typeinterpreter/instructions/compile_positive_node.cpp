@@ -1,6 +1,6 @@
 #include "../typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Result* compile_positive_node(Scope* scope,
                                 mavka::ast::PositiveNode* positive_node) {
     const auto value_result = scope->compile_node(positive_node->value);

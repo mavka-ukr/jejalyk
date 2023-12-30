@@ -1,6 +1,6 @@
 #include "typeinterpreter.h"
 
-namespace typeinterpreter {
+namespace jejalyk::typeinterpreter {
   Subject* Subject::create(Type* type) {
     const auto subject = new Subject();
     subject->add_type(type);
