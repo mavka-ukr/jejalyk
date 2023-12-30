@@ -51,7 +51,7 @@ while: 'поки' w_value=expr nl (w_body=body nl)? 'кінець';
 
 try: 'спробувати' nl t_body=body nl 'зловити' tc_name=identifier? (tc_body=body nl)? 'кінець';
 
-eval: 'js' e_value=value;
+eval: 'js' e_value=string;
 
 take: 'взяти' (tm_relative='.')? tm_elements_chain=identifiers_chain ('як' tm_as=identifier)? #take_module
     | 'взяти файл' tf_name=STRING 'як' tf_as=identifier #take_file

@@ -348,7 +348,7 @@ void mavkaparserParserInitialize() {
   	27,0,0,547,549,3,114,57,0,548,547,1,0,0,0,548,549,1,0,0,0,549,553,1,0,
   	0,0,550,551,3,140,70,0,551,552,3,158,79,0,552,554,1,0,0,0,553,550,1,0,
   	0,0,553,554,1,0,0,0,554,555,1,0,0,0,555,556,5,1,0,0,556,61,1,0,0,0,557,
-  	558,5,46,0,0,558,559,3,74,37,0,559,63,1,0,0,0,560,562,5,13,0,0,561,563,
+  	558,5,46,0,0,558,559,3,70,35,0,559,63,1,0,0,0,560,562,5,13,0,0,561,563,
   	5,85,0,0,562,561,1,0,0,0,562,563,1,0,0,0,563,564,1,0,0,0,564,567,3,116,
   	58,0,565,566,5,17,0,0,566,568,3,114,57,0,567,565,1,0,0,0,567,568,1,0,
   	0,0,568,580,1,0,0,0,569,570,5,15,0,0,570,571,5,108,0,0,571,572,5,17,0,
@@ -4432,8 +4432,8 @@ tree::TerminalNode* MavkaParser::EvalContext::EVAL() {
   return getToken(MavkaParser::EVAL, 0);
 }
 
-MavkaParser::ValueContext* MavkaParser::EvalContext::value() {
-  return getRuleContext<MavkaParser::ValueContext>(0);
+MavkaParser::StringContext* MavkaParser::EvalContext::string() {
+  return getRuleContext<MavkaParser::StringContext>(0);
 }
 
 
@@ -4477,7 +4477,7 @@ MavkaParser::EvalContext* MavkaParser::eval() {
     setState(557);
     match(MavkaParser::EVAL);
     setState(558);
-    antlrcpp::downCast<EvalContext *>(_localctx)->e_value = value(0);
+    antlrcpp::downCast<EvalContext *>(_localctx)->e_value = string();
    
   }
   catch (RecognitionException &e) {

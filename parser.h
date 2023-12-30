@@ -1614,8 +1614,13 @@ namespace mavka::parser {
       eval_node->start_column = context->getStart()->getCharPositionInLine();
       eval_node->end_line = context->getStop()->getLine();
       eval_node->end_column = context->getStop()->getCharPositionInLine();
-      eval_node->value =
-          any_to_ast_result(_visitContext(context->e_value))->node;
+      if (context->e_value->getText().starts_with(R"(""")")) {
+        eval_node->value = context->e_value->getText().substr(
+            3, context->e_value->getText().length() - 6);
+      } else {
+        eval_node->value = context->e_value->getText().substr(
+            1, context->e_value->getText().length() - 2);
+      }
       return create_ast_result(eval_node);
     }
 
@@ -2258,8 +2263,9 @@ namespace mavka::parser {
 
   class MavkaParserError : public std::exception {
    public:
-    size_t line{};
-    size_t column{};
+    std::string path;
+    size_t line = 0;
+    size_t column = 0;
     std::string message;
   };
 
@@ -2286,6 +2292,6 @@ namespace mavka::parser {
     ast::ProgramNode* program_node = nullptr;
   };
 
-  MavkaParserResult* parse(std::string code);
+  MavkaParserResult* parse(std::string code, std::string path);
 }
 #endif //PARSER_H

@@ -3,11 +3,11 @@
 
 #include <string>
 
-#include "jejalyk.hpp"
+#include "jejalyk.h"
 
 using namespace emscripten;
 
-val compilation_options_to_val(jejalyk::CompilationOptions* options) {
+val compilation_options_to_val(typeinterpreter::Options* options) {
   const auto options_val = val::object();
   options_val.set(std::string("root_module_path"),
                   std::string(options->root_module_path));
@@ -25,18 +25,18 @@ val compilation_error_to_val(jejalyk::CompilationError* error) {
   return error_val;
 }
 
-jejalyk::GetModuleResult* val_to_get_module_result(val result) {
-  const auto get_module_result = new jejalyk::GetModuleResult();
+typeinterpreter::GetModuleResult* val_to_get_module_result(val result) {
+  const auto get_module_result = new typeinterpreter::GetModuleResult();
   get_module_result->error = result["error"].as<std::string>();
   get_module_result->result = result["result"].as<std::string>();
   get_module_result->builtin = result["builtin"].as<bool>();
   return get_module_result;
 }
 
-jejalyk::GetModuleResult* get_module_name(
+typeinterpreter::GetModuleResult* get_module_name(
     bool relative,
     std::string module,
-    jejalyk::CompilationOptions* options) {
+    typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_module_name"];
   const auto answer =
@@ -45,10 +45,10 @@ jejalyk::GetModuleResult* get_module_name(
   return val_to_get_module_result(answer);
 }
 
-jejalyk::GetModuleResult* get_module_path(
+typeinterpreter::GetModuleResult* get_module_path(
     bool relative,
     std::string module,
-    jejalyk::CompilationOptions* options) {
+    typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_module_path"];
   const auto answer =
@@ -57,10 +57,10 @@ jejalyk::GetModuleResult* get_module_path(
   return val_to_get_module_result(answer);
 }
 
-jejalyk::GetModuleResult* get_module_code(
+typeinterpreter::GetModuleResult* get_module_code(
     bool relative,
     std::string module,
-    jejalyk::CompilationOptions* options) {
+    typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_module_code"];
   const auto answer =
@@ -69,9 +69,9 @@ jejalyk::GetModuleResult* get_module_code(
   return val_to_get_module_result(answer);
 }
 
-jejalyk::GetModuleResult* get_remote_module_name(
+typeinterpreter::GetModuleResult* get_remote_module_name(
     std::string module,
-    jejalyk::CompilationOptions* options) {
+    typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_remote_module_name"];
   const auto answer =
@@ -79,9 +79,9 @@ jejalyk::GetModuleResult* get_remote_module_name(
   return val_to_get_module_result(answer);
 }
 
-jejalyk::GetModuleResult* get_remote_module_path(
+typeinterpreter::GetModuleResult* get_remote_module_path(
     std::string module,
-    jejalyk::CompilationOptions* options) {
+    typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_remote_module_path"];
   const auto answer =
@@ -89,9 +89,9 @@ jejalyk::GetModuleResult* get_remote_module_path(
   return val_to_get_module_result(answer);
 }
 
-jejalyk::GetModuleResult* get_remote_module_code(
+typeinterpreter::GetModuleResult* get_remote_module_code(
     std::string module,
-    jejalyk::CompilationOptions* options) {
+    typeinterpreter::Options* options) {
   const auto mco = val::global("mavka_compilation_options");
   const auto mco_module_name = mco["get_remote_module_code"];
   const auto answer =
@@ -101,7 +101,7 @@ jejalyk::GetModuleResult* get_remote_module_code(
 
 val compile(std::string code) {
   const auto mco = val::global("mavka_compilation_options");
-  const auto options = new jejalyk::CompilationOptions();
+  const auto options = new typeinterpreter::Options();
   options->args = mco["args"].as<std::string>();
   options->std_code = mco["std_code"].as<std::string>();
   options->root_module_path = mco["root_module_path"].as<std::string>();
@@ -119,7 +119,7 @@ val compile(std::string code) {
     result.set(std::string("error"),
                compilation_error_to_val(compilation_result->error));
   } else {
-    result.set(std::string("result"), std::string(compilation_result->result));
+    result.set(std::string("result"), compilation_result->result);
   }
   return result;
 }

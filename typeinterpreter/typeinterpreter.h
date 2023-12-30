@@ -7,10 +7,10 @@
 #include <string>
 #include <vector>
 
-#include "../../ast.h"
-#include "../../parser.h"
-#include "../../tools.h"
+#include "../ast.h"
 #include "../js/js.h"
+#include "../parser.h"
+#include "../tools.h"
 
 #define JJ_DEBUG 0
 
@@ -23,10 +23,12 @@ namespace typeinterpreter {
   class Scope;
   class Param;
   class GenericDefinition;
+  class Options;
+  class GetModuleResult;
 
   class Error final {
    public:
-    bool full = false;
+    std::string path;
     size_t line = 0;
     size_t column = 0;
     std::string message;
@@ -248,6 +250,7 @@ namespace typeinterpreter {
 
   class Scope final {
    public:
+    Options* options = nullptr;
     Scope* parent = nullptr;
     std::map<std::string, Subject*> variables;
     bool proxy = false;
@@ -281,6 +284,7 @@ namespace typeinterpreter {
     bool get_is_async();
     size_t get_iterator_count();
     void increment_iterator_count();
+    Options* get_options() const;
 
     void put_additional_node_before(jejalyk::js::JsNode* node);
     std::vector<jejalyk::js::JsNode*> get_additional_nodes_before();
@@ -327,6 +331,37 @@ namespace typeinterpreter {
     std::string name;
   };
 
+  class GetModuleResult final {
+   public:
+    std::string error;
+    std::string result;
+    bool builtin = false;
+  };
+
+  class Options final {
+   public:
+    Options* parent = nullptr;
+    std::string root_module_path;
+    std::string current_module_path;
+    std::string std_code;
+    std::string args;
+    bool allow_js = false;
+
+    GetModuleResult* (*get_module_name)(bool, std::string, Options*) = nullptr;
+
+    GetModuleResult* (*get_module_path)(bool, std::string, Options*) = nullptr;
+
+    GetModuleResult* (*get_module_code)(bool, std::string, Options*) = nullptr;
+
+    GetModuleResult* (*get_remote_module_name)(std::string, Options*) = nullptr;
+
+    GetModuleResult* (*get_remote_module_path)(std::string, Options*) = nullptr;
+
+    GetModuleResult* (*get_remote_module_code)(std::string, Options*) = nullptr;
+
+    Options* clone();
+  };
+
   Subject* process_subject_generics(Object* object,
                                     std::vector<Subject*> generic_types,
                                     Subject* subject);
@@ -343,12 +378,13 @@ namespace typeinterpreter {
 
   Result* error_from_ast(const mavka::ast::ASTNode* node,
                          const std::string& message);
+  Result* error_from_ast(const mavka::ast::ASTNode* node,
+                         const Scope* scope,
+                         const std::string& message);
   Result* error(const std::string& message);
   Result* success(Subject* value);
   Result* success(Subject* value, jejalyk::js::JsNode* js_node);
   Result* success(Subject* value, jejalyk::js::JsBody* js_body);
-
-  Result* compile(std::string code);
 
   Result* compile_anon_diia_node(Scope* scope,
                                  mavka::ast::AnonDiiaNode* anon_diia_node);

@@ -1,7 +1,7 @@
 #include "parser.h"
 
 namespace mavka::parser {
-  MavkaParserResult* parse(std::string code) {
+  MavkaParserResult* parse(std::string code, std::string path) {
     try {
       antlr4::ANTLRInputStream input(code);
 
@@ -41,6 +41,7 @@ namespace mavka::parser {
       // } catch (...) {
       // ignore
       // }
+      parser_error->path = path;
       parser_error->message = "Помилка парсингу.";
       parser_result->error = parser_error;
       return parser_result;

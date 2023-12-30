@@ -225,7 +225,7 @@ namespace mavka::ast {
 
   class EvalNode final : public ASTExprNode {
    public:
-    ASTNode* value = nullptr;
+    std::string value = nullptr;
   };
 
   class GenericNode final : public ASTExprNode {

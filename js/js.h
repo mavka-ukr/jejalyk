@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "../tools.h"
+
 // насправді компілятор настільки гнучкий,
 // що можна зробити компіляцію в будь-яку мову (в тому числі машинний код)
 
@@ -196,6 +198,11 @@ namespace jejalyk::js {
   class JsMapNode : public JsNode {
    public:
     std::vector<JsMapElementNode*> elements;
+  };
+
+  class JsRawNode : public JsNode {
+   public:
+    std::string code;
   };
 
   inline JsIdentifierNode* null() {
@@ -417,6 +424,9 @@ namespace jejalyk::js {
         elements.push_back(stringify(element, depth));
       }
       return "new Map([" + tools::implode(elements, ", ") + "])";
+    }
+    if (const auto js_raw_node = dynamic_cast<JsRawNode*>(js_node)) {
+      return "//[JS]\n" + js_raw_node->code + "//[/JS]";
     }
     return "[CANNOT STRINGIFY]";
   }

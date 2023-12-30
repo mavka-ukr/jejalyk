@@ -129,6 +129,16 @@ namespace typeinterpreter {
     }
   }
 
+  Options* Scope::get_options() const {
+    if (this->options) {
+      return this->options;
+    }
+    if (this->parent) {
+      return this->parent->get_options();
+    }
+    return nullptr;
+  }
+
   void Scope::put_additional_node_before(jejalyk::js::JsNode* node) {
     if (this->proxy) {
       this->parent->put_additional_node_before(node);
