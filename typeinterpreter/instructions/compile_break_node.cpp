@@ -8,8 +8,8 @@ namespace jejalyk::typeinterpreter {
                             "використана тільки всередині циклу.");
     }
 
-    const auto js_break_node = new jejalyk::js::JsBreakNode();
+    const auto js_break = new js::JsBreakNode();
 
-    return success(nullptr, js_break_node);
+    return success(nullptr, js_break);
   }
 } // namespace typeinterpreter

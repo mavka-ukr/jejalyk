@@ -8,10 +8,9 @@ namespace jejalyk::typeinterpreter {
           identifier_node,
           "Субʼєкт \"" + identifier_node->name + "\" не визначено.");
     }
+
     const auto subject = scope->get(identifier_node->name);
     debug_print_got_from_scope(scope, identifier_node->name, subject);
-    const auto js_identifier_node = new jejalyk::js::JsIdentifierNode();
-    js_identifier_node->name = identifier_node->name;
-    return success(subject, js_identifier_node);
+    return success(subject, js::make_id(identifier_node->name));
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

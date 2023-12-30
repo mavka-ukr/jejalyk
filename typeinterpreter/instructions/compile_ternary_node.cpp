@@ -14,7 +14,7 @@ namespace jejalyk::typeinterpreter {
       return result;
     }
 
-    const auto js_ternary_node = new jejalyk::js::JsTernaryNode();
+    const auto js_ternary_node = new js::JsTernaryNode();
     js_ternary_node->condition = condition_result->js_node;
     js_ternary_node->true_value = result->js_body->nodes[0];
     js_ternary_node->false_value = result->js_body->nodes[1];
@@ -23,4 +23,4 @@ namespace jejalyk::typeinterpreter {
 
     return result;
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

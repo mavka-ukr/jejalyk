@@ -80,6 +80,15 @@ namespace jejalyk::typeinterpreter {
                empty_structure_subject->types[0]->object;
   }
 
+  bool Type::is_dictionary(Scope* scope) {
+    const auto dictionary_structure_subject = scope->get_root_dictionary();
+    if (this->generic_definition) {
+      return false;
+    }
+    return this->object->structure->object ==
+           dictionary_structure_subject->types[0]->object;
+  }
+
   std::string Type::get_name() {
     if (this->generic_definition) {
       return this->generic_definition->name;

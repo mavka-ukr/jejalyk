@@ -21,27 +21,20 @@ namespace jejalyk::typeinterpreter {
     }
 
     if (value_result->value->is_array(scope)) {
-      const auto js_access_node = new jejalyk::js::JsAccessNode();
-      js_access_node->value = value_result->js_node;
-      js_access_node->index = index_result->js_node;
-      result->js_node = js_access_node;
+      // а[б]
+      const auto js_access =
+          js::make_access(value_result->js_node, index_result->js_node);
+      result->js_node = js_access;
     } else if (value_result->value->has_diia(scope, "чародія_отримати")) {
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      const auto js_chain_node = new jejalyk::js::JsChainNode();
-      js_chain_node->left = value_result->js_node;
-      const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-      js_chain_node_right->name = "чародія_отримати";
-      js_chain_node->right = js_chain_node_right;
-      js_call_node->value = js_chain_node;
-      js_call_node->arguments = {index_result->js_node};
-      result->js_node = js_call_node;
+      // а.чародія_отримати(б)
+      const auto js_chain = js::make_chain(value_result->js_node,
+                                           js::make_id("чародія_отримати"));
+      const auto js_call = js::make_call(js_chain, {index_result->js_node});
+      result->js_node = js_call;
     } else {
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-      js_id_node->name = "мОтрЕ";
-      js_call_node->value = js_id_node;
-      js_call_node->arguments = {value_result->js_node, index_result->js_node};
-      result->js_node = js_call_node;
+      // мОтрЕ(а, б)
+      result->js_node = js::make_call(
+          js::make_id("мОтрЕ"), {value_result->js_node, index_result->js_node});
     }
 
     return result;

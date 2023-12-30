@@ -13,6 +13,7 @@ namespace jejalyk::typeinterpreter {
     if (array_node->types.empty()) {
       const auto result = array_structure_subject->create_instance(
           scope, {array_values_type_result->value});
+      result->value->is_empty_array = array_node->elements.empty();
       result->js_node = js_array_node;
       return result;
     } else {
@@ -41,6 +42,7 @@ namespace jejalyk::typeinterpreter {
 
       const auto result =
           array_structure_subject->create_instance(scope, {array_type_subject});
+      result->value->is_empty_array = array_node->elements.empty();
       result->js_node = js_array_node;
       return result;
     }

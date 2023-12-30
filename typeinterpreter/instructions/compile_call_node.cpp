@@ -36,25 +36,16 @@ namespace jejalyk::typeinterpreter {
         value_result->value->call(scope, call_node, generic_types, args);
 
     if (value_result->value->is_diia(scope)) {
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      js_call_node->value = value_result->js_node;
-      js_call_node->arguments = js_args;
-
-      result->js_node = js_call_node;
+      // а(б)
+      result->js_node = js::make_call(value_result->js_node, js_args);
     } else {
-      const auto js_chain_node = new jejalyk::js::JsChainNode();
-      js_chain_node->left = value_result->js_node;
-      const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-      js_chain_node_right->name = "чародія_викликати";
-      js_chain_node->right = js_chain_node_right;
+      // а.чародія_викликати(б)
+      const auto js_chain = js::make_chain(value_result->js_node,
+                                           js::make_id("чародія_викликати"));
 
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      js_call_node->value = js_chain_node;
-      js_call_node->arguments = js_args;
-
-      result->js_node = js_call_node;
+      result->js_node = js::make_call(js_chain, js_args);
     }
 
     return result;
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

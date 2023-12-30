@@ -19,56 +19,53 @@ namespace jejalyk::typeinterpreter {
         return error_1(each_node, each_node->name);
       }
       if (value_result->value->is_iterator(scope)) {
+        // перебрати а як х
         const auto iterator_type_result =
             value_result->value->get_iterator_type(scope, each_node->value);
         if (iterator_type_result->error) {
           return iterator_type_result;
         }
         scope->set_local(each_node->name, iterator_type_result->value);
-        scope->put_additional_node_before(jejalyk::js::var(iterator_name));
+        scope->put_additional_node_before(js::make_var(iterator_name));
 
         const auto compiled_body = loop_scope->compile_body(each_node->body);
         if (compiled_body->error) {
           return compiled_body;
         }
 
-        const auto js_for_node = new jejalyk::js::JsForNode();
-        const auto js_initial_assign = new jejalyk::js::JsAssignNode();
-        js_initial_assign->identifier = jejalyk::js::id(iterator_name);
-        js_initial_assign->value = value_result->js_node;
+        const auto js_for_node = new js::JsForNode();
+
+        // _мit_0 = а
+        const auto js_initial_assign =
+            js::make_assign(js::make_id(iterator_name), value_result->js_node);
         js_for_node->init = js_initial_assign;
 
-        const auto js_condition_chain = new jejalyk::js::JsChainNode();
-        js_condition_chain->left = jejalyk::js::id(iterator_name);
-        js_condition_chain->right = jejalyk::js::id("завершено");
-        const auto js_condition_not_node = new jejalyk::js::JsNotNode();
-        js_condition_not_node->value = js_condition_chain;
-        js_for_node->condition = js_condition_not_node;
+        // !_мit_0.завершено
+        const auto js_condition_chain =
+            js::make_chain(iterator_name, "завершено");
+        js_for_node->condition = js::make_not(js_condition_chain);
 
-        const auto js_next_chain = new jejalyk::js::JsChainNode();
-        js_next_chain->left = jejalyk::js::id(iterator_name);
-        js_next_chain->right = jejalyk::js::id("далі");
-        const auto js_next_call_node = new jejalyk::js::JsCallNode();
-        js_next_call_node->value = js_next_chain;
-        js_for_node->update = js_next_call_node;
+        // _мit_0.далі()
+        const auto js_next_chain = js::make_chain(iterator_name, "далі");
+        js_for_node->update = js::make_call(js_next_chain, {});
 
         js_for_node->body = compiled_body->js_body;
-        const auto js_name_assign_node = new jejalyk::js::JsAssignNode();
-        js_name_assign_node->identifier = jejalyk::js::id(each_node->name);
-        const auto js_name_assign_node_chain = new jejalyk::js::JsChainNode();
-        js_name_assign_node_chain->left = jejalyk::js::id(iterator_name);
-        js_name_assign_node_chain->right = jejalyk::js::id("значення");
-        js_name_assign_node->value = js_name_assign_node_chain;
+        // х = _мit_0.значення
+        const auto js_name_assign =
+            js::make_assign(js::make_id(each_node->name),
+                            js::make_chain(iterator_name, "значення"));
         js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
-                                        js_name_assign_node);
-        js_for_node->cleanup = new jejalyk::js::JsBody();
-        const auto js_cleanup_iterator_assign = new jejalyk::js::JsAssignNode();
-        js_cleanup_iterator_assign->identifier = jejalyk::js::id(iterator_name);
-        js_cleanup_iterator_assign->value = jejalyk::js::id("undefined");
+                                        js_name_assign);
+
+        js_for_node->cleanup = new js::JsBody();
+        // _мit_0 = undefined
+        const auto js_cleanup_iterator_assign = js::make_assign(
+            js::make_id(iterator_name), js::make_id("undefined"));
         js_for_node->cleanup->nodes.push_back(js_cleanup_iterator_assign);
 
         return success(nullptr, js_for_node);
       } else if (value_result->value->has("чародія_перебір")) {
+        // перебрати а.чародія_перебір() як х
         const auto iterator_diia_type_result =
             value_result->value->get("чародія_перебір");
         if (iterator_diia_type_result->error) {
@@ -85,55 +82,45 @@ namespace jejalyk::typeinterpreter {
             return iterator_type_result;
           }
           scope->set_local(each_node->name, iterator_type_result->value);
-          scope->put_additional_node_before(jejalyk::js::var(iterator_name));
+          scope->put_additional_node_before(
+              jejalyk::js::make_var(iterator_name));
 
           const auto compiled_body = loop_scope->compile_body(each_node->body);
           if (compiled_body->error) {
             return compiled_body;
           }
 
-          const auto js_for_node = new jejalyk::js::JsForNode();
-          const auto js_initial_assign = new jejalyk::js::JsAssignNode();
-          js_initial_assign->identifier = jejalyk::js::id(iterator_name);
-          const auto js_initial_assign_call_chain =
-              new jejalyk::js::JsChainNode();
-          js_initial_assign_call_chain->left = value_result->js_node;
-          js_initial_assign_call_chain->right =
-              jejalyk::js::id("чародія_перебір");
-          const auto js_initial_assign_call = new jejalyk::js::JsCallNode();
-          js_initial_assign_call->value = js_initial_assign_call_chain;
-          js_initial_assign->value = js_initial_assign_call;
+          const auto js_for_node = new js::JsForNode();
+
+          // _мit_0 = а.чародія_перебір()
+          const auto js_initial_assign = js::make_assign(
+              js::make_id(iterator_name),
+              js::make_call(js::make_chain(value_result->js_node,
+                                           js::make_id("чародія_перебір")),
+                            {}));
           js_for_node->init = js_initial_assign;
 
-          const auto js_condition_chain = new jejalyk::js::JsChainNode();
-          js_condition_chain->left = jejalyk::js::id(iterator_name);
-          js_condition_chain->right = jejalyk::js::id("завершено");
-          const auto js_condition_not_node = new jejalyk::js::JsNotNode();
-          js_condition_not_node->value = js_condition_chain;
-          js_for_node->condition = js_condition_not_node;
+          // !_мit_0.завершено
+          const auto js_condition_chain =
+              js::make_chain(iterator_name, "завершено");
+          js_for_node->condition = js::make_not(js_condition_chain);
 
-          const auto js_next_chain = new jejalyk::js::JsChainNode();
-          js_next_chain->left = jejalyk::js::id(iterator_name);
-          js_next_chain->right = jejalyk::js::id("далі");
-          const auto js_next_call_node = new jejalyk::js::JsCallNode();
-          js_next_call_node->value = js_next_chain;
-          js_for_node->update = js_next_call_node;
+          // _мit_0.далі()
+          const auto js_next_chain = js::make_chain(iterator_name, "далі");
+          js_for_node->update = js::make_call(js_next_chain, {});
 
           js_for_node->body = compiled_body->js_body;
-          const auto js_name_assign_node = new jejalyk::js::JsAssignNode();
-          js_name_assign_node->identifier = jejalyk::js::id(each_node->name);
-          const auto js_name_assign_node_chain = new jejalyk::js::JsChainNode();
-          js_name_assign_node_chain->left = jejalyk::js::id(iterator_name);
-          js_name_assign_node_chain->right = jejalyk::js::id("значення");
-          js_name_assign_node->value = js_name_assign_node_chain;
+          // х = _мit_0.значення
+          const auto js_name_assign =
+              js::make_assign(js::make_id(each_node->name),
+                              js::make_chain(iterator_name, "значення"));
           js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
-                                          js_name_assign_node);
-          js_for_node->cleanup = new jejalyk::js::JsBody();
-          const auto js_cleanup_iterator_assign =
-              new jejalyk::js::JsAssignNode();
-          js_cleanup_iterator_assign->identifier =
-              jejalyk::js::id(iterator_name);
-          js_cleanup_iterator_assign->value = jejalyk::js::id("undefined");
+                                          js_name_assign);
+
+          js_for_node->cleanup = new js::JsBody();
+          // _мit_0 = undefined
+          const auto js_cleanup_iterator_assign = js::make_assign(
+              js::make_id(iterator_name), js::make_id("undefined"));
           js_for_node->cleanup->nodes.push_back(js_cleanup_iterator_assign);
 
           return success(nullptr, js_for_node);
@@ -155,8 +142,6 @@ namespace jejalyk::typeinterpreter {
         return error_1(each_node, each_node->keyName);
       }
       return error_from_ast(each_node, "Перебір з ключем тимчасово недоступний.");
-      }
-
-      return success(nullptr);
+    }
   }
 } // namespace typeinterpreter

@@ -7,11 +7,11 @@ namespace jejalyk::typeinterpreter {
       return value_result;
     }
 
-    const auto js_throw_node = new jejalyk::js::JsThrowNode();
-    js_throw_node->value = value_result->js_node;
+    const auto js_throw = new jejalyk::js::JsThrowNode();
+    js_throw->value = value_result->js_node;
 
-    value_result->js_node = js_throw_node;
+    value_result->js_node = js_throw;
 
     return value_result;
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

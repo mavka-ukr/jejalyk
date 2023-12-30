@@ -7,8 +7,8 @@ namespace jejalyk::typeinterpreter {
     }
 
     const auto js_raw_node = new jejalyk::js::JsRawNode();
-    js_raw_node->code = eval_node->value;
+    js_raw_node->code = tools::trim(eval_node->value);
 
     return success(scope->create_object_instance_subject(), js_raw_node);
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

@@ -8,12 +8,19 @@ namespace jejalyk::typeinterpreter {
           module_node,
           "Модуль може бути визначений лише всередині іншого модуля.");
     }
-    const auto module_compilation_result =
+    const auto module_result =
         scope->compile_module(module_node->name, &module_node->body);
-    if (module_compilation_result->error) {
-      return module_compilation_result;
+    if (module_result->error) {
+      return module_result;
     }
-    scope->set_local(module_node->name, module_compilation_result->value);
-    return module_compilation_result;
+
+    scope->set_local(module_node->name, module_result->value);
+
+    const auto js_call = js::make_call(js::make_id("мМодуль"),
+                                       {js::make_string(module_node->name)});
+
+    // todo: handle body
+
+    return success(module_result->value, js_call);
   }
 } // namespace typeinterpreter

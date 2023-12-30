@@ -26,6 +26,8 @@ namespace jejalyk::tools {
 
   std::vector<std::string> split(std::string s, std::string delimiter);
 
+  std::string trim(const std::string& source);
+
   template <typename Base, typename T>
   bool instanceof (const T* ptr) {
     return dynamic_cast<const Base*>(ptr) != nullptr;

@@ -14,10 +14,8 @@ namespace jejalyk::typeinterpreter {
       return logical_instance_result;
     }
 
-    const auto js_not_node = new jejalyk::js::JsNotNode();
-    js_not_node->value = value_result->js_node;
-    logical_instance_result->js_node = js_not_node;
+    const auto js_not = js::make_not(value_result->js_node);
 
-    return logical_instance_result;
+    return success(logical_instance_result->value, js_not);
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

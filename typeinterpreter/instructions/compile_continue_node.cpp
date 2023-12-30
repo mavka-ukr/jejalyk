@@ -9,8 +9,8 @@ namespace jejalyk::typeinterpreter {
                             "використана тільки всередині циклу.");
     }
 
-    const auto js_continue_node = new jejalyk::js::JsContinueNode();
+    const auto js_continue = new jejalyk::js::JsContinueNode();
 
-    return success(nullptr, js_continue_node);
+    return success(nullptr, js_continue);
   }
 } // namespace typeinterpreter

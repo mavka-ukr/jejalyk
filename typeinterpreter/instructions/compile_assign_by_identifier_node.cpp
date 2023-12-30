@@ -16,8 +16,19 @@ namespace jejalyk::typeinterpreter {
       return value_result;
     }
 
-    return left_result->value->set(scope, assign_by_identifier_node,
-                                   assign_by_identifier_node->identifier,
-                                   value_result->value);
+    const auto result = left_result->value->set(
+        scope, assign_by_identifier_node, assign_by_identifier_node->identifier,
+        value_result->value);
+    if (result->error) {
+      return result;
+    }
+
+    // а.б = в
+    const auto js_chain =
+        js::make_chain(left_result->js_node,
+                       js::make_id(assign_by_identifier_node->identifier));
+    const auto js_assign = js::make_assign(js_chain, value_result->js_node);
+    result->js_node = js_assign;
+    return result;
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

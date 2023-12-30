@@ -17,12 +17,8 @@ namespace jejalyk::typeinterpreter {
         return result;
       }
 
-      const auto js_and_node = new jejalyk::js::JsTestNode();
-      js_and_node->left = left_result->js_node;
-      js_and_node->right = right_result->js_node;
-      js_and_node->op = "&&";
-
-      result->js_node = js_and_node;
+      result->js_node =
+          js::make_test(left_result->js_node, "&&", right_result->js_node);
 
       return result;
     }
@@ -33,12 +29,8 @@ namespace jejalyk::typeinterpreter {
         return result;
       }
 
-      const auto js_or_node = new jejalyk::js::JsTestNode();
-      js_or_node->left = left_result->js_node;
-      js_or_node->right = right_result->js_node;
-      js_or_node->op = "||";
-
-      result->js_node = js_or_node;
+      result->js_node =
+          js::make_test(left_result->js_node, "||", right_result->js_node);
 
       return result;
     }
@@ -46,4 +38,4 @@ namespace jejalyk::typeinterpreter {
     return error_from_ast(test_node,
                           "Невідома вказівка \"" + test_node->op + "\".");
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

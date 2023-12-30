@@ -58,6 +58,7 @@ namespace jejalyk::typeinterpreter {
     bool is_array(Scope* scope);
     bool is_object(Scope* scope);
     bool is_empty(Scope* scope);
+    bool is_dictionary(Scope* scope);
     std::string get_name();
     std::string get_type_name();
 
@@ -154,6 +155,9 @@ namespace jejalyk::typeinterpreter {
 
     std::vector<Type*> types;
 
+    bool is_empty_array = false;
+    bool is_empty_dictionary = false;
+
     void add_type(Type* type);
     Subject* merge_types(Subject* subject);
     void fix_types(Scope* scope);
@@ -167,6 +171,7 @@ namespace jejalyk::typeinterpreter {
     bool is_string(Scope* scope);
     bool is_array(Scope* scope);
     bool is_diia(Scope* scope);
+    bool is_dictionary(Scope* scope);
 
     bool has(const std::string& name);
     Result* get(const std::string& name);

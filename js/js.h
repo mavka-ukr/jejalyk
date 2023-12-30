@@ -69,7 +69,7 @@ namespace jejalyk::js {
 
   class JsAssignNode : public JsNode {
    public:
-    JsIdentifierNode* identifier;
+    JsNode* identifier;
     JsNode* value;
   };
 
@@ -205,6 +205,12 @@ namespace jejalyk::js {
     std::string code;
   };
 
+  class JsElementNode : public JsNode {
+   public:
+    JsNode* value;
+    JsNode* element;
+  };
+
   inline JsIdentifierNode* null() {
     const auto js_identifier_node = new JsIdentifierNode();
     js_identifier_node->name = "null";
@@ -223,6 +229,12 @@ namespace jejalyk::js {
     return js_var_node;
   }
 
+  inline JsVarNode* make_var(std::string name) {
+    const auto js_var_node = new JsVarNode();
+    js_var_node->name = name;
+    return js_var_node;
+  }
+
   inline JsVarsNode* vars(std::vector<std::string> names) {
     const auto js_vars_node = new JsVarsNode();
     js_vars_node->names = names;
@@ -233,6 +245,112 @@ namespace jejalyk::js {
     const auto js_identifier_node = new JsIdentifierNode();
     js_identifier_node->name = name;
     return js_identifier_node;
+  }
+
+  inline JsIdentifierNode* make_id(std::string name) {
+    const auto js_identifier_node = new JsIdentifierNode();
+    js_identifier_node->name = name;
+    return js_identifier_node;
+  }
+
+  inline JsChainNode* make_chain(JsNode* left, JsNode* right) {
+    const auto js_chain_node = new JsChainNode();
+    js_chain_node->left = left;
+    js_chain_node->right = right;
+    return js_chain_node;
+  }
+
+  inline JsChainNode* make_chain(std::string left, std::string right) {
+    const auto js_chain_node = new JsChainNode();
+    js_chain_node->left = make_id(left);
+    js_chain_node->right = make_id(right);
+    return js_chain_node;
+  }
+
+  inline JsCallNode* make_call(JsNode* value, std::vector<JsNode*> arguments) {
+    const auto js_call_node = new JsCallNode();
+    js_call_node->value = value;
+    js_call_node->arguments = arguments;
+    return js_call_node;
+  }
+
+  inline JsElementNode* make_element(JsNode* value, JsNode* element) {
+    const auto js_element_node = new JsElementNode();
+    js_element_node->value = value;
+    js_element_node->element = element;
+    return js_element_node;
+  }
+
+  inline JsArithmeticNode* make_arithmetic(JsNode* left,
+                                           std::string op,
+                                           JsNode* right) {
+    const auto js_arithmetic_node = new JsArithmeticNode();
+    js_arithmetic_node->left = left;
+    js_arithmetic_node->op = op;
+    js_arithmetic_node->right = right;
+    return js_arithmetic_node;
+  }
+
+  inline JsAssignNode* make_assign(JsNode* left, JsNode* value) {
+    const auto js_assign_node = new JsAssignNode();
+    js_assign_node->identifier = left;
+    js_assign_node->value = value;
+    return js_assign_node;
+  }
+
+  inline JsNegativeNode* make_negative(JsNode* value) {
+    const auto js_negative_node = new JsNegativeNode();
+    js_negative_node->value = value;
+    return js_negative_node;
+  }
+
+  inline JsPositiveNode* make_positive(JsNode* value) {
+    const auto js_positive_node = new JsPositiveNode();
+    js_positive_node->value = value;
+    return js_positive_node;
+  }
+
+  inline JsNotNode* make_not(JsNode* value) {
+    const auto js_not_node = new JsNotNode();
+    js_not_node->value = value;
+    return js_not_node;
+  }
+
+  inline JsComparisonNode* make_comparison(JsNode* left,
+                                           std::string op,
+                                           JsNode* right) {
+    const auto js_comparison_node = new JsComparisonNode();
+    js_comparison_node->left = left;
+    js_comparison_node->op = op;
+    js_comparison_node->right = right;
+    return js_comparison_node;
+  }
+
+  inline JsNumberNode* make_number(std::string value) {
+    const auto js_number_node = new JsNumberNode();
+    js_number_node->value = value;
+    return js_number_node;
+  }
+
+  inline JsStringNode* make_string(std::string value) {
+    const auto js_string_node = new JsStringNode();
+    js_string_node->value = value;
+    return js_string_node;
+  }
+
+  inline JsAccessNode* make_access(JsNode* value, JsNode* index) {
+    const auto js_access_node = new JsAccessNode();
+    js_access_node->value = value;
+    js_access_node->index = index;
+    return js_access_node;
+  }
+
+  inline JsTestNode* make_test(JsNode* left, std::string op, JsNode* right) {
+    const auto js_test_node = new JsTestNode();
+    js_test_node->left = left;
+    js_test_node->op = op;
+    js_test_node->right = right;
+    return js_test_node;
   }
 
   std::string stringify(JsNode* js_node, size_t depth = 0);
@@ -426,7 +544,17 @@ namespace jejalyk::js {
       return "new Map([" + tools::implode(elements, ", ") + "])";
     }
     if (const auto js_raw_node = dynamic_cast<JsRawNode*>(js_node)) {
-      return "//[JS]\n" + js_raw_node->code + "//[/JS]";
+      return "//[JS]\n" + js_raw_node->code + "\n//[/JS]";
+    }
+    if (const auto js_element_node = dynamic_cast<JsElementNode*>(js_node)) {
+      return stringify(js_element_node->value, depth) + "[" +
+             stringify(js_element_node->element, depth) + "]";
+    }
+    if (const auto js_comparison_node =
+            dynamic_cast<JsComparisonNode*>(js_node)) {
+      return "(" + stringify(js_comparison_node->left, depth) + " " +
+             js_comparison_node->op + " " +
+             stringify(js_comparison_node->right, depth) + ")";
     }
     return "[CANNOT STRINGIFY]";
   }

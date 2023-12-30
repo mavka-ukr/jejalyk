@@ -12,8 +12,6 @@ namespace jejalyk::typeinterpreter {
       return right_result;
     }
 
-    const auto js_arithmetic_node = new jejalyk::js::JsArithmeticNode();
-
     Result* result = nullptr;
     std::string magic_diia;
     std::string m_diia_name;
@@ -56,33 +54,26 @@ namespace jejalyk::typeinterpreter {
 
       if (left_result->value->is_number(scope) &&
           right_result->value->is_number(scope)) {
-        js_arithmetic_node->left = left_result->js_node;
-        js_arithmetic_node->right = right_result->js_node;
-        js_arithmetic_node->op = bitwise_node->op;
-        return success(result->value, js_arithmetic_node);
+        // а ^ б
+        return success(
+            result->value,
+            js::make_arithmetic(left_result->js_node, bitwise_node->op,
+                                right_result->js_node));
       }
 
       if (left_result->value->has_diia(scope, magic_diia)) {
-        const auto js_chain_node = new jejalyk::js::JsChainNode();
-        js_chain_node->left = left_result->js_node;
-        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-        js_chain_node_right->name = magic_diia;
-        js_chain_node->right = js_chain_node_right;
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        js_call_node->value = js_chain_node;
-        js_call_node->arguments = {right_result->js_node};
-        result->js_node = js_call_node;
-        return success(result->value, js_chain_node);
+        // а.чародія_вабо(б)
+        const auto js_chain =
+            js::make_chain(left_result->js_node, js::make_id(magic_diia));
+        const auto js_call = js::make_call(js_chain, {right_result->js_node});
+        return success(result->value, js_call);
       } else {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = m_diia_name;
-        js_call_node->value = js_id_node;
-        js_call_node->arguments = {left_result->js_node, right_result->js_node};
-        return success(result->value, js_call_node);
+        // мВабо(а, б)
+        const auto js_call =
+            js::make_call(js::make_id(m_diia_name),
+                          {left_result->js_node, right_result->js_node});
+        return success(result->value, js_call);
       }
-
-      return result;
     }
 
     return error_from_ast(bitwise_node,

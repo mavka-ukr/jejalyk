@@ -12,7 +12,7 @@ namespace jejalyk::typeinterpreter {
       return right_result;
     }
 
-    Result* result;
+    Result* result = nullptr;
     std::string magic_diia;
     std::string js_comp_symbol;
     std::string m_diia_name;
@@ -90,39 +90,32 @@ namespace jejalyk::typeinterpreter {
       }
 
       if (magic_diia == "чародія_рівно") {
-        const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
-        js_comparison_node->left = left_result->js_node;
-        js_comparison_node->right = right_result->js_node;
-        js_comparison_node->op = "==";
-        return success(result->value, js_comparison_node);
+        // а === б
+        const auto js_comparison = js::make_comparison(
+            left_result->js_node, "===", right_result->js_node);
+        return success(result->value, js_comparison);
       }
 
       if (magic_diia == "чародія_не_рівно") {
-        const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
-        js_comparison_node->left = left_result->js_node;
-        js_comparison_node->right = right_result->js_node;
-        js_comparison_node->op = "!=";
-        return success(result->value, js_comparison_node);
+        // а !== б
+        const auto js_comparison = js::make_comparison(
+            left_result->js_node, "!==", right_result->js_node);
+        return success(result->value, js_comparison);
       }
 
       if (magic_diia == "чародія_є") {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-        js_call_id_node->name = "мЄ";
-        js_call_node->value = js_call_id_node;
-        js_call_node->arguments = {left_result->js_node, right_result->js_node};
-        return success(result->value, js_call_node);
+        // мЄ(а, б)
+        return success(result->value, js::make_call(js::make_id("мЄ"),
+                                                    {left_result->js_node,
+                                                     right_result->js_node}));
       }
 
       if (magic_diia == "чародія_не_є") {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-        js_call_id_node->name = "мЄ";
-        js_call_node->value = js_call_id_node;
-        js_call_node->arguments = {left_result->js_node, right_result->js_node};
-        const auto js_not_node = new jejalyk::js::JsNotNode();
-        js_not_node->value = js_call_node;
-        return success(result->value, js_not_node);
+        // !мЄ(а, б)
+        return success(result->value,
+                       js::make_not(js::make_call(
+                           js::make_id("мЄ"),
+                           {left_result->js_node, right_result->js_node})));
       }
 
       if (left_result->value->is_number(scope) &&
@@ -132,35 +125,24 @@ namespace jejalyk::typeinterpreter {
                                 "[INTERNAL BUG] Невідома вказівка \"" +
                                     comparison_node->op + "\".");
         }
-        const auto js_comparison_node = new jejalyk::js::JsComparisonNode();
-        js_comparison_node->left = left_result->js_node;
-        js_comparison_node->right = right_result->js_node;
-        js_comparison_node->op = js_comp_symbol;
-        return success(result->value, js_comparison_node);
+        // а > б
+        return success(result->value,
+                       js::make_comparison(left_result->js_node, js_comp_symbol,
+                                           right_result->js_node));
       }
 
       if (left_result->value->has_diia(scope, magic_diia)) {
-        const auto js_chain_node = new jejalyk::js::JsChainNode();
-        js_chain_node->left = left_result->js_node;
-        const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-        js_chain_node_right->name = magic_diia;
-        js_chain_node->right = js_chain_node_right;
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        js_call_node->value = js_chain_node;
-        js_call_node->arguments = {right_result->js_node};
-        result->js_node = js_call_node;
-        return success(result->value, js_chain_node);
+        // а.чародія_більше(б)
+        const auto js_chain =
+            js::make_chain(left_result->js_node, js::make_id(magic_diia));
+        const auto js_call = js::make_call(js_chain, {right_result->js_node});
+        return success(result->value, js_call);
       } else {
-        const auto js_call_node = new jejalyk::js::JsCallNode();
-        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = m_diia_name;
-        js_call_node->value = js_id_node;
-        js_call_node->arguments = {left_result->js_node,
-                                     right_result->js_node};
-          return success(result->value, js_call_node);
+        // мБілш(а, б)
+        return success(result->value, js::make_call(js::make_id(m_diia_name),
+                                                    {left_result->js_node,
+                                                       right_result->js_node}));
         }
-
-        return result;
       }
 
       return error_from_ast(

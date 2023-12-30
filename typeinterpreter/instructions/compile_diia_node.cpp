@@ -21,10 +21,10 @@ namespace jejalyk::typeinterpreter {
       return result;
     }
 
-    const auto js_assign_node = new jejalyk::js::JsAssignNode();
-    js_assign_node->identifier = jejalyk::js::id(diia_node->name);
-    js_assign_node->value = result->js_node;
+    // а = мДія()
+    const auto js_assign =
+        js::make_assign(jejalyk::js::id(diia_node->name), result->js_node);
 
-    return success(result->value, js_assign_node);
+    return success(result->value, js_assign);
   }
 } // namespace typeinterpreter

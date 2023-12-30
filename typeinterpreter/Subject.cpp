@@ -129,6 +129,16 @@ namespace jejalyk::typeinterpreter {
     return types[0]->is_diia(scope);
   }
 
+  bool Subject::is_dictionary(Scope* scope) {
+    if (types.empty()) {
+      return false;
+    }
+    if (types.size() > 1) {
+      return false;
+    }
+    return types[0]->is_dictionary(scope);
+  }
+
   bool Subject::has(const std::string& name) {
     if (types.empty()) {
       return false;

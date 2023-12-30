@@ -23,11 +23,11 @@ namespace jejalyk::typeinterpreter {
       return catch_body_result;
     }
 
-    const auto js_try_node = new jejalyk::js::JsTryNode();
-    js_try_node->try_body = body_result->js_body;
-    js_try_node->catch_body = catch_body_result->js_body;
-    js_try_node->name = try_node->name;
+    const auto js_try = new js::JsTryNode();
+    js_try->try_body = body_result->js_body;
+    js_try->catch_body = catch_body_result->js_body;
+    js_try->name = try_node->name;
 
-    return success(nullptr, js_try_node);
+    return success(nullptr, js_try);
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

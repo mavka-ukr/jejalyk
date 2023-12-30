@@ -13,10 +13,9 @@ namespace jejalyk::typeinterpreter {
       return value_result;
     }
 
-    const auto js_assign_node = new jejalyk::js::JsAssignNode();
-    js_assign_node->identifier = new jejalyk::js::JsIdentifierNode();
-    js_assign_node->identifier->name = assign_simple_node->name;
-    js_assign_node->value = value_result->js_node;
+    // а = б
+    const auto js_assign_node = js::make_assign(
+        js::make_id(assign_simple_node->name), value_result->js_node);
 
     if (assign_simple_node->types.empty()) {
       if (scope->has_local(assign_simple_node->name)) {
@@ -28,6 +27,7 @@ namespace jejalyk::typeinterpreter {
         return success(local_subject, js_assign_node);
       } else {
         scope->set_local(assign_simple_node->name, value_result->value);
+
         return success(value_result->value, js_assign_node);
       }
     } else {
@@ -50,4 +50,4 @@ namespace jejalyk::typeinterpreter {
       return success(types_result->value, js_assign_node);
     }
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

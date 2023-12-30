@@ -2,15 +2,12 @@
 
 namespace jejalyk::typeinterpreter {
   Result* compile_chain_node(Scope* scope, mavka::ast::ChainNode* chain_node) {
-    if (jejalyk::tools::instance_of<mavka::ast::IdentifierNode>(
-            chain_node->right)) {
+    if (const auto right_identifier_node =
+            dynamic_cast<mavka::ast::IdentifierNode*>(chain_node->right)) {
       const auto left_result = scope->compile_node(chain_node->left);
       if (left_result->error) {
         return left_result;
       }
-
-      const auto right_identifier_node =
-          dynamic_cast<mavka::ast::IdentifierNode*>(chain_node->right);
 
       if (!left_result->value->has(right_identifier_node->name)) {
         return error_2(chain_node, right_identifier_node->name,
@@ -23,13 +20,11 @@ namespace jejalyk::typeinterpreter {
         return subject_result;
       }
 
-      const auto js_chain_node = new jejalyk::js::JsChainNode();
-      js_chain_node->left = left_result->js_node;
-      const auto js_chain_node_right = new jejalyk::js::JsIdentifierNode();
-      js_chain_node_right->name = right_identifier_node->name;
-      js_chain_node->right = js_chain_node_right;
+      // а.б
+      const auto js_chain = js::make_chain(
+          left_result->js_node, js::make_id(right_identifier_node->name));
 
-      return success(subject_result->value, js_chain_node);
+      return success(subject_result->value, js_chain);
     } else {
       const auto get_element_node = new mavka::ast::GetElementNode();
       get_element_node->start_line = chain_node->start_line;
@@ -41,4 +36,4 @@ namespace jejalyk::typeinterpreter {
       return scope->compile_node(get_element_node);
     }
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

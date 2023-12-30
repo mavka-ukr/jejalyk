@@ -15,10 +15,10 @@ namespace jejalyk::typeinterpreter {
       return body_result;
     }
 
-    const auto js_while_node = new jejalyk::js::JsWhileNode();
-    js_while_node->condition = condition_result->js_node;
-    js_while_node->body = body_result->js_body;
+    const auto js_while = new jejalyk::js::JsWhileNode();
+    js_while->condition = condition_result->js_node;
+    js_while->body = body_result->js_body;
 
-    return success(nullptr, js_while_node);
+    return success(nullptr, js_while);
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

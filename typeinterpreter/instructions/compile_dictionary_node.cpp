@@ -5,7 +5,7 @@ namespace jejalyk::typeinterpreter {
                                   mavka::ast::DictionaryNode* dictionary_node) {
     const auto dictionary_structure = scope->get_root_dictionary();
 
-    const auto js_map_node = new jejalyk::js::JsMapNode();
+    const auto js_map = new jejalyk::js::JsMapNode();
 
     const auto key_types = new Subject();
     const auto value_types = new Subject();
@@ -31,15 +31,15 @@ namespace jejalyk::typeinterpreter {
       js_map_element_node->key = element_key_result->js_node;
       js_map_element_node->value = element_value_result->js_node;
 
-      js_map_node->elements.push_back(js_map_element_node);
+      js_map->elements.push_back(js_map_element_node);
     }
 
     const auto dictionary_result = dictionary_structure->create_instance(
         scope, {scope->create_object_instance_subject(),
                 scope->create_object_instance_subject()});
 
-    dictionary_result->js_node = js_map_node;
+    dictionary_result->js_node = js_map;
 
     return dictionary_result;
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

@@ -148,9 +148,6 @@ namespace jejalyk::typeinterpreter {
   }
 
   std::vector<jejalyk::js::JsNode*> Scope::get_additional_nodes_before() {
-    if (this->proxy) {
-      return this->parent->get_additional_nodes_before();
-    }
     return this->additional_nodes_before;
   }
 

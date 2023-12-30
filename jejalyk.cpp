@@ -82,8 +82,11 @@ namespace jejalyk {
       return compilation_result;
     }
 
-    const auto program_scope = root_scope->make_child();
-    program_scope->is_async = true;
+    const auto std_scope = root_scope->make_child();
+    std_scope->is_async = true;
+
+    auto std_result = new typeinterpreter::Result();
+    std_result->js_body = new js::JsBody();
 
     if (!options->std_code.empty()) {
       const auto std_parser_result =
@@ -104,8 +107,8 @@ namespace jejalyk {
       std_options->allow_js = true;
       root_scope->options = std_options;
 
-      const auto std_result =
-          program_scope->compile_body(std_parser_result->program_node->body);
+      std_result =
+          std_scope->compile_body(std_parser_result->program_node->body);
       if (std_result->error) {
         const auto compilation_result = new CompilationResult();
         compilation_result->error = new CompilationError();
@@ -116,6 +119,9 @@ namespace jejalyk {
         return compilation_result;
       }
     }
+
+    const auto program_scope = std_scope->make_child();
+    program_scope->is_async = true;
 
     root_scope->options = options;
 
@@ -144,8 +150,7 @@ namespace jejalyk {
       return compilation_result;
     }
 
-    const auto std_string =
-        jejalyk::js::stringify_body(program_result->js_body);
+    const auto std_string = jejalyk::js::stringify_body(std_result->js_body);
     const auto program_string =
         jejalyk::js::stringify_body(program_result->js_body);
 
