@@ -40,13 +40,11 @@ namespace jejalyk::typeinterpreter {
     return success(Subject::create(structure_object));
   }
 
-  Result* complete_structure(
-      Scope* scope,
-      bool mockup,
-      mavka::ast::ASTNode* node,
-      Subject* structure_subject,
-      std::vector<mavka::ast::ParamNode*> params,
-      std::vector<mavka::ast::MethodDeclarationNode*> method_declarations) {
+  Result* complete_structure(Scope* scope,
+                             bool mockup,
+                             mavka::ast::ASTNode* node,
+                             Subject* structure_subject,
+                             std::vector<mavka::ast::ParamNode*> params) {
     Type* structure_type = nullptr;
     Object* structure_object = nullptr;
     Scope* scope_with_generics = scope->make_proxy();
@@ -128,55 +126,57 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    for (const auto method_declaration_node : method_declarations) {
-      const auto method_declaration_result =
-          scope_with_generics->compile_node(method_declaration_node);
-      if (method_declaration_result->error) {
-        return method_declaration_result;
-      }
-
-      if (method_declaration_node->ee) {
-        if (method_declaration_node->name == "створити") {
-          return error_from_ast(
-              method_declaration_node,
-              "Неможливо перевизначити спеціальну властивість \"створити\".");
-        }
-        for (const auto& [property_name, property_subject] :
-             structure_object->properties) {
-          if (property_name == method_declaration_node->name) {
-            return error_from_ast(method_declaration_node,
-                                  "Спеціальну властивість \"" +
-                                      method_declaration_node->name +
-                                      "\" вже визначено.");
-          }
-        }
-        structure_object->properties.insert_or_assign(
-            method_declaration_node->name, method_declaration_result->value);
-      } else {
-        for (const auto param : structure_object->params) {
-          if (param->name == method_declaration_node->name) {
-            return error_from_ast(method_declaration_node,
-                                  "Властивість \"" +
-                                      method_declaration_node->name +
-                                      "\" вже визначено.");
-          }
-        }
-        for (const auto& [method_name, method_type] :
-             structure_object->methods) {
-          if (method_name == method_declaration_node->name) {
-            return error_from_ast(
-                method_declaration_node,
-                "Дію \"" + method_declaration_node->name + "\" вже визначено.");
-          }
-        }
-
-        // todo: handle parent
-
-        structure_object->methods.insert_or_assign(
-            method_declaration_node->name,
-            method_declaration_result->value->types[0]);
-      }
-    }
+    // for (const auto method_declaration_node : method_declarations) {
+    //   const auto method_declaration_result =
+    //       scope_with_generics->compile_node(method_declaration_node);
+    //   if (method_declaration_result->error) {
+    //     return method_declaration_result;
+    //   }
+    //
+    //   if (method_declaration_node->ee) {
+    //     if (method_declaration_node->name == "створити") {
+    //       return error_from_ast(
+    //           method_declaration_node,
+    //           "Неможливо перевизначити спеціальну властивість
+    //           \"створити\".");
+    //     }
+    //     for (const auto& [property_name, property_subject] :
+    //          structure_object->properties) {
+    //       if (property_name == method_declaration_node->name) {
+    //         return error_from_ast(method_declaration_node,
+    //                               "Спеціальну властивість \"" +
+    //                                   method_declaration_node->name +
+    //                                   "\" вже визначено.");
+    //       }
+    //     }
+    //     structure_object->properties.insert_or_assign(
+    //         method_declaration_node->name, method_declaration_result->value);
+    //   } else {
+    //     for (const auto param : structure_object->params) {
+    //       if (param->name == method_declaration_node->name) {
+    //         return error_from_ast(method_declaration_node,
+    //                               "Властивість \"" +
+    //                                   method_declaration_node->name +
+    //                                   "\" вже визначено.");
+    //       }
+    //     }
+    //     for (const auto& [method_name, method_type] :
+    //          structure_object->methods) {
+    //       if (method_name == method_declaration_node->name) {
+    //         return error_from_ast(
+    //             method_declaration_node,
+    //             "Дію \"" + method_declaration_node->name + "\" вже
+    //             визначено.");
+    //       }
+    //     }
+    //
+    //     // todo: handle parent
+    //
+    //     structure_object->methods.insert_or_assign(
+    //         method_declaration_node->name,
+    //         method_declaration_result->value->types[0]);
+    //   }
+    // }
 
     const auto diia_structure_subject = scope->get_root_diia();
 
@@ -197,16 +197,59 @@ namespace jejalyk::typeinterpreter {
     }
 
     if (mockup) {
-      return success(structure_subject, new jejalyk::js::JsEmptyNode());
+      return success(structure_subject, new js::JsEmptyNode());
     } else {
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-      js_call_id_node->name = "мСтрк";
-      js_call_node->value = js_call_id_node;
-      js_call_node->arguments = {jejalyk::js::string(structure_object->name),
-                                 jejalyk::js::null()};
+      // мСтруктура("назва", function (...) { ... })
+      const auto js_function = new js::JsFunctionNode();
+      js_function->body = new js::JsBody();
+      // var мs
+      js_function->body->nodes.push_back(js::make_var("мs"));
+      // мs = Object.create(null)
+      js_function->body->nodes.push_back(js::make_assign(
+          js::make_id("мs"), js::make_call(js::make_chain("Object", "create"),
+                                           {js::make_null()})));
+      // мs[М] = Object.create(null)
+      js_function->body->nodes.push_back(
+          js::make_assign(js::make_access("мs", "М"),
+                          js::make_call(js::make_chain("Object", "create"),
+                                        {js::make_null()})));
+      // мs[М].структура = назва
+      js_function->body->nodes.push_back(js::make_assign(
+          js::make_chain(js::make_access("мs", "М"), js::make_id("структура")),
+          js::make_id(structure_object->name)));
+      for (const auto param : structure_object->params) {
+        js_function->params.push_back(js::make_id(param->name));
+        // мs.а = а
+        const auto js_chain = js::make_chain("мs", param->name);
+        js_function->body->nodes.push_back(
+            js::make_assign(js_chain, js::make_id(param->name)));
+      }
+      for (const auto& [method_name, method_type] : structure_object->methods) {
+        const auto method_js_function = new js::JsFunctionNode();
+        method_js_function->body = new js::JsBody();
+        // назва[М].методи.метод(мs, ...arguments)
+        const auto method_js_call = js::make_call(
+            js::make_chain(
+                js::make_chain(js::make_access(structure_object->name, "М"),
+                               js::make_id("методи")),
+                js::make_id(method_name)),
+            {js::make_id("мs"), js::make_id("...arguments")});
+        method_js_function->body->nodes.push_back(
+            js::make_return(method_js_call));
+        // мs.а = мДія("назва", function (...) { ... })
+        const auto method_js_chain = js::make_chain("мs", method_name);
+        const auto method_js_call2 =
+            js::make_call(js::make_id("мДія"),
+                          {js::make_string(method_name), method_js_function});
+        js_function->body->nodes.push_back(js::make_assign(
+            method_js_chain, method_js_call2));
+      }
 
-      return success(structure_subject, js_call_node);
+      // return мs
+      js_function->body->nodes.push_back(js::make_return(js::make_id("мs")));
+      const auto js_call = js::make_call(js::make_id("мСтруктура"), {js::make_string(structure_object->name), js_function});
+
+      return success(structure_subject, js_call);
     }
   }
 } // namespace typeinterpreter

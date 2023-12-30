@@ -12,7 +12,7 @@
 #include "../parser.h"
 #include "../tools.h"
 
-#define JJ_DEBUG 0
+#define JJ_DEBUG 1
 
 namespace jejalyk::typeinterpreter {
   class Error;
@@ -172,6 +172,7 @@ namespace jejalyk::typeinterpreter {
     bool is_array(Scope* scope);
     bool is_diia(Scope* scope);
     bool is_dictionary(Scope* scope);
+    bool is_structure(Scope* scope);
 
     bool has(const std::string& name);
     Result* get(const std::string& name);
@@ -421,6 +422,18 @@ namespace jejalyk::typeinterpreter {
   Result* compile_dictionary_node(Scope* scope,
                                   mavka::ast::DictionaryNode* dictionary_node);
   Result* compile_diia_node(Scope* scope, mavka::ast::DiiaNode* diia_node);
+  Result* compile_diia_or_mockup_diia_node(
+      Scope* scope,
+      mavka::ast::ASTNode* node,
+      bool mockup,
+      bool ee,
+      bool async,
+      std::string structure,
+      std::string name,
+      std::vector<mavka::ast::GenericNode*> generics,
+      std::vector<mavka::ast::ParamNode*> params,
+      std::vector<mavka::ast::TypeValueSingleNode*> return_types,
+      std::vector<mavka::ast::ASTNode*>* body);
   Result* compile_each_node(Scope* scope, mavka::ast::EachNode* each_node);
   Result* compile_eval_node(Scope* scope, mavka::ast::EvalNode* eval_node);
   Result* compile_from_to_complex_node(
@@ -505,13 +518,11 @@ namespace jejalyk::typeinterpreter {
       std::vector<mavka::ast::GenericNode*> generic_definitions,
       mavka::ast::ASTNode* parent,
       std::vector<mavka::ast::GenericNode*> parent_generic_definitions);
-  Result* complete_structure(
-      Scope* scope,
-      bool mockup,
-      mavka::ast::ASTNode* node,
-      Subject* structure_subject,
-      std::vector<mavka::ast::ParamNode*> params,
-      std::vector<mavka::ast::MethodDeclarationNode*> method_declarations);
+  Result* complete_structure(Scope* scope,
+                             bool mockup,
+                             mavka::ast::ASTNode* node,
+                             Subject* structure_subject,
+                             std::vector<mavka::ast::ParamNode*> params);
 
   Result* declare_diia(
       Scope* scope,
@@ -540,6 +551,6 @@ namespace jejalyk::typeinterpreter {
   void debug_print_bug(const std::vector<std::string>& messages);
   void debug_print_bug(const std::string& message);
 
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter
 
 #endif // TYPEINTERPRETER_H

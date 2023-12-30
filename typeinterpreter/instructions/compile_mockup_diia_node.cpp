@@ -4,20 +4,10 @@ namespace jejalyk::typeinterpreter {
   Result* compile_mockup_diia_node(
       Scope* scope,
       mavka::ast::MockupDiiaNode* mockup_diia_node) {
-    if (!mockup_diia_node->structure.empty()) {
-      return error_from_ast(mockup_diia_node, "Методи тимчасово недоступні.");
-    }
-    if (!scope->has_local(mockup_diia_node->name)) {
-      return error_from_ast(mockup_diia_node, "[INTERNAL BUG] Дія \"" +
-                                                  mockup_diia_node->name +
-                                                  "\" не визначена.");
-    }
-
-    const auto diia_subject = scope->get_local(mockup_diia_node->name);
-
-    const auto diia_scope = scope->make_child();
-
-    return complete_diia(scope, true, diia_scope, mockup_diia_node,
-                         diia_subject, nullptr);
+    return compile_diia_or_mockup_diia_node(
+        scope, mockup_diia_node, true, mockup_diia_node->ee,
+        mockup_diia_node->async, mockup_diia_node->structure,
+        mockup_diia_node->name, mockup_diia_node->generics,
+        mockup_diia_node->params, mockup_diia_node->return_types, nullptr);
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

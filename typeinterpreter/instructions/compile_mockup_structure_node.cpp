@@ -15,7 +15,6 @@ namespace jejalyk::typeinterpreter {
         scope->get_local(mockup_structure_node->name);
 
     return complete_structure(scope, true, mockup_structure_node,
-                              structure_subject, mockup_structure_node->params,
-                              mockup_structure_node->methods);
+                              structure_subject, mockup_structure_node->params);
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

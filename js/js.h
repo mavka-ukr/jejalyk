@@ -167,7 +167,7 @@ namespace jejalyk::js {
     bool async;
     std::string name;
     std::vector<JsIdentifierNode*> params;
-    JsBody* body;
+    JsBody* body = nullptr;
   };
 
   class JsVarNode : public JsNode {
@@ -212,6 +212,12 @@ namespace jejalyk::js {
   };
 
   inline JsIdentifierNode* null() {
+    const auto js_identifier_node = new JsIdentifierNode();
+    js_identifier_node->name = "null";
+    return js_identifier_node;
+  }
+
+  inline JsIdentifierNode* make_null() {
     const auto js_identifier_node = new JsIdentifierNode();
     js_identifier_node->name = "null";
     return js_identifier_node;
@@ -345,12 +351,25 @@ namespace jejalyk::js {
     return js_access_node;
   }
 
+  inline JsAccessNode* make_access(std::string value, std::string index) {
+    const auto js_access_node = new JsAccessNode();
+    js_access_node->value = make_id(value);
+    js_access_node->index = make_id(index);
+    return js_access_node;
+  }
+
   inline JsTestNode* make_test(JsNode* left, std::string op, JsNode* right) {
     const auto js_test_node = new JsTestNode();
     js_test_node->left = left;
     js_test_node->op = op;
     js_test_node->right = right;
     return js_test_node;
+  }
+
+  inline JsReturnNode* make_return(JsNode* value) {
+    const auto js_return_node = new JsReturnNode();
+    js_return_node->value = value;
+    return js_return_node;
   }
 
   std::string stringify(JsNode* js_node, size_t depth = 0);
@@ -498,7 +517,12 @@ namespace jejalyk::js {
         head += " " + js_function_node->name;
       }
       head += "(" + tools::implode(params, ", ") + ") {\n";
-      return head + stringify_body(js_function_node->body, depth + 1) + "\n}";
+      std::string prefix;
+      for (size_t i = 0; i < depth; ++i) {
+        prefix += " ";
+      }
+      return head + stringify_body(js_function_node->body, depth + 1) + "\n" +
+             prefix + "}";
     }
     if (const auto js_var_node = dynamic_cast<JsVarNode*>(js_node)) {
       return "var " + js_var_node->name;

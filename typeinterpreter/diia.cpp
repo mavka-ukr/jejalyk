@@ -116,25 +116,23 @@ namespace jejalyk::typeinterpreter {
         }
       }
 
-      const auto js_function_node = new jejalyk::js::JsFunctionNode();
-      js_function_node->async = diia_object->is_diia_async;
+      const auto js_function = new js::JsFunctionNode();
+      js_function->async = diia_object->is_diia_async;
       for (const auto param : diia_object->params) {
-        const auto js_id_node = new jejalyk::js::JsIdentifierNode();
-        js_id_node->name = param->name;
-        js_function_node->params.push_back(js_id_node);
+        js_function->params.push_back(js::make_id(param->name));
       }
       if (compiled_body) {
-        js_function_node->body = compiled_body->js_body;
+        js_function->body = compiled_body->js_body;
       }
 
-      const auto js_call_node = new jejalyk::js::JsCallNode();
-      const auto js_call_id_node = new jejalyk::js::JsIdentifierNode();
-      js_call_id_node->name = "мДія";
-      js_call_node->value = js_call_id_node;
-      js_call_node->arguments = {jejalyk::js::string(diia_object->name),
-                                 jejalyk::js::null(), js_function_node};
+      // мДія("назва", function (...) { ... })
+      const auto js_call =
+          js::make_call(js::make_id("мДія"),
+                        {js::make_string(diia_object->name), js_function});
 
-      return success(diia_subject, js_call_node);
+      // todo: include param types and return types
+
+      return success(diia_subject, js_call);
     }
   }
 }

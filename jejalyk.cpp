@@ -155,8 +155,9 @@ namespace jejalyk {
         jejalyk::js::stringify_body(program_result->js_body);
 
     const auto program_compilation_result = new CompilationResult();
-    program_compilation_result->result =
-        MAVKA_HEAD_JS + "\n" + std_string + "\n" + program_string;
+    // program_compilation_result->result =
+    //     MAVKA_HEAD_JS + "\n" + std_string + "\n" + program_string;
+    program_compilation_result->result = program_string;
 
     return program_compilation_result;
   }

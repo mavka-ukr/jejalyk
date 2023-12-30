@@ -510,6 +510,9 @@ namespace mavka::parser {
       mockup_diia_node->ee = context->md_static != nullptr;
       mockup_diia_node->async = context->md_async != nullptr;
       mockup_diia_node->name = context->md_name->getText();
+      if (context->md_structure) {
+        mockup_diia_node->structure = context->md_structure->getText();
+      }
       if (context->md_generics) {
         mockup_diia_node->generics =
             std::any_cast<std::vector<ast::GenericNode*>>(

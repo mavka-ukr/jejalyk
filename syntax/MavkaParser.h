@@ -573,6 +573,7 @@ public:
   public:
     antlr4::Token *md_async = nullptr;
     antlr4::Token *md_static = nullptr;
+    MavkaParser::IdentifierContext *md_structure = nullptr;
     MavkaParser::IdentifierContext *md_name = nullptr;
     MavkaParser::GenericsContext *md_generics = nullptr;
     MavkaParser::ParamsContext *md_params = nullptr;
@@ -583,9 +584,11 @@ public:
     antlr4::tree::TerminalNode *DIIA();
     antlr4::tree::TerminalNode *OPEN_PAREN();
     antlr4::tree::TerminalNode *CLOSE_PAREN();
-    IdentifierContext *identifier();
+    std::vector<IdentifierContext *> identifier();
+    IdentifierContext* identifier(size_t i);
     std::vector<NlsContext *> nls();
     NlsContext* nls(size_t i);
+    antlr4::tree::TerminalNode *DOT();
     antlr4::tree::TerminalNode *SMALLER();
     antlr4::tree::TerminalNode *GREATER();
     antlr4::tree::TerminalNode *ASYNC();

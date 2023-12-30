@@ -13,7 +13,7 @@ namespace jejalyk::typeinterpreter {
 
     const auto structure_result =
         complete_structure(scope, false, structure_node, structure_subject,
-                           structure_node->params, structure_node->methods);
+                           structure_node->params);
 
     const auto js_assign = js::make_assign(js::make_id(structure_node->name),
                                            structure_result->js_node);

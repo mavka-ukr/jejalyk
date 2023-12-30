@@ -37,6 +37,7 @@ set(JEJALYK_COMPILER_SRC
         typeinterpreter/instructions/compile_continue_node.cpp
         typeinterpreter/instructions/compile_dictionary_node.cpp
         typeinterpreter/instructions/compile_diia_node.cpp
+        typeinterpreter/instructions/compile_diia_or_mockup_diia_node.cpp
         typeinterpreter/instructions/compile_each_node.cpp
         typeinterpreter/instructions/compile_eval_node.cpp
         typeinterpreter/instructions/compile_from_to_complex_node.cpp

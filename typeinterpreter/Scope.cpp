@@ -664,6 +664,56 @@ namespace jejalyk::typeinterpreter {
           }
           this->set_local(mockup_diia_node->name,
                           diia_declaration_result->value);
+        } else {
+          if (this->has_local(mockup_diia_node->structure)) {
+            const auto structure_subject =
+                this->get_local(mockup_diia_node->structure);
+            if (!structure_subject->is_structure(this)) {
+              return error_from_ast(node, "Субʼєкт \"" +
+                                              mockup_diia_node->structure +
+                                              "\" не є структурою.");
+            }
+
+            const auto structure_type = structure_subject->types[0];
+            const auto structure_object = structure_type->object;
+
+            if (structure_object->properties.contains(mockup_diia_node->name)) {
+              return error_from_ast(node,
+                                    "Властивість \"" + mockup_diia_node->name +
+                                        "\" вже визначено в структурі \"" +
+                                        mockup_diia_node->structure + "\".");
+            }
+
+            if (structure_object->methods.contains(mockup_diia_node->name)) {
+              return error_from_ast(node,
+                                    "Метод \"" + mockup_diia_node->name +
+                                        "\" вже визначено в структурі \"" +
+                                        mockup_diia_node->structure + "\".");
+            }
+
+            const auto diia_scope = this->make_child();
+            for (const auto structure_generic_definition :
+                 structure_object->generic_definitions) {
+              diia_scope->variables.insert_or_assign(
+                  structure_generic_definition->name,
+                  Subject::create(structure_generic_definition));
+            }
+            const auto diia_declaration_result = declare_diia(
+                this, diia_scope, mockup_diia_node, mockup_diia_node->async,
+                mockup_diia_node->name, mockup_diia_node->generics,
+                mockup_diia_node->params, mockup_diia_node->return_types);
+            if (diia_declaration_result->error) {
+              return diia_declaration_result;
+            }
+
+            structure_object->methods.insert_or_assign(
+                mockup_diia_node->name,
+                diia_declaration_result->value->types[0]);
+          } else {
+            return error_from_ast(node, "Субʼєкт \"" +
+                                            mockup_diia_node->structure +
+                                            "\" не визначено.");
+          }
         }
       }
 
@@ -682,6 +732,53 @@ namespace jejalyk::typeinterpreter {
             return diia_declaration_result;
           }
           this->set_local(diia_node->name, diia_declaration_result->value);
+        } else {
+          if (this->has_local(diia_node->structure)) {
+            const auto structure_subject =
+                this->get_local(diia_node->structure);
+            if (!structure_subject->is_structure(this)) {
+              return error_from_ast(node, "Субʼєкт \"" + diia_node->structure +
+                                              "\" не є структурою.");
+            }
+
+            const auto structure_type = structure_subject->types[0];
+            const auto structure_object = structure_type->object;
+
+            if (structure_object->properties.contains(diia_node->name)) {
+              return error_from_ast(node,
+                                    "Властивість \"" + diia_node->name +
+                                        "\" вже визначено в структурі \"" +
+                                        diia_node->structure + "\".");
+            }
+
+            if (structure_object->methods.contains(diia_node->name)) {
+              return error_from_ast(node,
+                                    "Метод \"" + diia_node->name +
+                                        "\" вже визначено в структурі \"" +
+                                        diia_node->structure + "\".");
+            }
+
+            const auto diia_scope = this->make_child();
+            for (const auto structure_generic_definition :
+                 structure_object->generic_definitions) {
+              diia_scope->variables.insert_or_assign(
+                  structure_generic_definition->name,
+                  Subject::create(structure_generic_definition));
+            }
+            const auto diia_declaration_result =
+                declare_diia(this, diia_scope, diia_node, diia_node->async,
+                             diia_node->name, diia_node->generics,
+                             diia_node->params, diia_node->return_types);
+            if (diia_declaration_result->error) {
+              return diia_declaration_result;
+            }
+
+            structure_object->methods.insert_or_assign(
+                diia_node->name, diia_declaration_result->value->types[0]);
+          } else {
+            return error_from_ast(
+                node, "Субʼєкт \"" + diia_node->structure + "\" не визначено.");
+          }
         }
       }
     }
