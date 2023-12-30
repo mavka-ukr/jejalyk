@@ -256,6 +256,15 @@ namespace jejalyk::typeinterpreter {
   }
 
   bool Scope::check_type(Type* value, Type* type) {
+    if (value->generic_definition) {
+      if (value->generic_definition == type->generic_definition) {
+        return true;
+      }
+      return false;
+    }
+    if (type->generic_definition) {
+      return false;
+    }
     if (value->object->structure == type->object->structure) {
       if (value->generic_types.size() != type->generic_types.size()) {
         return false;

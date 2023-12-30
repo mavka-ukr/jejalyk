@@ -135,6 +135,9 @@ namespace jejalyk::typeinterpreter {
   }
 
   bool Type::has(std::string name) {
+    if (this->generic_definition) {
+      return false;
+    }
     if (this->object->properties.contains(name)) {
       return true;
     }

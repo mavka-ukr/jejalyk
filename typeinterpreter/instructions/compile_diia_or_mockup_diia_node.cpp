@@ -40,21 +40,29 @@ namespace jejalyk::typeinterpreter {
                                         "\" не має методу \"" + name + "\".");
       }
 
-      const auto diia_subject = structure_object->methods[name];
+      const auto diia_type = structure_object->methods[name];
+      const auto diia_object = diia_type->object;
       const auto diia_scope = scope->make_child();
+      const auto scope_with_generics = diia_scope->make_proxy();
       std::vector<Subject*> generic_definition_subjects;
       for (const auto generic_definition :
            structure_object->generic_definitions) {
         const auto generic_definition_subject =
             Subject::create(generic_definition);
+        scope_with_generics->variables.insert_or_assign(
+            generic_definition->name, generic_definition_subject);
         generic_definition_subjects.push_back(generic_definition_subject);
       }
       diia_scope->set_local("я",
                             Subject::create(structure_type->create_instance(
                                 scope, generic_definition_subjects)));
+      for (const auto param : diia_object->params) {
+        diia_scope->set_local(param->name, param->types);
+      }
 
-      const auto diia_result = complete_diia(
-          scope, mockup, diia_scope, node, Subject::create(diia_subject), body);
+      const auto diia_result =
+          complete_diia(scope, mockup, scope_with_generics, node,
+                        Subject::create(diia_type), body);
       if (diia_result->error) {
         return diia_result;
       }
