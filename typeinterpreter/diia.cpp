@@ -54,7 +54,14 @@ namespace jejalyk::typeinterpreter {
       }
       param->types = diia_types_result->value;
       param->types->fix_types(scope);
-      param->value = nullptr;
+      if (param_node->value) {
+        const auto param_value_result = scope->compile_node(param_node->value);
+        if (param_value_result->error) {
+          return param_value_result;
+        }
+        param->value = param_value_result->value;
+        param->value_js_node = param_value_result->js_node;
+      }
       param->variadic = param_node->variadic;
 
       diia_object->params.push_back(param);
@@ -115,7 +122,12 @@ namespace jejalyk::typeinterpreter {
         js_function->params.push_back(js::make_id("я"));
       }
       for (const auto param : diia_object->params) {
-        js_function->params.push_back(js::make_id(param->name));
+        if (param->value_js_node) {
+          js_function->params.push_back(js::make_assign(
+              js::make_id(param->name), js::make_maybe_nested(param->value_js_node)));
+        } else {
+          js_function->params.push_back(js::make_id(param->name));
+        }
       }
       if (compiled_body) {
         js_function->body = compiled_body->js_body;

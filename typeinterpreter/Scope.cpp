@@ -266,6 +266,11 @@ namespace jejalyk::typeinterpreter {
   }
 
   bool Scope::check_type(Type* value, Type* type) {
+    const auto root_object_subject = this->get_root_object();
+    if (type->object->structure->object ==
+        root_object_subject->types[0]->object) {
+      return true;
+    }
     if (value->generic_definition) {
       if (value->generic_definition == type->generic_definition) {
         return true;
@@ -797,15 +802,14 @@ namespace jejalyk::typeinterpreter {
 
         var_names.push_back(variable_name);
       }
+      for (const auto js_node_before : this->get_additional_nodes_before()) {
+        result->js_body->nodes.insert(result->js_body->nodes.begin(),
+                                      js_node_before);
+      }
       if (!var_names.empty()) {
         result->js_body->nodes.insert(result->js_body->nodes.begin(),
                                       jejalyk::js::vars(var_names));
       }
-    }
-
-    for (const auto js_node_before : this->get_additional_nodes_before()) {
-      result->js_body->nodes.insert(result->js_body->nodes.begin(),
-                                    js_node_before);
     }
 
     return result;

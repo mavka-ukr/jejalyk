@@ -194,6 +194,7 @@ namespace jejalyk::typeinterpreter {
         new_param->types = process_subject_generics(
             method_type->object, generic_definition_subjects, new_param->types);
         new_param->value = param->value;
+        new_param->value_js_node = param->value_js_node;
         new_param->variadic = param->variadic;
         processed_method_object->params.push_back(new_param);
       }

@@ -14,7 +14,7 @@ namespace jejalyk::tools {
                                   const std::string& delim,
                                   const std::string& prefix);
 
-  std::string repeat_string(const std::string& s, int n);
+  std::string repeat_string(const std::string& s, size_t n);
 
   bool is_digit(std::string s);
 

@@ -142,6 +142,7 @@ namespace jejalyk::typeinterpreter {
     std::vector<GenericDefinition*>
         generic_definitions; // for structure and diia
     Type* parent = nullptr; // for structure
+    js::JsNode* parent_js = nullptr; // for structure
     std::vector<Param*> params; // for structure and diia
     std::map<std::string, Type*> methods; // for structure
     Subject* return_types = nullptr; // for diia
@@ -326,8 +327,9 @@ namespace jejalyk::typeinterpreter {
   class Param final {
    public:
     std::string name;
-    Subject* types;
-    Subject* value;
+    Subject* types = nullptr;
+    Subject* value = nullptr;
+    js::JsNode* value_js_node = nullptr;
     bool variadic;
 
     Param* clone();

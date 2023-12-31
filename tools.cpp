@@ -29,7 +29,7 @@ namespace jejalyk::tools {
     return ret;
   }
 
-  std::string repeat_string(const std::string& s, int n) {
+  std::string repeat_string(const std::string& s, size_t n) {
     std::string ret;
     for (int i = 0; i < n; i++) {
       ret += s;

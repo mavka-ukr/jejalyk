@@ -9,7 +9,6 @@ namespace jejalyk::typeinterpreter {
       mavka::ast::ASTNode* parent,
       std::vector<mavka::ast::GenericNode*> parent_generic_definitions) {
     const auto structure_structure_subject = scope->get_root_structure();
-    const auto object_subject = scope->get_root_object();
 
     const auto structure_object = new Object();
     Scope* scope_with_generics = scope->make_proxy();
@@ -32,9 +31,21 @@ namespace jejalyk::typeinterpreter {
     }
 
     if (parent == nullptr) {
-      structure_object->parent = object_subject->types[0];
+      structure_object->parent = scope->create_object_instance_type();
+      structure_object->parent_js = js::make_id("обʼєкт");
     } else {
-      // todo: handle parent
+      return error_from_ast(parent, "Наслідування тимчасово не підтримується.");
+      // const auto parent_result = scope->compile_node(parent);
+      // if (parent_result->error) {
+      //   return parent_result;
+      // }
+      //
+      // if (!parent_result->value->is_structure(scope)) {
+      //   return error_from_ast(parent, "Предок має бути структурою.");
+      // }
+      //
+      // structure_object->parent = parent_result->value->types[0];
+      // structure_object->parent_js = parent_result->js_node;
     }
 
     return success(Subject::create(structure_object));
@@ -100,7 +111,14 @@ namespace jejalyk::typeinterpreter {
         return types_result;
       }
       param->types = types_result->value;
-      param->value = nullptr;
+      if (param_node->value) {
+        const auto param_value_result = scope->compile_node(param_node->value);
+        if (param_value_result->error) {
+          return param_value_result;
+        }
+        param->value = param_value_result->value;
+        param->value_js_node = param_value_result->js_node;
+      }
       param->variadic = param_node->variadic;
 
       if (param_node->ee) {
@@ -148,7 +166,8 @@ namespace jejalyk::typeinterpreter {
           return diia_types_result;
         }
         diia_param->types = diia_types_result->value;
-        diia_param->value = nullptr;
+        diia_param->value = param->value;
+        diia_param->value_js_node = param->value_js_node;
         diia_param->variadic = param_node->variadic;
         diia_object->params.push_back(diia_param);
       }
@@ -220,31 +239,30 @@ namespace jejalyk::typeinterpreter {
     if (mockup) {
       return success(structure_subject, new js::JsEmptyNode());
     } else {
-      // мСтруктура("назва", function (...) { ... })
+      // мСтруктура("назва", предок, function (...) { ... })
       const auto js_function = new js::JsFunctionNode();
       js_function->body = new js::JsBody();
-      // var мs
-      js_function->body->nodes.push_back(js::make_var("мs"));
-      // мs = Object.create(null)
-      js_function->body->nodes.push_back(js::make_assign(
-          js::make_id("мs"), js::make_call(js::make_chain("Object", "create"),
-                                           {js::make_null()})));
-      // мs[М] = Object.create(null)
-      js_function->body->nodes.push_back(
-          js::make_assign(js::make_access("мs", "М"),
-                          js::make_call(js::make_chain("Object", "create"),
-                                        {js::make_null()})));
-      // мs[М].структура = назва
-      js_function->body->nodes.push_back(js::make_assign(
-          js::make_chain(js::make_access("мs", "М"), js::make_id("структура")),
-          js::make_id(structure_object->name)));
       for (const auto param : structure_object->params) {
-        js_function->params.push_back(js::make_id(param->name));
+        js_function->params.push_back(js::make_id("мs"));
+        if (param->value_js_node) {
+          // а = 2
+          js_function->params.push_back(
+              js::make_assign(js::make_id(param->name),
+                              js::make_maybe_nested(param->value_js_node)));
+        } else {
+          // а
+          js_function->params.push_back(js::make_id(param->name));
+        }
         // мs.а = а
         const auto js_chain = js::make_chain("мs", param->name);
         js_function->body->nodes.push_back(
             js::make_assign(js_chain, js::make_id(param->name)));
       }
+      // js_function->body->nodes.push_back(js::make_call(
+      //     js::make_chain(
+      //         js::make_access(structure_object->parent_js, js::make_id("М")),
+      //         js::make_id("заповнити")),
+      //     {js::make_id("мs")}));
       for (const auto& [method_name, method_type] : structure_object->methods) {
         const auto method_js_function = new js::JsFunctionNode();
         method_js_function->body = new js::JsBody();
@@ -268,7 +286,7 @@ namespace jejalyk::typeinterpreter {
 
       // return мs
       js_function->body->nodes.push_back(js::make_return(js::make_id("мs")));
-      const auto js_call = js::make_call(js::make_id("мСтруктура"), {js::make_string(structure_object->name), js_function});
+      const auto js_call = js::make_call(js::make_id("мСтруктура"), {js::make_string(structure_object->name), structure_object->parent_js, js_function});
 
       return success(structure_subject, js_call);
     }

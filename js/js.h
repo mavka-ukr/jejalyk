@@ -166,7 +166,7 @@ namespace jejalyk::js {
    public:
     bool async;
     std::string name;
-    std::vector<JsIdentifierNode*> params;
+    std::vector<JsNode*> params;
     JsBody* body = nullptr;
   };
 
@@ -209,6 +209,11 @@ namespace jejalyk::js {
    public:
     JsNode* value;
     JsNode* element;
+  };
+
+  class JsNestedNode : public JsNode {
+   public:
+    JsNode* value;
   };
 
   inline JsIdentifierNode* null() {
@@ -372,6 +377,30 @@ namespace jejalyk::js {
     return js_return_node;
   }
 
+  inline JsArrayNode* make_array(std::vector<JsNode*> elements) {
+    const auto js_array_node = new JsArrayNode();
+    js_array_node->elements = elements;
+    return js_array_node;
+  }
+
+  inline JsNestedNode* make_nested(JsNode* value) {
+    const auto js_nested_node = new JsNestedNode();
+    js_nested_node->value = value;
+    return js_nested_node;
+  }
+
+  inline JsNode* make_maybe_nested(JsNode* value) {
+    if (dynamic_cast<JsNumberNode*>(value) ||
+        dynamic_cast<JsStringNode*>(value) ||
+        dynamic_cast<JsIdentifierNode*>(value) ||
+        dynamic_cast<JsArrayNode*>(value)) {
+      return value;
+    }
+    const auto js_nested_node = new JsNestedNode();
+    js_nested_node->value = value;
+    return js_nested_node;
+  }
+
   std::string stringify(JsNode* js_node, size_t depth = 0);
   std::string stringify_body(JsBody* js_body, size_t depth = 0);
 
@@ -517,21 +546,17 @@ namespace jejalyk::js {
         head += " " + js_function_node->name;
       }
       head += "(" + tools::implode(params, ", ") + ") {\n";
-      std::string prefix;
-      for (size_t i = 0; i < depth; ++i) {
-        prefix += " ";
-      }
       return head + stringify_body(js_function_node->body, depth + 1) + "\n" +
-             prefix + "}";
+             tools::repeat_string(" ", depth) + "}";
     }
     if (const auto js_var_node = dynamic_cast<JsVarNode*>(js_node)) {
-      return "var " + js_var_node->name;
+      return "let " + js_var_node->name;
     }
     if (const auto js_vars_node = dynamic_cast<JsVarsNode*>(js_node)) {
       if (js_vars_node->names.empty()) {
         return "";
       }
-      return "var " + tools::implode(js_vars_node->names, ", ");
+      return "let " + tools::implode(js_vars_node->names, ", ");
     }
     if (const auto js_for_node = dynamic_cast<JsForNode*>(js_node)) {
       std::string head = "for (";
@@ -547,11 +572,10 @@ namespace jejalyk::js {
         head += stringify(js_for_node->update, depth);
       }
       head += ") {\n";
-      const auto result =
-          head + stringify_body(js_for_node->body, depth + 1) + "\n}";
+      const auto result = head + stringify_body(js_for_node->body, depth + 1) +
+                          "\n" + tools::repeat_string(" ", depth) + "}";
       if (js_for_node->cleanup) {
-        return result + "\n" + stringify_body(js_for_node->cleanup, depth) +
-               "\n";
+        return result + "\n" + stringify_body(js_for_node->cleanup, depth);
       }
       return result;
     }
@@ -579,6 +603,9 @@ namespace jejalyk::js {
       return "(" + stringify(js_comparison_node->left, depth) + " " +
              js_comparison_node->op + " " +
              stringify(js_comparison_node->right, depth) + ")";
+    }
+    if (const auto js_nested_node = dynamic_cast<JsNestedNode*>(js_node)) {
+      return "(" + stringify(js_nested_node->value, depth) + ")";
     }
     return "[CANNOT STRINGIFY]";
   }

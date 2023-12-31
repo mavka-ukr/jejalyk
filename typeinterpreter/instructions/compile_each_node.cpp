@@ -7,7 +7,8 @@ namespace jejalyk::typeinterpreter {
       return value_result;
     }
 
-    const auto loop_scope = scope->make_proxy();
+    const auto loop_scope = scope->make_child();
+    loop_scope->is_async = scope->is_async;
     loop_scope->is_loop = true;
 
     loop_scope->increment_iterator_count();
@@ -15,18 +16,25 @@ namespace jejalyk::typeinterpreter {
     const auto iterator_name = "_мit_" + std::to_string(iterator_count);
 
     if (each_node->keyName.empty()) {
-      if (scope->has_local(each_node->name)) {
+      if (loop_scope->has_local(each_node->name)) {
         return error_1(each_node, each_node->name);
       }
-      if (value_result->value->is_iterator(scope)) {
+      if (value_result->value->is_iterator(loop_scope)) {
         // перебрати а як х
         const auto iterator_type_result =
-            value_result->value->get_iterator_type(scope, each_node->value);
+            value_result->value->get_iterator_type(loop_scope,
+                                                   each_node->value);
         if (iterator_type_result->error) {
           return iterator_type_result;
         }
-        scope->set_local(each_node->name, iterator_type_result->value);
+        loop_scope->set_local(each_node->name, iterator_type_result->value);
         scope->put_additional_node_before(js::make_var(iterator_name));
+
+        // х = _мit_0.значення
+        const auto js_name_assign =
+            js::make_assign(js::make_id(each_node->name),
+                            js::make_chain(iterator_name, "значення"));
+        loop_scope->put_additional_node_before(js_name_assign);
 
         const auto compiled_body = loop_scope->compile_body(each_node->body);
         if (compiled_body->error) {
@@ -50,12 +58,6 @@ namespace jejalyk::typeinterpreter {
         js_for_node->update = js::make_call(js_next_chain, {});
 
         js_for_node->body = compiled_body->js_body;
-        // х = _мit_0.значення
-        const auto js_name_assign =
-            js::make_assign(js::make_id(each_node->name),
-                            js::make_chain(iterator_name, "значення"));
-        js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
-                                        js_name_assign);
 
         js_for_node->cleanup = new js::JsBody();
         // _мit_0 = undefined
@@ -72,18 +74,24 @@ namespace jejalyk::typeinterpreter {
           return iterator_diia_type_result;
         }
         const auto iterator_diia_return_types =
-            iterator_diia_type_result->value->call(scope, each_node->value, {},
-                                                   {});
-        if (iterator_diia_return_types->value->is_iterator(scope)) {
+            iterator_diia_type_result->value->call(loop_scope, each_node->value,
+                                                   {}, {});
+        if (iterator_diia_return_types->value->is_iterator(loop_scope)) {
           const auto iterator_type_result =
               iterator_diia_return_types->value->get_iterator_type(
-                  scope, each_node->value);
+                  loop_scope, each_node->value);
           if (iterator_type_result->error) {
             return iterator_type_result;
           }
-          scope->set_local(each_node->name, iterator_type_result->value);
+          loop_scope->set_local(each_node->name, iterator_type_result->value);
           scope->put_additional_node_before(
               jejalyk::js::make_var(iterator_name));
+
+          // х = _мit_0.значення
+          const auto js_name_assign =
+              js::make_assign(js::make_id(each_node->name),
+                              js::make_chain(iterator_name, "значення"));
+          loop_scope->put_additional_node_before(js_name_assign);
 
           const auto compiled_body = loop_scope->compile_body(each_node->body);
           if (compiled_body->error) {
@@ -110,12 +118,6 @@ namespace jejalyk::typeinterpreter {
           js_for_node->update = js::make_call(js_next_chain, {});
 
           js_for_node->body = compiled_body->js_body;
-          // х = _мit_0.значення
-          const auto js_name_assign =
-              js::make_assign(js::make_id(each_node->name),
-                              js::make_chain(iterator_name, "значення"));
-          js_for_node->body->nodes.insert(js_for_node->body->nodes.begin(),
-                                          js_name_assign);
 
           js_for_node->cleanup = new js::JsBody();
           // _мit_0 = undefined
@@ -135,10 +137,10 @@ namespace jejalyk::typeinterpreter {
                                   value_result->value->types_string() + "\".");
       }
     } else {
-      if (scope->has_local(each_node->name)) {
+      if (loop_scope->has_local(each_node->name)) {
         return error_1(each_node, each_node->name);
       }
-      if (scope->has_local(each_node->keyName)) {
+      if (loop_scope->has_local(each_node->keyName)) {
         return error_1(each_node, each_node->keyName);
       }
       return error_from_ast(each_node, "Перебір з ключем тимчасово недоступний.");
