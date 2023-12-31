@@ -54,12 +54,13 @@ public:
     RuleAssign_array_destruction = 53, RuleAssign_object_destruction = 54, 
     RuleAssign_symbol = 55, RuleWait_assign = 56, RuleIdentifier = 57, RuleIdentifiers_chain = 58, 
     RuleSuper_identifiers_chain = 59, RuleType_value = 60, RuleType_value_item = 61, 
-    RuleType_value_item_generics = 62, RuleArgs = 63, RuleArg = 64, RuleNamed_args = 65, 
-    RuleNamed_arg = 66, RuleParams = 67, RuleParam = 68, RuleParam_value = 69, 
-    RuleBody = 70, RuleBody_element_or_return = 71, RuleBody_element = 72, 
-    RuleReturn_body_line = 73, RuleArithmetic_op_mul = 74, RuleArithmetic_op_add = 75, 
-    RuleBitwise_op = 76, RuleTest_op = 77, RuleComparison_op = 78, RuleNl = 79, 
-    RuleNls = 80
+    RuleType_value_item_simple = 62, RuleType_value_item_generics = 63, 
+    RuleType_value_item_array = 64, RuleArgs = 65, RuleArg = 66, RuleNamed_args = 67, 
+    RuleNamed_arg = 68, RuleParams = 69, RuleParam = 70, RuleParam_value = 71, 
+    RuleBody = 72, RuleBody_element_or_return = 73, RuleBody_element = 74, 
+    RuleReturn_body_line = 75, RuleArithmetic_op_mul = 76, RuleArithmetic_op_add = 77, 
+    RuleBitwise_op = 78, RuleTest_op = 79, RuleComparison_op = 80, RuleNl = 81, 
+    RuleNls = 82
   };
 
   explicit MavkaParser(antlr4::TokenStream *input);
@@ -141,7 +142,9 @@ public:
   class Super_identifiers_chainContext;
   class Type_valueContext;
   class Type_value_itemContext;
+  class Type_value_item_simpleContext;
   class Type_value_item_genericsContext;
+  class Type_value_item_arrayContext;
   class ArgsContext;
   class ArgContext;
   class Named_argsContext;
@@ -2090,9 +2093,25 @@ public:
 
   class  Type_value_itemContext : public antlr4::ParserRuleContext {
   public:
+    Type_value_itemContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    Type_value_item_simpleContext *type_value_item_simple();
+    Type_value_item_arrayContext *type_value_item_array();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Type_value_itemContext* type_value_item();
+
+  class  Type_value_item_simpleContext : public antlr4::ParserRuleContext {
+  public:
     MavkaParser::Identifiers_chainContext *tvi_value = nullptr;
     MavkaParser::Type_value_item_genericsContext *tvi_generics = nullptr;
-    Type_value_itemContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    Type_value_item_simpleContext(antlr4::ParserRuleContext *parent, size_t invokingState);
     virtual size_t getRuleIndex() const override;
     Identifiers_chainContext *identifiers_chain();
     antlr4::tree::TerminalNode *SMALLER();
@@ -2106,7 +2125,7 @@ public:
    
   };
 
-  Type_value_itemContext* type_value_item();
+  Type_value_item_simpleContext* type_value_item_simple();
 
   class  Type_value_item_genericsContext : public antlr4::ParserRuleContext {
   public:
@@ -2125,6 +2144,23 @@ public:
   };
 
   Type_value_item_genericsContext* type_value_item_generics();
+
+  class  Type_value_item_arrayContext : public antlr4::ParserRuleContext {
+  public:
+    Type_value_item_arrayContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *OPEN_ARRAY();
+    antlr4::tree::TerminalNode *CLOSE_ARRAY();
+    Type_value_itemContext *type_value_item();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Type_value_item_arrayContext* type_value_item_array();
 
   class  ArgsContext : public antlr4::ParserRuleContext {
   public:

@@ -134,8 +134,10 @@ super_identifiers_chain: sic_identifier=identifier
                        | sic_left=super_identifiers_chain '[' nls sic_index=expr nls ']';
 
 type_value: type_value_item (('|' | 'або') type_value_item)*;
-type_value_item: tvi_value=identifiers_chain ('<' tvi_generics=type_value_item_generics '>')?;
+type_value_item: type_value_item_simple | type_value_item_array;
+type_value_item_simple: tvi_value=identifiers_chain ('<' tvi_generics=type_value_item_generics '>')?;
 type_value_item_generics: type_value (',' type_value)*;
+type_value_item_array: '[' ']' type_value_item;
 
 args: arg (',' arg)*;
 arg: nls (a_spread='...')? a_value=expr nls;

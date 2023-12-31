@@ -251,7 +251,7 @@ namespace jejalyk::typeinterpreter {
       bool type_found = false;
 
       for (const auto types_type : types->types) {
-        if (this->check_type(value_type, types_type)) {
+        if (this->check_type(value->is_empty_value, value_type, types_type)) {
           type_found = true;
           break;
         }
@@ -262,11 +262,14 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
+    value->is_empty_value = false;
+
     return true;
   }
 
-  bool Scope::check_type(Type* value, Type* type) {
+  bool Scope::check_type(bool is_empty_value, Type* value, Type* type) {
     const auto root_object_subject = this->get_root_object();
+    const auto root_array_subject = this->get_root_list();
     if (type->object->structure->object ==
         root_object_subject->types[0]->object) {
       return true;
@@ -279,6 +282,15 @@ namespace jejalyk::typeinterpreter {
     }
     if (type->generic_definition) {
       return false;
+    }
+    if (is_empty_value) {
+      if (value->is_array(this)) {
+        if (value->generic_types[0]->is_object(this)) {
+          if (type->is_array(this)) {
+            return true;
+          }
+        }
+      }
     }
     if (value->object->structure == type->object->structure) {
       if (value->generic_types.size() != type->generic_types.size()) {

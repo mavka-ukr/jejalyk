@@ -156,8 +156,7 @@ namespace jejalyk::typeinterpreter {
 
     std::vector<Type*> types;
 
-    bool is_empty_array = false;
-    bool is_empty_dictionary = false;
+    bool is_empty_value = false;
 
     void add_type(Type* type);
     Subject* merge_types(Subject* subject);
@@ -174,6 +173,7 @@ namespace jejalyk::typeinterpreter {
     bool is_diia(Scope* scope);
     bool is_dictionary(Scope* scope);
     bool is_structure(Scope* scope);
+    bool is_object(Scope* scope);
 
     bool has(const std::string& name);
     Result* get(const std::string& name);
@@ -313,7 +313,7 @@ namespace jejalyk::typeinterpreter {
     bool assign(std::string name, Subject* value);
 
     bool check_subjects(Subject* value, Subject* types);
-    bool check_type(Type* value, Type* type);
+    bool check_type(bool is_empty_value, Type* value, Type* type);
 
     Result* compile_types(std::vector<mavka::ast::TypeValueSingleNode*> types);
     Result* compile_nodes(std::vector<mavka::ast::ASTNode*> nodes);

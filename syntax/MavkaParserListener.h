@@ -308,8 +308,14 @@ public:
   virtual void enterType_value_item(MavkaParser::Type_value_itemContext *ctx) = 0;
   virtual void exitType_value_item(MavkaParser::Type_value_itemContext *ctx) = 0;
 
+  virtual void enterType_value_item_simple(MavkaParser::Type_value_item_simpleContext *ctx) = 0;
+  virtual void exitType_value_item_simple(MavkaParser::Type_value_item_simpleContext *ctx) = 0;
+
   virtual void enterType_value_item_generics(MavkaParser::Type_value_item_genericsContext *ctx) = 0;
   virtual void exitType_value_item_generics(MavkaParser::Type_value_item_genericsContext *ctx) = 0;
+
+  virtual void enterType_value_item_array(MavkaParser::Type_value_item_arrayContext *ctx) = 0;
+  virtual void exitType_value_item_array(MavkaParser::Type_value_item_arrayContext *ctx) = 0;
 
   virtual void enterArgs(MavkaParser::ArgsContext *ctx) = 0;
   virtual void exitArgs(MavkaParser::ArgsContext *ctx) = 0;

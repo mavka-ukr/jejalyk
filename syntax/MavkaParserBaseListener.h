@@ -310,8 +310,14 @@ public:
   virtual void enterType_value_item(MavkaParser::Type_value_itemContext * /*ctx*/) override { }
   virtual void exitType_value_item(MavkaParser::Type_value_itemContext * /*ctx*/) override { }
 
+  virtual void enterType_value_item_simple(MavkaParser::Type_value_item_simpleContext * /*ctx*/) override { }
+  virtual void exitType_value_item_simple(MavkaParser::Type_value_item_simpleContext * /*ctx*/) override { }
+
   virtual void enterType_value_item_generics(MavkaParser::Type_value_item_genericsContext * /*ctx*/) override { }
   virtual void exitType_value_item_generics(MavkaParser::Type_value_item_genericsContext * /*ctx*/) override { }
+
+  virtual void enterType_value_item_array(MavkaParser::Type_value_item_arrayContext * /*ctx*/) override { }
+  virtual void exitType_value_item_array(MavkaParser::Type_value_item_arrayContext * /*ctx*/) override { }
 
   virtual void enterArgs(MavkaParser::ArgsContext * /*ctx*/) override { }
   virtual void exitArgs(MavkaParser::ArgsContext * /*ctx*/) override { }

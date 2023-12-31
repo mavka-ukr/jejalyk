@@ -407,7 +407,15 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitType_value_item_simple(MavkaParser::Type_value_item_simpleContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitType_value_item_generics(MavkaParser::Type_value_item_genericsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitType_value_item_array(MavkaParser::Type_value_item_arrayContext *ctx) override {
     return visitChildren(ctx);
   }
 

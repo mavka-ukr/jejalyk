@@ -2092,26 +2092,70 @@ namespace mavka::parser {
       std::vector<ast::TypeValueSingleNode*> types;
       for (int i = 0; i < context->type_value_item().size(); ++i) {
         const auto type = context->type_value_item()[i];
-        const auto ast_result =
-            any_to_ast_result(visitIdentifiers_chain(type->tvi_value));
-        const auto type_value_single = new ast::TypeValueSingleNode();
-        type_value_single->start_line = type->getStart()->getLine();
-        type_value_single->start_column =
-            type->getStart()->getCharPositionInLine();
-        type_value_single->end_line = type->getStop()->getLine();
-        type_value_single->end_column =
-            type->getStop()->getCharPositionInLine();
-        type_value_single->value = ast_result->node;
-        if (type->tvi_generics) {
-          for (const auto generic_type : type->tvi_generics->type_value()) {
-            type_value_single->generics.push_back(
-                std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
-                    visitType_value(generic_type)));
-          }
-        }
-        types.push_back(type_value_single);
+        const auto ast_result = any_to_ast_result(visitType_value_item(type));
+        types.push_back(
+            dynamic_cast<ast::TypeValueSingleNode*>(ast_result->node));
       }
       return types;
+    }
+
+    std::any visitType_value_item(
+        MavkaParser::Type_value_itemContext* context) override {
+      if (context->type_value_item_array()) {
+        return visitType_value_item_array(context->type_value_item_array());
+      }
+      if (context->type_value_item_simple()) {
+        return visitType_value_item_simple(context->type_value_item_simple());
+      }
+      return create_ast_result(nullptr);
+    }
+
+    std::any visitType_value_item_array(
+        MavkaParser::Type_value_item_arrayContext* context) override {
+      const auto type_value_array = new ast::TypeValueSingleNode();
+      type_value_array->start_line = context->getStart()->getLine();
+      type_value_array->start_column =
+          context->getStart()->getCharPositionInLine();
+      type_value_array->end_line = context->getStop()->getLine();
+      type_value_array->end_column =
+          context->getStop()->getCharPositionInLine();
+      const auto array_identifier_node = new ast::IdentifierNode();
+      array_identifier_node->start_line = context->getStart()->getLine();
+      array_identifier_node->start_column =
+          context->getStart()->getCharPositionInLine();
+      array_identifier_node->end_line = context->getStop()->getLine();
+      array_identifier_node->end_column =
+          context->getStop()->getCharPositionInLine();
+      array_identifier_node->name = "список";
+      type_value_array->value = array_identifier_node;
+      const auto type_value_single_result =
+          any_to_ast_result(visitType_value_item(context->type_value_item()));
+      const auto type_value_single = dynamic_cast<ast::TypeValueSingleNode*>(
+          type_value_single_result->node);
+      type_value_array->generics.push_back({type_value_single});
+      return create_ast_result(type_value_array);
+    }
+
+    std::any visitType_value_item_simple(
+        MavkaParser::Type_value_item_simpleContext* context) override {
+      const auto ast_result =
+          any_to_ast_result(visitIdentifiers_chain(context->tvi_value));
+      const auto type_value_single = new ast::TypeValueSingleNode();
+      type_value_single->start_line = context->getStart()->getLine();
+      type_value_single->start_column =
+          context->getStart()->getCharPositionInLine();
+      type_value_single->end_line = context->getStop()->getLine();
+      type_value_single->end_column =
+          context->getStop()->getCharPositionInLine();
+      type_value_single->value = ast_result->node;
+      if (context->tvi_generics) {
+        for (const auto generic_type : context->tvi_generics->type_value()) {
+          type_value_single->generics.push_back(
+              std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
+                  visitType_value(generic_type)));
+        }
+      }
+      return create_ast_result(type_value_single);
     }
 
     std::any visitArgs(MavkaParser::ArgsContext* context) override {

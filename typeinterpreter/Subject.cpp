@@ -149,6 +149,16 @@ namespace jejalyk::typeinterpreter {
     return types[0]->is_structure(scope);
   }
 
+  bool Subject::is_object(Scope* scope) {
+    if (types.empty()) {
+      return false;
+    }
+    if (types.size() > 1) {
+      return false;
+    }
+    return types[0]->is_object(scope);
+  }
+
   bool Subject::has(const std::string& name) {
     if (types.empty()) {
       return false;
