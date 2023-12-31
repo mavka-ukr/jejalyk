@@ -26,6 +26,7 @@ namespace jejalyk::typeinterpreter {
         }
         return success(local_subject, js_assign_node);
       } else {
+        value_result->value->is_empty_value = false;
         scope->set_local(assign_simple_node->name, value_result->value);
 
         return success(value_result->value, js_assign_node);
