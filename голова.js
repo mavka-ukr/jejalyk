@@ -1,11 +1,39 @@
 var М = Symbol("Мавка");
 
 var обʼєкт = Object.create(null);
-
 var список = Array;
+var число = Number;
+var текст = String;
+var логічне = Boolean;
+var пусто = null;
+var байти = ArrayBuffer;
+
 Object.defineProperty(Array.prototype, "довжина", {
   get: function() {
     return this.length;
+  },
+});
+Object.defineProperty(Array.prototype, "чародія_містить", {
+  get: function() {
+    return (value) => this.findIndex((item) => item === value) !== -1;
+  },
+});
+Object.defineProperty(Array.prototype, "чародія_перебір", {
+  get: function() {
+    return () => {
+      let i = 0;
+      const iterator = Object.create(null);
+      iterator.завершено = this.length === 0;
+      iterator.значення = this[i];
+      iterator.далі = мДія("далі", () => {
+        if (iterator.завершено) {
+          return;
+        }
+        iterator.значення = this[++i];
+        iterator.завершено = i >= this.length;
+      });
+      return iterator;
+    };
   },
 });
 

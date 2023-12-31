@@ -166,6 +166,23 @@ namespace jejalyk::typeinterpreter {
     return this->additional_nodes_before;
   }
 
+  void Scope::put_additional_variable(std::string name) {
+    if (this->proxy) {
+      this->parent->put_additional_variable(name);
+    } else {
+      for (const auto& additional_variable : this->additional_variables) {
+        if (additional_variable == name) {
+          return;
+        }
+      }
+      this->additional_variables.push_back(name);
+    }
+  }
+
+  std::vector<std::string> Scope::get_additional_variables() {
+    return this->additional_variables;
+  }
+
   Subject* Scope::create_object_instance_subject() {
     const auto object_structure_subject = this->get_root_object();
     const auto object_instance_subject =
@@ -817,6 +834,20 @@ namespace jejalyk::typeinterpreter {
       for (const auto js_node_before : this->get_additional_nodes_before()) {
         result->js_body->nodes.insert(result->js_body->nodes.begin(),
                                       js_node_before);
+      }
+      for (const auto& additional_variable : this->get_additional_variables()) {
+        bool ignored = false;
+        for (const auto& ignored_variable : this->get_ignored_variables()) {
+          if (ignored_variable == additional_variable) {
+            ignored = true;
+            break;
+          }
+        }
+        if (ignored) {
+          continue;
+        }
+        result->js_body->nodes.insert(result->js_body->nodes.begin(),
+                                      js::make_var(additional_variable));
       }
       if (!var_names.empty()) {
         result->js_body->nodes.insert(result->js_body->nodes.begin(),

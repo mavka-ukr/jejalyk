@@ -233,12 +233,6 @@ public:
   virtual void enterTernary(MavkaParser::TernaryContext *ctx) = 0;
   virtual void exitTernary(MavkaParser::TernaryContext *ctx) = 0;
 
-  virtual void enterArray(MavkaParser::ArrayContext *ctx) = 0;
-  virtual void exitArray(MavkaParser::ArrayContext *ctx) = 0;
-
-  virtual void enterDictionary(MavkaParser::DictionaryContext *ctx) = 0;
-  virtual void exitDictionary(MavkaParser::DictionaryContext *ctx) = 0;
-
   virtual void enterGod(MavkaParser::GodContext *ctx) = 0;
   virtual void exitGod(MavkaParser::GodContext *ctx) = 0;
 

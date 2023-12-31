@@ -235,12 +235,6 @@ public:
   virtual void enterTernary(MavkaParser::TernaryContext * /*ctx*/) override { }
   virtual void exitTernary(MavkaParser::TernaryContext * /*ctx*/) override { }
 
-  virtual void enterArray(MavkaParser::ArrayContext * /*ctx*/) override { }
-  virtual void exitArray(MavkaParser::ArrayContext * /*ctx*/) override { }
-
-  virtual void enterDictionary(MavkaParser::DictionaryContext * /*ctx*/) override { }
-  virtual void exitDictionary(MavkaParser::DictionaryContext * /*ctx*/) override { }
-
   virtual void enterGod(MavkaParser::GodContext * /*ctx*/) override { }
   virtual void exitGod(MavkaParser::GodContext * /*ctx*/) override { }
 

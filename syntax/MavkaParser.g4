@@ -100,8 +100,6 @@ expr: 'предок' nls '.' nls cp_id=identifier '(' (cp_args=args | cp_named_a
     | value #simple
     | a_left=atom 'як' a_right=atom #as
     | t_value=value nls '?' nls t_positive=expr nls ':' nls t_negative=expr #ternary
-    | '<' a_type=type_value '>' '[' a_elements=array_elements? ']' #array
-    | '<' d_key_type=type_value ',' d_value_type=type_value '>' '(' d_args=dictionary_args? ')' #dictionary
     | atom ('та' atom)+ #god
     | 'чекати' w_value=value #wait
     | (f_async='тривала')? '(' f_params=params? ')' f_type=type_value? ':' f_body=expr #function

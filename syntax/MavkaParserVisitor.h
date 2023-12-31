@@ -165,10 +165,6 @@ public:
 
     virtual std::any visitTernary(MavkaParser::TernaryContext *context) = 0;
 
-    virtual std::any visitArray(MavkaParser::ArrayContext *context) = 0;
-
-    virtual std::any visitDictionary(MavkaParser::DictionaryContext *context) = 0;
-
     virtual std::any visitGod(MavkaParser::GodContext *context) = 0;
 
     virtual std::any visitWait(MavkaParser::WaitContext *context) = 0;

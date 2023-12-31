@@ -15,7 +15,7 @@ namespace jejalyk::typeinterpreter {
       return body_result;
     }
 
-    const auto js_while = new jejalyk::js::JsWhileNode();
+    const auto js_while = new js::JsWhileNode();
     js_while->condition = condition_result->js_node;
     js_while->body = body_result->js_body;
 

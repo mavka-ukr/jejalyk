@@ -861,19 +861,19 @@ namespace mavka::parser {
         return visitTernary(
             dynamic_cast<MavkaParser::TernaryContext*>(context));
       }
-      if (jejalyk::tools::instance_of<MavkaParser::ArrayContext>(context)) {
-        return visitArray(dynamic_cast<MavkaParser::ArrayContext*>(context));
-      }
+      // if (jejalyk::tools::instance_of<MavkaParser::ArrayContext>(context)) {
+      //   return visitArray(dynamic_cast<MavkaParser::ArrayContext*>(context));
+      // }
       if (jejalyk::tools::instance_of<MavkaParser::Typeless_arrayContext>(
               context)) {
         return visitTypeless_array(
             dynamic_cast<MavkaParser::Typeless_arrayContext*>(context));
       }
-      if (jejalyk::tools::instance_of<MavkaParser::DictionaryContext>(
-              context)) {
-        return visitDictionary(
-            dynamic_cast<MavkaParser::DictionaryContext*>(context));
-      }
+      // if (jejalyk::tools::instance_of<MavkaParser::DictionaryContext>(
+      //         context)) {
+      //   return visitDictionary(
+      //       dynamic_cast<MavkaParser::DictionaryContext*>(context));
+      // }
       if (jejalyk::tools::instance_of<MavkaParser::Typeless_dictionaryContext>(
               context)) {
         return visitTypeless_dictionary(
@@ -1341,23 +1341,23 @@ namespace mavka::parser {
       return create_ast_result(ternary_node);
     }
 
-    std::any visitArray(MavkaParser::ArrayContext* context) override {
-      const auto array_node = new ast::ArrayNode();
-      array_node->start_line = context->getStart()->getLine();
-      array_node->start_column = context->getStart()->getCharPositionInLine();
-      array_node->end_line = context->getStop()->getLine();
-      array_node->end_column = context->getStop()->getCharPositionInLine();
-      if (context->a_type) {
-        array_node->types =
-            std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
-                visitType_value(context->a_type));
-      }
-      if (context->a_elements) {
-        array_node->elements = std::any_cast<std::vector<ast::ASTNode*>>(
-            visitArray_elements(context->a_elements));
-      }
-      return create_ast_result(array_node);
-    }
+    // std::any visitArray(MavkaParser::ArrayContext* context) override {
+    //   const auto array_node = new ast::ArrayNode();
+    //   array_node->start_line = context->getStart()->getLine();
+    //   array_node->start_column = context->getStart()->getCharPositionInLine();
+    //   array_node->end_line = context->getStop()->getLine();
+    //   array_node->end_column = context->getStop()->getCharPositionInLine();
+    //   if (context->a_type) {
+    //     array_node->types =
+    //         std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
+    //             visitType_value(context->a_type));
+    //   }
+    //   if (context->a_elements) {
+    //     array_node->elements = std::any_cast<std::vector<ast::ASTNode*>>(
+    //         visitArray_elements(context->a_elements));
+    //   }
+    //   return create_ast_result(array_node);
+    // }
 
     std::any visitTypeless_array(
         MavkaParser::Typeless_arrayContext* context) override {
@@ -1389,30 +1389,30 @@ namespace mavka::parser {
       return _visitContext(context->ae_value);
     }
 
-    std::any visitDictionary(MavkaParser::DictionaryContext* context) override {
-      const auto dictionary_node = new ast::DictionaryNode();
-      dictionary_node->start_line = context->getStart()->getLine();
-      dictionary_node->start_column =
-          context->getStart()->getCharPositionInLine();
-      dictionary_node->end_line = context->getStop()->getLine();
-      dictionary_node->end_column = context->getStop()->getCharPositionInLine();
-      if (context->d_key_type) {
-        dictionary_node->key_types =
-            std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
-                visitType_value(context->d_key_type));
-      }
-      if (context->d_value_type) {
-        dictionary_node->value_types =
-            std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
-                visitType_value(context->d_value_type));
-      }
-      if (context->d_args) {
-        dictionary_node->elements =
-            std::any_cast<std::vector<ast::DictionaryElementNode*>>(
-                visitDictionary_args(context->d_args));
-      }
-      return create_ast_result(dictionary_node);
-    }
+    // std::any visitDictionary(MavkaParser::DictionaryContext* context) override {
+    //   const auto dictionary_node = new ast::DictionaryNode();
+    //   dictionary_node->start_line = context->getStart()->getLine();
+    //   dictionary_node->start_column =
+    //       context->getStart()->getCharPositionInLine();
+    //   dictionary_node->end_line = context->getStop()->getLine();
+    //   dictionary_node->end_column = context->getStop()->getCharPositionInLine();
+    //   if (context->d_key_type) {
+    //     dictionary_node->key_types =
+    //         std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
+    //             visitType_value(context->d_key_type));
+    //   }
+    //   if (context->d_value_type) {
+    //     dictionary_node->value_types =
+    //         std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
+    //             visitType_value(context->d_value_type));
+    //   }
+    //   if (context->d_args) {
+    //     dictionary_node->elements =
+    //         std::any_cast<std::vector<ast::DictionaryElementNode*>>(
+    //             visitDictionary_args(context->d_args));
+    //   }
+    //   return create_ast_result(dictionary_node);
+    // }
 
     std::any visitTypeless_dictionary(
         MavkaParser::Typeless_dictionaryContext* context) override {

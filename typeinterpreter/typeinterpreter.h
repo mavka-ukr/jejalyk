@@ -267,8 +267,9 @@ namespace jejalyk::typeinterpreter {
     bool is_loop = false;
     bool is_async = false;
     size_t iterator_count = 0;
-    std::vector<jejalyk::js::JsNode*> additional_nodes_before;
+    std::vector<js::JsNode*> additional_nodes_before;
     std::vector<std::string> ignored_variables;
+    std::vector<std::string> additional_variables;
 
     Scope* make_child();
     Scope* make_proxy();
@@ -296,8 +297,11 @@ namespace jejalyk::typeinterpreter {
     std::vector<std::string> get_ignored_variables();
     void put_ignore_variable(std::string name);
 
-    void put_additional_node_before(jejalyk::js::JsNode* node);
-    std::vector<jejalyk::js::JsNode*> get_additional_nodes_before();
+    void put_additional_node_before(js::JsNode* node);
+    std::vector<js::JsNode*> get_additional_nodes_before();
+
+    void put_additional_variable(std::string name);
+    std::vector<std::string> get_additional_variables();
 
     Subject* create_object_instance_subject();
     Type* create_object_instance_type();

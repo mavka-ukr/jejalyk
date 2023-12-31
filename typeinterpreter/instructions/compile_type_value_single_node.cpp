@@ -59,8 +59,8 @@ namespace jejalyk::typeinterpreter {
       }
 
       return type_value_single_result->value->create_instance(scope, generic_types);
-      }
+    }
 
-      return type_value_single_result->value->create_instance(scope, {});
+    return type_value_single_result->value->create_instance(scope, {});
   }
 } // namespace typeinterpreter

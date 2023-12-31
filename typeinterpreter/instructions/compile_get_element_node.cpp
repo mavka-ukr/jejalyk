@@ -32,9 +32,9 @@ namespace jejalyk::typeinterpreter {
       const auto js_call = js::make_call(js_chain, {index_result->js_node});
       result->js_node = js_call;
     } else {
-      // мОтрЕ(а, б)
+      // мОтримати(а, б)
       result->js_node = js::make_call(
-          js::make_id("мОтрЕ"), {value_result->js_node, index_result->js_node});
+          js::make_id("мОтримати"), {value_result->js_node, index_result->js_node});
     }
 
     return result;

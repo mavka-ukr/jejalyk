@@ -307,14 +307,6 @@ public:
     return visitChildren(ctx);
   }
 
-  virtual std::any visitArray(MavkaParser::ArrayContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitDictionary(MavkaParser::DictionaryContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitGod(MavkaParser::GodContext *ctx) override {
     return visitChildren(ctx);
   }
