@@ -53,6 +53,7 @@ namespace jejalyk::typeinterpreter {
       diia_scope->set_local("я",
                             Subject::create(structure_type->create_instance(
                                 scope, generic_definition_subjects)));
+      diia_scope->put_ignore_variable("я");
 
       const auto diia_result =
           complete_diia(scope, mockup, diia_scope, node, structure_type,

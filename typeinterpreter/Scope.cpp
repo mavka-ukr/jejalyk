@@ -139,6 +139,21 @@ namespace jejalyk::typeinterpreter {
     return nullptr;
   }
 
+  std::vector<std::string> Scope::get_ignored_variables() {
+    if (this->proxy) {
+      return this->parent->get_ignored_variables();
+    }
+    return this->ignored_variables;
+  }
+
+  void Scope::put_ignore_variable(std::string name) {
+    if (this->proxy) {
+      this->parent->put_ignore_variable(name);
+    } else {
+      this->ignored_variables.push_back(name);
+    }
+  }
+
   void Scope::put_additional_node_before(jejalyk::js::JsNode* node) {
     if (this->proxy) {
       this->parent->put_additional_node_before(node);
@@ -196,12 +211,7 @@ namespace jejalyk::typeinterpreter {
 
   void Scope::set_local(std::string name, Subject* value) {
     if (this->proxy) {
-      if (this->parent) {
-        this->parent->set_local(name, value);
-      } else {
-        std::cout << "[BUG] Scope::set() called for proxy without parent '"
-                  << name << "'" << std::endl;
-      }
+      this->parent->set_local(name, value);
     } else {
       this->variables.insert_or_assign(name, value);
     }
@@ -766,17 +776,23 @@ namespace jejalyk::typeinterpreter {
       const auto diia_object = this->get_diia_object();
 
       for (const auto& [variable_name, variable_subject] : this->variables) {
+        bool ignored = false;
         if (diia_object) {
-          bool is_param = false;
           for (const auto& param : diia_object->params) {
             if (param->name == variable_name) {
-              is_param = true;
+              ignored = true;
               break;
             }
           }
-          if (is_param) {
-            continue;
+        }
+        for (const auto& ignored_variable : this->get_ignored_variables()) {
+          if (ignored_variable == variable_name) {
+            ignored = true;
+            break;
           }
+        }
+        if (ignored) {
+          continue;
         }
 
         var_names.push_back(variable_name);

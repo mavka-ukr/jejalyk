@@ -240,6 +240,12 @@ namespace jejalyk::typeinterpreter {
       //   return error_from_ast(
       //       node, "Неможливо викликати \"" + this->object->name + "\".");
       // }
+      if (generic_types.empty() && !this->object->generic_definitions.empty()) {
+        for (const auto generic_definition :
+             this->object->generic_definitions) {
+          generic_types.push_back(scope->create_object_instance_subject());
+        }
+      }
       if (generic_types.size() < this->object->generic_definitions.size()) {
         return error_from_ast(node, "Недостатньо аргументів шаблону.");
       }

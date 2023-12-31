@@ -4,23 +4,23 @@ namespace jejalyk::typeinterpreter {
   Result* compile_type_value_single_node(
       Scope* scope,
       mavka::ast::TypeValueSingleNode* type_value_single_node) {
-    const auto value_compilation_result =
+    const auto type_value_single_result =
         scope->compile_node(type_value_single_node->value);
-    if (value_compilation_result->error) {
-      return value_compilation_result;
+    if (type_value_single_result->error) {
+      return type_value_single_result;
     }
 
-    if (!value_compilation_result->value->types.empty()) {
-      if (value_compilation_result->value->types[0]->object) {
+    if (!type_value_single_result->value->types.empty()) {
+      if (type_value_single_result->value->types[0]->object) {
         if (type_value_single_node->generics.size() >
-            value_compilation_result->value->types[0]
+            type_value_single_result->value->types[0]
                 ->object->generic_definitions.size()) {
           return error_from_ast(type_value_single_node,
                                 "Забагато аргументів шаблону.");
         }
 
         if (type_value_single_node->generics.size() <
-            value_compilation_result->value->types[0]
+            type_value_single_result->value->types[0]
                 ->object->generic_definitions.size()) {
           return error_from_ast(type_value_single_node,
                                 "Недостатньо аргументів шаблону.");
@@ -29,13 +29,13 @@ namespace jejalyk::typeinterpreter {
     }
 
     if (!type_value_single_node->generics.empty()) {
-      if (value_compilation_result->value->types.size() != 1) {
+      if (type_value_single_result->value->types.size() != 1) {
         return error_from_ast(type_value_single_node,
                               "Неможливо застосувати аргументи шаблону до "
                               "типу з різними можливими значеннями.");
       }
 
-      if (value_compilation_result->value->types[0]->generic_definition) {
+      if (type_value_single_result->value->types[0]->generic_definition) {
         return error_from_ast(
             type_value_single_node,
             "Неможливо використовувати аргументи шаблону для шаблону.");
@@ -58,10 +58,9 @@ namespace jejalyk::typeinterpreter {
         generic_types.push_back(generic_type_subject);
       }
 
-      return value_compilation_result->value->create_instance(scope,
-                                                              generic_types);
+      return type_value_single_result->value->create_instance(scope, generic_types);
       }
 
-      return value_compilation_result->value->create_instance(scope, {});
+      return type_value_single_result->value->create_instance(scope, {});
   }
 } // namespace typeinterpreter
