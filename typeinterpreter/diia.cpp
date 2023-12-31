@@ -98,6 +98,7 @@ namespace jejalyk::typeinterpreter {
                         bool mockup,
                         Scope* diia_scope,
                         mavka::ast::ASTNode* node,
+                        Type* diia_structure,
                         Subject* diia_subject,
                         std::vector<mavka::ast::ASTNode*>* body) {
     Result* compiled_body = nullptr;
@@ -118,6 +119,9 @@ namespace jejalyk::typeinterpreter {
 
       const auto js_function = new js::JsFunctionNode();
       js_function->async = diia_object->is_diia_async;
+      if (diia_structure != nullptr) {
+        js_function->params.push_back(js::make_id("я"));
+      }
       for (const auto param : diia_object->params) {
         js_function->params.push_back(js::make_id(param->name));
       }

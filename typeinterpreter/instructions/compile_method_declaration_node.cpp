@@ -15,7 +15,7 @@ namespace jejalyk::typeinterpreter {
       return diia_declaration_result;
     }
 
-    return complete_diia(scope, true, diia_scope, method_declaration_node,
+    return complete_diia(scope, true, diia_scope, method_declaration_node, nullptr,
                          diia_declaration_result->value, nullptr);
   }
 } // namespace typeinterpreter

@@ -12,7 +12,7 @@ namespace jejalyk::typeinterpreter {
       return diia_declaration_result;
     }
 
-    return complete_diia(scope, false, diia_scope, anon_diia_node,
+    return complete_diia(scope, false, diia_scope, anon_diia_node, nullptr,
                          diia_declaration_result->value, &anon_diia_node->body);
   }
 } // namespace jejalyk::typeinterpreter

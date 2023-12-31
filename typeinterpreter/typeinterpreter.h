@@ -12,7 +12,7 @@
 #include "../parser.h"
 #include "../tools.h"
 
-#define JJ_DEBUG 1
+#define JJ_DEBUG 0
 
 namespace jejalyk::typeinterpreter {
   class Error;
@@ -537,6 +537,7 @@ namespace jejalyk::typeinterpreter {
                         bool mockup,
                         Scope* diia_scope,
                         mavka::ast::ASTNode* node,
+                        Type* diia_structure,
                         Subject* diia_subject,
                         std::vector<mavka::ast::ASTNode*>* body);
 

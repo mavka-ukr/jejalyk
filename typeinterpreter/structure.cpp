@@ -45,10 +45,20 @@ namespace jejalyk::typeinterpreter {
                              mavka::ast::ASTNode* node,
                              Subject* structure_subject,
                              std::vector<mavka::ast::ParamNode*> params) {
+    const auto diia_structure_subject = scope->get_root_diia();
+
     Type* structure_type = nullptr;
     Object* structure_object = nullptr;
     Scope* scope_with_generics = scope->make_proxy();
     std::vector<Subject*> generic_definition_subjects;
+
+    // створити()
+    const auto diia_object = new Object();
+    diia_object->structure = diia_structure_subject->types[0];
+    diia_object->is_diia_async = false;
+    diia_object->name = "створити";
+    Scope* diia_scope_with_generics = scope->make_proxy();
+    std::vector<Subject*> diia_generic_definition_subjects;
 
     structure_type = structure_subject->types[0];
     structure_object = structure_type->object;
@@ -67,24 +77,29 @@ namespace jejalyk::typeinterpreter {
 
       scope_with_generics->variables.insert_or_assign(
           generic_definition->name, generic_definition_subject);
-
       generic_definition_subjects.push_back(generic_definition_subject);
+
+      // створити()
+      const auto diia_generic_definition = new GenericDefinition();
+      diia_generic_definition->object = diia_object;
+      diia_generic_definition->index = generic_definition->index;
+      diia_generic_definition->name = generic_definition->name;
+      diia_scope_with_generics->variables.insert_or_assign(
+          generic_definition->name, Subject::create(diia_generic_definition));
+      diia_object->generic_definitions.push_back(diia_generic_definition);
+      diia_generic_definition_subjects.push_back(
+          Subject::create(diia_generic_definition));
     }
 
     for (const auto param_node : params) {
       const auto param = new Param();
       param->name = param_node->name;
-      param->types = new Subject();
-      for (const auto type_value_single_node : param_node->types) {
-        const auto type_value_single_result =
-            scope_with_generics->compile_node(type_value_single_node);
-        if (type_value_single_result->error) {
-          return type_value_single_result;
-        }
-
-        param->types->merge_types(type_value_single_result->value);
+      const auto types_result =
+          scope_with_generics->compile_types(param_node->types);
+      if (types_result->error) {
+        return types_result;
       }
-      param->types->fix_types(scope);
+      param->types = types_result->value;
       param->value = nullptr;
       param->variadic = param_node->variadic;
 
@@ -105,8 +120,8 @@ namespace jejalyk::typeinterpreter {
         structure_object->properties.insert_or_assign(param_node->name,
                                                       param->types);
       } else {
-        for (const auto param : structure_object->params) {
-          if (param->name == param_node->name) {
+        for (const auto sparam : structure_object->params) {
+          if (sparam->name == param_node->name) {
             return error_from_ast(
                 param_node,
                 "Властивість \"" + param_node->name + "\" вже визначено.");
@@ -123,6 +138,19 @@ namespace jejalyk::typeinterpreter {
         // todo: handle parent
 
         structure_object->params.push_back(param);
+
+        // створити()
+        const auto diia_param = new Param();
+        diia_param->name = param_node->name;
+        const auto diia_types_result =
+            diia_scope_with_generics->compile_types(param_node->types);
+        if (diia_types_result->error) {
+          return diia_types_result;
+        }
+        diia_param->types = diia_types_result->value;
+        diia_param->value = nullptr;
+        diia_param->variadic = param_node->variadic;
+        diia_object->params.push_back(diia_param);
       }
     }
 
@@ -178,15 +206,8 @@ namespace jejalyk::typeinterpreter {
     //   }
     // }
 
-    const auto diia_structure_subject = scope->get_root_diia();
-
-    const auto diia_object = new Object();
-    diia_object->structure = diia_structure_subject->types[0];
-    diia_object->name = "створити";
-    diia_object->is_diia_async = false;
-    diia_object->params = structure_object->params;
-    diia_object->return_types = Subject::create(
-        structure_type->create_instance(scope, generic_definition_subjects));
+    diia_object->return_types = Subject::create(structure_type->create_instance(
+        scope, diia_generic_definition_subjects));
     const auto diia_subject = Subject::create(diia_object);
 
     structure_object->properties.insert_or_assign("створити", diia_subject);

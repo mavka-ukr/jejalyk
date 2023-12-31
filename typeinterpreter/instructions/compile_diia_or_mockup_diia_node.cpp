@@ -62,7 +62,7 @@ namespace jejalyk::typeinterpreter {
 
       const auto diia_result =
           complete_diia(scope, mockup, scope_with_generics, node,
-                        Subject::create(diia_type), body);
+                        structure_type, Subject::create(diia_type), body);
       if (diia_result->error) {
         return diia_result;
       }
@@ -90,8 +90,8 @@ namespace jejalyk::typeinterpreter {
     const auto diia_subject = scope->get_local(name);
     const auto diia_scope = scope->make_child();
 
-    const auto diia_result =
-        complete_diia(scope, mockup, diia_scope, node, diia_subject, body);
+    const auto diia_result = complete_diia(scope, mockup, diia_scope, node,
+                                           nullptr, diia_subject, body);
     if (diia_result->error) {
       return diia_result;
     }
