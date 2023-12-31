@@ -174,20 +174,35 @@ namespace jejalyk::typeinterpreter {
       const auto processed_method_object = new Object();
       processed_method_object->structure = method_type->object->structure;
       processed_method_object->name = method_type->object->name;
-      processed_method_object->generic_definitions =
-          method_type->object->generic_definitions;
+      std::vector<Subject*> generic_definition_subjects;
+      for (const auto generic_definition :
+           method_type->object->generic_definitions) {
+        const auto new_generic_definition = new GenericDefinition();
+        new_generic_definition->object = processed_method_object;
+        new_generic_definition->index = generic_definition->index;
+        new_generic_definition->name = generic_definition->name;
+        processed_method_object->generic_definitions.push_back(
+            new_generic_definition);
+        generic_definition_subjects.push_back(
+            Subject::create(new_generic_definition));
+      }
       for (const auto param : method_type->object->params) {
-        const auto newparam = new Param();
-        newparam->name = param->name;
-        newparam->types = process_subject_generics(
+        const auto new_param = new Param();
+        new_param->name = param->name;
+        new_param->types = process_subject_generics(
             this->object->structure->object, this->generic_types, param->types);
-        newparam->value = param->value;
-        newparam->variadic = param->variadic;
-        processed_method_object->params.push_back(newparam);
+        new_param->types = process_subject_generics(
+            method_type->object, generic_definition_subjects, new_param->types);
+        new_param->value = param->value;
+        new_param->variadic = param->variadic;
+        processed_method_object->params.push_back(new_param);
       }
       processed_method_object->return_types = process_subject_generics(
           this->object->structure->object, this->generic_types,
           method_type->object->return_types);
+      processed_method_object->return_types = process_subject_generics(
+          method_type->object, generic_definition_subjects,
+          processed_method_object->return_types);
       const auto processed_method_type = new Type(processed_method_object);
       return new Subject({processed_method_type});
     }

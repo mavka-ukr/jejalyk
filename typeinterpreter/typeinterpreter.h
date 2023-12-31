@@ -541,6 +541,7 @@ namespace jejalyk::typeinterpreter {
                         Subject* diia_subject,
                         std::vector<mavka::ast::ASTNode*>* body);
 
+  void debug_print(std::string message);
   void debug_print_call(Type* value,
                         std::vector<Subject*> generic_types,
                         std::vector<Subject*> args);

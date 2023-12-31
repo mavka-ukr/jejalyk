@@ -9,20 +9,15 @@ namespace jejalyk::typeinterpreter {
 
     std::vector<Subject*> generic_types;
     for (const auto& generic_type_nodes : call_node->generics) {
-      Subject* generic_subject = nullptr;
-      for (const auto type_value_single_node : generic_type_nodes) {
-        const auto type_value_single_result =
-            scope->compile_node(type_value_single_node);
-        if (type_value_single_result->error) {
-          return type_value_single_result;
-        }
-        generic_subject = type_value_single_result->value;
+      const auto generic_result = scope->compile_types(generic_type_nodes);
+      if (generic_result->error) {
+        return generic_result;
       }
-      generic_types.push_back(generic_subject);
+      generic_types.push_back(generic_result->value);
     }
 
     std::vector<Subject*> args;
-    std::vector<jejalyk::js::JsNode*> js_args;
+    std::vector<js::JsNode*> js_args;
     for (const auto arg_node : call_node->args) {
       const auto arg_result = scope->compile_node(arg_node->value);
       if (arg_result->error) {

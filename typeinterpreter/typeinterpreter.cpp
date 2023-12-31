@@ -5,16 +5,28 @@ namespace jejalyk::typeinterpreter {
                                     std::vector<Subject*> generic_types,
                                     Subject* subject) {
     const auto processed_subject = new Subject();
-    for (int i = 0; i < subject->types.size(); ++i) {
-      const auto type = subject->types[i];
-
+    for (const auto type : subject->types) {
       if (type->generic_definition) {
         if (type->generic_definition->object == object) {
+          if constexpr (JJ_DEBUG) {
+            std::cout << "[debug] process_subject_generics: "
+                      << type->generic_definition->name << " | "
+                      << type->generic_definition->object->name
+                      << " == " << object->name << std::endl;
+          }
           const auto generic = generic_types[type->generic_definition->index];
           const auto generic_type = generic->types[0];
 
           processed_subject->add_type(generic_type);
         } else {
+          if constexpr (JJ_DEBUG) {
+            std::cout << "[debug] process_subject_generics: "
+                      << type->generic_definition->name << " | "
+                      << type->generic_definition->object->name << "["
+                      << type->generic_definition->object
+                      << "] != " << object->name << "[" << object << "]"
+                      << std::endl;
+          }
           processed_subject->add_type(type);
         }
       } else {
