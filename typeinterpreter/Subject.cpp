@@ -159,17 +159,17 @@ namespace jejalyk::typeinterpreter {
     return types[0]->is_object(scope);
   }
 
-  bool Subject::has(const std::string& name) {
+  bool Subject::has(Scope* scope, const std::string& name) {
     if (types.empty()) {
       return false;
     }
     if (types.size() > 1) {
       return false;
     }
-    return types[0]->has(name);
+    return types[0]->has(scope, name);
   }
 
-  Result* Subject::get(const std::string& name) {
+  Result* Subject::get(Scope* scope, const std::string& name) {
     if (types.empty()) {
       return error("[INTERNAL BUG] Неможливо отримати властивість \"" + name +
                    "\" з субʼєкта невідомого типу.");
@@ -178,7 +178,7 @@ namespace jejalyk::typeinterpreter {
       return error("Неможливо отримати властивість \"" + name +
                    "\" з субʼєкта декількох типів.");
     }
-    return success(types[0]->get(name));
+    return success(types[0]->get(scope, name));
   }
 
   Result* Subject::set(Scope* scope,
@@ -197,8 +197,8 @@ namespace jejalyk::typeinterpreter {
   }
 
   bool Subject::has_diia(Scope* scope, std::string name) {
-    if (this->has(name)) {
-      const auto subject_result = this->get(name);
+    if (this->has(scope, name)) {
+      const auto subject_result = this->get(scope, name);
       if (subject_result->error) {
         return false;
       }

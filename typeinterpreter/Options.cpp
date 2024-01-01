@@ -8,7 +8,8 @@ namespace jejalyk::typeinterpreter {
     options_clone->current_module_path = this->current_module_path;
     options_clone->std_code = this->std_code;
     options_clone->args = this->args;
-    options_clone->allow_js = this->allow_js;
+    options_clone->arg_extensions = this->arg_extensions;
+    options_clone->arg_strictness = this->arg_strictness;
     options_clone->get_module_name = this->get_module_name;
     options_clone->get_module_path = this->get_module_path;
     options_clone->get_module_code = this->get_module_code;

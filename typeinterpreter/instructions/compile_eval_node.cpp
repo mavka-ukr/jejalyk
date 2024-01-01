@@ -2,7 +2,7 @@
 
 namespace jejalyk::typeinterpreter {
   Result* compile_eval_node(Scope* scope, mavka::ast::EvalNode* eval_node) {
-    if (!scope->get_options()->allow_js) {
+    if (!scope->get_options()->is_extensions_allowed()) {
       return error_from_ast(eval_node, scope, "Розширення вимкнені.");
     }
 

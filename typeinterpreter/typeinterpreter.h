@@ -12,7 +12,7 @@
 #include "../parser.h"
 #include "../tools.h"
 
-#define JJ_DEBUG 0
+#define JJ_DEBUG 1
 
 namespace jejalyk::typeinterpreter {
   class Error;
@@ -64,8 +64,8 @@ namespace jejalyk::typeinterpreter {
 
     Type* create_instance(Scope* scope, std::vector<Subject*> generic_types);
 
-    bool has(std::string name);
-    Subject* get(std::string name);
+    bool has(Scope* scope, std::string name);
+    Subject* get(Scope* scope, std::string name);
     Result* set(Scope* scope,
                 mavka::ast::ASTNode* node,
                 const std::string& name,
@@ -175,8 +175,8 @@ namespace jejalyk::typeinterpreter {
     bool is_structure(Scope* scope);
     bool is_object(Scope* scope);
 
-    bool has(const std::string& name);
-    Result* get(const std::string& name);
+    bool has(Scope* scope, const std::string& name);
+    Result* get(Scope* scope, const std::string& name);
     Result* set(Scope* scope,
                 mavka::ast::ASTNode* node,
                 const std::string& name,
@@ -360,7 +360,8 @@ namespace jejalyk::typeinterpreter {
     std::string current_module_path;
     std::string std_code;
     std::string args;
-    bool allow_js = false;
+    std::string arg_extensions = "0";
+    std::string arg_strictness = "0";
 
     GetModuleResult* (*get_module_name)(bool, std::string, Options*) = nullptr;
 
@@ -373,6 +374,14 @@ namespace jejalyk::typeinterpreter {
     GetModuleResult* (*get_remote_module_path)(std::string, Options*) = nullptr;
 
     GetModuleResult* (*get_remote_module_code)(std::string, Options*) = nullptr;
+
+    [[nodiscard]] bool is_extensions_allowed() const {
+      return this->arg_extensions == "1";
+    }
+
+    [[nodiscard]] bool is_strict_mode() const {
+      return this->arg_strictness == "1";
+    }
 
     Options* clone();
   };

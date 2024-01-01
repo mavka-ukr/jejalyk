@@ -42,7 +42,7 @@ namespace jejalyk::typeinterpreter {
         compiled_body->js_body->nodes.insert(
             compiled_body->js_body->nodes.begin(), js_name_assign);
 
-        scope->variables.erase(each_node->name);
+        scope->delete_local(each_node->name);
 
         const auto js_for_node = new js::JsForNode();
 
@@ -69,10 +69,10 @@ namespace jejalyk::typeinterpreter {
         js_for_node->cleanup->nodes.push_back(js_cleanup_iterator_assign);
 
         return success(nullptr, js_for_node);
-      } else if (value_result->value->has("чародія_перебір")) {
+      } else if (value_result->value->has(scope, "чародія_перебір")) {
         // перебрати а.чародія_перебір() як х
         const auto iterator_diia_type_result =
-            value_result->value->get("чародія_перебір");
+            value_result->value->get(scope, "чародія_перебір");
         if (iterator_diia_type_result->error) {
           return iterator_diia_type_result;
         }
@@ -102,7 +102,7 @@ namespace jejalyk::typeinterpreter {
           compiled_body->js_body->nodes.insert(
               compiled_body->js_body->nodes.begin(), js_name_assign);
 
-          scope->variables.erase(each_node->name);
+          scope->delete_local(each_node->name);
 
           const auto js_for_node = new js::JsForNode();
 

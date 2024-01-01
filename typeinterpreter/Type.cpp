@@ -134,7 +134,12 @@ namespace jejalyk::typeinterpreter {
     return type;
   }
 
-  bool Type::has(std::string name) {
+  bool Type::has(Scope* scope, std::string name) {
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return true;
+      }
+    }
     if (this->generic_definition) {
       return false;
     }
@@ -155,8 +160,13 @@ namespace jejalyk::typeinterpreter {
     return false;
   }
 
-  Subject* Type::get(std::string name) {
-    if (!this->has(name)) {
+  Subject* Type::get(Scope* scope, std::string name) {
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return scope->create_object_instance_subject();
+      }
+    }
+    if (!this->has(scope, name)) {
       std::cout << "[BUG] Type::get() called for non-existing property"
                 << std::endl;
     }
@@ -214,8 +224,8 @@ namespace jejalyk::typeinterpreter {
                     mavka::ast::ASTNode* node,
                     const std::string& name,
                     Subject* value) {
-    if (this->has(name)) {
-      const auto types = this->get(name);
+    if (this->has(scope, name)) {
+      const auto types = this->get(scope, name);
       if (!scope->check_subjects(value, types)) {
         return error_from_ast(
             node, "Неправильний тип значення для властивості \"" + name +
@@ -224,6 +234,11 @@ namespace jejalyk::typeinterpreter {
       }
       return success(types);
     } else {
+      if (!scope->get_options()->is_strict_mode()) {
+        if (this->is_object(scope)) {
+          return success(scope->create_object_instance_subject());
+        }
+      }
       return error_from_ast(
           node,
           "Неможливо встановити не визначену властивість \"" + name + "\".");
@@ -284,8 +299,11 @@ namespace jejalyk::typeinterpreter {
       return success(process_subject_generics(this->object, generic_types,
                                               this->object->return_types));
     }
-    if (this->has("чародія_викликати")) {
-      const auto value = this->get("чародія_викликати");
+    if (this->is_object(scope)) {
+      return success(scope->create_object_instance_subject());
+    }
+    if (this->has(scope, "чародія_викликати")) {
+      const auto value = this->get(scope, "чародія_викликати");
       return value->call(scope, node, generic_types, args);
     }
     return error_from_ast(node, "Неможливо викликати тип.");
@@ -294,41 +312,58 @@ namespace jejalyk::typeinterpreter {
   Result* Type::get_element(Scope* scope,
                             mavka::ast::ASTNode* node,
                             Subject* value) {
-    if (this->has("чародія_отримати")) {
-      return this->get("чародія_отримати")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_отримати")) {
+      return this->get(scope, "чародія_отримати")
+          ->call(scope, node, {}, {value});
     }
-    return error_from_ast(
-        node, "Неможливо отримати спеціальну властивість з типу \"" +
-                  this->get_type_name() + "\".");
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
+    }
+    return error_from_ast(node, "Неможливо отримати елемент з типу \"" +
+                                    this->get_type_name() + "\".");
   }
 
   Result* Type::set_element(Scope* scope,
                             mavka::ast::ASTNode* node,
                             Subject* element,
                             Subject* value) {
-    if (this->has("чародія_покласти")) {
-      return this->get("чародія_покласти")
+    if (this->has(scope, "чародія_покласти")) {
+      return this->get(scope, "чародія_покласти")
           ->call(scope, node, {}, {element, value});
     }
-    return error_from_ast(
-        node, "Неможливо встановити спеціальну властивість з типу \"" +
-                  this->get_type_name() + "\".");
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
+    }
+    return error_from_ast(node, "Неможливо встановити елемент для типу \"" +
+                                    this->get_type_name() + "\".");
   }
 
   Result* Type::plus(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
-    if (this->has("чародія_додати")) {
-      return this->get("чародія_додати")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_додати")) {
+      return this->get(scope, "чародія_додати")->call(scope, node, {}, {value});
     }
-    if (this->is_object(scope)) {
-      return success(scope->create_object_instance_subject());
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати додавання для типу \"" +
                                     this->get_type_name() + "\".");
   }
 
   Result* Type::minus(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
-    if (this->has("чародія_відняти")) {
-      return this->get("чародія_відняти")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_відняти")) {
+      return this->get(scope, "чародія_відняти")
+          ->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати віднімання для типу \"" +
                                     this->get_type_name() + "\".");
@@ -337,8 +372,14 @@ namespace jejalyk::typeinterpreter {
   Result* Type::multiply(Scope* scope,
                          mavka::ast::ASTNode* node,
                          Subject* value) {
-    if (this->has("чародія_помножити")) {
-      return this->get("чародія_помножити")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_помножити")) {
+      return this->get(scope, "чародія_помножити")
+          ->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати множення для типу \"" +
                                     this->get_type_name() + "\".");
@@ -347,8 +388,14 @@ namespace jejalyk::typeinterpreter {
   Result* Type::divide(Scope* scope,
                        mavka::ast::ASTNode* node,
                        Subject* value) {
-    if (this->has("чародія_поділити")) {
-      return this->get("чародія_поділити")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_поділити")) {
+      return this->get(scope, "чародія_поділити")
+          ->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати ділення для типу \"" +
                                     this->get_type_name() + "\".");
@@ -357,8 +404,13 @@ namespace jejalyk::typeinterpreter {
   Result* Type::divmod(Scope* scope,
                        mavka::ast::ASTNode* node,
                        Subject* value) {
-    if (this->has("чародія_остача")) {
-      return this->get("чародія_остача")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_остача")) {
+      return this->get(scope, "чародія_остача")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node,
                           "Неможливо виконати ділення з остачею для "
@@ -369,8 +421,13 @@ namespace jejalyk::typeinterpreter {
   Result* Type::divdiv(Scope* scope,
                        mavka::ast::ASTNode* node,
                        Subject* value) {
-    if (this->has("чародія_частка")) {
-      return this->get("чародія_частка")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_частка")) {
+      return this->get(scope, "чародія_частка")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node,
                           "Неможливо чародія_частка для "
@@ -379,8 +436,14 @@ namespace jejalyk::typeinterpreter {
   }
 
   Result* Type::pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
-    if (this->has("чародія_степінь")) {
-      return this->get("чародія_степінь")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_степінь")) {
+      return this->get(scope, "чародія_степінь")
+          ->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node,
                           "Неможливо виконати піднесення до степені "
@@ -389,8 +452,13 @@ namespace jejalyk::typeinterpreter {
   }
 
   Result* Type::bw_not(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has("чародія_дні")) {
-      return this->get("чародія_дні")->call(scope, node, {}, {});
+    if (this->has(scope, "чародія_дні")) {
+      return this->get(scope, "чародія_дні")->call(scope, node, {}, {});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати двійкове ні для типу \"" +
                                     this->get_type_name() + "\".");
@@ -399,16 +467,26 @@ namespace jejalyk::typeinterpreter {
   Result* Type::bw_xor(Scope* scope,
                        mavka::ast::ASTNode* node,
                        Subject* value) {
-    if (this->has("чародія_вабо")) {
-      return this->get("чародія_вабо")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_вабо")) {
+      return this->get(scope, "чародія_вабо")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати чародія_вабо для типу \"" +
                                     this->get_type_name() + "\".");
   }
 
   Result* Type::bw_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
-    if (this->has("чародія_дабо")) {
-      return this->get("чародія_дабо")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_дабо")) {
+      return this->get(scope, "чародія_дабо")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати чародія_дабо для типу \"" +
                                     this->get_type_name() + "\".");
@@ -417,8 +495,13 @@ namespace jejalyk::typeinterpreter {
   Result* Type::bw_and(Scope* scope,
                        mavka::ast::ASTNode* node,
                        Subject* value) {
-    if (this->has("чародія_ді")) {
-      return this->get("чародія_ді")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_ді")) {
+      return this->get(scope, "чародія_ді")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати чародія_ді для типу \"" +
                                     this->get_type_name() + "\".");
@@ -427,8 +510,13 @@ namespace jejalyk::typeinterpreter {
   Result* Type::bw_shift_left(Scope* scope,
                               mavka::ast::ASTNode* node,
                               Subject* value) {
-    if (this->has("чародія_вліво")) {
-      return this->get("чародія_вліво")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_вліво")) {
+      return this->get(scope, "чародія_вліво")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати чародія_вліво для типу \"" +
                                     this->get_type_name() + "\".");
@@ -437,8 +525,13 @@ namespace jejalyk::typeinterpreter {
   Result* Type::bw_shift_right(Scope* scope,
                                mavka::ast::ASTNode* node,
                                Subject* value) {
-    if (this->has("чародія_вправо")) {
-      return this->get("чародія_вправо")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_вправо")) {
+      return this->get(scope, "чародія_вправо")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node,
                           "Неможливо виконати чародія_вправо для типу \"" +
@@ -446,32 +539,56 @@ namespace jejalyk::typeinterpreter {
   }
 
   Result* Type::negative(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has("чародія_відʼємне")) {
-      return this->get("чародія_відʼємне")->call(scope, node, {}, {});
+    if (this->has(scope, "чародія_відʼємне")) {
+      return this->get(scope, "чародія_відʼємне")->call(scope, node, {}, {});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати відʼємне для типу \"" +
                                     this->get_type_name() + "\".");
   }
 
   Result* Type::positive(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has("чародія_додатнє")) {
-      return this->get("чародія_додатнє")->call(scope, node, {}, {});
+    if (this->has(scope, "чародія_додатнє")) {
+      return this->get(scope, "чародія_додатнє")->call(scope, node, {}, {});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо виконати додатнє для типу \"" +
                                     this->get_type_name() + "\".");
   }
 
+  // todo: drop this
   Result* Type::post_decrement(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has("чародія_зменшити_після")) {
-      return this->get("чародія_зменшити_після")->call(scope, node, {}, {});
+    if (this->has(scope, "чародія_зменшити_після")) {
+      return this->get(scope, "чародія_зменшити_після")
+          ->call(scope, node, {}, {});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_зменшити_після для типу \"" +
                                     this->get_type_name() + "\".");
   }
 
+  // todo: drop this
   Result* Type::post_increment(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has("чародія_збільшити_після")) {
-      return this->get("чародія_збільшити_після")->call(scope, node, {}, {});
+    if (this->has(scope, "чародія_збільшити_після")) {
+      return this->get(scope, "чародія_збільшити_після")
+          ->call(scope, node, {}, {});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node,
                           "Неможливо чародія_збільшити_після для типу \"" +
@@ -479,16 +596,26 @@ namespace jejalyk::typeinterpreter {
   }
 
   Result* Type::pre_decrement(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has("чародія_зменшити")) {
-      return this->get("чародія_зменшити")->call(scope, node, {}, {});
+    if (this->has(scope, "чародія_зменшити")) {
+      return this->get(scope, "чародія_зменшити")->call(scope, node, {}, {});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_зменшити для типу \"" +
                                     this->get_type_name() + "\".");
   }
 
   Result* Type::pre_increment(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has("чародія_збільшити")) {
-      return this->get("чародія_збільшити")->call(scope, node, {}, {});
+    if (this->has(scope, "чародія_збільшити")) {
+      return this->get(scope, "чародія_збільшити")->call(scope, node, {}, {});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_збільшити для типу \"" +
                                     this->get_type_name() + "\".");
@@ -497,8 +624,13 @@ namespace jejalyk::typeinterpreter {
   Result* Type::comp_greater(Scope* scope,
                              mavka::ast::ASTNode* node,
                              Subject* value) {
-    if (this->has("чародія_більше")) {
-      return this->get("чародія_більше")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_більше")) {
+      return this->get(scope, "чародія_більше")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_більше для типу \"" +
                                     this->get_type_name() + "\".");
@@ -507,8 +639,13 @@ namespace jejalyk::typeinterpreter {
   Result* Type::comp_lesser(Scope* scope,
                             mavka::ast::ASTNode* node,
                             Subject* value) {
-    if (this->has("чародія_менше")) {
-      return this->get("чародія_менше")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_менше")) {
+      return this->get(scope, "чародія_менше")->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_менше для типу \"" +
                                     this->get_type_name() + "\".");
@@ -517,8 +654,14 @@ namespace jejalyk::typeinterpreter {
   Result* Type::comp_greater_or_eq(Scope* scope,
                                    mavka::ast::ASTNode* node,
                                    Subject* value) {
-    if (this->has("чародія_не_менше")) {
-      return this->get("чародія_не_менше")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_не_менше")) {
+      return this->get(scope, "чародія_не_менше")
+          ->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_не_менше для типу \"" +
                                     this->get_type_name() + "\".");
@@ -527,8 +670,14 @@ namespace jejalyk::typeinterpreter {
   Result* Type::comp_lesser_or_eq(Scope* scope,
                                   mavka::ast::ASTNode* node,
                                   Subject* value) {
-    if (this->has("чародія_не_більше")) {
-      return this->get("чародія_не_більше")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_не_більше")) {
+      return this->get(scope, "чародія_не_більше")
+          ->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_не_більше для типу \"" +
                                     this->get_type_name() + "\".");
@@ -537,8 +686,14 @@ namespace jejalyk::typeinterpreter {
   Result* Type::comp_contains(Scope* scope,
                               mavka::ast::ASTNode* node,
                               Subject* value) {
-    if (this->has("чародія_містить")) {
-      return this->get("чародія_містить")->call(scope, node, {}, {value});
+    if (this->has(scope, "чародія_містить")) {
+      return this->get(scope, "чародія_містить")
+          ->call(scope, node, {}, {value});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_містить для типу \"" +
                                     this->get_type_name() + "\".");
@@ -547,9 +702,14 @@ namespace jejalyk::typeinterpreter {
   Result* Type::comp_contains_not(Scope* scope,
                             mavka::ast::ASTNode* node,
                             Subject* value) {
-    if (this->has("чародія_містить")) {
+    if (this->has(scope, "чародія_містить")) {
       const auto logical_structure_subject = scope->get_root_logical();
       return logical_structure_subject->create_instance(scope, {});
+    }
+    if (!scope->get_options()->is_strict_mode()) {
+      if (this->is_object(scope)) {
+        return success(scope->create_object_instance_subject());
+      }
     }
     return error_from_ast(node, "Неможливо чародія_містить для типу \"" +
                                     this->get_type_name() + "\".");

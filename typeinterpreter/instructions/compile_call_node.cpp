@@ -23,7 +23,7 @@ namespace jejalyk::typeinterpreter {
       diia = value_result->value;
     } else if (value_result->value->has_diia(scope, "чародія_викликати")) {
       const auto magic_diia_result =
-          value_result->value->get("чародія_викликати");
+          value_result->value->get(scope, "чародія_викликати");
       if (magic_diia_result->error) {
         return magic_diia_result;
       }

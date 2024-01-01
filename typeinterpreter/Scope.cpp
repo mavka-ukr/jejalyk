@@ -255,9 +255,10 @@ namespace jejalyk::typeinterpreter {
   }
 
   void Scope::delete_local(std::string name) {
-    this->variables.erase(name);
     if (this->proxy) {
       return this->parent->delete_local(name);
+    } else {
+      this->variables.erase(name);
     }
   }
 

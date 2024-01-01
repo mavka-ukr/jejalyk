@@ -9,7 +9,10 @@ namespace jejalyk {
       const auto arg_parts = tools::split(arg, "=");
 
       if (arg_parts[0] == "--розширення") {
-        options->allow_js = arg_parts[1] == "1";
+        options->arg_extensions = arg_parts[1];
+      }
+      if (arg_parts[0] == "--строгість") {
+        options->arg_strictness = arg_parts[1];
       }
     }
 
@@ -67,7 +70,8 @@ namespace jejalyk {
     const auto head_options = options->clone();
     head_options->current_module_path = "[ГОЛОВА]";
     head_options->root_module_path = "[ГОЛОВА]";
-    head_options->allow_js = true;
+    head_options->arg_extensions = "1";
+    head_options->arg_strictness = "1";
     root_scope->options = head_options;
 
     const auto head_result =
@@ -104,7 +108,8 @@ namespace jejalyk {
       const auto std_options = options->clone();
       std_options->current_module_path = "[STD]";
       std_options->root_module_path = "[STD]";
-      std_options->allow_js = true;
+      std_options->arg_extensions = "1";
+      std_options->arg_strictness = "1";
       root_scope->options = std_options;
 
       std_result =

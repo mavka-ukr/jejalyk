@@ -18,7 +18,8 @@ if [ "$TARGET" = "wclean" ]; then
     rm -rf ./build
 fi
 
-./build.sh Oall
+./build.sh Onode
+./build.sh Oweb
 
 mkdir -p ./dist
 

@@ -148,3 +148,101 @@ function мГарно(value) {
   };
   return convert(value, 0);
 }
+
+function мНазваТипу(value) {
+  if (value == null) {
+    return "пусто";
+  }
+  if (typeof value === "boolean") {
+    return "логічне";
+  }
+  if (typeof value === "number") {
+    return "число";
+  }
+  if (typeof value === "string") {
+    return "текст";
+  }
+  if (value instanceof Array) {
+    return "список";
+  }
+  if (value instanceof Map) {
+    return "словник";
+  }
+  if (value instanceof Uint8Array) {
+    return "байти";
+  }
+  if (value[MAVKA]) {
+    if (value[MAVKA].tdiia) {
+      return `<дія ${value[MAVKA].name}>`;
+    }
+    if (value[MAVKA].tstructure) {
+      return `<структура ${value[MAVKA].name}>`;
+    }
+    if (value[MAVKA].structure) {
+      return value[MAVKA].structure[MAVKA].name;
+    }
+  }
+  return "портал";
+}
+
+function мДодати(a, b) {
+  if (a == null || b == null) {
+    throw new Падіння(`Неможливо виконати додавання з "${мТипТ(a)}".`, di);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a + b;
+  }
+  if (typeof a === "string" && typeof b === "string") {
+    return a + b;
+  }
+  var aSubtractFn = a["чародія_додати"];
+  if (aSubtractFn) {
+    return aSubtractFn(b);
+  }
+  throw new Падіння(`Неможливо виконати додавання з "${мТипТ(a)}".`, di);
+}
+
+function мВідняти(a, b) {
+  if (a == null || b == null) {
+    throw new Падіння(`Неможливо виконати віднімання з "${мТипТ(a)}".`, di);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a - b;
+  }
+  var aSubtractFn = a["чародія_відняти"];
+  if (aSubtractFn) {
+    return aSubtractFn(b);
+  }
+  throw new Падіння(`Неможливо виконати віднімання з "${мТипТ(a)}".`, di);
+}
+
+function мПомножити(a, b) {
+  if (a == null || b == null) {
+    throw new Падіння(`Неможливо виконати множення з "${мТипТ(a)}".`, di);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a * b;
+  }
+  var aSubtractFn = a["чародія_помножити"];
+  if (aSubtractFn) {
+    return aSubtractFn(b);
+  }
+  throw new Падіння(`Неможливо виконати множення з "${мТипТ(a)}".`, di);
+}
+
+function мОтримати(a, b) {
+  if (a == null || b == null) {
+    throw new Падіння(`Неможливо виконати отримання з "${мТипТ(a)}".`, di);
+  }
+  if (a instanceof Array) {
+    return a[b];
+  }
+  if (a instanceof Map) {
+    return a.get(b);
+  }
+  var aSubtractFn = a["чародія_отримати"];
+  if (aSubtractFn) {
+    return aSubtractFn(b);
+  }
+  throw new Падіння(`Неможливо виконати отримання з "${мТипТ(a)}".`, di);
+}

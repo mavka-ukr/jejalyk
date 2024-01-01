@@ -9,13 +9,13 @@ namespace jejalyk::typeinterpreter {
         return left_result;
       }
 
-      if (!left_result->value->has(right_identifier_node->name)) {
+      if (!left_result->value->has(scope, right_identifier_node->name)) {
         return error_2(chain_node, right_identifier_node->name,
                        left_result->value);
       }
 
       const auto subject_result =
-          left_result->value->get(right_identifier_node->name);
+          left_result->value->get(scope, right_identifier_node->name);
       if (subject_result->error) {
         return subject_result;
       }
