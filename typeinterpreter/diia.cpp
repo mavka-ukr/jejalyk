@@ -95,7 +95,7 @@ namespace jejalyk::typeinterpreter {
                         mavka::ast::ASTNode* node,
                         Type* diia_structure,
                         Subject* diia_subject,
-                        std::vector<mavka::ast::ASTNode*>* body) {
+                        std::vector<mavka::ast::ASTSome*>* body) {
     Result* compiled_body = nullptr;
     Object* diia_object = diia_subject->types[0]->object;
 
@@ -110,7 +110,7 @@ namespace jejalyk::typeinterpreter {
         diia_scope->diia_object = diia_object;
         diia_scope->is_async = diia_object->is_diia_async;
 
-        compiled_body = diia_scope->compile_body(body);
+        compiled_body = diia_scope->compile_body(*body);
         if (compiled_body->error) {
           return compiled_body;
         }

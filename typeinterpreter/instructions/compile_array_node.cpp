@@ -19,8 +19,8 @@ namespace jejalyk::typeinterpreter {
     } else {
       const auto array_type_subject = new Subject();
       for (const auto type_value_single_node : array_node->types) {
-        const auto type_value_single_result =
-            scope->compile_node(type_value_single_node);
+        const auto type_value_single_result = scope->compile_node(
+            mavka::ast::make_ast_some(type_value_single_node));
         if (type_value_single_result->error) {
           return type_value_single_result;
         }

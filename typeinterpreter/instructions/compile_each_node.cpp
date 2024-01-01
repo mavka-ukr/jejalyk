@@ -21,8 +21,8 @@ namespace jejalyk::typeinterpreter {
       if (value_result->value->is_iterator(loop_scope)) {
         // перебрати а як х
         const auto iterator_type_result =
-            value_result->value->get_iterator_type(loop_scope,
-                                                   each_node->value);
+            value_result->value->get_iterator_type(
+                loop_scope, mavka::ast::get_ast_node(each_node->value));
         if (iterator_type_result->error) {
           return iterator_type_result;
         }
@@ -30,7 +30,7 @@ namespace jejalyk::typeinterpreter {
         scope->put_additional_node_before(js::make_var(iterator_name));
         scope->put_additional_variable(each_node->name);
 
-        const auto compiled_body = loop_scope->compile_body(&each_node->body);
+        const auto compiled_body = loop_scope->compile_body(each_node->body);
         if (compiled_body->error) {
           return compiled_body;
         }
@@ -77,12 +77,12 @@ namespace jejalyk::typeinterpreter {
           return iterator_diia_type_result;
         }
         const auto iterator_diia_return_types =
-            iterator_diia_type_result->value->call(loop_scope, each_node->value,
-                                                   {}, {});
+            iterator_diia_type_result->value->call(
+                loop_scope, mavka::ast::get_ast_node(each_node->value), {}, {});
         if (iterator_diia_return_types->value->is_iterator(loop_scope)) {
           const auto iterator_type_result =
               iterator_diia_return_types->value->get_iterator_type(
-                  loop_scope, each_node->value);
+                  loop_scope, mavka::ast::get_ast_node(each_node->value));
           if (iterator_type_result->error) {
             return iterator_type_result;
           }
@@ -90,7 +90,7 @@ namespace jejalyk::typeinterpreter {
           scope->put_additional_node_before(js::make_var(iterator_name));
           scope->put_additional_variable(each_node->name);
 
-          const auto compiled_body = loop_scope->compile_body(&each_node->body);
+          const auto compiled_body = loop_scope->compile_body(each_node->body);
           if (compiled_body->error) {
             return compiled_body;
           }

@@ -6,7 +6,7 @@ namespace jejalyk::typeinterpreter {
       mavka::ast::ASTNode* node,
       std::string name,
       std::vector<mavka::ast::GenericNode*> generic_definitions,
-      mavka::ast::ASTNode* parent,
+      mavka::ast::ASTSome* parent,
       std::vector<mavka::ast::GenericNode*> parent_generic_definitions) {
     const auto structure_structure_subject = scope->get_root_structure();
 
@@ -34,7 +34,8 @@ namespace jejalyk::typeinterpreter {
       structure_object->parent = scope->create_object_instance_type();
       structure_object->parent_js = js::make_id("обʼєкт");
     } else {
-      return error_from_ast(parent, "Наслідування тимчасово не підтримується.");
+      return error_from_ast(mavka::ast::get_ast_node(parent),
+                            "Наслідування тимчасово не підтримується.");
       // const auto parent_result = scope->compile_node(parent);
       // if (parent_result->error) {
       //   return parent_result;

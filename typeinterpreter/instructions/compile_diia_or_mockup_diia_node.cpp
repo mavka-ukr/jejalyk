@@ -12,7 +12,7 @@ namespace jejalyk::typeinterpreter {
       std::vector<mavka::ast::GenericNode*> generics,
       std::vector<mavka::ast::ParamNode*> params,
       std::vector<mavka::ast::TypeValueSingleNode*> return_types,
-      std::vector<mavka::ast::ASTNode*>* body) {
+      std::vector<mavka::ast::ASTSome*>* body) {
     if (!structure.empty()) {
       if (ee) {
         return error_from_ast(node, "Спеціальні дії тимчасово недоступні.");

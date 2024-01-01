@@ -8,12 +8,12 @@ namespace jejalyk::typeinterpreter {
     if (condition_result->error) {
       return condition_result;
     }
-    const auto body_result = if_scope->compile_body(&if_node->body);
+    const auto body_result = if_scope->compile_body(if_node->body);
     if (body_result->error) {
       return body_result;
     }
 
-    const auto else_body_result = if_scope->compile_body(&if_node->else_body);
+    const auto else_body_result = if_scope->compile_body(if_node->else_body);
     if (else_body_result->error) {
       return else_body_result;
     }

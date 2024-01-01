@@ -71,11 +71,10 @@ namespace jejalyk {
     head_options->current_module_path = "[ГОЛОВА]";
     head_options->root_module_path = "[ГОЛОВА]";
     head_options->arg_extensions = "1";
-    head_options->arg_strictness = "1";
     root_scope->options = head_options;
 
     const auto head_result =
-        root_scope->compile_body(&head_parser_result->program_node->body);
+        root_scope->compile_body(head_parser_result->program_node->body);
     if (head_result->error) {
       const auto compilation_result = new CompilationResult();
       compilation_result->error = new CompilationError();
@@ -109,11 +108,10 @@ namespace jejalyk {
       std_options->current_module_path = "[STD]";
       std_options->root_module_path = "[STD]";
       std_options->arg_extensions = "1";
-      std_options->arg_strictness = "1";
       root_scope->options = std_options;
 
       std_result =
-          std_scope->compile_body(&std_parser_result->program_node->body);
+          std_scope->compile_body(std_parser_result->program_node->body);
       if (std_result->error) {
         const auto compilation_result = new CompilationResult();
         compilation_result->error = new CompilationError();
@@ -144,7 +142,7 @@ namespace jejalyk {
     }
 
     const auto program_result =
-        program_scope->compile_body(&program_parser_result->program_node->body);
+        program_scope->compile_body(program_parser_result->program_node->body);
     if (program_result->error) {
       const auto compilation_result = new CompilationResult();
       compilation_result->error = new CompilationError();

@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 add_subdirectory(syntax)
 
 set(JEJALYK_COMPILER_SRC
+        ast.cpp
+        ast.h
         parser.cpp
         parser.h
         tools.cpp

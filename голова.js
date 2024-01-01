@@ -257,7 +257,7 @@ function мПомножити(a, b) {
 
 function мОтримати(a, b) {
   if (a == null || b == null) {
-    throw new Падіння(`Неможливо виконати отримання з "${мНазваТипу(a)}".`);
+    throw new Падіння(`Неможливо отримати елемент з "${мНазваТипу(a)}".`);
   }
   if (typeof a === "string") {
     return a[b];
@@ -272,5 +272,22 @@ function мОтримати(a, b) {
   if (aSubtractFn) {
     return aSubtractFn(b);
   }
-  throw new Падіння(`Неможливо виконати отримання з "${мНазваТипу(a)}".`);
+  throw new Падіння(`Неможливо отримати елемент з "${мНазваТипу(a)}".`);
+}
+
+function мПокласти(a, b, c) {
+  if (a == null || b == null || c == null) {
+    throw new Падіння(`Неможливо покласти елемент в "${мНазваТипу(a)}".`);
+  }
+  if (a instanceof Array) {
+    return a[b] = c;
+  }
+  if (a instanceof Map) {
+    return a.set(b, c);
+  }
+  var aSubtractFn = a["чародія_покласти"];
+  if (aSubtractFn) {
+    return aSubtractFn(b, c);
+  }
+  throw new Падіння(`Неможливо покласти елемент в "${мНазваТипу(a)}".`);
 }

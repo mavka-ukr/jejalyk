@@ -10,7 +10,7 @@ namespace jejalyk::typeinterpreter {
     const auto loop_scope = scope->make_proxy();
     loop_scope->is_loop = true;
 
-    const auto body_result = loop_scope->compile_body(&while_node->body);
+    const auto body_result = loop_scope->compile_body(while_node->body);
     if (body_result->error) {
       return body_result;
     }

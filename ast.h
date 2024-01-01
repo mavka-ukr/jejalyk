@@ -7,24 +7,10 @@
 #include <vector>
 
 namespace mavka::ast {
-  class ASTNode {
-   public:
-    size_t start_line = 0;
-    size_t start_column = 0;
-    size_t end_line = 0;
-    size_t end_column = 0;
-
-    virtual ~ASTNode() = default;
-  };
-
-  class ASTValueNode : public ASTNode {
-   public:
-  };
-
-  class ASTExprNode : public ASTNode {
-   public:
-  };
-
+  class ASTNode;
+  class ASTValueNode;
+  class ASTExprNode;
+  class ASTSome;
   class AnonDiiaNode;
   class ArgNode;
   class ArithmeticNode;
@@ -87,13 +73,154 @@ namespace mavka::ast {
   class WaitNode;
   class WhileNode;
 
-  class ParamNode final : public ASTExprNode {
+  ASTSome* make_ast_some(ast::AnonDiiaNode* node);
+  ASTSome* make_ast_some(ast::ArgNode* node);
+  ASTSome* make_ast_some(ast::ArithmeticNode* node);
+  ASTSome* make_ast_some(ast::ArrayNode* node);
+  ASTSome* make_ast_some(ast::AsNode* node);
+  ASTSome* make_ast_some(ast::AssignByElementNode* node);
+  ASTSome* make_ast_some(ast::AssignByIdentifierNode* node);
+  ASTSome* make_ast_some(ast::AssignSimpleNode* node);
+  ASTSome* make_ast_some(ast::BitwiseNode* node);
+  ASTSome* make_ast_some(ast::BitwiseNotNode* node);
+  ASTSome* make_ast_some(ast::BreakNode* node);
+  ASTSome* make_ast_some(ast::CallNode* node);
+  ASTSome* make_ast_some(ast::ChainNode* node);
+  ASTSome* make_ast_some(ast::ComparisonNode* node);
+  ASTSome* make_ast_some(ast::CompInstBlockProgramNode* node);
+  ASTSome* make_ast_some(ast::CompInstAssignNode* node);
+  ASTSome* make_ast_some(ast::ContinueNode* node);
+  ASTSome* make_ast_some(ast::DictionaryElementNode* node);
+  ASTSome* make_ast_some(ast::DictionaryNode* node);
+  ASTSome* make_ast_some(ast::DiiaNode* node);
+  ASTSome* make_ast_some(ast::EachNode* node);
+  ASTSome* make_ast_some(ast::EvalNode* node);
+  ASTSome* make_ast_some(ast::FromToComplexNode* node);
+  ASTSome* make_ast_some(ast::FromToSimpleNode* node);
+  ASTSome* make_ast_some(ast::FunctionNode* node);
+  ASTSome* make_ast_some(ast::GenericNode* node);
+  ASTSome* make_ast_some(ast::GetElementNode* node);
+  ASTSome* make_ast_some(ast::GiveElementNode* node);
+  ASTSome* make_ast_some(ast::GiveNode* node);
+  ASTSome* make_ast_some(ast::GodNode* node);
+  ASTSome* make_ast_some(ast::IdentifierNode* node);
+  ASTSome* make_ast_some(ast::IfNode* node);
+  ASTSome* make_ast_some(ast::MethodDeclarationNode* node);
+  ASTSome* make_ast_some(ast::MMLNode* node);
+  ASTSome* make_ast_some(ast::MockupDiiaNode* node);
+  ASTSome* make_ast_some(ast::MockupModuleNode* node);
+  ASTSome* make_ast_some(ast::MockupStructureNode* node);
+  ASTSome* make_ast_some(ast::MockupSubjectNode* node);
+  ASTSome* make_ast_some(ast::ModuleNode* node);
+  ASTSome* make_ast_some(ast::NegativeNode* node);
+  ASTSome* make_ast_some(ast::NotNode* node);
+  ASTSome* make_ast_some(ast::NumberNode* node);
+  ASTSome* make_ast_some(ast::ParamNode* node);
+  ASTSome* make_ast_some(ast::PositiveNode* node);
+  ASTSome* make_ast_some(ast::PostDecrementNode* node);
+  ASTSome* make_ast_some(ast::PostIncrementNode* node);
+  ASTSome* make_ast_some(ast::PreDecrementNode* node);
+  ASTSome* make_ast_some(ast::PreIncrementNode* node);
+  ASTSome* make_ast_some(ast::ProgramNode* node);
+  ASTSome* make_ast_some(ast::ReturnNode* node);
+  ASTSome* make_ast_some(ast::StringNode* node);
+  ASTSome* make_ast_some(ast::StructureNode* node);
+  ASTSome* make_ast_some(ast::TakeModuleNode* node);
+  ASTSome* make_ast_some(ast::TakePakNode* node);
+  ASTSome* make_ast_some(ast::TernaryNode* node);
+  ASTSome* make_ast_some(ast::TestNode* node);
+  ASTSome* make_ast_some(ast::ThrowNode* node);
+  ASTSome* make_ast_some(ast::TryNode* node);
+  ASTSome* make_ast_some(ast::TypeValueSingleNode* node);
+  ASTSome* make_ast_some(ast::WaitNode* node);
+  ASTSome* make_ast_some(ast::WhileNode* node);
+  // ASTSome* make_ast_some(ast::ASTNode* node);
+
+  ASTNode* get_ast_node(ASTSome* ast_some);
+
+  class ASTNode {
    public:
-    bool ee = false;
-    std::string name;
-    std::vector<TypeValueSingleNode*> types;
-    ASTNode* value;
-    bool variadic = false;
+    size_t start_line = 0;
+    size_t start_column = 0;
+    size_t end_line = 0;
+    size_t end_column = 0;
+
+    virtual ~ASTNode() = default;
+  };
+
+  class ASTValueNode : public ASTNode {
+   public:
+  };
+
+  class ASTExprNode : public ASTNode {
+   public:
+  };
+
+  class ASTSome {
+   public:
+    AnonDiiaNode* AnonDiiaNode = nullptr;
+    ArgNode* ArgNode = nullptr;
+    ArithmeticNode* ArithmeticNode = nullptr;
+    ArrayNode* ArrayNode = nullptr;
+    AsNode* AsNode = nullptr;
+    AssignByElementNode* AssignByElementNode = nullptr;
+    AssignByIdentifierNode* AssignByIdentifierNode = nullptr;
+    AssignSimpleNode* AssignSimpleNode = nullptr;
+    BitwiseNode* BitwiseNode = nullptr;
+    BitwiseNotNode* BitwiseNotNode = nullptr;
+    BreakNode* BreakNode = nullptr;
+    CallNode* CallNode = nullptr;
+    ChainNode* ChainNode = nullptr;
+    ComparisonNode* ComparisonNode = nullptr;
+    CompInstBlockProgramNode* CompInstBlockProgramNode = nullptr;
+    CompInstAssignNode* CompInstAssignNode = nullptr;
+    ContinueNode* ContinueNode = nullptr;
+    DictionaryElementNode* DictionaryElementNode = nullptr;
+    DictionaryNode* DictionaryNode = nullptr;
+    DiiaNode* DiiaNode = nullptr;
+    EachNode* EachNode = nullptr;
+    EvalNode* EvalNode = nullptr;
+    FromToComplexNode* FromToComplexNode = nullptr;
+    FromToSimpleNode* FromToSimpleNode = nullptr;
+    FunctionNode* FunctionNode = nullptr;
+    GenericNode* GenericNode = nullptr;
+    GetElementNode* GetElementNode = nullptr;
+    GiveElementNode* GiveElementNode = nullptr;
+    GiveNode* GiveNode = nullptr;
+    GodNode* GodNode = nullptr;
+    IdentifierNode* IdentifierNode = nullptr;
+    IfNode* IfNode = nullptr;
+    MethodDeclarationNode* MethodDeclarationNode = nullptr;
+    MMLNode* MMLNode = nullptr;
+    MockupDiiaNode* MockupDiiaNode = nullptr;
+    MockupModuleNode* MockupModuleNode = nullptr;
+    MockupStructureNode* MockupStructureNode = nullptr;
+    MockupSubjectNode* MockupSubjectNode = nullptr;
+    ModuleNode* ModuleNode = nullptr;
+    NegativeNode* NegativeNode = nullptr;
+    NotNode* NotNode = nullptr;
+    NumberNode* NumberNode = nullptr;
+    ParamNode* ParamNode = nullptr;
+    PositiveNode* PositiveNode = nullptr;
+    PostDecrementNode* PostDecrementNode = nullptr;
+    PostIncrementNode* PostIncrementNode = nullptr;
+    PreDecrementNode* PreDecrementNode = nullptr;
+    PreIncrementNode* PreIncrementNode = nullptr;
+    ProgramNode* ProgramNode = nullptr;
+    ReturnNode* ReturnNode = nullptr;
+    StringNode* StringNode = nullptr;
+    StructureNode* StructureNode = nullptr;
+    TakeModuleNode* TakeModuleNode = nullptr;
+    TakePakNode* TakePakNode = nullptr;
+    TernaryNode* TernaryNode = nullptr;
+    TestNode* TestNode = nullptr;
+    ThrowNode* ThrowNode = nullptr;
+    TryNode* TryNode = nullptr;
+    TypeValueSingleNode* TypeValueSingleNode = nullptr;
+    WaitNode* WaitNode = nullptr;
+    WhileNode* WhileNode = nullptr;
+
+    bool is_nullptr();
   };
 
   class AnonDiiaNode final : public ASTValueNode {
@@ -102,50 +229,50 @@ namespace mavka::ast {
     std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
     std::vector<TypeValueSingleNode*> return_types;
-    std::vector<ASTNode*> body;
+    std::vector<ASTSome*> body;
   };
 
   class ArgNode final : public ASTExprNode {
    public:
     int index;
     std::string name;
-    ASTNode* value;
+    ASTSome* value;
     bool spread = false;
   };
 
   class ArithmeticNode final : public ASTValueNode {
    public:
-    ASTNode* left;
-    ASTNode* right;
+    ASTSome* left;
+    ASTSome* right;
     std::string op;
   };
 
   class ArrayNode final : public ASTValueNode {
    public:
-    std::vector<ASTNode*> elements;
+    std::vector<ASTSome*> elements;
     std::vector<TypeValueSingleNode*> types;
   };
 
   class AsNode final : public ASTValueNode {
    public:
-    ASTNode* left;
-    ASTNode* right;
+    ASTSome* left;
+    ASTSome* right;
   };
 
   class AssignByIdentifierNode final : public ASTExprNode {
    public:
-    ASTNode* left;
+    ASTSome* left;
     std::string identifier;
     std::string op;
-    ASTNode* value;
+    ASTSome* value;
   };
 
   class AssignByElementNode final : public ASTExprNode {
    public:
-    ASTNode* left;
-    ASTNode* element;
+    ASTSome* left;
+    ASTSome* element;
     std::string op;
-    ASTNode* value;
+    ASTSome* value;
   };
 
   class AssignSimpleNode final : public ASTExprNode {
@@ -153,40 +280,42 @@ namespace mavka::ast {
     std::string name;
     std::vector<TypeValueSingleNode*> types;
     std::string op;
-    ASTNode* value;
+    ASTSome* value;
   };
 
   class BitwiseNode final : public ASTValueNode {
    public:
-    ASTNode* left;
-    ASTNode* right;
+    ASTSome* left;
+    ASTSome* right;
     std::string op;
   };
 
   class BitwiseNotNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTSome* value;
   };
 
-  class BreakNode final : public ASTExprNode {};
+  class BreakNode final : public ASTExprNode {
+   public:
+  };
 
   class CallNode final : public ASTValueNode {
    public:
-    ASTNode* value;
+    ASTSome* value;
     std::vector<std::vector<TypeValueSingleNode*>> generics;
     std::vector<ArgNode*> args;
   };
 
   class ChainNode final : public ASTValueNode {
    public:
-    ASTNode* left;
-    ASTNode* right;
+    ASTSome* left;
+    ASTSome* right;
   };
 
   class ComparisonNode final : public ASTValueNode {
    public:
-    ASTNode* left;
-    ASTNode* right;
+    ASTSome* left;
+    ASTSome* right;
     std::string op;
   };
 
@@ -194,7 +323,7 @@ namespace mavka::ast {
    public:
     std::string name;
     std::string value;
-    std::vector<ASTNode*> body;
+    std::vector<ASTSome*> body;
   };
 
   class CompInstAssignNode final : public ASTExprNode {
@@ -203,12 +332,14 @@ namespace mavka::ast {
     std::string value;
   };
 
-  class ContinueNode final : public ASTExprNode {};
+  class ContinueNode final : public ASTExprNode {
+   public:
+  };
 
   class DictionaryElementNode final : public ASTExprNode {
    public:
-    ASTNode* key;
-    ASTNode* value;
+    ASTSome* key;
+    ASTSome* value;
   };
 
   class DictionaryNode final : public ASTValueNode {
@@ -227,20 +358,20 @@ namespace mavka::ast {
     std::vector<GenericNode*> generics;
     std::vector<ParamNode*> params;
     std::vector<TypeValueSingleNode*> return_types;
-    std::vector<ASTNode*> body;
+    std::vector<ASTSome*> body;
   };
 
   class EachNode final : public ASTExprNode {
    public:
-    ASTNode* value;
+    ASTSome* value;
     std::string keyName;
     std::string name;
-    std::vector<ASTNode*> body;
+    std::vector<ASTSome*> body;
   };
 
   class EvalNode final : public ASTExprNode {
    public:
-    std::string value = nullptr;
+    std::string value;
   };
 
   class GenericNode final : public ASTExprNode {
@@ -253,29 +384,29 @@ namespace mavka::ast {
     bool async;
     std::vector<ParamNode*> params;
     std::vector<TypeValueSingleNode*> return_types;
-    std::vector<ASTNode*> body;
+    std::vector<ASTSome*> body;
   };
 
   class FromToSimpleNode final : public ASTExprNode {
    public:
-    ASTNode* from;
-    ASTNode* to;
+    ASTSome* from;
+    ASTSome* to;
     std::string toSymbol;
   };
 
   class FromToComplexNode final : public ASTExprNode {
    public:
-    ASTNode* from;
-    ASTNode* to;
+    ASTSome* from;
+    ASTSome* to;
     std::string toSymbol;
-    ASTNode* step;
+    ASTSome* step;
     std::string stepSymbol;
   };
 
   class GetElementNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
-    ASTNode* index = nullptr;
+    ASTSome* value = nullptr;
+    ASTSome* index = nullptr;
   };
 
   class GiveElementNode final : public ASTExprNode {
@@ -291,7 +422,7 @@ namespace mavka::ast {
 
   class GodNode final : public ASTExprNode {
    public:
-    std::vector<ASTNode*> elements;
+    std::vector<ASTSome*> elements;
   };
 
   class IdentifierNode final : public ASTValueNode {
@@ -301,9 +432,9 @@ namespace mavka::ast {
 
   class IfNode final : public ASTExprNode {
    public:
-    ASTNode* condition;
-    std::vector<ASTNode*> body;
-    std::vector<ASTNode*> else_body;
+    ASTSome* condition;
+    std::vector<ASTSome*> body;
+    std::vector<ASTSome*> else_body;
   };
 
   class MethodDeclarationNode final : public ASTExprNode {
@@ -335,14 +466,14 @@ namespace mavka::ast {
   class MockupModuleNode final : public ASTExprNode {
    public:
     std::string name;
-    std::vector<ASTNode*> elements;
+    std::vector<ASTSome*> elements;
   };
 
   class MockupStructureNode final : public ASTExprNode {
    public:
     std::string name;
     std::vector<GenericNode*> generics;
-    ASTNode* parent;
+    ASTSome* parent;
     std::vector<GenericNode*> parent_generics;
     std::vector<ParamNode*> params;
     std::vector<MethodDeclarationNode*> methods;
@@ -357,17 +488,17 @@ namespace mavka::ast {
   class ModuleNode final : public ASTExprNode {
    public:
     std::string name;
-    std::vector<ASTNode*> body;
+    std::vector<ASTSome*> body;
   };
 
   class NegativeNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class NotNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class NumberNode final : public ASTValueNode {
@@ -375,39 +506,48 @@ namespace mavka::ast {
     std::string value;
   };
 
+  class ParamNode final : public ASTExprNode {
+   public:
+    bool ee = false;
+    std::string name;
+    std::vector<TypeValueSingleNode*> types;
+    ASTSome* value;
+    bool variadic = false;
+  };
+
   class PositiveNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class PostDecrementNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class PostIncrementNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class PreDecrementNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class PreIncrementNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class ProgramNode final : public ASTExprNode {
    public:
-    std::vector<ASTNode*> body;
+    std::vector<ASTSome*> body;
   };
 
   class ReturnNode final : public ASTExprNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class StringNode final : public ASTValueNode {
@@ -419,7 +559,7 @@ namespace mavka::ast {
    public:
     std::string name;
     std::vector<GenericNode*> generics;
-    ASTNode* parent;
+    ASTSome* parent;
     std::vector<GenericNode*> parent_generics;
     std::vector<ParamNode*> params;
     std::vector<MethodDeclarationNode*> methods;
@@ -440,45 +580,45 @@ namespace mavka::ast {
 
   class TernaryNode final : public ASTValueNode {
    public:
-    ASTNode* condition = nullptr;
-    ASTNode* body = nullptr;
-    ASTNode* else_body = nullptr;
+    ASTSome* condition = nullptr;
+    ASTSome* body = nullptr;
+    ASTSome* else_body = nullptr;
   };
 
   class TestNode final : public ASTValueNode {
    public:
-    ASTNode* left;
-    ASTNode* right;
+    ASTSome* left;
+    ASTSome* right;
     std::string op;
   };
 
   class ThrowNode final : public ASTExprNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class TryNode final : public ASTExprNode {
    public:
-    std::vector<ASTNode*> body;
+    std::vector<ASTSome*> body;
     std::string name;
-    std::vector<ASTNode*> catch_body;
+    std::vector<ASTSome*> catch_body;
   };
 
   class TypeValueSingleNode final : public ASTExprNode {
    public:
-    ASTNode* value;
+    ASTSome* value;
     std::vector<std::vector<TypeValueSingleNode*>> generics;
   };
 
   class WaitNode final : public ASTValueNode {
    public:
-    ASTNode* value = nullptr;
+    ASTSome* value = nullptr;
   };
 
   class WhileNode final : public ASTExprNode {
    public:
-    ASTNode* condition;
-    std::vector<ASTNode*> body;
+    ASTSome* condition;
+    std::vector<ASTSome*> body;
   };
 } // namespace mavka::ast
 #endif // AST_H

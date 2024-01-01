@@ -258,7 +258,7 @@ namespace jejalyk::typeinterpreter {
   class PostBodyCompilation final {
    public:
     js::JsBody* js_body;
-    std::vector<mavka::ast::ASTNode*>* body;
+    std::vector<mavka::ast::ASTSome*>* body;
     Scope* scope;
   };
 
@@ -328,12 +328,12 @@ namespace jejalyk::typeinterpreter {
     bool check_type(bool is_empty_value, Type* value, Type* type);
 
     Result* compile_types(std::vector<mavka::ast::TypeValueSingleNode*> types);
-    Result* compile_nodes(std::vector<mavka::ast::ASTNode*> nodes);
-    Result* compile_node(mavka::ast::ASTNode* node);
-    Result* compile_body(std::vector<mavka::ast::ASTNode*>* body);
+    Result* compile_nodes(std::vector<mavka::ast::ASTSome*> nodes);
+    Result* compile_node(mavka::ast::ASTSome* node);
+    Result* compile_body(const std::vector<mavka::ast::ASTSome*>& body);
 
     Result* compile_module(std::string name,
-                           std::vector<mavka::ast::ASTNode*>* body);
+                           std::vector<mavka::ast::ASTSome*>* body);
   };
 
   class Param final {
@@ -459,7 +459,7 @@ namespace jejalyk::typeinterpreter {
       std::vector<mavka::ast::GenericNode*> generics,
       std::vector<mavka::ast::ParamNode*> params,
       std::vector<mavka::ast::TypeValueSingleNode*> return_types,
-      std::vector<mavka::ast::ASTNode*>* body);
+      std::vector<mavka::ast::ASTSome*>* body);
   Result* compile_each_node(Scope* scope, mavka::ast::EachNode* each_node);
   Result* compile_eval_node(Scope* scope, mavka::ast::EvalNode* eval_node);
   Result* compile_from_to_complex_node(
@@ -542,7 +542,7 @@ namespace jejalyk::typeinterpreter {
       mavka::ast::ASTNode* node,
       std::string name,
       std::vector<mavka::ast::GenericNode*> generic_definitions,
-      mavka::ast::ASTNode* parent,
+      mavka::ast::ASTSome* parent,
       std::vector<mavka::ast::GenericNode*> parent_generic_definitions);
   Result* complete_structure(Scope* scope,
                              bool mockup,
@@ -565,7 +565,7 @@ namespace jejalyk::typeinterpreter {
                         mavka::ast::ASTNode* node,
                         Type* diia_structure,
                         Subject* diia_subject,
-                        std::vector<mavka::ast::ASTNode*>* body);
+                        std::vector<mavka::ast::ASTSome*>* body);
 
   void debug_print(std::string message);
   void debug_print_call(Type* value,

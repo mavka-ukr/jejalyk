@@ -2,8 +2,7 @@
 
 namespace jejalyk::typeinterpreter {
   Result* compile_chain_node(Scope* scope, mavka::ast::ChainNode* chain_node) {
-    if (const auto right_identifier_node =
-            dynamic_cast<mavka::ast::IdentifierNode*>(chain_node->right)) {
+    if (const auto right_identifier_node = chain_node->right->IdentifierNode) {
       const auto left_result = scope->compile_node(chain_node->left);
       if (left_result->error) {
         return left_result;
@@ -33,7 +32,7 @@ namespace jejalyk::typeinterpreter {
       get_element_node->end_column = chain_node->end_column;
       get_element_node->value = chain_node->left;
       get_element_node->index = chain_node->right;
-      return scope->compile_node(get_element_node);
+      return scope->compile_node(mavka::ast::make_ast_some(get_element_node));
     }
   }
 } // namespace jejalyk::typeinterpreter

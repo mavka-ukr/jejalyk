@@ -353,9 +353,9 @@ namespace jejalyk::typeinterpreter {
 
   Result* Scope::compile_types(
       std::vector<mavka::ast::TypeValueSingleNode*> types) {
-    std::vector<mavka::ast::ASTNode*> nodes;
+    std::vector<mavka::ast::ASTSome*> nodes;
     for (const auto type : types) {
-      nodes.push_back(type);
+      nodes.push_back(mavka::ast::make_ast_some(type));
     }
     const auto compiled_nodes = this->compile_nodes(nodes);
     if (compiled_nodes->error) {
@@ -369,7 +369,7 @@ namespace jejalyk::typeinterpreter {
     return success(compiled_nodes->value, compiled_nodes->js_body);
   }
 
-  Result* Scope::compile_nodes(std::vector<mavka::ast::ASTNode*> nodes) {
+  Result* Scope::compile_nodes(std::vector<mavka::ast::ASTSome*> nodes) {
     const auto subject = new Subject();
     const auto js_body = new jejalyk::js::JsBody();
     for (const auto node : nodes) {
@@ -391,299 +391,278 @@ namespace jejalyk::typeinterpreter {
     return success(subject, js_body);
   }
 
-  Result* Scope::compile_node(mavka::ast::ASTNode* node) {
+  Result* Scope::compile_node(mavka::ast::ASTSome* node) {
     if (!node) {
       return error("empty node");
     }
-
-    if (const auto anon_diia_node =
-            dynamic_cast<mavka::ast::AnonDiiaNode*>(node)) {
-      return compile_anon_diia_node(this, anon_diia_node);
+    if (node->is_nullptr()) {
+      return error("nullptr node");
     }
 
-    if (const auto arithmetic_node =
-            dynamic_cast<mavka::ast::ArithmeticNode*>(node)) {
-      return compile_arithmetic_node(this, arithmetic_node);
+    if (node->AnonDiiaNode) {
+      return compile_anon_diia_node(this, node->AnonDiiaNode);
     }
 
-    if (const auto array_node = dynamic_cast<mavka::ast::ArrayNode*>(node)) {
-      return compile_array_node(this, array_node);
+    if (node->ArithmeticNode) {
+      return compile_arithmetic_node(this, node->ArithmeticNode);
     }
 
-    if (const auto as_node = dynamic_cast<mavka::ast::AsNode*>(node)) {
-      return compile_as_node(this, as_node);
+    if (node->ArrayNode) {
+      return compile_array_node(this, node->ArrayNode);
     }
 
-    if (const auto assign_by_element_node =
-            dynamic_cast<mavka::ast::AssignByElementNode*>(node)) {
-      return compile_assign_by_element_node(this, assign_by_element_node);
+    if (node->AsNode) {
+      return compile_as_node(this, node->AsNode);
     }
 
-    if (const auto assign_by_identifier_node =
-            dynamic_cast<mavka::ast::AssignByIdentifierNode*>(node)) {
-      return compile_assign_by_identifier_node(this, assign_by_identifier_node);
+    if (node->AssignByElementNode) {
+      return compile_assign_by_element_node(this, node->AssignByElementNode);
     }
 
-    if (const auto assign_simple_node =
-            dynamic_cast<mavka::ast::AssignSimpleNode*>(node)) {
-      return compile_assign_simple_node(this, assign_simple_node);
+    if (node->AssignByIdentifierNode) {
+      return compile_assign_by_identifier_node(this,
+                                               node->AssignByIdentifierNode);
     }
 
-    if (const auto bitwise_node =
-            dynamic_cast<mavka::ast::BitwiseNode*>(node)) {
-      return compile_bitwise_node(this, bitwise_node);
+    if (node->AssignSimpleNode) {
+      return compile_assign_simple_node(this, node->AssignSimpleNode);
     }
 
-    if (const auto bitwise_not_node =
-            dynamic_cast<mavka::ast::BitwiseNotNode*>(node)) {
-      return compile_bitwise_not_node(this, bitwise_not_node);
+    if (node->BitwiseNode) {
+      return compile_bitwise_node(this, node->BitwiseNode);
     }
 
-    if (const auto break_node = dynamic_cast<mavka::ast::BreakNode*>(node)) {
-      return compile_break_node(this, break_node);
+    if (node->BitwiseNotNode) {
+      return compile_bitwise_not_node(this, node->BitwiseNotNode);
     }
 
-    if (const auto call_node = dynamic_cast<mavka::ast::CallNode*>(node)) {
-      return compile_call_node(this, call_node);
+    if (node->BreakNode) {
+      return compile_break_node(this, node->BreakNode);
     }
 
-    if (const auto chain_node = dynamic_cast<mavka::ast::ChainNode*>(node)) {
-      return compile_chain_node(this, chain_node);
+    if (node->CallNode) {
+      return compile_call_node(this, node->CallNode);
     }
 
-    if (const auto comparison_node =
-            dynamic_cast<mavka::ast::ComparisonNode*>(node)) {
-      return compile_comparison_node(this, comparison_node);
+    if (node->ChainNode) {
+      return compile_chain_node(this, node->ChainNode);
     }
 
-    if (const auto continue_node =
-            dynamic_cast<mavka::ast::ContinueNode*>(node)) {
-      return compile_continue_node(this, continue_node);
+    if (node->ComparisonNode) {
+      return compile_comparison_node(this, node->ComparisonNode);
     }
 
-    if (const auto dictionary_node =
-            dynamic_cast<mavka::ast::DictionaryNode*>(node)) {
-      return compile_dictionary_node(this, dictionary_node);
+    if (node->ContinueNode) {
+      return compile_continue_node(this, node->ContinueNode);
     }
 
-    if (const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node)) {
-      return compile_diia_node(this, diia_node);
+    if (node->DictionaryNode) {
+      return compile_dictionary_node(this, node->DictionaryNode);
     }
 
-    if (const auto each_node = dynamic_cast<mavka::ast::EachNode*>(node)) {
-      return compile_each_node(this, each_node);
+    if (node->DiiaNode) {
+      return compile_diia_node(this, node->DiiaNode);
     }
 
-    if (const auto eval_node = dynamic_cast<mavka::ast::EvalNode*>(node)) {
-      return compile_eval_node(this, eval_node);
+    if (node->EachNode) {
+      return compile_each_node(this, node->EachNode);
     }
 
-    if (const auto from_to_complex_node =
-            dynamic_cast<mavka::ast::FromToComplexNode*>(node)) {
-      return compile_from_to_complex_node(this, from_to_complex_node);
+    if (node->EvalNode) {
+      return compile_eval_node(this, node->EvalNode);
     }
 
-    if (const auto from_to_simple_node =
-            dynamic_cast<mavka::ast::FromToSimpleNode*>(node)) {
-      return compile_from_to_simple_node(this, from_to_simple_node);
+    if (node->FromToComplexNode) {
+      return compile_from_to_complex_node(this, node->FromToComplexNode);
     }
 
-    if (const auto function_node =
-            dynamic_cast<mavka::ast::FunctionNode*>(node)) {
-      return compile_function_node(this, function_node);
+    if (node->FromToSimpleNode) {
+      return compile_from_to_simple_node(this, node->FromToSimpleNode);
     }
 
-    if (const auto get_element_node =
-            dynamic_cast<mavka::ast::GetElementNode*>(node)) {
-      return compile_get_element_node(this, get_element_node);
+    if (node->FunctionNode) {
+      return compile_function_node(this, node->FunctionNode);
     }
 
-    if (const auto give_node = dynamic_cast<mavka::ast::GiveNode*>(node)) {
-      return compile_give_node(this, give_node);
+    if (node->GetElementNode) {
+      return compile_get_element_node(this, node->GetElementNode);
     }
 
-    if (const auto god_node = dynamic_cast<mavka::ast::GodNode*>(node)) {
-      return compile_god_node(this, god_node);
+    if (node->GiveNode) {
+      return compile_give_node(this, node->GiveNode);
     }
 
-    if (const auto identifier_node =
-            dynamic_cast<mavka::ast::IdentifierNode*>(node)) {
-      return compile_identifier_node(this, identifier_node);
+    if (node->GodNode) {
+      return compile_god_node(this, node->GodNode);
     }
 
-    if (const auto if_node = dynamic_cast<mavka::ast::IfNode*>(node)) {
-      return compile_if_node(this, if_node);
+    if (node->IdentifierNode) {
+      return compile_identifier_node(this, node->IdentifierNode);
     }
 
-    if (const auto method_declaration_node =
-            dynamic_cast<mavka::ast::MethodDeclarationNode*>(node)) {
-      return compile_method_declaration_node(this, method_declaration_node);
+    if (node->IfNode) {
+      return compile_if_node(this, node->IfNode);
     }
 
-    if (const auto mml_node = dynamic_cast<mavka::ast::MMLNode*>(node)) {
-      return compile_mml_node(this, mml_node);
+    if (node->MethodDeclarationNode) {
+      return compile_method_declaration_node(this, node->MethodDeclarationNode);
     }
 
-    if (const auto mockup_diia_node =
-            dynamic_cast<mavka::ast::MockupDiiaNode*>(node)) {
-      return compile_mockup_diia_node(this, mockup_diia_node);
+    if (node->MMLNode) {
+      return compile_mml_node(this, node->MMLNode);
     }
 
-    if (const auto mockup_module_node =
-            dynamic_cast<mavka::ast::MockupModuleNode*>(node)) {
-      return compile_mockup_module_node(this, mockup_module_node);
+    if (node->MockupDiiaNode) {
+      return compile_mockup_diia_node(this, node->MockupDiiaNode);
     }
 
-    if (const auto mockup_structure_node =
-            dynamic_cast<mavka::ast::MockupStructureNode*>(node)) {
-      return compile_mockup_structure_node(this, mockup_structure_node);
+    if (node->MockupModuleNode) {
+      return compile_mockup_module_node(this, node->MockupModuleNode);
     }
 
-    if (const auto mockup_subject_node =
-            dynamic_cast<mavka::ast::MockupSubjectNode*>(node)) {
-      return compile_mockup_subject_node(this, mockup_subject_node);
+    if (node->MockupStructureNode) {
+      return compile_mockup_structure_node(this, node->MockupStructureNode);
     }
 
-    if (const auto module_node = dynamic_cast<mavka::ast::ModuleNode*>(node)) {
-      return compile_module_node(this, module_node);
+    if (node->MockupSubjectNode) {
+      return compile_mockup_subject_node(this, node->MockupSubjectNode);
     }
 
-    if (const auto negative_node =
-            dynamic_cast<mavka::ast::NegativeNode*>(node)) {
-      return compile_negative_node(this, negative_node);
+    if (node->ModuleNode) {
+      return compile_module_node(this, node->ModuleNode);
     }
 
-    if (const auto not_node = dynamic_cast<mavka::ast::NotNode*>(node)) {
-      return compile_not_node(this, not_node);
+    if (node->NegativeNode) {
+      return compile_negative_node(this, node->NegativeNode);
     }
 
-    if (const auto number_node = dynamic_cast<mavka::ast::NumberNode*>(node)) {
-      return compile_number_node(this, number_node);
+    if (node->NotNode) {
+      return compile_not_node(this, node->NotNode);
     }
 
-    if (const auto positive_node =
-            dynamic_cast<mavka::ast::PositiveNode*>(node)) {
-      return compile_positive_node(this, positive_node);
+    if (node->NumberNode) {
+      return compile_number_node(this, node->NumberNode);
     }
 
-    if (const auto post_decrement_node =
-            dynamic_cast<mavka::ast::PostDecrementNode*>(node)) {
-      return compile_post_decrement_node(this, post_decrement_node);
+    if (node->PositiveNode) {
+      return compile_positive_node(this, node->PositiveNode);
     }
 
-    if (const auto post_increment_node =
-            dynamic_cast<mavka::ast::PostIncrementNode*>(node)) {
-      return compile_post_increment_node(this, post_increment_node);
+    if (node->PostDecrementNode) {
+      return compile_post_decrement_node(this, node->PostDecrementNode);
     }
 
-    if (const auto pre_decrement_node =
-            dynamic_cast<mavka::ast::PreDecrementNode*>(node)) {
-      return compile_pre_decrement_node(this, pre_decrement_node);
+    if (node->PostIncrementNode) {
+      return compile_post_increment_node(this, node->PostIncrementNode);
     }
 
-    if (const auto pre_increment_node =
-            dynamic_cast<mavka::ast::PreIncrementNode*>(node)) {
-      return compile_pre_increment_node(this, pre_increment_node);
+    if (node->PreDecrementNode) {
+      return compile_pre_decrement_node(this, node->PreDecrementNode);
     }
 
-    if (const auto return_node = dynamic_cast<mavka::ast::ReturnNode*>(node)) {
-      return compile_return_node(this, return_node);
+    if (node->PreIncrementNode) {
+      return compile_pre_increment_node(this, node->PreIncrementNode);
     }
 
-    if (const auto string_node = dynamic_cast<mavka::ast::StringNode*>(node)) {
-      return compile_string_node(this, string_node);
+    if (node->ReturnNode) {
+      return compile_return_node(this, node->ReturnNode);
     }
 
-    if (const auto structure_node =
-            dynamic_cast<mavka::ast::StructureNode*>(node)) {
-      return compile_structure_node(this, structure_node);
+    if (node->StringNode) {
+      return compile_string_node(this, node->StringNode);
     }
 
-    if (const auto take_module_node =
-            dynamic_cast<mavka::ast::TakeModuleNode*>(node)) {
-      return compile_take_module_node(this, take_module_node);
+    if (node->StructureNode) {
+      return compile_structure_node(this, node->StructureNode);
     }
 
-    if (const auto take_pak_node =
-            dynamic_cast<mavka::ast::TakePakNode*>(node)) {
-      return compile_take_pak_node(this, take_pak_node);
+    if (node->TakeModuleNode) {
+      return compile_take_module_node(this, node->TakeModuleNode);
     }
 
-    if (const auto ternary_node =
-            dynamic_cast<mavka::ast::TernaryNode*>(node)) {
-      return compile_ternary_node(this, ternary_node);
+    if (node->TakePakNode) {
+      return compile_take_pak_node(this, node->TakePakNode);
     }
 
-    if (const auto test_node = dynamic_cast<mavka::ast::TestNode*>(node)) {
-      return compile_test_node(this, test_node);
+    if (node->TernaryNode) {
+      return compile_ternary_node(this, node->TernaryNode);
     }
 
-    if (const auto throw_node = dynamic_cast<mavka::ast::ThrowNode*>(node)) {
-      return compile_throw_node(this, throw_node);
+    if (node->TestNode) {
+      return compile_test_node(this, node->TestNode);
     }
 
-    if (const auto try_node = dynamic_cast<mavka::ast::TryNode*>(node)) {
-      return compile_try_node(this, try_node);
+    if (node->ThrowNode) {
+      return compile_throw_node(this, node->ThrowNode);
     }
 
-    if (const auto type_value_single_node =
-            dynamic_cast<mavka::ast::TypeValueSingleNode*>(node)) {
-      return compile_type_value_single_node(this, type_value_single_node);
+    if (node->TryNode) {
+      return compile_try_node(this, node->TryNode);
     }
 
-    if (const auto wait_node = dynamic_cast<mavka::ast::WaitNode*>(node)) {
-      return compile_wait_node(this, wait_node);
+    if (node->TypeValueSingleNode) {
+      return compile_type_value_single_node(this, node->TypeValueSingleNode);
     }
 
-    if (const auto while_node = dynamic_cast<mavka::ast::WhileNode*>(node)) {
-      return compile_while_node(this, while_node);
+    if (node->WaitNode) {
+      return compile_wait_node(this, node->WaitNode);
     }
 
-    return error_from_ast(node, "unsupported node");
+    if (node->WhileNode) {
+      return compile_while_node(this, node->WhileNode);
+    }
+
+    return error_from_ast(mavka::ast::get_ast_node(node), "unsupported node");
   }
 
-  Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*>* body) {
+  Result* Scope::compile_body(const std::vector<mavka::ast::ASTSome*>& body) {
     const auto result = new Result();
     result->js_body = new jejalyk::js::JsBody();
 
-    const auto processed_body = new std::vector<mavka::ast::ASTNode*>();
+    std::vector<mavka::ast::ASTSome*> processed_body;
 
-    for (const auto node : *body) {
+    for (const auto node : body) {
       if (!node) {
         continue;
       }
+      if (node->is_nullptr()) {
+        continue;
+      }
 
-      if (const auto comp_inst_block_program_node =
-              dynamic_cast<mavka::ast::CompInstBlockProgramNode*>(node)) {
-        // if (comp_inst_block_program_node->name == "строгість") {
-        // if (comp_inst_block_program_node->value ==
-        //     this->get_options()->arg_strictness) {
-        // for (const auto comp_inst_block_program_node_body_node :
-        //      comp_inst_block_program_node->body) {
-        // processed_body->push_back(comp_inst_block_program_node_body_node);
-        // }
-        // }
-        // } else {
-        //   return error_from_ast(
-        //       node, "Невідомий компіляторний інструкційний блок \"" +
-        //                 comp_inst_block_program_node->name + "\".");
-        // }
+      if (node->CompInstAssignNode) {
+      } else if (node->CompInstBlockProgramNode) {
+        if (node->CompInstBlockProgramNode->name == "строгість") {
+          if (node->CompInstBlockProgramNode->value ==
+              this->get_options()->arg_strictness) {
+            for (const auto comp_inst_block_program_node_body_node :
+                 node->CompInstBlockProgramNode->body) {
+              processed_body.push_back(comp_inst_block_program_node_body_node);
+            }
+          }
+        } else {
+          return error_from_ast(
+              mavka::ast::get_ast_node(node),
+              "Невідомий компіляторний інструкційний блок \"" +
+                  node->CompInstBlockProgramNode->name + "\".");
+        }
       } else {
-        processed_body->push_back(node);
+        processed_body.push_back(node);
       }
     }
 
-    for (const auto node : *processed_body) {
+    for (const auto node : processed_body) {
       if (!node) {
         continue;
       }
+      if (node->is_nullptr()) {
+        continue;
+      }
 
-      if (const auto mockup_structure_node =
-              dynamic_cast<mavka::ast::MockupStructureNode*>(node)) {
+      if (const auto mockup_structure_node = node->MockupStructureNode) {
         if (this->has_local(mockup_structure_node->name) ||
             this->get_root()->has_local(mockup_structure_node->name)) {
           return error_from_ast(
-              node,
+              node->MockupStructureNode,
               "Субʼєкт \"" + mockup_structure_node->name + "\" вже визначено.");
         }
         const auto structure_declaration_result = declare_structure(
@@ -698,12 +677,12 @@ namespace jejalyk::typeinterpreter {
         this->put_ignore_variable(mockup_structure_node->name);
       }
 
-      if (const auto structure_node =
-              dynamic_cast<mavka::ast::StructureNode*>(node)) {
+      if (const auto structure_node = node->StructureNode) {
         if (this->has_local(structure_node->name) ||
             this->get_root()->has_local(structure_node->name)) {
           return error_from_ast(
-              node, "Субʼєкт \"" + structure_node->name + "\" вже визначено.");
+              node->StructureNode,
+              "Субʼєкт \"" + structure_node->name + "\" вже визначено.");
         }
         const auto structure_declaration_result =
             declare_structure(this, structure_node, structure_node->name,
@@ -717,8 +696,11 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    for (const auto node : *processed_body) {
+    for (const auto node : processed_body) {
       if (!node) {
+        continue;
+      }
+      if (node->is_nullptr()) {
         continue;
       }
 
@@ -731,8 +713,7 @@ namespace jejalyk::typeinterpreter {
       std::vector<mavka::ast::ParamNode*> diia_params;
       std::vector<mavka::ast::TypeValueSingleNode*> diia_return_types;
 
-      if (const auto mockup_diia_node =
-              dynamic_cast<mavka::ast::MockupDiiaNode*>(node)) {
+      if (const auto mockup_diia_node = node->MockupDiiaNode) {
         is_diia = true;
         is_mockup = true;
         diia_async = mockup_diia_node->async;
@@ -743,7 +724,7 @@ namespace jejalyk::typeinterpreter {
         diia_return_types = mockup_diia_node->return_types;
       }
 
-      if (const auto diia_node = dynamic_cast<mavka::ast::DiiaNode*>(node)) {
+      if (const auto diia_node = node->DiiaNode) {
         is_diia = true;
         diia_async = diia_node->async;
         diia_structure = diia_node->structure;
@@ -758,12 +739,13 @@ namespace jejalyk::typeinterpreter {
           if (this->has_local(diia_name) ||
               this->get_root()->has_local(diia_name)) {
             return error_from_ast(
-                node, "Субʼєкт \"" + diia_name + "\" вже визначено.");
+                mavka::ast::get_ast_node(node),
+                "Субʼєкт \"" + diia_name + "\" вже визначено.");
           }
           const auto scope = this->make_child();
-          const auto diia_declaration_result =
-              declare_diia(this, scope, node, diia_async, diia_name,
-                           diia_generics, diia_params, diia_return_types);
+          const auto diia_declaration_result = declare_diia(
+              this, scope, mavka::ast::get_ast_node(node), diia_async,
+              diia_name, diia_generics, diia_params, diia_return_types);
           if (diia_declaration_result->error) {
             return diia_declaration_result;
           }
@@ -776,24 +758,25 @@ namespace jejalyk::typeinterpreter {
             const auto structure_subject = this->get_local(diia_structure);
             if (!structure_subject->is_structure(this)) {
               return error_from_ast(
-                  node, "Субʼєкт \"" + diia_structure + "\" не є структурою.");
+                  mavka::ast::get_ast_node(node),
+                  "Субʼєкт \"" + diia_structure + "\" не є структурою.");
             }
 
             const auto structure_type = structure_subject->types[0];
             const auto structure_object = structure_type->object;
 
             if (structure_object->properties.contains(diia_name)) {
-              return error_from_ast(
-                  node, "Властивість \"" + diia_name +
-                            "\" вже визначено в структурі \"" + diia_structure +
-                            "\".");
+              return error_from_ast(mavka::ast::get_ast_node(node),
+                                    "Властивість \"" + diia_name +
+                                        "\" вже визначено в структурі \"" +
+                                        diia_structure + "\".");
             }
 
             if (structure_object->methods.contains(diia_name)) {
-              return error_from_ast(
-                  node, "Метод \"" + diia_name +
-                            "\" вже визначено в структурі \"" + diia_structure +
-                            "\".");
+              return error_from_ast(mavka::ast::get_ast_node(node),
+                                    "Метод \"" + diia_name +
+                                        "\" вже визначено в структурі \"" +
+                                        diia_structure + "\".");
             }
 
             const auto diia_scope = this->make_child();
@@ -803,9 +786,9 @@ namespace jejalyk::typeinterpreter {
                   structure_generic_definition->name,
                   Subject::create(structure_generic_definition));
             }
-            const auto diia_declaration_result =
-                declare_diia(this, diia_scope, node, diia_async, diia_name,
-                             diia_generics, diia_params, diia_return_types);
+            const auto diia_declaration_result = declare_diia(
+                this, diia_scope, mavka::ast::get_ast_node(node), diia_async,
+                diia_name, diia_generics, diia_params, diia_return_types);
             if (diia_declaration_result->error) {
               return diia_declaration_result;
             }
@@ -814,14 +797,18 @@ namespace jejalyk::typeinterpreter {
                 diia_name, diia_declaration_result->value->types[0]);
           } else {
             return error_from_ast(
-                node, "Субʼєкт \"" + diia_structure + "\" не визначено.");
+                mavka::ast::get_ast_node(node),
+                "Субʼєкт \"" + diia_structure + "\" не визначено.");
           }
         }
       }
     }
 
-    for (const auto node : *processed_body) {
+    for (const auto node : processed_body) {
       if (!node) {
+        continue;
+      }
+      if (node->is_nullptr()) {
         continue;
       }
 
@@ -835,7 +822,7 @@ namespace jejalyk::typeinterpreter {
 
     for (const auto post_body_compilation : this->post_bodies_compilation) {
       const auto body_result = post_body_compilation->scope->compile_body(
-          post_body_compilation->body);
+          *post_body_compilation->body);
       if (body_result->error) {
         return body_result;
       }
@@ -899,7 +886,7 @@ namespace jejalyk::typeinterpreter {
   }
 
   Result* Scope::compile_module(std::string name,
-                                std::vector<mavka::ast::ASTNode*>* body) {
+                                std::vector<mavka::ast::ASTSome*>* body) {
     Subject* module_subject = nullptr;
     Type* module_type = nullptr;
     Object* module_object = nullptr;
@@ -922,7 +909,7 @@ namespace jejalyk::typeinterpreter {
       module_scope->module_object = module_object;
       module_scope->is_async = true;
 
-      const auto compiled_body = module_scope->compile_body(body);
+      const auto compiled_body = module_scope->compile_body(*body);
       if (compiled_body->error) {
         return compiled_body;
       }

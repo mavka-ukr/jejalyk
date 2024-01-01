@@ -45,8 +45,8 @@ namespace jejalyk::typeinterpreter {
       for (const auto& generic_type_value : type_value_single_node->generics) {
         const auto generic_type_subject = new Subject();
         for (const auto generic_type_value_single_node : generic_type_value) {
-          const auto generic_type_value_single_result =
-              scope->compile_node(generic_type_value_single_node);
+          const auto generic_type_value_single_result = scope->compile_node(
+              mavka::ast::make_ast_some(generic_type_value_single_node));
           if (generic_type_value_single_result->error) {
             return generic_type_value_single_result;
           }
