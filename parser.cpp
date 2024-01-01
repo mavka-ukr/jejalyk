@@ -2227,12 +2227,8 @@ namespace mavka::parser {
       // wasm cannot properly handle antlr4 exceptions
       // do not handle it for now
       // todo: fix it
-      // try {
-      // parser_error->line = e.getOffendingToken()->getLine();
-      // parser_error->column = e.getOffendingToken()->getCharPositionInLine();
-      // } catch (...) {
-      // ignore
-      // }
+      parser_error->line = e.getOffendingToken()->getLine();
+      parser_error->column = e.getOffendingToken()->getCharPositionInLine();
       parser_error->path = path;
       parser_error->message = "Помилка парсингу.";
       parser_result->error = parser_error;

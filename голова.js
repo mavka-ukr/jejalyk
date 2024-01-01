@@ -64,6 +64,20 @@ Object.defineProperty(String.prototype, "чародія_додати", {
   },
 });
 
+Object.defineProperty(Number.prototype, "чародія_помножити", {
+  get: function() {
+    return (value) => this * value;
+  },
+});
+
+Object.defineProperty(Function.prototype, "чародія_викликати", {
+  get: function() {
+    return (...args) => {
+      return this(...args);
+    }
+  },
+});
+
 function мДія(name, fn) {
   fn[М] = Object.create(null);
   fn[М].структура = Дія;
