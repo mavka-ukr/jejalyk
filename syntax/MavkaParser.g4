@@ -7,7 +7,7 @@ options {
 file: f_program=program EOF;
 
 program: program_element (nl program_element)*;
-program_element: module | structure | mockup | diia | if | each | while | try | expr | throw | eval | wait_assign | assign | take | give | nls;
+program_element: module | structure | mockup | diia | if | each | while | try | expr | throw | eval | wait_assign | assign | take | give | comp_inst_block_program | comp_inst_assign | nls;
 
 module: 'модуль' (m_name=identifier)? nl (m_body=module_body nl)? nls 'кінець';
 module_body: module_body_element (nl module_body_element)*;
@@ -161,6 +161,9 @@ arithmetic_op_add: '+' | '-';
 bitwise_op: XOR | OR_BW | AND_BW | '<' '<' | '>' '>';
 test_op: 'і' | 'або' | '||' | '&&';
 comparison_op: '==' | '!=' | '>' | '<' | '>=' | '<=' | 'є' | 'не є' | 'рівно' | 'не рівно' | 'більше' | 'не більше' | 'менше' | 'не менше' | 'містить' | 'не містить';
+
+comp_inst_block_program: COMP_INST_START cibp_name=identifier cibp_value=STRING nl cibp_program=program nl COMP_INST_END;
+comp_inst_assign: COMP_INST_ASSIGN cia_name=identifier cia_value=STRING;
 
 nl: NL;
 nls: nl*;

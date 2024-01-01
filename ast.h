@@ -39,6 +39,8 @@ namespace mavka::ast {
   class CallNode;
   class ChainNode;
   class ComparisonNode;
+  class CompInstBlockProgramNode;
+  class CompInstAssignNode;
   class ContinueNode;
   class DictionaryElementNode;
   class DictionaryNode;
@@ -186,6 +188,19 @@ namespace mavka::ast {
     ASTNode* left;
     ASTNode* right;
     std::string op;
+  };
+
+  class CompInstBlockProgramNode final : public ASTExprNode {
+   public:
+    std::string name;
+    std::string value;
+    std::vector<ASTNode*> body;
+  };
+
+  class CompInstAssignNode final : public ASTExprNode {
+   public:
+    std::string name;
+    std::string value;
   };
 
   class ContinueNode final : public ASTExprNode {};

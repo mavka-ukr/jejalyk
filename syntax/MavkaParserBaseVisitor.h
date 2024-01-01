@@ -491,6 +491,14 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitComp_inst_block_program(MavkaParser::Comp_inst_block_programContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitComp_inst_assign(MavkaParser::Comp_inst_assignContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitNl(MavkaParser::NlContext *ctx) override {
     return visitChildren(ctx);
   }

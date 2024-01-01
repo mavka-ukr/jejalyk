@@ -257,6 +257,10 @@ public:
 
     virtual std::any visitComparison_op(MavkaParser::Comparison_opContext *context) = 0;
 
+    virtual std::any visitComp_inst_block_program(MavkaParser::Comp_inst_block_programContext *context) = 0;
+
+    virtual std::any visitComp_inst_assign(MavkaParser::Comp_inst_assignContext *context) = 0;
+
     virtual std::any visitNl(MavkaParser::NlContext *context) = 0;
 
     virtual std::any visitNls(MavkaParser::NlsContext *context) = 0;

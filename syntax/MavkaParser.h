@@ -31,8 +31,9 @@ public:
     TILDA = 87, PERCENT = 88, DIVDIV = 89, POW = 90, XOR = 91, OR_SYM = 92, 
     AND_SYM = 93, OR_BW = 94, AND_BW = 95, HEX_START = 96, ID = 97, NUMBER = 98, 
     INTEGER = 99, FLOAT = 100, HEX = 101, HEXUKR = 102, BINNUM = 103, BINNUMUKR = 104, 
-    MML = 105, TRIPPLE_QUOTE = 106, STRING_MULTILINE = 107, STRING = 108, 
-    COMMENT = 109, LINE_COMMENT = 110
+    MML = 105, COMP_INST_START = 106, COMP_INST_END = 107, COMP_INST_ASSIGN = 108, 
+    TRIPPLE_QUOTE = 109, STRING_MULTILINE = 110, STRING = 111, COMMENT = 112, 
+    LINE_COMMENT = 113
   };
 
   enum {
@@ -59,8 +60,8 @@ public:
     RuleNamed_arg = 68, RuleParams = 69, RuleParam = 70, RuleParam_value = 71, 
     RuleBody = 72, RuleBody_element_or_return = 73, RuleBody_element = 74, 
     RuleReturn_body_line = 75, RuleArithmetic_op_mul = 76, RuleArithmetic_op_add = 77, 
-    RuleBitwise_op = 78, RuleTest_op = 79, RuleComparison_op = 80, RuleNl = 81, 
-    RuleNls = 82
+    RuleBitwise_op = 78, RuleTest_op = 79, RuleComparison_op = 80, RuleComp_inst_block_program = 81, 
+    RuleComp_inst_assign = 82, RuleNl = 83, RuleNls = 84
   };
 
   explicit MavkaParser(antlr4::TokenStream *input);
@@ -161,6 +162,8 @@ public:
   class Bitwise_opContext;
   class Test_opContext;
   class Comparison_opContext;
+  class Comp_inst_block_programContext;
+  class Comp_inst_assignContext;
   class NlContext;
   class NlsContext; 
 
@@ -218,6 +221,8 @@ public:
     AssignContext *assign();
     TakeContext *take();
     GiveContext *give();
+    Comp_inst_block_programContext *comp_inst_block_program();
+    Comp_inst_assignContext *comp_inst_assign();
     NlsContext *nls();
 
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -2501,6 +2506,49 @@ public:
   };
 
   Comparison_opContext* comparison_op();
+
+  class  Comp_inst_block_programContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *cibp_name = nullptr;
+    antlr4::Token *cibp_value = nullptr;
+    MavkaParser::ProgramContext *cibp_program = nullptr;
+    Comp_inst_block_programContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *COMP_INST_START();
+    std::vector<NlContext *> nl();
+    NlContext* nl(size_t i);
+    antlr4::tree::TerminalNode *COMP_INST_END();
+    IdentifierContext *identifier();
+    antlr4::tree::TerminalNode *STRING();
+    ProgramContext *program();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Comp_inst_block_programContext* comp_inst_block_program();
+
+  class  Comp_inst_assignContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *cia_name = nullptr;
+    antlr4::Token *cia_value = nullptr;
+    Comp_inst_assignContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *COMP_INST_ASSIGN();
+    IdentifierContext *identifier();
+    antlr4::tree::TerminalNode *STRING();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Comp_inst_assignContext* comp_inst_assign();
 
   class  NlContext : public antlr4::ParserRuleContext {
   public:

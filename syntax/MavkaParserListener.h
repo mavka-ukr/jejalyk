@@ -371,6 +371,12 @@ public:
   virtual void enterComparison_op(MavkaParser::Comparison_opContext *ctx) = 0;
   virtual void exitComparison_op(MavkaParser::Comparison_opContext *ctx) = 0;
 
+  virtual void enterComp_inst_block_program(MavkaParser::Comp_inst_block_programContext *ctx) = 0;
+  virtual void exitComp_inst_block_program(MavkaParser::Comp_inst_block_programContext *ctx) = 0;
+
+  virtual void enterComp_inst_assign(MavkaParser::Comp_inst_assignContext *ctx) = 0;
+  virtual void exitComp_inst_assign(MavkaParser::Comp_inst_assignContext *ctx) = 0;
+
   virtual void enterNl(MavkaParser::NlContext *ctx) = 0;
   virtual void exitNl(MavkaParser::NlContext *ctx) = 0;
 

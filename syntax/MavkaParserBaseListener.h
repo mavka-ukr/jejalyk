@@ -373,6 +373,12 @@ public:
   virtual void enterComparison_op(MavkaParser::Comparison_opContext * /*ctx*/) override { }
   virtual void exitComparison_op(MavkaParser::Comparison_opContext * /*ctx*/) override { }
 
+  virtual void enterComp_inst_block_program(MavkaParser::Comp_inst_block_programContext * /*ctx*/) override { }
+  virtual void exitComp_inst_block_program(MavkaParser::Comp_inst_block_programContext * /*ctx*/) override { }
+
+  virtual void enterComp_inst_assign(MavkaParser::Comp_inst_assignContext * /*ctx*/) override { }
+  virtual void exitComp_inst_assign(MavkaParser::Comp_inst_assignContext * /*ctx*/) override { }
+
   virtual void enterNl(MavkaParser::NlContext * /*ctx*/) override { }
   virtual void exitNl(MavkaParser::NlContext * /*ctx*/) override { }
 

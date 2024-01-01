@@ -106,6 +106,9 @@ HEXUKR: '0ш' (DIGIT | 'А' | 'а' | 'Б' | 'б' | 'В' | 'в' | 'Г' | 'г' | '
 BINNUM: '0b' ('0' | '1')+;
 BINNUMUKR: '0д' ('0' | '1')+;
 MML: '<мрм>' MML_TAG_PART*? '</мрм>';
+COMP_INST_START: ';+';
+COMP_INST_END: ';-';
+COMP_INST_ASSIGN: ';=';
 TRIPPLE_QUOTE: '"""';
 STRING_MULTILINE: '"""' TRIPPLE_QUOTED_STRING_PART*? '"""';
 STRING: '"' ( ~["\n\r] )* '"';

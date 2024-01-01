@@ -26,6 +26,14 @@ namespace mavka::parser {
     return ast_result;
   }
 
+  inline void fill_ast_node(ast::ASTNode* node,
+                            antlr4::ParserRuleContext* context) {
+    node->start_line = context->getStart()->getLine();
+    node->start_column = context->getStart()->getCharPositionInLine();
+    node->end_line = context->getStop()->getLine();
+    node->end_column = context->getStop()->getCharPositionInLine();
+  }
+
   inline std::string process_number(std::string number) {
     auto number_copy = std::string(number);
     if (number_copy.find("ш") != std::string::npos) {
@@ -141,6 +149,12 @@ namespace mavka::parser {
       }
       if (context->give()) {
         return visitGive(context->give());
+      }
+      if (context->comp_inst_block_program()) {
+        return visitComp_inst_block_program(context->comp_inst_block_program());
+      }
+      if (context->comp_inst_assign()) {
+        return visitComp_inst_assign(context->comp_inst_assign());
       }
       return create_ast_result(nullptr);
     }
@@ -854,6 +868,17 @@ namespace mavka::parser {
         return visitComparison(
             dynamic_cast<MavkaParser::ComparisonContext*>(context));
       }
+      if (jejalyk::tools::instance_of<
+              MavkaParser::Comp_inst_block_programContext>(context)) {
+        return visitComp_inst_block_program(
+            dynamic_cast<MavkaParser::Comp_inst_block_programContext*>(
+                context));
+      }
+      if (jejalyk::tools::instance_of<MavkaParser::Comp_inst_assignContext>(
+              context)) {
+        return visitComp_inst_assign(
+            dynamic_cast<MavkaParser::Comp_inst_assignContext*>(context));
+      }
       if (jejalyk::tools::instance_of<MavkaParser::TestContext>(context)) {
         return visitTest(dynamic_cast<MavkaParser::TestContext*>(context));
       }
@@ -1308,6 +1333,31 @@ namespace mavka::parser {
       return create_ast_result(comparison_node);
     }
 
+    std::any visitComp_inst_block_program(
+        MavkaParser::Comp_inst_block_programContext* context) override {
+      const auto comp_inst_block_program_node =
+          new ast::CompInstBlockProgramNode();
+      fill_ast_node(comp_inst_block_program_node, context);
+      comp_inst_block_program_node->name = context->cibp_name->getText();
+      comp_inst_block_program_node->value =
+          context->cibp_value->getText().substr(
+              1, context->cibp_value->getText().length() - 2);
+      const auto program_node = dynamic_cast<ast::ProgramNode*>(
+          any_to_ast_result(visitProgram(context->cibp_program))->node);
+      comp_inst_block_program_node->body = program_node->body;
+      return create_ast_result(comp_inst_block_program_node);
+    }
+
+    std::any visitComp_inst_assign(
+        MavkaParser::Comp_inst_assignContext* context) override {
+      const auto comp_inst_assign_node = new ast::CompInstAssignNode();
+      fill_ast_node(comp_inst_assign_node, context);
+      comp_inst_assign_node->name = context->cia_name->getText();
+      comp_inst_assign_node->value = context->cia_value->getText().substr(
+          1, context->cia_value->getText().length() - 2);
+      return create_ast_result(comp_inst_assign_node);
+    }
+
     std::any visitTest(MavkaParser::TestContext* context) override {
       const auto test_node = new ast::TestNode();
       test_node->start_line = context->getStart()->getLine();
@@ -1344,10 +1394,10 @@ namespace mavka::parser {
     // std::any visitArray(MavkaParser::ArrayContext* context) override {
     //   const auto array_node = new ast::ArrayNode();
     //   array_node->start_line = context->getStart()->getLine();
-    //   array_node->start_column = context->getStart()->getCharPositionInLine();
-    //   array_node->end_line = context->getStop()->getLine();
-    //   array_node->end_column = context->getStop()->getCharPositionInLine();
-    //   if (context->a_type) {
+    //   array_node->start_column =
+    //   context->getStart()->getCharPositionInLine(); array_node->end_line =
+    //   context->getStop()->getLine(); array_node->end_column =
+    //   context->getStop()->getCharPositionInLine(); if (context->a_type) {
     //     array_node->types =
     //         std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
     //             visitType_value(context->a_type));
@@ -1389,14 +1439,15 @@ namespace mavka::parser {
       return _visitContext(context->ae_value);
     }
 
-    // std::any visitDictionary(MavkaParser::DictionaryContext* context) override {
+    // std::any visitDictionary(MavkaParser::DictionaryContext* context)
+    // override {
     //   const auto dictionary_node = new ast::DictionaryNode();
     //   dictionary_node->start_line = context->getStart()->getLine();
     //   dictionary_node->start_column =
     //       context->getStart()->getCharPositionInLine();
     //   dictionary_node->end_line = context->getStop()->getLine();
-    //   dictionary_node->end_column = context->getStop()->getCharPositionInLine();
-    //   if (context->d_key_type) {
+    //   dictionary_node->end_column =
+    //   context->getStop()->getCharPositionInLine(); if (context->d_key_type) {
     //     dictionary_node->key_types =
     //         std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
     //             visitType_value(context->d_key_type));

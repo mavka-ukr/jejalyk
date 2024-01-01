@@ -639,14 +639,41 @@ namespace jejalyk::typeinterpreter {
       return compile_while_node(this, while_node);
     }
 
-    return error("unsupported node");
+    return error_from_ast(node, "unsupported node");
   }
 
   Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*>* body) {
     const auto result = new Result();
     result->js_body = new jejalyk::js::JsBody();
 
+    const auto processed_body = new std::vector<mavka::ast::ASTNode*>();
+
     for (const auto node : *body) {
+      if (!node) {
+        continue;
+      }
+
+      if (const auto comp_inst_block_program_node =
+              dynamic_cast<mavka::ast::CompInstBlockProgramNode*>(node)) {
+        // if (comp_inst_block_program_node->name == "строгість") {
+        // if (comp_inst_block_program_node->value ==
+        //     this->get_options()->arg_strictness) {
+        // for (const auto comp_inst_block_program_node_body_node :
+        //      comp_inst_block_program_node->body) {
+        // processed_body->push_back(comp_inst_block_program_node_body_node);
+        // }
+        // }
+        // } else {
+        //   return error_from_ast(
+        //       node, "Невідомий компіляторний інструкційний блок \"" +
+        //                 comp_inst_block_program_node->name + "\".");
+        // }
+      } else {
+        processed_body->push_back(node);
+      }
+    }
+
+    for (const auto node : *processed_body) {
       if (!node) {
         continue;
       }
@@ -690,7 +717,7 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    for (const auto node : *body) {
+    for (const auto node : *processed_body) {
       if (!node) {
         continue;
       }
@@ -793,7 +820,7 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    for (const auto node : *body) {
+    for (const auto node : *processed_body) {
       if (!node) {
         continue;
       }
