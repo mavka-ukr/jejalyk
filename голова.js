@@ -100,3 +100,51 @@ async function мМодуль(name, fn) {
   await fn(module);
   return module;
 }
+
+function мГарно(value) {
+  const convert = (v, depth = 0) => {
+    if (v == null) {
+      return "пусто";
+    }
+    if (typeof v === "boolean") {
+      return v ? "так" : "ні";
+    }
+    if (typeof v === "number") {
+      return String(v);
+    }
+    if (typeof v === "string") {
+      if (depth === 0) {
+        return v;
+      }
+      return `"${v}"`;
+    }
+    if (v instanceof Array) {
+      return `[${v.map((v) => convert(v, depth + 1)).join(", ")}]`;
+    }
+    if (v instanceof Map) {
+      const entries = [...v.entries()].map(([k, v]) => `${convert(k, depth + 1)}=${convert(v, depth + 1)}`);
+      return `(${entries.join(", ")})`;
+    }
+    if (v instanceof Uint8Array) {
+      return `<байти ${v.length}>`;
+    }
+    if (v[М]) {
+      if (v[М].структура === Дія) {
+        return `<дія ${v[М].назва}>`;
+      }
+      if (v[М].структура === Модуль) {
+        const keys = Object.keys(v).map((k) => `${k}`).join(", ");
+        return `<модуль ${v[М].назва}[${keys}]>`;
+      }
+      if (v[М].структура === null) {
+        return `<структура ${v[М].назва}>`;
+      }
+      if (v[М].структура) {
+        const entries = Object.entries(v).map(([k, v]) => `${convert(k, depth + 1)}=${convert(v, depth + 1)}`);
+        return `${v[М].структура[М].назва}(${entries})`;
+      }
+    }
+    return "<портал>";
+  };
+  return convert(value, 0);
+}

@@ -13,6 +13,7 @@ namespace jejalyk::typeinterpreter {
 
     const auto structure_subject =
         scope->get_local(mockup_structure_node->name);
+    scope->put_ignore_variable(mockup_structure_node->name);
 
     return complete_structure(scope, true, mockup_structure_node,
                               structure_subject, mockup_structure_node->params);

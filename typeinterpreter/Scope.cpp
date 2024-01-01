@@ -673,6 +673,7 @@ namespace jejalyk::typeinterpreter {
         }
         this->set_local(mockup_structure_node->name,
                         structure_declaration_result->value);
+        this->put_ignore_variable(mockup_structure_node->name);
       }
 
       if (const auto structure_node =
@@ -700,6 +701,7 @@ namespace jejalyk::typeinterpreter {
       }
 
       bool is_diia = false;
+      bool is_mockup = false;
       bool diia_async = false;
       std::string diia_structure;
       std::string diia_name;
@@ -710,6 +712,7 @@ namespace jejalyk::typeinterpreter {
       if (const auto mockup_diia_node =
               dynamic_cast<mavka::ast::MockupDiiaNode*>(node)) {
         is_diia = true;
+        is_mockup = true;
         diia_async = mockup_diia_node->async;
         diia_structure = mockup_diia_node->structure;
         diia_name = mockup_diia_node->name;
@@ -743,6 +746,9 @@ namespace jejalyk::typeinterpreter {
             return diia_declaration_result;
           }
           this->set_local(diia_name, diia_declaration_result->value);
+          if (is_mockup) {
+            this->put_ignore_variable(diia_name);
+          }
         } else {
           if (this->has_local(diia_structure)) {
             const auto structure_subject = this->get_local(diia_structure);

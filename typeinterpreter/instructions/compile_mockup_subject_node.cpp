@@ -16,7 +16,8 @@ namespace jejalyk::typeinterpreter {
     }
 
     scope->set_local(mockup_subject_node->name, types_result->value);
+    scope->put_ignore_variable(mockup_subject_node->name);
 
     return success(types_result->value, new jejalyk::js::JsEmptyNode());
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter
