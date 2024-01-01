@@ -7,6 +7,8 @@ var текст = String;
 var логічне = Boolean;
 var пусто = null;
 var байти = ArrayBuffer;
+var Модуль = Object.create(null);
+var Дія = Function;
 
 Object.defineProperty(Array.prototype, "довжина", {
   get: function() {
@@ -39,7 +41,7 @@ Object.defineProperty(Array.prototype, "чародія_перебір", {
 
 function мДія(name, fn) {
   fn[М] = Object.create(null);
-  fn[М].структура = Function;
+  fn[М].структура = Дія;
   fn[М].назва = name;
   return fn;
 }
@@ -63,7 +65,7 @@ function мСтруктура(name, parent, fillFn) {
   return structure;
 }
 
-function мВідЧерезДо(from, middleSymbol, middle, toSymbol, to) {
+function мВідДо(from, middleSymbol, middle, toSymbol, to) {
   const iterator = Object.create(null);
   iterator.завершено = false;
   iterator.значення = from;
@@ -88,4 +90,13 @@ function мВідЧерезДо(from, middleSymbol, middle, toSymbol, to) {
     }
   });
   return iterator;
+}
+
+async function мМодуль(name, fn) {
+  const module = Object.create(null);
+  module[М] = Object.create(null);
+  module[М].структура = Модуль;
+  module[М].назва = name;
+  await fn(module);
+  return module;
 }

@@ -216,6 +216,11 @@ namespace jejalyk::js {
     JsNode* value;
   };
 
+  class JsFlatBodyNode : public JsNode {
+   public:
+    std::vector<JsNode*> nodes;
+  };
+
   inline JsIdentifierNode* null() {
     const auto js_identifier_node = new JsIdentifierNode();
     js_identifier_node->name = "null";
@@ -399,6 +404,12 @@ namespace jejalyk::js {
     const auto js_nested_node = new JsNestedNode();
     js_nested_node->value = value;
     return js_nested_node;
+  }
+
+  inline JsAwaitNode* make_await(JsNode* value) {
+    const auto js_await_node = new JsAwaitNode();
+    js_await_node->value = value;
+    return js_await_node;
   }
 
   std::string stringify(JsNode* js_node, size_t depth = 0);
@@ -606,6 +617,20 @@ namespace jejalyk::js {
     }
     if (const auto js_nested_node = dynamic_cast<JsNestedNode*>(js_node)) {
       return "(" + stringify(js_nested_node->value, depth) + ")";
+    }
+    if (const auto js_flat_body_node = dynamic_cast<JsFlatBodyNode*>(js_node)) {
+      std::vector<std::string> lines;
+      for (const auto js_fb_node : js_flat_body_node->nodes) {
+        const auto line = stringify(js_fb_node, depth);
+        if (!line.empty()) {
+          lines.push_back(line);
+        }
+      }
+      std::string prefix;
+      for (size_t i = 0; i < depth; ++i) {
+        prefix += " ";
+      }
+      return tools::trim(tools::implode_with_prefix(lines, ";\n", prefix));
     }
     return "[CANNOT STRINGIFY]";
   }

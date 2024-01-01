@@ -39,9 +39,9 @@ namespace jejalyk::typeinterpreter {
       return iterator_instance_result;
     }
 
-    // мВідЧерезДо(а, "+", б, "<=", в)
+    // мВідДо(а, "+", б, "<=", в)
     const auto js_call = js::make_call(
-        js::make_id("мВідЧерезДо"),
+        js::make_id("мВідДо"),
         {from_result->js_node, js::make_string(step_symbol),
          step_result->js_node, js::make_string(to_symbol), to_result->js_node});
 

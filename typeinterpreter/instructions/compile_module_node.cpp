@@ -16,11 +16,9 @@ namespace jejalyk::typeinterpreter {
 
     scope->set_local(module_node->name, module_result->value);
 
-    const auto js_call = js::make_call(js::make_id("мМодуль"),
-                                       {js::make_string(module_node->name)});
+    const auto js_assign =
+        js::make_assign(js::make_id(module_node->name), module_result->js_node);
 
-    // todo: handle body
-
-    return success(module_result->value, js_call);
+    return success(module_result->value, js_assign);
   }
 } // namespace typeinterpreter

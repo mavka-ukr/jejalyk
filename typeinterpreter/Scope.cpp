@@ -886,9 +886,22 @@ namespace jejalyk::typeinterpreter {
       if (compiled_body->error) {
         return compiled_body;
       }
+
+      const auto js_function = new js::JsFunctionNode();
+      js_function->async = true;
+      js_function->params.push_back(js::make_id("мmodule"));
+      js_function->body = compiled_body->js_body;
+
+      const auto js_call = js::make_call(js::make_id("мМодуль"),
+                                         {js::make_string(name), js_function});
+
+      return success(module_subject, js::make_await(js_call));
     }
 
-    return success(module_subject);
+    const auto js_call =
+        js::make_call(js::make_id("мМодуль"), {js::make_string(name)});
+
+    return success(module_subject, js_call);
   }
 
 } // namespace typeinterpreter
