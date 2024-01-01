@@ -1,5 +1,11 @@
 var М = Symbol("Мавка");
 
+class Падіння extends Error {
+  constructor(message) {
+    super(message);
+  }
+}
+
 var обʼєкт = Object.create(null);
 var список = Array;
 var число = Number;
@@ -13,6 +19,14 @@ var Дія = Function;
 Object.defineProperty(Array.prototype, "довжина", {
   get: function() {
     return this.length;
+  },
+});
+Object.defineProperty(Array.prototype, "додати", {
+  get: function() {
+    return (value) => {
+      this.push(value);
+      return this;
+    };
   },
 });
 Object.defineProperty(Array.prototype, "чародія_містить", {
@@ -36,6 +50,17 @@ Object.defineProperty(Array.prototype, "чародія_перебір", {
       });
       return iterator;
     };
+  },
+});
+
+Object.defineProperty(String.prototype, "довжина", {
+  get: function() {
+    return this.length;
+  },
+});
+Object.defineProperty(String.prototype, "чародія_додати", {
+  get: function() {
+    return (value) => this + value;
   },
 });
 
@@ -187,7 +212,7 @@ function мНазваТипу(value) {
 
 function мДодати(a, b) {
   if (a == null || b == null) {
-    throw new Падіння(`Неможливо виконати додавання з "${мТипТ(a)}".`, di);
+    throw new Падіння(`Неможливо виконати додавання з "${мНазваТипу(a)}".`);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a + b;
@@ -199,12 +224,12 @@ function мДодати(a, b) {
   if (aSubtractFn) {
     return aSubtractFn(b);
   }
-  throw new Падіння(`Неможливо виконати додавання з "${мТипТ(a)}".`, di);
+  throw new Падіння(`Неможливо виконати додавання з "${мНазваТипу(a)}".`);
 }
 
 function мВідняти(a, b) {
   if (a == null || b == null) {
-    throw new Падіння(`Неможливо виконати віднімання з "${мТипТ(a)}".`, di);
+    throw new Падіння(`Неможливо виконати віднімання з "${мНазваТипу(a)}".`);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a - b;
@@ -213,12 +238,12 @@ function мВідняти(a, b) {
   if (aSubtractFn) {
     return aSubtractFn(b);
   }
-  throw new Падіння(`Неможливо виконати віднімання з "${мТипТ(a)}".`, di);
+  throw new Падіння(`Неможливо виконати віднімання з "${мНазваТипу(a)}".`);
 }
 
 function мПомножити(a, b) {
   if (a == null || b == null) {
-    throw new Падіння(`Неможливо виконати множення з "${мТипТ(a)}".`, di);
+    throw new Падіння(`Неможливо виконати множення з "${мНазваТипу(a)}".`);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
@@ -227,12 +252,15 @@ function мПомножити(a, b) {
   if (aSubtractFn) {
     return aSubtractFn(b);
   }
-  throw new Падіння(`Неможливо виконати множення з "${мТипТ(a)}".`, di);
+  throw new Падіння(`Неможливо виконати множення з "${мНазваТипу(a)}".`);
 }
 
 function мОтримати(a, b) {
   if (a == null || b == null) {
-    throw new Падіння(`Неможливо виконати отримання з "${мТипТ(a)}".`, di);
+    throw new Падіння(`Неможливо виконати отримання з "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "string") {
+    return a[b];
   }
   if (a instanceof Array) {
     return a[b];
@@ -244,5 +272,5 @@ function мОтримати(a, b) {
   if (aSubtractFn) {
     return aSubtractFn(b);
   }
-  throw new Падіння(`Неможливо виконати отримання з "${мТипТ(a)}".`, di);
+  throw new Падіння(`Неможливо виконати отримання з "${мНазваТипу(a)}".`);
 }

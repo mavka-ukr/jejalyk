@@ -12,7 +12,7 @@
 #include "../parser.h"
 #include "../tools.h"
 
-#define JJ_DEBUG 1
+#define JJ_DEBUG 0
 
 namespace jejalyk::typeinterpreter {
   class Error;
@@ -255,12 +255,20 @@ namespace jejalyk::typeinterpreter {
     Result* create_instance(Scope* scope, std::vector<Subject*> generic_types);
   };
 
+  class PostBodyCompilation final {
+   public:
+    js::JsBody* js_body;
+    std::vector<mavka::ast::ASTNode*>* body;
+    Scope* scope;
+  };
+
   class Scope final {
    public:
     Options* options = nullptr;
     Scope* parent = nullptr;
     std::map<std::string, Subject*> variables;
     bool proxy = false;
+    std::vector<PostBodyCompilation*> post_bodies_compilation;
 
     Object* diia_object = nullptr;
     Object* module_object = nullptr;
@@ -322,7 +330,7 @@ namespace jejalyk::typeinterpreter {
     Result* compile_types(std::vector<mavka::ast::TypeValueSingleNode*> types);
     Result* compile_nodes(std::vector<mavka::ast::ASTNode*> nodes);
     Result* compile_node(mavka::ast::ASTNode* node);
-    Result* compile_body(std::vector<mavka::ast::ASTNode*> body);
+    Result* compile_body(std::vector<mavka::ast::ASTNode*>* body);
 
     Result* compile_module(std::string name,
                            std::vector<mavka::ast::ASTNode*>* body);

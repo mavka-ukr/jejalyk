@@ -239,11 +239,11 @@ namespace jejalyk::typeinterpreter {
     if (mockup) {
       return success(structure_subject, new js::JsEmptyNode());
     } else {
-      // мСтруктура("назва", предок, function (...) { ... })
+      // мСтруктура("назва", предок, function (мs, ...) { ... })
       const auto js_function = new js::JsFunctionNode();
       js_function->body = new js::JsBody();
+      js_function->params.push_back(js::make_id("мs"));
       for (const auto param : structure_object->params) {
-        js_function->params.push_back(js::make_id("мs"));
         if (param->value_js_node) {
           // а = 2
           js_function->params.push_back(

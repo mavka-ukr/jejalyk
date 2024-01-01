@@ -386,13 +386,7 @@ namespace jejalyk::typeinterpreter {
       }
     }
     if (subject->types.empty()) {
-      const auto object_structure_subject = this->get_root_object();
-      const auto object_instance_subject =
-          object_structure_subject->create_instance(this, {});
-      if (object_instance_subject->error) {
-        return object_instance_subject;
-      }
-      subject->add_type(object_instance_subject->value->types[0]);
+      subject->add_type(this->create_object_instance_type());
     }
     return success(subject, js_body);
   }
@@ -648,11 +642,11 @@ namespace jejalyk::typeinterpreter {
     return error("unsupported node");
   }
 
-  Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*> body) {
+  Result* Scope::compile_body(std::vector<mavka::ast::ASTNode*>* body) {
     const auto result = new Result();
     result->js_body = new jejalyk::js::JsBody();
 
-    for (const auto node : body) {
+    for (const auto node : *body) {
       if (!node) {
         continue;
       }
@@ -696,7 +690,7 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    for (const auto node : body) {
+    for (const auto node : *body) {
       if (!node) {
         continue;
       }
@@ -799,7 +793,7 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    for (const auto node : body) {
+    for (const auto node : *body) {
       if (!node) {
         continue;
       }
@@ -810,6 +804,18 @@ namespace jejalyk::typeinterpreter {
       }
 
       result->js_body->nodes.push_back(compiled_node_result->js_node);
+    }
+
+    for (const auto post_body_compilation : this->post_bodies_compilation) {
+      const auto body_result = post_body_compilation->scope->compile_body(
+          post_body_compilation->body);
+      if (body_result->error) {
+        return body_result;
+      }
+      post_body_compilation->js_body->nodes.insert(
+          post_body_compilation->js_body->nodes.end(),
+          body_result->js_body->nodes.begin(),
+          body_result->js_body->nodes.end());
     }
 
     std::vector<std::string> var_names;
@@ -889,7 +895,7 @@ namespace jejalyk::typeinterpreter {
       module_scope->module_object = module_object;
       module_scope->is_async = true;
 
-      const auto compiled_body = module_scope->compile_body(*body);
+      const auto compiled_body = module_scope->compile_body(body);
       if (compiled_body->error) {
         return compiled_body;
       }

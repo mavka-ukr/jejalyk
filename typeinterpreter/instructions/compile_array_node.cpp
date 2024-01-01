@@ -42,6 +42,9 @@ namespace jejalyk::typeinterpreter {
 
       const auto result =
           array_structure_subject->create_instance(scope, {array_type_subject});
+      if (result->error) {
+        return result;
+      }
       result->value->is_empty_value = array_node->elements.empty();
       result->js_node = js_array_node;
       return result;

@@ -110,7 +110,7 @@ namespace jejalyk::typeinterpreter {
         diia_scope->diia_object = diia_object;
         diia_scope->is_async = diia_object->is_diia_async;
 
-        compiled_body = diia_scope->compile_body(*body);
+        compiled_body = diia_scope->compile_body(body);
         if (compiled_body->error) {
           return compiled_body;
         }
@@ -123,8 +123,9 @@ namespace jejalyk::typeinterpreter {
       }
       for (const auto param : diia_object->params) {
         if (param->value_js_node) {
-          js_function->params.push_back(js::make_assign(
-              js::make_id(param->name), js::make_maybe_nested(param->value_js_node)));
+          js_function->params.push_back(
+              js::make_assign(js::make_id(param->name),
+                              js::make_maybe_nested(param->value_js_node)));
         } else {
           js_function->params.push_back(js::make_id(param->name));
         }

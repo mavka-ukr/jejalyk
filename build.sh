@@ -14,7 +14,8 @@ if [ "$TARGET" = "antlr4" ]; then
     exit 0
 fi
 
-MAVKA_HEAD_JS=$(./node_modules/.bin/uglifyjs голова.js)
+MAVKA_HEAD_JS=$(cat голова.js)
+#MAVKA_HEAD_JS=$(./node_modules/.bin/uglifyjs голова.js)
 MAVKA_HEAD_M=$(cat голова.м)
 
 echo "std::string MAVKA_HEAD_JS = R\"($MAVKA_HEAD_JS)\";

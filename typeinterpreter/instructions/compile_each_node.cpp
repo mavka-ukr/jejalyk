@@ -30,7 +30,7 @@ namespace jejalyk::typeinterpreter {
         scope->put_additional_node_before(js::make_var(iterator_name));
         scope->put_additional_variable(each_node->name);
 
-        const auto compiled_body = loop_scope->compile_body(each_node->body);
+        const auto compiled_body = loop_scope->compile_body(&each_node->body);
         if (compiled_body->error) {
           return compiled_body;
         }
@@ -90,7 +90,7 @@ namespace jejalyk::typeinterpreter {
           scope->put_additional_node_before(js::make_var(iterator_name));
           scope->put_additional_variable(each_node->name);
 
-          const auto compiled_body = loop_scope->compile_body(each_node->body);
+          const auto compiled_body = loop_scope->compile_body(&each_node->body);
           if (compiled_body->error) {
             return compiled_body;
           }
