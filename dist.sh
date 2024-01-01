@@ -15,18 +15,17 @@ TARGET=$1
 set -x
 
 if [ "$TARGET" = "wclean" ]; then
-    rm -rf ./build
+    rm -rf ./build-wasm
 fi
-
-./build.sh Onode
-./build.sh Oweb
 
 mkdir -p ./dist
 
-cp -a ./build/optimized_jejalyk_node.js ./dist/optimized_jejalyk_node.js
-cp -a ./build/optimized_jejalyk_node.wasm ./dist/optimized_jejalyk_node.wasm
+./build.sh Onode
+cp -a ./build-Onode/optimized_jejalyk_node.js ./dist/optimized_jejalyk_node.js
+cp -a ./build-Onode/optimized_jejalyk_node.wasm ./dist/optimized_jejalyk_node.wasm
 
-cp -a ./build/optimized_jejalyk_web.js ./dist/optimized_jejalyk_web.js
-cp -a ./build/optimized_jejalyk_web.wasm ./dist/optimized_jejalyk_web.wasm
+./build.sh Oweb
+cp -a ./build-Oweb/optimized_jejalyk_web.js ./dist/optimized_jejalyk_web.js
+cp -a ./build-Oweb/optimized_jejalyk_web.wasm ./dist/optimized_jejalyk_web.wasm
 
 echo -en "$JEJALYK_VERSION_FROM_PACKAGE" >./dist/VERSION

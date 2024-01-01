@@ -1,4 +1,5 @@
 #include "parser.h"
+#include "chrono.h"
 
 namespace mavka::parser {
   ast::ASTSome* any_to_ast_some(std::any any) {
@@ -66,9 +67,10 @@ namespace mavka::parser {
     processASTBody(body);
     const auto program_node = new ast::ProgramNode();
     // program_node->start_line = context->getStart()->getLine();
-    // program_node->start_column = context->getStart()->getCharPositionInLine();
-    // program_node->end_line = context->getStop()->getLine();
-    // program_node->end_column = context->getStop()->getCharPositionInLine();
+    // program_node->start_column =
+    // context->getStart()->getCharPositionInLine(); program_node->end_line =
+    // context->getStop()->getLine(); program_node->end_column =
+    // context->getStop()->getCharPositionInLine();
     program_node->body = body;
     return (ast::make_ast_some(program_node));
   }
@@ -2211,11 +2213,19 @@ namespace mavka::parser {
       parser.removeErrorListeners();
       parser.addErrorListener(parser_error_listener);
 
+      START_CHRONO(parse)
+
       MavkaParser::FileContext* tree = parser.file();
+
+      END_CHRONO(parse, "parsing ", path)
 
       MavkaASTVisitor visitor;
 
+      START_CHRONO(visit)
+
       const auto ast_result = any_to_ast_some(visitor.visitFile(tree));
+
+      END_CHRONO(visit, "visiting ", path)
 
       const auto program_node = ast_result->ProgramNode;
       const auto parser_result = new MavkaParserResult();

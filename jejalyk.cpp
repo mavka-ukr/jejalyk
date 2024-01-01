@@ -1,9 +1,12 @@
 #include "jejalyk.h"
+#include "chrono.h"
 #include "head.h"
 
 namespace jejalyk {
   CompilationResult* compile(const std::string& code,
                              typeinterpreter::Options* options) {
+    START_CHRONO(overall)
+
     const auto args = tools::split(options->args, " ");
     for (const auto& arg : args) {
       const auto arg_parts = tools::split(arg, "=");
@@ -141,6 +144,8 @@ namespace jejalyk {
       return compilation_result;
     }
 
+    START_CHRONO(compile_program)
+
     const auto program_result =
         program_scope->compile_body(program_parser_result->program_node->body);
     if (program_result->error) {
@@ -153,14 +158,22 @@ namespace jejalyk {
       return compilation_result;
     }
 
+    END_CHRONO(compile_program, "compiling ", options->current_module_path)
+
+    START_CHRONO(transpile_program)
+
     const auto std_string = jejalyk::js::stringify_body(std_result->js_body);
     const auto program_string =
         jejalyk::js::stringify_body(program_result->js_body);
+
+    END_CHRONO(transpile_program, "transpiling ", options->current_module_path)
 
     const auto program_compilation_result = new CompilationResult();
     program_compilation_result->result =
         MAVKA_HEAD_JS + "\n" + std_string + "\n" + program_string;
     // program_compilation_result->result = program_string;
+
+    END_CHRONO(overall, "overall ", options->current_module_path)
 
     return program_compilation_result;
   }

@@ -1,5 +1,11 @@
 .idea/
 build/
+build-bin/
+build-node/
+build-web/
+build-Obin/
+build-Onode/
+build-Oweb/
 cmake-build-debug/
 gen/
 test.js
