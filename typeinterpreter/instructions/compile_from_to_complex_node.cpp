@@ -39,6 +39,7 @@ namespace jejalyk::typeinterpreter {
       return iterator_instance_result;
     }
 
+    // todo: optimize with raw for loop
     // мВідДо(а, "+", б, "<=", в)
     const auto js_call = js::make_call(
         js::make_id("мВідДо"),

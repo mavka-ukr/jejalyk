@@ -18,8 +18,9 @@ namespace jejalyk::typeinterpreter {
       return structure_result;
     }
 
-    const auto js_assign = js::make_assign(js::make_id(structure_node->name),
-                                           structure_result->js_node);
+    // а = мСтруктура("а", ...)
+    const auto js_assign = js::make_assign(
+        js::make_id("м_" + structure_node->name), structure_result->js_node);
 
     return success(structure_result->value, js_assign);
   }

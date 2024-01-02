@@ -16,8 +16,9 @@ namespace jejalyk::typeinterpreter {
 
     scope->set_local(module_node->name, module_result->value);
 
-    const auto js_assign =
-        js::make_assign(js::make_id(module_node->name), module_result->js_node);
+    // а = мМодуль("а", ...)
+    const auto js_assign = js::make_assign(
+        js::make_id("м_" + module_node->name), module_result->js_node);
 
     return success(module_result->value, js_assign);
   }

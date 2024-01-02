@@ -11,6 +11,6 @@ namespace jejalyk::typeinterpreter {
 
     const auto subject = scope->get(identifier_node->name);
     debug_print_got_from_scope(scope, identifier_node->name, subject);
-    return success(subject, js::make_id(identifier_node->name));
+    return success(subject, js::make_id("м_" + identifier_node->name));
   }
 } // namespace jejalyk::typeinterpreter

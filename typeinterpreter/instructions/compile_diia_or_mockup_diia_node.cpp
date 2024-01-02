@@ -68,10 +68,11 @@ namespace jejalyk::typeinterpreter {
 
       // назва[М].методи.метод = мДія()
       const auto js_assign = js::make_assign(
-          js::make_chain(js::make_chain(js::make_access(js::make_id(structure),
-                                                        js::make_id("М")),
-                                        js::make_id("методи")),
-                         js::make_id(name)),
+          js::make_chain(
+              js::make_chain(js::make_access(js::make_id("м_" + structure),
+                                             js::make_id("М")),
+                             js::make_id("методи")),
+              js::make_id(name)),
           diia_result->js_node);
 
       return success(diia_result->value, js_assign);
@@ -97,7 +98,7 @@ namespace jejalyk::typeinterpreter {
 
     // а = мДія()
     const auto js_assign =
-        js::make_assign(js::make_id(name), diia_result->js_node);
+        js::make_assign(js::make_id("м_" + name), diia_result->js_node);
 
     return success(diia_result->value, js_assign);
   }

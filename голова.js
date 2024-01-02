@@ -6,15 +6,15 @@ class Падіння extends Error {
   }
 }
 
-var обʼєкт = Object.create(null);
-var список = Array;
-var число = Number;
-var текст = String;
-var логічне = Boolean;
-var пусто = null;
-var байти = ArrayBuffer;
-var Модуль = Object.create(null);
-var Дія = Function;
+var м_обʼєкт = Object.create(null);
+var м_список = Array;
+var м_число = Number;
+var м_текст = String;
+var м_логічне = Boolean;
+var м_пусто = null;
+var м_байти = ArrayBuffer;
+var м_Модуль = Object.create(null);
+var м_Дія = Function;
 
 Object.defineProperty(Array.prototype, "довжина", {
   get: function() {
@@ -96,7 +96,7 @@ Object.defineProperty(Map.prototype, "чародія_отримати", {
 
 function мДія(name, fn) {
   fn[М] = Object.create(null);
-  fn[М].структура = Дія;
+  fn[М].структура = Function;
   fn[М].назва = name;
   return fn;
 }
@@ -150,7 +150,7 @@ function мВідДо(from, middleSymbol, middle, toSymbol, to) {
 async function мМодуль(name, fn) {
   const module = Object.create(null);
   module[М] = Object.create(null);
-  module[М].структура = Модуль;
+  module[М].структура = м_Модуль;
   module[М].назва = name;
   await fn(module);
   return module;
@@ -184,10 +184,10 @@ function мГарно(value) {
       return `<байти ${v.length}>`;
     }
     if (v[М]) {
-      if (v[М].структура === Дія) {
+      if (v[М].структура === Function) {
         return `<дія ${v[М].назва}>`;
       }
-      if (v[М].структура === Модуль) {
+      if (v[М].структура === м_Модуль) {
         const keys = Object.keys(v).map((k) => `${k}`).join(", ");
         return `<модуль ${v[М].назва}[${keys}]>`;
       }
@@ -339,7 +339,7 @@ function мВикликати(a, args) {
   if (a == null) {
     throw new Падіння(`Неможливо викликати "${мНазваТипу(a)}".`);
   }
-  if (a[М] && a[М].структура === Дія) {
+  if (a[М] && a[М].структура === Function) {
     return a(...args);
   }
   var magic = a["чародія_викликати"];

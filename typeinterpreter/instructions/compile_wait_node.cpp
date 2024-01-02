@@ -16,6 +16,7 @@ namespace jejalyk::typeinterpreter {
     const auto result =
         value_result->value->get_awaiting_value(scope, wait_node);
 
+    // await а
     const auto js_await = new js::JsAwaitNode();
     js_await->value = value_result->js_node;
 

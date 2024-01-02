@@ -13,15 +13,17 @@ namespace jejalyk::typeinterpreter {
       if (scope->has_local(element_node->name)) {
         const auto subject = scope->get_local(element_node->name);
         if (element_node->as.empty()) {
+          // мmodule.а = а;
           js_flat_body->nodes.push_back(
               js::make_assign(js::make_chain("мmodule", element_node->name),
-                              js::make_id(element_node->name)));
+                              js::make_id("м_" + element_node->name)));
           module_object->properties.insert_or_assign(element_node->name,
                                                      subject);
         } else {
+          // мmodule.б = а;
           js_flat_body->nodes.push_back(
               js::make_assign(js::make_chain("мmodule", element_node->as),
-                              js::make_id(element_node->name)));
+                              js::make_id("м_" + element_node->name)));
           module_object->properties.insert_or_assign(element_node->as, subject);
         }
       } else {

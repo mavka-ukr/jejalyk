@@ -16,7 +16,7 @@ namespace jejalyk::typeinterpreter {
 
     if (each_node->keyName.empty()) {
       if (loop_scope->has_local(each_node->name)) {
-        return error_1(scope,each_node, each_node->name);
+        return error_1(scope, each_node, each_node->name);
       }
       if (value_result->value->is_iterator(loop_scope)) {
         // перебрати а як х
@@ -37,7 +37,7 @@ namespace jejalyk::typeinterpreter {
 
         // х = _мit_0.значення
         const auto js_name_assign =
-            js::make_assign(js::make_id(each_node->name),
+            js::make_assign(js::make_id("м_" + each_node->name),
                             js::make_chain(iterator_name, "значення"));
         compiled_body->js_body->nodes.insert(
             compiled_body->js_body->nodes.begin(), js_name_assign);
@@ -97,7 +97,7 @@ namespace jejalyk::typeinterpreter {
 
           // х = _мit_0.значення
           const auto js_name_assign =
-              js::make_assign(js::make_id(each_node->name),
+              js::make_assign(js::make_id("м_" + each_node->name),
                               js::make_chain(iterator_name, "значення"));
           compiled_body->js_body->nodes.insert(
               compiled_body->js_body->nodes.begin(), js_name_assign);
@@ -144,7 +144,7 @@ namespace jejalyk::typeinterpreter {
       }
     } else {
       if (loop_scope->has_local(each_node->name)) {
-        return error_1(scope,each_node, each_node->name);
+        return error_1(scope, each_node, each_node->name);
       }
       if (loop_scope->has_local(each_node->keyName)) {
         return error_1(scope,each_node, each_node->keyName);

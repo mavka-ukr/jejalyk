@@ -32,7 +32,7 @@ namespace jejalyk::typeinterpreter {
 
     if (parent == nullptr) {
       structure_object->parent = scope->create_object_instance_type();
-      structure_object->parent_js = js::make_id("обʼєкт");
+      structure_object->parent_js = js::make_id("м_обʼєкт");
     } else {
       return scope->error(mavka::ast::get_ast_node(parent),
                           "Наслідування тимчасово не підтримується.");

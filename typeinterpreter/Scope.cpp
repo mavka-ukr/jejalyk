@@ -899,7 +899,7 @@ namespace jejalyk::typeinterpreter {
           continue;
         }
 
-        var_names.push_back(variable_name);
+        var_names.push_back("м_" + variable_name);
       }
       for (const auto js_node_before : this->get_additional_nodes_before()) {
         result->js_body->nodes.insert(result->js_body->nodes.begin(),
@@ -917,7 +917,7 @@ namespace jejalyk::typeinterpreter {
           continue;
         }
         result->js_body->nodes.insert(result->js_body->nodes.begin(),
-                                      js::make_var(additional_variable));
+                                      js::make_var("м_" + additional_variable));
       }
       if (!var_names.empty()) {
         result->js_body->nodes.insert(result->js_body->nodes.begin(),

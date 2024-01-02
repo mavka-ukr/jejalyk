@@ -16,7 +16,7 @@ namespace jejalyk::typeinterpreter {
 
       // а = б
       const auto js_assign_node = js::make_assign(
-          js::make_id(assign_simple_node->name), value_result->js_node);
+          js::make_id("м_" + assign_simple_node->name), value_result->js_node);
 
       if (assign_simple_node->types.empty()) {
         if (scope->has_local(assign_simple_node->name)) {
