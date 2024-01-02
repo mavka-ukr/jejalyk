@@ -98,7 +98,7 @@ dictionary_arg: nls (da_name_id=identifier | da_name_string=STRING) '=' da_value
 
 expr: 'предок' nls '.' nls cp_id=identifier '(' (cp_args=args | cp_named_args=named_args)? ')' #call_parent
     | value #simple
-    | a_left=atom 'як' a_right=atom #as
+    | a_left=atom 'як' a_right=type_value_item #as
     | t_value=value nls '?' nls t_positive=expr nls ':' nls t_negative=expr #ternary
     | atom ('та' atom)+ #god
     | 'чекати' w_value=value #wait

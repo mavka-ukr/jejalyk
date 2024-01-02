@@ -1581,10 +1581,10 @@ public:
     AsContext(ExprContext *ctx);
 
     MavkaParser::AtomContext *a_left = nullptr;
-    MavkaParser::AtomContext *a_right = nullptr;
+    MavkaParser::Type_value_itemContext *a_right = nullptr;
     antlr4::tree::TerminalNode *AS();
-    std::vector<AtomContext *> atom();
-    AtomContext* atom(size_t i);
+    AtomContext *atom();
+    Type_value_itemContext *type_value_item();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
 

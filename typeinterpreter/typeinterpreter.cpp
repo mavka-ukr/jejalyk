@@ -15,9 +15,9 @@ namespace jejalyk::typeinterpreter {
                       << " == " << object->name << std::endl;
           }
           const auto generic = generic_types[type->generic_definition->index];
-          const auto generic_type = generic->types[0];
-
-          processed_subject->add_type(generic_type);
+          for (const auto generic_type : generic->types) {
+            processed_subject->add_type(generic_type);
+          }
         } else {
           if constexpr (JJ_DEBUG) {
             std::cout << "[debug] process_subject_generics: "

@@ -17,6 +17,9 @@ var м_байти = ArrayBuffer;
 var м_Модуль = Object.create(null);
 var м_Дія = Function;
 
+var м_так = true;
+var м_ні = false;
+
 Object.defineProperty(Array.prototype, "довжина", {
   get: function() {
     return this.length;

@@ -53,7 +53,7 @@ namespace jejalyk::typeinterpreter {
         }
       }
     }
-    types.push_back(type);
+    this->types.push_back(type);
   }
 
   Subject* Subject::merge_types(Subject* subject) {

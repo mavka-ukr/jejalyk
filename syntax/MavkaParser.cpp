@@ -411,7 +411,7 @@ void mavkaparserParserInitialize() {
   	756,3,114,57,0,756,759,5,58,0,0,757,760,3,130,65,0,758,760,3,134,67,0,
   	759,757,1,0,0,0,759,758,1,0,0,0,759,760,1,0,0,0,760,761,1,0,0,0,761,762,
   	5,59,0,0,762,832,1,0,0,0,763,832,3,74,37,0,764,765,3,72,36,0,765,766,
-  	5,17,0,0,766,767,3,72,36,0,767,832,1,0,0,0,768,769,3,74,37,0,769,770,
+  	5,17,0,0,766,767,3,122,61,0,767,832,1,0,0,0,768,769,3,74,37,0,769,770,
   	3,168,84,0,770,771,5,32,0,0,771,772,3,168,84,0,772,773,3,86,43,0,773,
   	774,3,168,84,0,774,775,5,84,0,0,775,776,3,168,84,0,776,777,3,86,43,0,
   	777,832,1,0,0,0,778,781,3,72,36,0,779,780,5,18,0,0,780,782,3,72,36,0,
@@ -6790,12 +6790,12 @@ tree::TerminalNode* MavkaParser::AsContext::AS() {
   return getToken(MavkaParser::AS, 0);
 }
 
-std::vector<MavkaParser::AtomContext *> MavkaParser::AsContext::atom() {
-  return getRuleContexts<MavkaParser::AtomContext>();
+MavkaParser::AtomContext* MavkaParser::AsContext::atom() {
+  return getRuleContext<MavkaParser::AtomContext>(0);
 }
 
-MavkaParser::AtomContext* MavkaParser::AsContext::atom(size_t i) {
-  return getRuleContext<MavkaParser::AtomContext>(i);
+MavkaParser::Type_value_itemContext* MavkaParser::AsContext::type_value_item() {
+  return getRuleContext<MavkaParser::Type_value_itemContext>(0);
 }
 
 MavkaParser::AsContext::AsContext(ExprContext *ctx) { copyFrom(ctx); }
@@ -7159,7 +7159,7 @@ MavkaParser::ExprContext* MavkaParser::expr() {
       setState(765);
       match(MavkaParser::AS);
       setState(766);
-      antlrcpp::downCast<AsContext *>(_localctx)->a_right = atom(0);
+      antlrcpp::downCast<AsContext *>(_localctx)->a_right = type_value_item();
       break;
     }
 

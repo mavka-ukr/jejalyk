@@ -917,6 +917,10 @@ namespace mavka::parser {
           dynamic_cast<MavkaParser::MockupContext*>(context);
       return visitMockup(mockup_context);
     }
+    if (const auto type_value_item_context =
+            dynamic_cast<MavkaParser::Type_value_itemContext*>(context)) {
+      return visitType_value_item(type_value_item_context);
+    }
     return new ast::ASTSome();
   }
 
