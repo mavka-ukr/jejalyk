@@ -129,7 +129,13 @@ namespace jejalyk::typeinterpreter {
     object->structure = this;
 
     const auto type = new Type(object);
-    type->generic_types = generic_types;
+    if (generic_types.size() == this->object->generic_definitions.size()) {
+      type->generic_types = generic_types;
+    } else {
+      for (const auto generic_definition : this->object->generic_definitions) {
+        type->generic_types.push_back(scope->create_object_instance_subject());
+      }
+    }
 
     return type;
   }
