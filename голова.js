@@ -74,7 +74,23 @@ Object.defineProperty(Function.prototype, "чародія_викликати", {
   get: function() {
     return (...args) => {
       return this(...args);
-    }
+    };
+  },
+});
+
+Object.defineProperty(Map.prototype, "чародія_покласти", {
+  get: function() {
+    return (k, v) => {
+      this.set(k, v);
+      return this;
+    };
+  },
+});
+Object.defineProperty(Map.prototype, "чародія_отримати", {
+  get: function() {
+    return (k) => {
+      return this.get(k);
+    };
   },
 });
 
@@ -234,9 +250,9 @@ function мДодати(a, b) {
   if (typeof a === "string" && typeof b === "string") {
     return a + b;
   }
-  var aSubtractFn = a["чародія_додати"];
-  if (aSubtractFn) {
-    return aSubtractFn(b);
+  var magic = a["чародія_додати"];
+  if (magic) {
+    return magic(b);
   }
   throw new Падіння(`Неможливо виконати додавання з "${мНазваТипу(a)}".`);
 }
@@ -248,9 +264,9 @@ function мВідняти(a, b) {
   if (typeof a === "number" && typeof b === "number") {
     return a - b;
   }
-  var aSubtractFn = a["чародія_відняти"];
-  if (aSubtractFn) {
-    return aSubtractFn(b);
+  var magic = a["чародія_відняти"];
+  if (magic) {
+    return magic(b);
   }
   throw new Падіння(`Неможливо виконати віднімання з "${мНазваТипу(a)}".`);
 }
@@ -262,9 +278,9 @@ function мПомножити(a, b) {
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
   }
-  var aSubtractFn = a["чародія_помножити"];
-  if (aSubtractFn) {
-    return aSubtractFn(b);
+  var magic = a["чародія_помножити"];
+  if (magic) {
+    return magic(b);
   }
   throw new Падіння(`Неможливо виконати множення з "${мНазваТипу(a)}".`);
 }
@@ -282,9 +298,9 @@ function мОтримати(a, b) {
   if (a instanceof Map) {
     return a.get(b);
   }
-  var aSubtractFn = a["чародія_отримати"];
-  if (aSubtractFn) {
-    return aSubtractFn(b);
+  var magic = a["чародія_отримати"];
+  if (magic) {
+    return magic(b);
   }
   throw new Падіння(`Неможливо отримати елемент з "${мНазваТипу(a)}".`);
 }
@@ -299,9 +315,23 @@ function мПокласти(a, b, c) {
   if (a instanceof Map) {
     return a.set(b, c);
   }
-  var aSubtractFn = a["чародія_покласти"];
-  if (aSubtractFn) {
-    return aSubtractFn(b, c);
+  var magic = a["чародія_покласти"];
+  if (magic) {
+    return magic(b, c);
   }
   throw new Падіння(`Неможливо покласти елемент в "${мНазваТипу(a)}".`);
+}
+
+function мВикликати(a, args) {
+  if (a == null) {
+    throw new Падіння(`Неможливо викликати "${мНазваТипу(a)}".`);
+  }
+  if (a[М] && a[М].структура === Дія) {
+    return a(...args);
+  }
+  var magic = a["чародія_викликати"];
+  if (magic) {
+    return magic(...args);
+  }
+  throw new Падіння(`Неможливо викликати "${мНазваТипу(a)}".`);
 }

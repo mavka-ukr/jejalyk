@@ -334,6 +334,14 @@ namespace jejalyk::typeinterpreter {
           }
         }
       }
+      if (value->is_dictionary(this)) {
+        if (value->generic_types[0]->is_object(this) &&
+            value->generic_types[1]->is_object(this)) {
+          if (type->is_dictionary(this)) {
+            return true;
+          }
+        }
+      }
     }
     if (value->object->structure == type->object->structure) {
       if (value->generic_types.size() != type->generic_types.size()) {

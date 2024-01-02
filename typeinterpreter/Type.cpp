@@ -306,8 +306,8 @@ namespace jejalyk::typeinterpreter {
       const auto value = this->get(scope, "чародія_викликати");
       return value->call(scope, node, generic_types, args);
     }
-    return error_from_ast(node,
-                          "Неможливо викликати \"" + this->get_name() + "\".");
+    return error_from_ast(
+        node, "Неможливо викликати \"" + this->get_type_name() + "\".");
   }
 
   Result* Type::get_element(Scope* scope,

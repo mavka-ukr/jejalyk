@@ -18,7 +18,39 @@ namespace jejalyk::typeinterpreter {
 
     std::vector<Subject*> args;
     std::vector<js::JsNode*> js_args;
+
+    if (value_result->value->is_object(scope)) {
+      if (scope->get_options()->is_strict_mode()) {
+        return error_from_ast(
+            call_node,
+            "Неможливо скомпілювати виклик обʼєкта. Ви можете викликати обʼєкт "
+            "динамічно без перевірки типів через \"Дія.викликати(значення, "
+            "[аргументи])\".");
+      } else {
+        for (const auto& arg_node : call_node->args) {
+          if (!arg_node->name.empty()) {
+            return error_from_ast(arg_node,
+                                  "Неможливо скомпілювати виклик значення типу "
+                                  "\"обʼєкт\" з назвами параметрів.");
+          }
+          const auto arg_value_result = scope->compile_node(arg_node->value);
+          if (arg_value_result->error) {
+            return arg_value_result;
+          }
+          args.push_back(arg_value_result->value);
+          js_args.push_back(arg_value_result->js_node);
+        }
+
+        // мВикликати(а, [б])
+        const auto js_call =
+            js::make_call(js::make_id("мВикликати"),
+                          {value_result->js_node, js::make_array(js_args)});
+        return success(value_result->value, js_call);
+      }
+    }
+
     Subject* diia = nullptr;
+
     if (value_result->value->is_diia(scope)) {
       diia = value_result->value;
     } else if (value_result->value->has_diia(scope, "чародія_викликати")) {

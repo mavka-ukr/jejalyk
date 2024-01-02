@@ -12,18 +12,33 @@ namespace jejalyk::typeinterpreter {
 
     if (!type_value_single_result->value->types.empty()) {
       if (type_value_single_result->value->types[0]->object) {
-        if (type_value_single_node->generics.size() >
-            type_value_single_result->value->types[0]
-                ->object->generic_definitions.size()) {
-          return error_from_ast(type_value_single_node,
-                                "Забагато аргументів шаблону.");
-        }
+        if (type_value_single_node->generics.empty() &&
+            !type_value_single_result->value->types[0]
+                 ->object->generic_definitions.empty()) {
+          for (const auto g : type_value_single_result->value->types[0]
+                                  ->object->generic_definitions) {
+            const auto identifier = new mavka::ast::IdentifierNode();
+            identifier->name = "обʼєкт";
+            const auto identifier_type_value =
+                new mavka::ast::TypeValueSingleNode();
+            identifier_type_value->value =
+                mavka::ast::make_ast_some(identifier);
+            type_value_single_node->generics.push_back({identifier_type_value});
+          }
+        } else {
+          if (type_value_single_node->generics.size() >
+              type_value_single_result->value->types[0]
+                  ->object->generic_definitions.size()) {
+            return error_from_ast(type_value_single_node,
+                                  "Забагато аргументів шаблону.");
+          }
 
-        if (type_value_single_node->generics.size() <
-            type_value_single_result->value->types[0]
-                ->object->generic_definitions.size()) {
-          return error_from_ast(type_value_single_node,
-                                "Недостатньо аргументів шаблону.");
+          if (type_value_single_node->generics.size() <
+              type_value_single_result->value->types[0]
+                  ->object->generic_definitions.size()) {
+            return error_from_ast(type_value_single_node,
+                                  "Недостатньо аргументів шаблону.");
+          }
         }
       }
     }

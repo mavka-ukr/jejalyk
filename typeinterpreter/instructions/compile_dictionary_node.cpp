@@ -5,7 +5,7 @@ namespace jejalyk::typeinterpreter {
                                   mavka::ast::DictionaryNode* dictionary_node) {
     const auto dictionary_structure = scope->get_root_dictionary();
 
-    const auto js_map = new jejalyk::js::JsMapNode();
+    const auto js_map = new js::JsMapNode();
 
     const auto key_types = new Subject();
     const auto value_types = new Subject();
@@ -34,9 +34,14 @@ namespace jejalyk::typeinterpreter {
       js_map->elements.push_back(js_map_element_node);
     }
 
-    const auto dictionary_result = dictionary_structure->create_instance(
-        scope, {scope->create_object_instance_subject(),
-                scope->create_object_instance_subject()});
+    key_types->fix_types(scope);
+    value_types->fix_types(scope);
+
+    const auto dictionary_result =
+        dictionary_structure->create_instance(scope, {key_types, value_types});
+
+    dictionary_result->value->is_empty_value =
+        dictionary_node->elements.empty();
 
     dictionary_result->js_node = js_map;
 
