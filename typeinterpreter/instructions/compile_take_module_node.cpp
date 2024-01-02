@@ -48,11 +48,6 @@ namespace jejalyk::typeinterpreter {
     }
 
     const auto module_code = module_code_result->result;
-    if (take_module_node->as.empty()) {
-      scope->set_local(module_name, nullptr);
-    } else {
-      scope->set_local(take_module_node->as, nullptr);
-    }
 
     const auto module_parser_result =
         mavka::parser::parse(module_code, module_path);
@@ -69,10 +64,18 @@ namespace jejalyk::typeinterpreter {
 
     const auto module_scope = scope->get_root()->make_child();
 
-    const auto module_body_result =
-        module_scope->compile_body(module_parser_result->program_node->body);
-    if (module_body_result->error) {
-      return module_body_result;
+    const auto module_result = module_scope->compile_module(
+        module_name, &module_parser_result->program_node->body, module_path,
+        {js::make_assign(js::make_id(temp_module_name),
+                         js::make_id("мmodule"))});
+    if (module_result->error) {
+      return module_result;
+    }
+
+    if (take_module_node->as.empty()) {
+      scope->set_local(module_name, module_result->value);
+    } else {
+      scope->set_local(take_module_node->as, module_result->value);
     }
 
     const auto js_flat_body = new js::JsFlatBodyNode();
@@ -87,39 +90,7 @@ namespace jejalyk::typeinterpreter {
     js_if->body = js::make_body({js::make_raw("return;")});
     js_temp_module_function->body = js::make_body({js_if});
 
-    // мМодуль(async function назва(мmodule) { ... })
-    const auto js_module_call = new js::JsCallNode();
-    js_module_call->value = js::make_id(JJ_F_MODULE);
-    const auto js_module_function = new js::JsFunctionNode();
-    js_module_function->async = true;
-    js_module_function->name = module_name;
-    js_module_function->params.push_back(js::make_id("мmodule"));
-    js_module_function->body = js::make_body({});
-    // var м____шлях_до_модуля___
-    js_module_function->body->nodes.push_back(
-        js::var("м____шлях_до_модуля___"));
-    // м____шлях_до_модуля___ = "..."
-    js_module_function->body->nodes.push_back(js::make_assign(
-        js::make_id("м____шлях_до_модуля___"), js::make_string(module_path)));
-
-    // ...
-    for (const auto& node : module_body_result->js_body->nodes) {
-      js_module_function->body->nodes.push_back(node);
-    }
-
-    js_module_call->arguments.push_back(js_module_function);
-
-    // var module
-    js_module_function->body->nodes.push_back(js::make_var("module"));
-    // module = await мМодуль(...)
-    const auto js_assign =
-        js::make_assign(js::make_id("module"), js::make_await(js_module_call));
-
-    js_temp_module_function->body->nodes.push_back(js_assign);
-
-    // temp_module_name = module
-    js_temp_module_function->body->nodes.push_back(
-        js::make_assign(js::make_id(temp_module_name), js::make_id("module")));
+    js_temp_module_function->body->nodes.push_back(module_result->js_node);
 
     // var init_temp_module_name = async function() { ... }
     js_flat_body->nodes.push_back(js::make_var("init_" + temp_module_name));
@@ -130,4 +101,4 @@ namespace jejalyk::typeinterpreter {
 
     return success(nullptr, init_module_js_flat_body);
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

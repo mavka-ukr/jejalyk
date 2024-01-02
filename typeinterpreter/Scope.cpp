@@ -929,7 +929,9 @@ namespace jejalyk::typeinterpreter {
   }
 
   Result* Scope::compile_module(std::string name,
-                                std::vector<mavka::ast::ASTSome*>* body) {
+                                std::vector<mavka::ast::ASTSome*>* body,
+                                std::string path,
+                                std::vector<js::JsNode*> before) {
     Subject* module_subject = nullptr;
     Type* module_type = nullptr;
     Object* module_object = nullptr;
@@ -953,6 +955,14 @@ namespace jejalyk::typeinterpreter {
     js_function->async = true;
     js_function->params.push_back(js::make_id("мmodule"));
 
+    if (!path.empty()) {
+      // var м____шлях_до_модуля___
+      js_function->body->nodes.push_back(js::var("м____шлях_до_модуля___"));
+      // м____шлях_до_модуля___ = "..."
+      js_function->body->nodes.push_back(js::make_assign(
+          js::make_id("м____шлях_до_модуля___"), js::make_string(path)));
+    }
+
     if (body != nullptr) {
       module_scope->module_object = module_object;
       module_scope->is_async = true;
@@ -965,7 +975,12 @@ namespace jejalyk::typeinterpreter {
       js_function->body = compiled_body->js_body;
     }
 
-    const auto js_call = js::make_call(js::make_id(JJ_F_MODULE), {});
+    for (const auto before_js_node : before) {
+      js_function->body->nodes.insert(js_function->body->nodes.begin(),
+                                      before_js_node);
+    }
+
+    const auto js_call = js::make_call(js::make_id(JJ_F_MODULE), {js_function});
 
     return success(module_subject, js::make_await(js_call));
   }

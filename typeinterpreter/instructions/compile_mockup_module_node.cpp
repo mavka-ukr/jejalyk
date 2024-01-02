@@ -10,7 +10,7 @@ namespace jejalyk::typeinterpreter {
           "Модуль може бути визначений лише всередині іншого модуля.");
     }
     const auto module_compilation_result = scope->compile_module(
-        mockup_module_node->name, &mockup_module_node->elements);
+        mockup_module_node->name, &mockup_module_node->elements, "", {});
     if (module_compilation_result->error) {
       return module_compilation_result;
     }

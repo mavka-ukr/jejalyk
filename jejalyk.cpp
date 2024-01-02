@@ -126,7 +126,11 @@ namespace jejalyk {
       }
     }
 
-    const auto program_scope = std_scope->make_child();
+    for (const auto& [std_var_name, std_var_value] : std_scope->variables) {
+      root_scope->set_local(std_var_name, std_var_value);
+    }
+
+    const auto program_scope = root_scope->make_child();
     program_scope->is_async = true;
 
     root_scope->options = options;
@@ -166,11 +170,17 @@ namespace jejalyk {
     const auto program_string =
         jejalyk::js::stringify_body(program_result->js_body);
 
+    std::string modules_string;
+    for (const auto& [module_hash_name, module_js_node] : options->modules) {
+      modules_string += ("\n" + js::stringify(module_js_node));
+    }
+
     END_CHRONO(transpile_program, "transpiling ", options->current_module_path)
 
     const auto program_compilation_result = new CompilationResult();
-    program_compilation_result->result =
-        MAVKA_HEAD_JS + "\n" + std_string + "\n" + program_string;
+    program_compilation_result->result = MAVKA_HEAD_JS + "\n" + std_string +
+                                         "\n" + modules_string + "\n" +
+                                         program_string;
     // program_compilation_result->result = program_string;
 
     END_CHRONO(overall, "overall ", options->current_module_path)

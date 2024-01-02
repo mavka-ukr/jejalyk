@@ -314,6 +314,13 @@ namespace jejalyk::js {
     return js_assign_node;
   }
 
+  inline JsAssignNode* make_assign(std::string left, std::string value) {
+    const auto js_assign_node = new JsAssignNode();
+    js_assign_node->identifier = make_id(left);
+    js_assign_node->value = make_id(value);
+    return js_assign_node;
+  }
+
   inline JsNegativeNode* make_negative(JsNode* value) {
     const auto js_negative_node = new JsNegativeNode();
     js_negative_node->value = value;
@@ -528,25 +535,41 @@ namespace jejalyk::js {
       return "throw " + stringify(js_throw_node->value, depth);
     }
     if (const auto js_try_node = dynamic_cast<JsTryNode*>(js_node)) {
+      std::string prefix;
+      for (size_t i = 0; i < depth; ++i) {
+        prefix += " ";
+      }
       return "try {\n" + stringify_body(js_try_node->try_body, depth + 1) +
-             "\n} catch (" + js_try_node->name + ") {\n" +
-             stringify_body(js_try_node->catch_body, depth + 1) + "\n}";
+             "\n" + prefix + "} catch (" + js_try_node->name + ") {\n" +
+             stringify_body(js_try_node->catch_body, depth + 1) + "\n" +
+             prefix + "}";
     }
     if (const auto js_await_node = dynamic_cast<JsAwaitNode*>(js_node)) {
       return "await " + stringify(js_await_node->value, depth);
     }
     if (const auto js_while_node = dynamic_cast<JsWhileNode*>(js_node)) {
+      std::string prefix;
+      for (size_t i = 0; i < depth; ++i) {
+        prefix += " ";
+      }
       return "while (" + stringify(js_while_node->condition, depth) + ") {\n" +
-             stringify_body(js_while_node->body, depth + 1) + "\n}";
+             stringify_body(js_while_node->body, depth + 1) + "\n" + prefix +
+             "}";
     }
     if (const auto js_if_node = dynamic_cast<JsIfNode*>(js_node)) {
+      std::string prefix;
+      for (size_t i = 0; i < depth; ++i) {
+        prefix += " ";
+      }
       if (js_if_node->else_body && !js_if_node->else_body->nodes.empty()) {
         return "if (" + stringify(js_if_node->condition, depth) + ") {\n" +
-               stringify_body(js_if_node->body, depth + 1) + "\n} else {\n" +
-               stringify_body(js_if_node->else_body, depth + 1) + "\n}";
+               stringify_body(js_if_node->body, depth + 1) + "\n" + prefix +
+               "} else {\n" + stringify_body(js_if_node->else_body, depth + 1) +
+               "\n" + prefix + "}";
       } else {
         return "if (" + stringify(js_if_node->condition, depth) + ") {\n" +
-               stringify_body(js_if_node->body, depth + 1) + "\n}";
+               stringify_body(js_if_node->body, depth + 1) + "\n" + prefix +
+               "}";
       }
     }
     if (const auto js_continue_node = dynamic_cast<JsContinueNode*>(js_node)) {
@@ -568,9 +591,13 @@ namespace jejalyk::js {
       if (!js_function_node->name.empty()) {
         head += " " + js_function_node->name;
       }
+      std::string prefix;
+      for (size_t i = 0; i < depth; ++i) {
+        prefix += " ";
+      }
       head += "(" + tools::implode(params, ", ") + ") {\n";
       return head + stringify_body(js_function_node->body, depth + 1) + "\n" +
-             tools::repeat_string(" ", depth) + "}";
+             prefix + "}";
     }
     if (const auto js_var_node = dynamic_cast<JsVarNode*>(js_node)) {
       return "var " + js_var_node->name;

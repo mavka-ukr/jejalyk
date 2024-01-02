@@ -367,7 +367,9 @@ namespace jejalyk::typeinterpreter {
     Result* compile_body(const std::vector<mavka::ast::ASTSome*>& body);
 
     Result* compile_module(std::string name,
-                           std::vector<mavka::ast::ASTSome*>* body);
+                           std::vector<mavka::ast::ASTSome*>* body,
+                           std::string path,
+                           std::vector<js::JsNode*> before);
 
     Result* error(mavka::ast::ASTNode* node, const std::string& message) const;
   };
