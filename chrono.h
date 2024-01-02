@@ -1,7 +1,7 @@
 #ifndef CHRONO_H
 #define CHRONO_H
 
-#define CHRONO_ON 1
+#define CHRONO_ON 0
 
 #if CHRONO_ON
 #define START_CHRONO(name)                                                   \

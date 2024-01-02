@@ -18,4 +18,4 @@ namespace jejalyk::typeinterpreter {
     options_clone->get_remote_module_code = this->get_remote_module_code;
     return options_clone;
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter
