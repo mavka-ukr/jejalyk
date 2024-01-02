@@ -35,7 +35,7 @@ namespace jejalyk::typeinterpreter {
       return result;
     }
 
-    return error_from_ast(test_node,
-                          "Невідома вказівка \"" + test_node->op + "\".");
+    return scope->error(test_node,
+                        "Невідома вказівка \"" + test_node->op + "\".");
   }
 } // namespace jejalyk::typeinterpreter

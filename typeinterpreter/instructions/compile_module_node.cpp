@@ -4,7 +4,7 @@ namespace jejalyk::typeinterpreter {
   Result* compile_module_node(Scope* scope,
                               mavka::ast::ModuleNode* module_node) {
     if (!scope->get_is_async()) {
-      return error_from_ast(
+      return scope->error(
           module_node,
           "Модуль може бути визначений лише всередині іншого модуля.");
     }

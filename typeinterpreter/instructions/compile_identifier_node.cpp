@@ -4,7 +4,7 @@ namespace jejalyk::typeinterpreter {
   Result* compile_identifier_node(Scope* scope,
                                   mavka::ast::IdentifierNode* identifier_node) {
     if (!scope->has(identifier_node->name)) {
-      return error_from_ast(
+      return scope->error(
           identifier_node,
           "Субʼєкт \"" + identifier_node->name + "\" не визначено.");
     }

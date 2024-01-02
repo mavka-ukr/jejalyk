@@ -338,6 +338,8 @@ namespace jejalyk::typeinterpreter {
 
     Result* compile_module(std::string name,
                            std::vector<mavka::ast::ASTSome*>* body);
+
+    Result* error(mavka::ast::ASTNode* node, const std::string& message) const;
   };
 
   class Param final {
@@ -402,21 +404,19 @@ namespace jejalyk::typeinterpreter {
                                     std::vector<Subject*> generic_types,
                                     Subject* subject);
 
-  Result* error_0(const mavka::ast::ASTNode* node,
+  Result* error_0(Scope* scope,
+                  mavka::ast::ASTNode* node,
                   const std::string& subject_name,
                   Subject* expected,
                   Subject* got);
-  Result* error_1(const mavka::ast::ASTNode* node,
+  Result* error_1(Scope* scope,
+                  mavka::ast::ASTNode* node,
                   const std::string& subject_name);
-  Result* error_2(const mavka::ast::ASTNode* node,
+  Result* error_2(Scope* scope,
+                  mavka::ast::ASTNode* node,
                   const std::string& property_name,
                   Subject* subject);
 
-  Result* error_from_ast(const mavka::ast::ASTNode* node,
-                         const std::string& message);
-  Result* error_from_ast(const mavka::ast::ASTNode* node,
-                         const Scope* scope,
-                         const std::string& message);
   Result* error(const std::string& message);
   Result* success(Subject* value);
   Result* success(Subject* value, jejalyk::js::JsNode* js_node);

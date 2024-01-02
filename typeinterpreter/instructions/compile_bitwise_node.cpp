@@ -76,7 +76,7 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    return error_from_ast(bitwise_node,
-                          "Невідома вказівка \"" + bitwise_node->op + "\".");
+    return scope->error(bitwise_node,
+                        "Невідома вказівка \"" + bitwise_node->op + "\".");
   }
 } // namespace typeinterpreter

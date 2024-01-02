@@ -21,7 +21,7 @@ namespace jejalyk::typeinterpreter {
 
     if (value_result->value->is_object(scope)) {
       if (scope->get_options()->is_strict_mode()) {
-        return error_from_ast(
+        return scope->error(
             call_node,
             "Неможливо скомпілювати виклик обʼєкта. Ви можете викликати обʼєкт "
             "динамічно без перевірки типів через \"Дія.викликати(значення, "
@@ -29,9 +29,9 @@ namespace jejalyk::typeinterpreter {
       } else {
         for (const auto& arg_node : call_node->args) {
           if (!arg_node->name.empty()) {
-            return error_from_ast(arg_node,
-                                  "Неможливо скомпілювати виклик значення типу "
-                                  "\"обʼєкт\" з назвами параметрів.");
+            return scope->error(arg_node,
+                                "Неможливо скомпілювати виклик значення типу "
+                                "\"обʼєкт\" з назвами параметрів.");
           }
           const auto arg_value_result = scope->compile_node(arg_node->value);
           if (arg_value_result->error) {
@@ -91,9 +91,8 @@ namespace jejalyk::typeinterpreter {
                   args.push_back(diia_param->types);
                   js_args.push_back(js::make_id("undefined"));
                 } else {
-                  return error_from_ast(
-                      call_node,
-                      "Пропущено аргумент \"" + diia_param->name + "\".");
+                  return scope->error(call_node, "Пропущено аргумент \"" +
+                                                     diia_param->name + "\".");
                 }
               } else {
                 const auto arg_value_result =
@@ -135,9 +134,8 @@ namespace jejalyk::typeinterpreter {
                   args.push_back(diia_param->types);
                   js_args.push_back(js::make_id("undefined"));
                 } else {
-                  return error_from_ast(
-                      call_node,
-                      "Пропущено аргумент \"" + diia_param->name + "\".");
+                  return scope->error(call_node, "Пропущено аргумент \"" +
+                                                     diia_param->name + "\".");
                 }
               } else {
                 const auto arg_value_result =
@@ -153,13 +151,13 @@ namespace jejalyk::typeinterpreter {
           }
         } else {
           if (!args.empty()) {
-            return error_from_ast(call_node, "Забагато аргументів.");
+            return scope->error(call_node, "Забагато аргументів.");
           }
         }
       } else {
         // named
-        return error_from_ast(call_node,
-                              "Аргументи з назвами тимчасово недоступні.");
+        return scope->error(call_node,
+                            "Аргументи з назвами тимчасово недоступні.");
       }
     }
 

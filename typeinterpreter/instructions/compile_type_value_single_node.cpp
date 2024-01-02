@@ -29,15 +29,15 @@ namespace jejalyk::typeinterpreter {
           if (type_value_single_node->generics.size() >
               type_value_single_result->value->types[0]
                   ->object->generic_definitions.size()) {
-            return error_from_ast(type_value_single_node,
-                                  "Забагато аргументів шаблону.");
+            return scope->error(type_value_single_node,
+                                "Забагато аргументів шаблону.");
           }
 
           if (type_value_single_node->generics.size() <
               type_value_single_result->value->types[0]
                   ->object->generic_definitions.size()) {
-            return error_from_ast(type_value_single_node,
-                                  "Недостатньо аргументів шаблону.");
+            return scope->error(type_value_single_node,
+                                "Недостатньо аргументів шаблону.");
           }
         }
       }
@@ -45,13 +45,13 @@ namespace jejalyk::typeinterpreter {
 
     if (!type_value_single_node->generics.empty()) {
       if (type_value_single_result->value->types.size() != 1) {
-        return error_from_ast(type_value_single_node,
-                              "Неможливо застосувати аргументи шаблону до "
-                              "типу з різними можливими значеннями.");
+        return scope->error(type_value_single_node,
+                            "Неможливо застосувати аргументи шаблону до "
+                            "типу з різними можливими значеннями.");
       }
 
       if (type_value_single_result->value->types[0]->generic_definition) {
-        return error_from_ast(
+        return scope->error(
             type_value_single_node,
             "Неможливо використовувати аргументи шаблону для шаблону.");
       }

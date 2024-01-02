@@ -9,7 +9,7 @@ namespace jejalyk::typeinterpreter {
       }
 
       if (!left_result->value->has(scope, right_identifier_node->name)) {
-        return error_2(chain_node, right_identifier_node->name,
+        return error_2(scope,chain_node, right_identifier_node->name,
                        left_result->value);
       }
 

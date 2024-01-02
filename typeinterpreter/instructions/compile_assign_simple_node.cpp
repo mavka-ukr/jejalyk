@@ -11,7 +11,7 @@ namespace jejalyk::typeinterpreter {
 
     if (assign_simple_node->op == "=" || assign_simple_node->op == "це") {
       if (scope->get_root()->has(assign_simple_node->name)) {
-        return error_1(assign_simple_node, assign_simple_node->name);
+        return error_1(scope, assign_simple_node, assign_simple_node->name);
       }
 
       // а = б
@@ -22,7 +22,7 @@ namespace jejalyk::typeinterpreter {
         if (scope->has_local(assign_simple_node->name)) {
           const auto local_subject = scope->get_local(assign_simple_node->name);
           if (!scope->check_subjects(value_result->value, local_subject)) {
-            return error_0(assign_simple_node, assign_simple_node->name,
+            return error_0(scope, assign_simple_node, assign_simple_node->name,
                            local_subject, value_result->value);
           }
           return success(local_subject, js_assign_node);
@@ -34,7 +34,7 @@ namespace jejalyk::typeinterpreter {
         }
       } else {
         if (scope->has_local(assign_simple_node->name)) {
-          return error_1(assign_simple_node, assign_simple_node->name);
+          return error_1(scope, assign_simple_node, assign_simple_node->name);
         }
 
         const auto types_result =
@@ -44,7 +44,7 @@ namespace jejalyk::typeinterpreter {
         }
 
         if (!scope->check_subjects(value_result->value, types_result->value)) {
-          return error_0(assign_simple_node, assign_simple_node->name,
+          return error_0(scope, assign_simple_node, assign_simple_node->name,
                          types_result->value, value_result->value);
         }
 
@@ -55,7 +55,7 @@ namespace jejalyk::typeinterpreter {
     } else if (assign_simple_node->op == ":=") {
       const auto parent_scope = scope->get_parent();
       if (!parent_scope->has(assign_simple_node->name)) {
-        return error_from_ast(
+        return scope->error(
             assign_simple_node,
             "Субʼєкт \"" + assign_simple_node->name + "\" не визначено.");
       }
@@ -103,7 +103,7 @@ namespace jejalyk::typeinterpreter {
         op = "^";
         bitwise = true;
       } else {
-        return error_from_ast(
+        return scope->error(
             assign_simple_node,
             "Невідома вказівка \"" + assign_simple_node->op + "\".");
       }

@@ -121,9 +121,9 @@ namespace jejalyk::typeinterpreter {
       if (left_result->value->is_number(scope) &&
           right_result->value->is_number(scope)) {
         if (js_comp_symbol.empty()) {
-          return error_from_ast(comparison_node,
-                                "[INTERNAL BUG] Невідома вказівка \"" +
-                                    comparison_node->op + "\".");
+          return scope->error(comparison_node,
+                              "[INTERNAL BUG] Невідома вказівка \"" +
+                                  comparison_node->op + "\".");
         }
         // а > б
         return success(result->value,
@@ -152,7 +152,7 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    return error_from_ast(
+    return scope->error(
           comparison_node, "Невідома вказівка \"" + comparison_node->op + "\".");
   }
 } // namespace typeinterpreter

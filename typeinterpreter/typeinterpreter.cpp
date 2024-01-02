@@ -44,52 +44,32 @@ namespace jejalyk::typeinterpreter {
     return processed_subject;
   }
 
-  Result* error_0(const mavka::ast::ASTNode* node,
+  Result* error_0(Scope* scope,
+                  mavka::ast::ASTNode* node,
                   const std::string& subject_name,
                   Subject* expected,
                   Subject* got) {
-    return error_from_ast(node, "Невірний тип субʼєкта \"" + subject_name +
-                                    "\": "
-                                    "очікується \"" +
-                                    expected->types_string() +
-                                    "\", отримано \"" + got->types_string() +
-                                    "\".");
+    return scope->error(node, "Невірний тип субʼєкта \"" + subject_name +
+                                  "\": "
+                                  "очікується \"" +
+                                  expected->types_string() + "\", отримано \"" +
+                                  got->types_string() + "\".");
   }
 
-  Result* error_1(const mavka::ast::ASTNode* node,
+  Result* error_1(Scope* scope,
+                  mavka::ast::ASTNode* node,
                   const std::string& subject_name) {
-    return error_from_ast(node,
-                          "Субʼєкт \"" + subject_name + "\" вже визначено.");
+    return scope->error(node,
+                        "Субʼєкт \"" + subject_name + "\" вже визначено.");
   }
 
-  Result* error_2(const mavka::ast::ASTNode* node,
+  Result* error_2(Scope* scope,
+                  mavka::ast::ASTNode* node,
                   const std::string& property_name,
                   Subject* subject) {
-    return error_from_ast(node, "Неможливо отримати властивість \"" +
-                                    property_name + "\" з типу \"" +
-                                    subject->types_string() + "\".");
-  }
-
-  Result* error_from_ast(const mavka::ast::ASTNode* node,
-                         const std::string& message) {
-    const auto result = new Result();
-    result->error = new Error();
-    result->error->line = node->start_line;
-    result->error->column = node->start_column;
-    result->error->message = message;
-    return result;
-  }
-
-  Result* error_from_ast(const mavka::ast::ASTNode* node,
-                         const Scope* scope,
-                         const std::string& message) {
-    const auto result = new Result();
-    result->error = new Error();
-    result->error->path = scope->get_options()->current_module_path;
-    result->error->line = node->start_line;
-    result->error->column = node->start_column;
-    result->error->message = message;
-    return result;
+    return scope->error(node, "Неможливо отримати властивість \"" +
+                                  property_name + "\" з типу \"" +
+                                  subject->types_string() + "\".");
   }
 
   Result* error(const std::string& message) {

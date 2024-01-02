@@ -16,7 +16,7 @@ namespace jejalyk::typeinterpreter {
 
     if (each_node->keyName.empty()) {
       if (loop_scope->has_local(each_node->name)) {
-        return error_1(each_node, each_node->name);
+        return error_1(scope,each_node, each_node->name);
       }
       if (value_result->value->is_iterator(loop_scope)) {
         // перебрати а як х
@@ -133,23 +133,23 @@ namespace jejalyk::typeinterpreter {
 
           return success(nullptr, js_for_node);
         } else {
-          return error_from_ast(
-              each_node, "Неможливо перебрати \"" +
-                             value_result->value->types_string() + "\".");
-        }
-      } else {
-        return error_from_ast(each_node,
+          return scope->error(each_node,
                               "Неможливо перебрати \"" +
                                   value_result->value->types_string() + "\".");
+        }
+      } else {
+        return scope->error(each_node, "Неможливо перебрати \"" +
+                                           value_result->value->types_string() +
+                                           "\".");
       }
     } else {
       if (loop_scope->has_local(each_node->name)) {
-        return error_1(each_node, each_node->name);
+        return error_1(scope,each_node, each_node->name);
       }
       if (loop_scope->has_local(each_node->keyName)) {
-        return error_1(each_node, each_node->keyName);
+        return error_1(scope,each_node, each_node->keyName);
       }
-      return error_from_ast(each_node, "Перебір з ключем тимчасово недоступний.");
+      return scope->error(each_node, "Перебір з ключем тимчасово недоступний.");
     }
   }
 } // namespace typeinterpreter

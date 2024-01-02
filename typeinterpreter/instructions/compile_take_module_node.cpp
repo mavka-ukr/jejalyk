@@ -4,7 +4,7 @@ namespace jejalyk::typeinterpreter {
   Result* compile_take_module_node(
       Scope* scope,
       mavka::ast::TakeModuleNode* take_module_node) {
-    return error_from_ast(take_module_node,
-                          "Взяття модуля тимчасово недоступне.");
+    return scope->error(take_module_node,
+                        "Вказівка \"взяти\" тимчасово недоступна.");
   }
 } // namespace typeinterpreter

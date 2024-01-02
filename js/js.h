@@ -603,7 +603,7 @@ namespace jejalyk::js {
       return "new Map([" + tools::implode(elements, ", ") + "])";
     }
     if (const auto js_raw_node = dynamic_cast<JsRawNode*>(js_node)) {
-      return "//[JS]\n" + js_raw_node->code + "\n//[/JS]";
+      return js_raw_node->code;
     }
     if (const auto js_element_node = dynamic_cast<JsElementNode*>(js_node)) {
       return stringify(js_element_node->value, depth) + "[" +

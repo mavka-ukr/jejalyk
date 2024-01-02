@@ -15,29 +15,29 @@ namespace jejalyk::typeinterpreter {
       std::vector<mavka::ast::ASTSome*>* body) {
     if (!structure.empty()) {
       if (ee) {
-        return error_from_ast(node, "Спеціальні дії тимчасово недоступні.");
+        return scope->error(node, "Спеціальні дії тимчасово недоступні.");
       }
       if (!scope->has_local(structure)) {
-        return error_from_ast(
+        return scope->error(
             node, "[INTERNAL BUG] Субʼєкт \"" + structure + "\" не визначено.");
       }
       const auto structure_subject = scope->get_local(structure);
       if (!structure_subject->is_structure(scope)) {
-        return error_from_ast(node, "[INTERNAL BUG] Субʼєкт \"" + structure +
-                                        "\" не є структурою.");
+        return scope->error(node, "[INTERNAL BUG] Субʼєкт \"" + structure +
+                                      "\" не є структурою.");
       }
       const auto structure_type = structure_subject->types[0];
       const auto structure_object = structure_type->object;
       for (const auto param : structure_object->params) {
         if (param->name == name) {
-          return error_from_ast(node, "[INTERNAL BUG] Параметр \"" + name +
-                                          "\" вже визначено в структурі \"" +
-                                          structure + "\".");
+          return scope->error(node, "[INTERNAL BUG] Параметр \"" + name +
+                                        "\" вже визначено в структурі \"" +
+                                        structure + "\".");
         }
       }
       if (!structure_object->methods.contains(name)) {
-        return error_from_ast(node, "[INTERNAL BUG] Субʼєкт \"" + structure +
-                                        "\" не має методу \"" + name + "\".");
+        return scope->error(node, "[INTERNAL BUG] Субʼєкт \"" + structure +
+                                      "\" не має методу \"" + name + "\".");
       }
 
       const auto diia_type = structure_object->methods[name];
@@ -78,7 +78,7 @@ namespace jejalyk::typeinterpreter {
     }
 
     if (!scope->has_local(name)) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Дія \"" + name + "\" попередньо не визначена.");
     }
 

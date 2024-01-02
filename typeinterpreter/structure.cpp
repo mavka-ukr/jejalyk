@@ -34,15 +34,15 @@ namespace jejalyk::typeinterpreter {
       structure_object->parent = scope->create_object_instance_type();
       structure_object->parent_js = js::make_id("обʼєкт");
     } else {
-      return error_from_ast(mavka::ast::get_ast_node(parent),
-                            "Наслідування тимчасово не підтримується.");
+      return scope->error(mavka::ast::get_ast_node(parent),
+                          "Наслідування тимчасово не підтримується.");
       // const auto parent_result = scope->compile_node(parent);
       // if (parent_result->error) {
       //   return parent_result;
       // }
       //
       // if (!parent_result->value->is_structure(scope)) {
-      //   return error_from_ast(parent, "Предок має бути структурою.");
+      //   return scope->error(parent, "Предок має бути структурою.");
       // }
       //
       // structure_object->parent = parent_result->value->types[0];
@@ -124,16 +124,16 @@ namespace jejalyk::typeinterpreter {
 
       if (param_node->ee) {
         if (param_node->name == "створити") {
-          return error_from_ast(
+          return scope->error(
               param_node,
               "Неможливо перевизначити спеціальну властивість \"створити\".");
         }
         for (const auto& [property_name, property_subject] :
              structure_object->properties) {
           if (property_name == param_node->name) {
-            return error_from_ast(param_node, "Спеціальну властивість \"" +
-                                                  param_node->name +
-                                                  "\" вже визначено.");
+            return scope->error(param_node, "Спеціальну властивість \"" +
+                                                param_node->name +
+                                                "\" вже визначено.");
           }
         }
         structure_object->properties.insert_or_assign(param_node->name,
@@ -141,7 +141,7 @@ namespace jejalyk::typeinterpreter {
       } else {
         for (const auto sparam : structure_object->params) {
           if (sparam->name == param_node->name) {
-            return error_from_ast(
+            return scope->error(
                 param_node,
                 "Властивість \"" + param_node->name + "\" вже визначено.");
           }
@@ -149,7 +149,7 @@ namespace jejalyk::typeinterpreter {
         for (const auto& [method_name, method_type] :
              structure_object->methods) {
           if (method_name == param_node->name) {
-            return error_from_ast(
+            return scope->error(
                 param_node, "Дію \"" + param_node->name + "\" вже визначено.");
           }
         }
@@ -183,7 +183,7 @@ namespace jejalyk::typeinterpreter {
     //
     //   if (method_declaration_node->ee) {
     //     if (method_declaration_node->name == "створити") {
-    //       return error_from_ast(
+    //       return scope->error(
     //           method_declaration_node,
     //           "Неможливо перевизначити спеціальну властивість
     //           \"створити\".");
@@ -191,7 +191,7 @@ namespace jejalyk::typeinterpreter {
     //     for (const auto& [property_name, property_subject] :
     //          structure_object->properties) {
     //       if (property_name == method_declaration_node->name) {
-    //         return error_from_ast(method_declaration_node,
+    //         return scope->error(method_declaration_node,
     //                               "Спеціальну властивість \"" +
     //                                   method_declaration_node->name +
     //                                   "\" вже визначено.");
@@ -202,7 +202,7 @@ namespace jejalyk::typeinterpreter {
     //   } else {
     //     for (const auto param : structure_object->params) {
     //       if (param->name == method_declaration_node->name) {
-    //         return error_from_ast(method_declaration_node,
+    //         return scope->error(method_declaration_node,
     //                               "Властивість \"" +
     //                                   method_declaration_node->name +
     //                                   "\" вже визначено.");
@@ -211,7 +211,7 @@ namespace jejalyk::typeinterpreter {
     //     for (const auto& [method_name, method_type] :
     //          structure_object->methods) {
     //       if (method_name == method_declaration_node->name) {
-    //         return error_from_ast(
+    //         return scope->error(
     //             method_declaration_node,
     //             "Дію \"" + method_declaration_node->name + "\" вже
     //             визначено.");

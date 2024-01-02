@@ -5,7 +5,7 @@ namespace jejalyk::typeinterpreter {
       Scope* scope,
       mavka::ast::MockupSubjectNode* mockup_subject_node) {
     if (scope->has_local(mockup_subject_node->name)) {
-      return error_from_ast(
+      return scope->error(
           mockup_subject_node,
           "Субʼєкт \"" + mockup_subject_node->name + "\" вже визначено.");
     }

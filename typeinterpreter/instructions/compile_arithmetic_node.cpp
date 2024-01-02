@@ -109,6 +109,6 @@ namespace jejalyk::typeinterpreter {
       return result;
     }
 
-    return error_from_ast(arithmetic_node, "Невідома вказівка \"" + arithmetic_node->op + "\".");
+    return scope->error(arithmetic_node, "Невідома вказівка \"" + arithmetic_node->op + "\".");
   }
 } // namespace typeinterpreter

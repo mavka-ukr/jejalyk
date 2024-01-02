@@ -88,7 +88,7 @@ namespace jejalyk::typeinterpreter {
         op = "^";
         bitwise = true;
       } else {
-        return error_from_ast(
+        return scope->error(
             assign_by_element_node,
             "Невідома вказівка \"" + assign_by_element_node->op + "\".");
       }

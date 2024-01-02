@@ -212,12 +212,12 @@ namespace jejalyk::typeinterpreter {
                         std::vector<Subject*> generic_types,
                         std::vector<Subject*> args) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо викликати субʼєкт без типів.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо викликати субʼєкт з декількома типами.");
+      return scope->error(node,
+                          "Неможливо викликати субʼєкт з декількома типами.");
     }
     return types[0]->call(scope, node, generic_types, args);
   }
@@ -226,13 +226,13 @@ namespace jejalyk::typeinterpreter {
                                mavka::ast::ASTNode* node,
                                Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "[INTERNAL BUG] Неможливо отримати спеціальну "
-                            "властивість з субʼєкта невідомого "
-                            "типу.");
+      return scope->error(node,
+                          "[INTERNAL BUG] Неможливо отримати спеціальну "
+                          "властивість з субʼєкта невідомого "
+                          "типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(
+      return scope->error(
           node,
           "Неможливо отримати спеціальну властивість з субʼєкта декількох "
           "типів.");
@@ -245,13 +245,13 @@ namespace jejalyk::typeinterpreter {
                                Subject* element,
                                Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "[INTERNAL BUG] Неможливо встановити спеціальну "
-                            "властивість субʼєкта невідомого "
-                            "типу.");
+      return scope->error(node,
+                          "[INTERNAL BUG] Неможливо встановити спеціальну "
+                          "властивість субʼєкта невідомого "
+                          "типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(
+      return scope->error(
           node,
           "Неможливо встановити спеціальну властивість субʼєкта декількох "
           "типів.");
@@ -263,11 +263,11 @@ namespace jejalyk::typeinterpreter {
                         mavka::ast::ASTNode* node,
                         Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо додати субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо додати субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо додати субʼєкт декількох типів.");
     }
     return types[0]->plus(scope, node, value);
   }
@@ -276,11 +276,11 @@ namespace jejalyk::typeinterpreter {
                          mavka::ast::ASTNode* node,
                          Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо відняти субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо відняти субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо відняти субʼєкт декількох типів.");
     }
     return types[0]->minus(scope, node, value);
   }
@@ -289,12 +289,11 @@ namespace jejalyk::typeinterpreter {
                             mavka::ast::ASTNode* node,
                             Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо помножити субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо помножити субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо помножити субʼєкт декількох типів.");
     }
     return types[0]->multiply(scope, node, value);
   }
@@ -303,12 +302,11 @@ namespace jejalyk::typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо поділити субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо поділити субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо поділити субʼєкт декількох типів.");
     }
     return types[0]->divide(scope, node, value);
   }
@@ -317,11 +315,11 @@ namespace jejalyk::typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо divmod субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо divmod субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо divmod субʼєкт декількох типів.");
     }
     return types[0]->divmod(scope, node, value);
   }
@@ -330,11 +328,11 @@ namespace jejalyk::typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо divdiv субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо divdiv субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо divdiv субʼєкт декількох типів.");
     }
     return types[0]->divdiv(scope, node, value);
   }
@@ -343,12 +341,12 @@ namespace jejalyk::typeinterpreter {
                        mavka::ast::ASTNode* node,
                        Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node,
-                            "[INTERNAL BUG] Неможливо піднести субʼєкт "
-                            "невідомого типу до степеня.");
+      return scope->error(node,
+                          "[INTERNAL BUG] Неможливо піднести субʼєкт "
+                          "невідомого типу до степеня.");
     }
     if (types.size() > 1) {
-      return error_from_ast(
+      return scope->error(
           node, "Неможливо піднести субʼєкт декількох типів до степеня.");
     }
     return types[0]->pow(scope, node, value);
@@ -356,11 +354,11 @@ namespace jejalyk::typeinterpreter {
 
   Result* Subject::bw_not(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо bw_not субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо bw_not субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо bw_not субʼєкт декількох типів.");
     }
     return types[0]->bw_not(scope, node);
   }
@@ -369,11 +367,11 @@ namespace jejalyk::typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо bw_xor субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо bw_xor субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо bw_xor субʼєкт декількох типів.");
     }
     return types[0]->bw_xor(scope, node, value);
   }
@@ -382,11 +380,11 @@ namespace jejalyk::typeinterpreter {
                          mavka::ast::ASTNode* node,
                          Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо bw_or субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо bw_or субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо bw_or субʼєкт декількох типів.");
     }
     return types[0]->bw_or(scope, node, value);
   }
@@ -395,11 +393,11 @@ namespace jejalyk::typeinterpreter {
                           mavka::ast::ASTNode* node,
                           Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо bw_and субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо bw_and субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо bw_and субʼєкт декількох типів.");
     }
     return types[0]->bw_and(scope, node, value);
   }
@@ -408,13 +406,13 @@ namespace jejalyk::typeinterpreter {
                                  mavka::ast::ASTNode* node,
                                  Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо bw_shift_left субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо bw_shift_left субʼєкт декількох типів.");
+      return scope->error(node,
+                          "Неможливо bw_shift_left субʼєкт декількох типів.");
     }
     return types[0]->bw_shift_left(scope, node, value);
   }
@@ -423,89 +421,87 @@ namespace jejalyk::typeinterpreter {
                                   mavka::ast::ASTNode* node,
                                   Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо bw_shift_right субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(
-          node, "Неможливо bw_shift_right субʼєкт декількох типів.");
+      return scope->error(node,
+                          "Неможливо bw_shift_right субʼєкт декількох типів.");
     }
     return types[0]->bw_shift_right(scope, node, value);
   }
 
   Result* Subject::negative(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо negative субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо negative субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо negative субʼєкт декількох типів.");
     }
     return types[0]->negative(scope, node);
   }
 
   Result* Subject::positive(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node, "[INTERNAL BUG] Неможливо positive субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо positive субʼєкт декількох типів.");
+      return scope->error(node, "Неможливо positive субʼєкт декількох типів.");
     }
     return types[0]->positive(scope, node);
   }
 
   Result* Subject::post_decrement(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо post_decrement субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(
-          node, "Неможливо post_decrement субʼєкт декількох типів.");
+      return scope->error(node,
+                          "Неможливо post_decrement субʼєкт декількох типів.");
     }
     return types[0]->post_decrement(scope, node);
   }
 
   Result* Subject::post_increment(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо post_increment субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(
-          node, "Неможливо post_increment субʼєкт декількох типів.");
+      return scope->error(node,
+                          "Неможливо post_increment субʼєкт декількох типів.");
     }
     return types[0]->post_increment(scope, node);
   }
 
   Result* Subject::pre_decrement(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо pre_decrement субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо pre_decrement субʼєкт декількох типів.");
+      return scope->error(node,
+                          "Неможливо pre_decrement субʼєкт декількох типів.");
     }
     return types[0]->pre_decrement(scope, node);
   }
 
   Result* Subject::pre_increment(Scope* scope, mavka::ast::ASTNode* node) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо pre_increment субʼєкт невідомого типу.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо pre_increment субʼєкт декількох типів.");
+      return scope->error(node,
+                          "Неможливо pre_increment субʼєкт декількох типів.");
     }
     return types[0]->pre_increment(scope, node);
   }
@@ -538,15 +534,15 @@ namespace jejalyk::typeinterpreter {
                                 mavka::ast::ASTNode* node,
                                 Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого "
           "типу на більше з іншим субʼєктом.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт декількох "
-                            "типів на більше з іншим субʼєктом.");
+      return scope->error(node,
+                          "Неможливо порівняти субʼєкт декількох "
+                          "типів на більше з іншим субʼєктом.");
     }
     return types[0]->comp_greater(scope, node, value);
   }
@@ -555,15 +551,15 @@ namespace jejalyk::typeinterpreter {
                                mavka::ast::ASTNode* node,
                                Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого "
           "типу на менше з іншим субʼєктом.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт декількох "
-                            "типів на менше з іншим субʼєктом.");
+      return scope->error(node,
+                          "Неможливо порівняти субʼєкт декількох "
+                          "типів на менше з іншим субʼєктом.");
     }
     return types[0]->comp_lesser(scope, node, value);
   }
@@ -572,17 +568,17 @@ namespace jejalyk::typeinterpreter {
                                       mavka::ast::ASTNode* node,
                                       Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого "
           "типу на більше або дорівнює з іншим "
           "субʼєктом.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт декількох "
-                            "типів на більше або дорівнює з іншим "
-                            "субʼєктом.");
+      return scope->error(node,
+                          "Неможливо порівняти субʼєкт декількох "
+                          "типів на більше або дорівнює з іншим "
+                          "субʼєктом.");
     }
     return types[0]->comp_greater_or_eq(scope, node, value);
   }
@@ -591,17 +587,17 @@ namespace jejalyk::typeinterpreter {
                                      mavka::ast::ASTNode* node,
                                      Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого "
           "типу на менше або дорівнює з іншим "
           "субʼєктом.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт декількох "
-                            "типів на менше або дорівнює з іншим "
-                            "субʼєктом.");
+      return scope->error(node,
+                          "Неможливо порівняти субʼєкт декількох "
+                          "типів на менше або дорівнює з іншим "
+                          "субʼєктом.");
     }
     return types[0]->comp_lesser_or_eq(scope, node, value);
   }
@@ -635,15 +631,15 @@ namespace jejalyk::typeinterpreter {
                                  mavka::ast::ASTNode* node,
                                  Subject* value) {
     if (types.empty()) {
-      return error_from_ast(
+      return scope->error(
           node,
           "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого типу на "
           "наявність в іншому субʼєкті.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node,
-                            "Неможливо порівняти субʼєкт декількох типів на "
-                            "наявність в іншому субʼєкті.");
+      return scope->error(node,
+                          "Неможливо порівняти субʼєкт декількох типів на "
+                          "наявність в іншому субʼєкті.");
     }
     return types[0]->comp_contains(scope, node, value);
   }
@@ -652,10 +648,10 @@ namespace jejalyk::typeinterpreter {
                             mavka::ast::ASTNode* node,
                             Subject* value) {
     if (types.empty()) {
-      return error_from_ast(node, "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого типу на відсутність в іншому субʼєкті.");
+      return scope->error(node, "[INTERNAL BUG] Неможливо порівняти субʼєкт невідомого типу на відсутність в іншому субʼєкті.");
     }
     if (types.size() > 1) {
-      return error_from_ast(node, "Неможливо порівняти субʼєкт декількох типів на відсутність в іншому субʼєкті.");
+      return scope->error(node, "Неможливо порівняти субʼєкт декількох типів на відсутність в іншому субʼєкті.");
     }
     return types[0]->comp_contains_not(scope, node, value);
   }
@@ -694,7 +690,7 @@ namespace jejalyk::typeinterpreter {
 
   Result* Subject::get_iterator_type(Scope* scope, mavka::ast::ASTNode* node) {
     if (!this->is_iterator(scope)) {
-      return error_from_ast(node, "Неможливо отримати тип ітератора.");
+      return scope->error(node, "Неможливо отримати тип ітератора.");
     }
     return types[0]->get_iterator_type(scope, node);
   }
@@ -711,7 +707,7 @@ namespace jejalyk::typeinterpreter {
 
   Result* Subject::get_awaiting_value(Scope* scope, mavka::ast::ASTNode* node) {
     if (!this->is_awaiting(scope)) {
-      return error_from_ast(node, "Неможливо отримати тип очікування.");
+      return scope->error(node, "Неможливо отримати тип очікування.");
     }
     return types[0]->get_awaiting_type(scope, node);
   }

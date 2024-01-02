@@ -40,8 +40,8 @@ namespace jejalyk::typeinterpreter {
     for (const auto param_node : params) {
       for (const auto param : diia_object->params) {
         if (param->name == param_node->name) {
-          return error_from_ast(param_node, "Параметр \"" + param_node->name +
-                                                "\" вже визначено.");
+          return scope->error(param_node, "Параметр \"" + param_node->name +
+                                              "\" вже визначено.");
         }
       }
 

@@ -426,10 +426,10 @@ namespace jejalyk::typeinterpreter {
 
   Result* Scope::compile_node(mavka::ast::ASTSome* node) {
     if (!node) {
-      return error("empty node");
+      return error(nullptr, "null node");
     }
     if (node->is_nullptr()) {
-      return error("nullptr node");
+      return error(nullptr, "nullptr node");
     }
 
     if (node->AnonDiiaNode) {
@@ -645,7 +645,7 @@ namespace jejalyk::typeinterpreter {
       return compile_while_node(this, node->WhileNode);
     }
 
-    return error_from_ast(mavka::ast::get_ast_node(node), "unsupported node");
+    return this->error(mavka::ast::get_ast_node(node), "unsupported node");
   }
 
   Result* Scope::compile_body(const std::vector<mavka::ast::ASTSome*>& body) {
@@ -673,10 +673,9 @@ namespace jejalyk::typeinterpreter {
             }
           }
         } else {
-          return error_from_ast(
-              mavka::ast::get_ast_node(node),
-              "Невідомий компіляторний інструкційний блок \"" +
-                  node->CompInstBlockProgramNode->name + "\".");
+          return this->error(mavka::ast::get_ast_node(node),
+                             "Невідомий компіляторний інструкційний блок \"" +
+                                 node->CompInstBlockProgramNode->name + "\".");
         }
       } else {
         processed_body.push_back(node);
@@ -694,7 +693,7 @@ namespace jejalyk::typeinterpreter {
       if (const auto mockup_structure_node = node->MockupStructureNode) {
         if (this->has_local(mockup_structure_node->name) ||
             this->get_root()->has_local(mockup_structure_node->name)) {
-          return error_from_ast(
+          return this->error(
               node->MockupStructureNode,
               "Субʼєкт \"" + mockup_structure_node->name + "\" вже визначено.");
         }
@@ -713,7 +712,7 @@ namespace jejalyk::typeinterpreter {
       if (const auto structure_node = node->StructureNode) {
         if (this->has_local(structure_node->name) ||
             this->get_root()->has_local(structure_node->name)) {
-          return error_from_ast(
+          return this->error(
               node->StructureNode,
               "Субʼєкт \"" + structure_node->name + "\" вже визначено.");
         }
@@ -771,9 +770,8 @@ namespace jejalyk::typeinterpreter {
         if (diia_structure.empty()) {
           if (this->has_local(diia_name) ||
               this->get_root()->has_local(diia_name)) {
-            return error_from_ast(
-                mavka::ast::get_ast_node(node),
-                "Субʼєкт \"" + diia_name + "\" вже визначено.");
+            return this->error(mavka::ast::get_ast_node(node),
+                               "Субʼєкт \"" + diia_name + "\" вже визначено.");
           }
           const auto scope = this->make_child();
           const auto diia_declaration_result = declare_diia(
@@ -790,7 +788,7 @@ namespace jejalyk::typeinterpreter {
           if (this->has_local(diia_structure)) {
             const auto structure_subject = this->get_local(diia_structure);
             if (!structure_subject->is_structure(this)) {
-              return error_from_ast(
+              return this->error(
                   mavka::ast::get_ast_node(node),
                   "Субʼєкт \"" + diia_structure + "\" не є структурою.");
             }
@@ -799,17 +797,17 @@ namespace jejalyk::typeinterpreter {
             const auto structure_object = structure_type->object;
 
             if (structure_object->properties.contains(diia_name)) {
-              return error_from_ast(mavka::ast::get_ast_node(node),
-                                    "Властивість \"" + diia_name +
-                                        "\" вже визначено в структурі \"" +
-                                        diia_structure + "\".");
+              return this->error(mavka::ast::get_ast_node(node),
+                                 "Властивість \"" + diia_name +
+                                     "\" вже визначено в структурі \"" +
+                                     diia_structure + "\".");
             }
 
             if (structure_object->methods.contains(diia_name)) {
-              return error_from_ast(mavka::ast::get_ast_node(node),
-                                    "Метод \"" + diia_name +
-                                        "\" вже визначено в структурі \"" +
-                                        diia_structure + "\".");
+              return this->error(mavka::ast::get_ast_node(node),
+                                 "Метод \"" + diia_name +
+                                     "\" вже визначено в структурі \"" +
+                                     diia_structure + "\".");
             }
 
             const auto diia_scope = this->make_child();
@@ -829,7 +827,7 @@ namespace jejalyk::typeinterpreter {
             structure_object->methods.insert_or_assign(
                 diia_name, diia_declaration_result->value->types[0]);
           } else {
-            return error_from_ast(
+            return this->error(
                 mavka::ast::get_ast_node(node),
                 "Субʼєкт \"" + diia_structure + "\" не визначено.");
           }
@@ -976,4 +974,17 @@ namespace jejalyk::typeinterpreter {
     return success(module_subject, js_call);
   }
 
+  Result* Scope::error(mavka::ast::ASTNode* node,
+                       const std::string& message) const {
+    const auto result = new Result();
+    const auto error = new Error();
+    error->path = this->get_options()->current_module_path;
+    if (node) {
+      error->line = node->start_line;
+      error->column = node->start_column;
+    }
+    error->message = message;
+    result->error = error;
+    return result;
+  }
 } // namespace typeinterpreter

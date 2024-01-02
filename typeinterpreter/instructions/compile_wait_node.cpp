@@ -3,7 +3,7 @@
 namespace jejalyk::typeinterpreter {
   Result* compile_wait_node(Scope* scope, mavka::ast::WaitNode* wait_node) {
     if (!scope->get_is_async()) {
-      return error_from_ast(
+      return scope->error(
           wait_node,
           "Вказівка \"чекати\" доступна лише в модулі або тривалій дії.");
     }

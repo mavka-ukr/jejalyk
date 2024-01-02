@@ -10,7 +10,7 @@ namespace jejalyk::typeinterpreter {
 
     const auto diia_object = scope->get_diia_object();
     if (!diia_object) {
-      return error_from_ast(return_node, "Неможливо вернути за межами дії.");
+      return scope->error(return_node, "Неможливо вернути за межами дії.");
     }
 
     Subject* return_types = nullptr;
@@ -26,7 +26,7 @@ namespace jejalyk::typeinterpreter {
     }
 
     if (!scope->check_subjects(value_result->value, return_types)) {
-      return error_from_ast(
+      return scope->error(
           return_node, "Неправильний тип поверненого значення: очікується \"" +
                            return_types->types_string() + "\", отримано \"" +
                            value_result->value->types_string() + "\".");

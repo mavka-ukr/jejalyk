@@ -5,7 +5,7 @@ namespace jejalyk::typeinterpreter {
       Scope* scope,
       mavka::ast::MockupModuleNode* mockup_module_node) {
     if (!scope->get_is_async()) {
-      return error_from_ast(
+      return scope->error(
           mockup_module_node,
           "Модуль може бути визначений лише всередині іншого модуля.");
     }

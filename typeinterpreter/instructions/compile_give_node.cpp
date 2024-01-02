@@ -4,8 +4,7 @@ namespace jejalyk::typeinterpreter {
   Result* compile_give_node(Scope* scope, mavka::ast::GiveNode* give_node) {
     const auto module_object = scope->get_module_object();
     if (module_object == nullptr) {
-      return error_from_ast(give_node,
-                            "Вказівка \"дати\" працює лише в модулі.");
+      return scope->error(give_node, "Вказівка \"дати\" працює лише в модулі.");
     }
 
     const auto js_flat_body = new js::JsFlatBodyNode();
@@ -26,8 +25,8 @@ namespace jejalyk::typeinterpreter {
           module_object->properties.insert_or_assign(element_node->as, subject);
         }
       } else {
-        return error_from_ast(give_node, "Невідомий субʼєкт для давання \"" +
-                                             element_node->name + "\".");
+        return scope->error(give_node, "Невідомий субʼєкт для давання \"" +
+                                           element_node->name + "\".");
       }
     }
 

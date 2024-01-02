@@ -204,6 +204,19 @@ function мГарно(value) {
   return convert(value, 0);
 }
 
+function мТекст(v) {
+  if (typeof v === "string") {
+    return v;
+  }
+  if (typeof v === "number") {
+    return v;
+  }
+  if (typeof v === "boolean") {
+    return v ? "так" : "ні";
+  }
+  return "<обʼєкт>";
+}
+
 function мНазваТипу(value) {
   if (value == null) {
     return "пусто";
@@ -334,4 +347,39 @@ function мВикликати(a, args) {
     return magic(...args);
   }
   throw new Падіння(`Неможливо викликати "${мНазваТипу(a)}".`);
+}
+
+function мЄ(a, b) {
+  if (a == null && b == null) {
+    return true;
+  }
+  if (a == null || b == null) {
+    return false;
+  }
+  if (b === Number && typeof a === "number") {
+    return true;
+  }
+  if (b === String && typeof a === "string") {
+    return true;
+  }
+  if (b === Boolean && typeof a === "boolean") {
+    return true;
+  }
+  if (b === Map && a instanceof Map) {
+    return true;
+  }
+  if (b === Array && Array.isArray(a)) {
+    return true;
+  }
+  if (b === Function && typeof a === "function") {
+    return true;
+  }
+  var structure = a[М]?.структура;
+  while (structure) {
+    if (structure === b) {
+      return true;
+    }
+    structure = structure[М]?.предок;
+  }
+  return false;
 }
