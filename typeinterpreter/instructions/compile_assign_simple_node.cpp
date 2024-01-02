@@ -4,14 +4,14 @@ namespace jejalyk::typeinterpreter {
   Result* compile_assign_simple_node(
       Scope* scope,
       mavka::ast::AssignSimpleNode* assign_simple_node) {
+    const auto value_result = scope->compile_node(assign_simple_node->value);
+    if (value_result->error) {
+      return value_result;
+    }
+
     if (assign_simple_node->op == "=" || assign_simple_node->op == "це") {
       if (scope->get_root()->has(assign_simple_node->name)) {
         return error_1(assign_simple_node, assign_simple_node->name);
-      }
-
-      const auto value_result = scope->compile_node(assign_simple_node->value);
-      if (value_result->error) {
-        return value_result;
       }
 
       // а = б
@@ -52,6 +52,22 @@ namespace jejalyk::typeinterpreter {
 
         return success(types_result->value, js_assign_node);
       }
+    } else if (assign_simple_node->op == ":=") {
+      const auto parent_scope = scope->get_parent();
+      if (!parent_scope->has(assign_simple_node->name)) {
+        return error_1(assign_simple_node, assign_simple_node->name);
+      }
+      assign_simple_node->op = "=";
+      const auto parent_assign_result =
+          compile_assign_simple_node(parent_scope, assign_simple_node);
+      if (parent_assign_result->error) {
+        return parent_assign_result;
+      }
+      parent_scope->put_setter(assign_simple_node->name);
+      const auto js_call =
+          js::make_call(js::make_id("мs" + assign_simple_node->name),
+                        {value_result->js_node});
+      return success(parent_assign_result->value, js_call);
     } else {
       std::string op;
       bool bitwise = false;

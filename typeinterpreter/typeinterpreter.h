@@ -278,6 +278,7 @@ namespace jejalyk::typeinterpreter {
     std::vector<js::JsNode*> additional_nodes_before;
     std::vector<std::string> ignored_variables;
     std::vector<std::string> additional_variables;
+    std::vector<std::string> setters;
 
     Scope* make_child();
     Scope* make_proxy();
@@ -304,6 +305,9 @@ namespace jejalyk::typeinterpreter {
     Options* get_options() const;
     std::vector<std::string> get_ignored_variables();
     void put_ignore_variable(std::string name);
+    Scope* get_parent();
+    void put_setter(std::string name);
+    std::vector<std::string> get_setters();
 
     void put_additional_node_before(js::JsNode* node);
     std::vector<js::JsNode*> get_additional_nodes_before();

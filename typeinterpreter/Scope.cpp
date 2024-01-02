@@ -154,6 +154,31 @@ namespace jejalyk::typeinterpreter {
     }
   }
 
+  Scope* Scope::get_parent() {
+    if (this->proxy) {
+      return this->parent->get_parent();
+    }
+    if (this->parent) {
+      return this->parent;
+    }
+    return this;
+  }
+
+  void Scope::put_setter(std::string name) {
+    if (this->proxy) {
+      this->parent->put_setter(name);
+    } else {
+      this->setters.push_back(name);
+    }
+  }
+
+  std::vector<std::string> Scope::get_setters() {
+    if (this->proxy) {
+      return this->parent->get_setters();
+    }
+    return this->setters;
+  }
+
   void Scope::put_additional_node_before(jejalyk::js::JsNode* node) {
     if (this->proxy) {
       this->parent->put_additional_node_before(node);
@@ -835,6 +860,18 @@ namespace jejalyk::typeinterpreter {
     std::vector<std::string> var_names;
     if (!this->proxy) {
       const auto diia_object = this->get_diia_object();
+
+      for (const auto& setter : this->setters) {
+        const auto js_function = new js::JsFunctionNode();
+        js_function->async = false;
+        js_function->name = "мs" + setter;
+        js_function->params.push_back(js::make_id("мv"));
+        js_function->body = new js::JsBody();
+        js_function->body->nodes.push_back(
+            js::make_assign(js::make_id(setter), js::make_id("мv")));
+        result->js_body->nodes.insert(result->js_body->nodes.begin(),
+                                      js_function);
+      }
 
       for (const auto& [variable_name, variable_subject] : this->variables) {
         bool ignored = false;
