@@ -248,16 +248,16 @@ namespace jejalyk::typeinterpreter {
         if (param->value_js_node) {
           // а = 2
           js_function->params.push_back(
-              js::make_assign(js::make_id(param->name),
+              js::make_assign(js::make_id("м_" + param->name),
                               js::make_maybe_nested(param->value_js_node)));
         } else {
           // а
-          js_function->params.push_back(js::make_id(param->name));
+          js_function->params.push_back(js::make_id("м_" + param->name));
         }
         // мs.а = а
         const auto js_chain = js::make_chain("мs", param->name);
         js_function->body->nodes.push_back(
-            js::make_assign(js_chain, js::make_id(param->name)));
+            js::make_assign(js_chain, js::make_id("м_" + param->name)));
       }
       // js_function->body->nodes.push_back(js::make_call(
       //     js::make_chain(
@@ -270,8 +270,9 @@ namespace jejalyk::typeinterpreter {
         // назва[М].методи.метод(мs, ...arguments)
         const auto method_js_call = js::make_call(
             js::make_chain(
-                js::make_chain(js::make_access(structure_object->name, "М"),
-                               js::make_id("методи")),
+                js::make_chain(
+                    js::make_access("м_" + structure_object->name, "М"),
+                    js::make_id("методи")),
                 js::make_id(method_name)),
             {js::make_id("мs"), js::make_id("...arguments")});
         method_js_function->body->nodes.push_back(

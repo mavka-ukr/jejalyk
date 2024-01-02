@@ -119,15 +119,15 @@ namespace jejalyk::typeinterpreter {
       const auto js_function = new js::JsFunctionNode();
       js_function->async = diia_object->is_diia_async;
       if (diia_structure != nullptr) {
-        js_function->params.push_back(js::make_id("я"));
+        js_function->params.push_back(js::make_id("м_я"));
       }
       for (const auto param : diia_object->params) {
         if (param->value_js_node) {
           js_function->params.push_back(
-              js::make_assign(js::make_id(param->name),
+              js::make_assign(js::make_id("м_" + param->name),
                               js::make_maybe_nested(param->value_js_node)));
         } else {
-          js_function->params.push_back(js::make_id(param->name));
+          js_function->params.push_back(js::make_id("м_" + param->name));
         }
       }
       if (compiled_body) {
