@@ -412,6 +412,12 @@ namespace jejalyk::js {
     return js_await_node;
   }
 
+  inline JsRawNode* make_raw(std::string code) {
+    const auto js_raw_node = new JsRawNode();
+    js_raw_node->code = code;
+    return js_raw_node;
+  }
+
   std::string stringify(JsNode* js_node, size_t depth = 0);
   std::string stringify_body(JsBody* js_body, size_t depth = 0);
 

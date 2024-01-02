@@ -7,8 +7,10 @@ namespace jejalyk::typeinterpreter {
       return value_result;
     }
 
-    const auto js_throw = new jejalyk::js::JsThrowNode();
-    js_throw->value = value_result->js_node;
+    const auto value_string = js::stringify(value_result->js_node);
+
+    const auto js_throw = new js::JsThrowNode();
+    js_throw->value = js::make_raw("new Падіння(" + value_string + ")");
 
     value_result->js_node = js_throw;
 

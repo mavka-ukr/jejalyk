@@ -1,8 +1,9 @@
 var М = Symbol("Мавка");
 
 class Падіння extends Error {
-  constructor(message) {
-    super(message);
+  constructor(value) {
+    super(typeof value === "string" ? value : мТекст(value));
+    this.значення = value;
   }
 }
 
@@ -195,7 +196,7 @@ function мГарно(value) {
         return `<структура ${v[М].назва}>`;
       }
       if (v[М].структура) {
-        const entries = Object.entries(v).map(([k, v]) => `${convert(k, depth + 1)}=${convert(v, depth + 1)}`);
+        const entries = Object.entries(v).map(([k, v]) => `${k}=${convert(v, depth + 1)}`);
         return `${v[М].структура[М].назва}(${entries})`;
       }
     }
