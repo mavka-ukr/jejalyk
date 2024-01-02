@@ -948,6 +948,11 @@ namespace jejalyk::typeinterpreter {
 
     const auto module_scope = this->make_child();
 
+    const auto js_function = new js::JsFunctionNode();
+    js_function->name = name;
+    js_function->async = true;
+    js_function->params.push_back(js::make_id("мmodule"));
+
     if (body != nullptr) {
       module_scope->module_object = module_object;
       module_scope->is_async = true;
@@ -957,21 +962,12 @@ namespace jejalyk::typeinterpreter {
         return compiled_body;
       }
 
-      const auto js_function = new js::JsFunctionNode();
-      js_function->async = true;
-      js_function->params.push_back(js::make_id("мmodule"));
       js_function->body = compiled_body->js_body;
-
-      const auto js_call = js::make_call(js::make_id("мМодуль"),
-                                         {js::make_string(name), js_function});
-
-      return success(module_subject, js::make_await(js_call));
     }
 
-    const auto js_call =
-        js::make_call(js::make_id("мМодуль"), {js::make_string(name)});
+    const auto js_call = js::make_call(js::make_id(JJ_F_MODULE), {});
 
-    return success(module_subject, js_call);
+    return success(module_subject, js::make_await(js_call));
   }
 
   Result* Scope::error(mavka::ast::ASTNode* node,

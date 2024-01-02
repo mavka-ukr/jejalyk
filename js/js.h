@@ -418,6 +418,12 @@ namespace jejalyk::js {
     return js_raw_node;
   }
 
+  inline JsBody* make_body(std::vector<JsNode*> nodes) {
+    const auto js_body = new JsBody();
+    js_body->nodes = nodes;
+    return js_body;
+  }
+
   std::string stringify(JsNode* js_node, size_t depth = 0);
   std::string stringify_body(JsBody* js_body, size_t depth = 0);
 
@@ -567,13 +573,13 @@ namespace jejalyk::js {
              tools::repeat_string(" ", depth) + "}";
     }
     if (const auto js_var_node = dynamic_cast<JsVarNode*>(js_node)) {
-      return "let " + js_var_node->name;
+      return "var " + js_var_node->name;
     }
     if (const auto js_vars_node = dynamic_cast<JsVarsNode*>(js_node)) {
       if (js_vars_node->names.empty()) {
         return "";
       }
-      return "let " + tools::implode(js_vars_node->names, ", ");
+      return "var " + tools::implode(js_vars_node->names, ", ");
     }
     if (const auto js_for_node = dynamic_cast<JsForNode*>(js_node)) {
       std::string head = "for (";

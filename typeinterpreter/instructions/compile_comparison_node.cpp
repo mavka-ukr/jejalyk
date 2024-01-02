@@ -36,34 +36,34 @@ namespace jejalyk::typeinterpreter {
                                                 right_result->value);
       magic_diia = "чародія_більше";
       js_comp_symbol = ">";
-      m_diia_name = "мБільше";
+      m_diia_name = JJ_F_GREATER;
     }
     if (comparison_node->op == "<" || comparison_node->op == "менше") {
       result = left_result->value->comp_lesser(scope, comparison_node,
                                                right_result->value);
       magic_diia = "чародія_менше";
       js_comp_symbol = "<";
-      m_diia_name = "мМенше";
+      m_diia_name = JJ_F_LESSER;
     }
     if (comparison_node->op == ">=" || comparison_node->op == "не менше") {
       result = left_result->value->comp_greater_or_eq(scope, comparison_node,
                                                       right_result->value);
       magic_diia = "чародія_не_менше";
       js_comp_symbol = ">=";
-      m_diia_name = "мНеМенше";
+      m_diia_name = JJ_F_GREATER_EQUAL;
     }
     if (comparison_node->op == "<=" || comparison_node->op == "не більше") {
       result = left_result->value->comp_lesser_or_eq(scope, comparison_node,
                                                      right_result->value);
       magic_diia = "чародія_не_більше";
       js_comp_symbol = "<=";
-      m_diia_name = "мНеБільше";
+      m_diia_name = JJ_F_LESSER_EQUAL;
     }
     if (comparison_node->op == "є") {
       result = left_result->value->comp_is(scope, comparison_node,
                                            right_result->value);
       magic_diia = "чародія_є";
-      m_diia_name = "мЄ";
+      m_diia_name = JJ_F_IS;
     }
     if (comparison_node->op == "не є") {
       result = left_result->value->comp_is_not(scope, comparison_node,
@@ -75,13 +75,13 @@ namespace jejalyk::typeinterpreter {
       result = left_result->value->comp_contains(scope, comparison_node,
                                                  right_result->value);
       magic_diia = "чародія_містить";
-      m_diia_name = "мМістить";
+      m_diia_name = JJ_F_CONTAINS;
     }
     if (comparison_node->op == "не містить") {
       result = left_result->value->comp_contains_not(scope, comparison_node,
                                                      right_result->value);
       magic_diia = "чародія_не_містить";
-      m_diia_name = "";
+      m_diia_name = "мНеМістить";
     }
 
     if (result != nullptr) {
@@ -105,7 +105,7 @@ namespace jejalyk::typeinterpreter {
 
       if (magic_diia == "чародія_є") {
         // мЄ(а, б)
-        return success(result->value, js::make_call(js::make_id("мЄ"),
+        return success(result->value, js::make_call(js::make_id(JJ_F_IS),
                                                     {left_result->js_node,
                                                      right_result->js_node}));
       }
@@ -114,7 +114,7 @@ namespace jejalyk::typeinterpreter {
         // !мЄ(а, б)
         return success(result->value,
                        js::make_not(js::make_call(
-                           js::make_id("мЄ"),
+                           js::make_id(JJ_F_IS),
                            {left_result->js_node, right_result->js_node})));
       }
 

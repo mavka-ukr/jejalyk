@@ -49,7 +49,7 @@ namespace jejalyk::typeinterpreter {
       } else {
         // мПокласти(а, 1, б)
         const auto js_call =
-            js::make_call(js::make_id("мПокласти"),
+            js::make_call(js::make_id(JJ_F_PUT_ELEMENT),
                           {left_result->js_node, element_result->js_node,
                            value_result->js_node});
         result->js_node = js_call;

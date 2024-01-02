@@ -117,6 +117,7 @@ namespace jejalyk::typeinterpreter {
       }
 
       const auto js_function = new js::JsFunctionNode();
+      js_function->name = diia_object->name;
       js_function->async = diia_object->is_diia_async;
       if (diia_structure != nullptr) {
         js_function->params.push_back(js::make_id("м_я"));
@@ -134,10 +135,8 @@ namespace jejalyk::typeinterpreter {
         js_function->body = compiled_body->js_body;
       }
 
-      // мДія("назва", function (...) { ... })
-      const auto js_call =
-          js::make_call(js::make_id("мДія"),
-                        {js::make_string(diia_object->name), js_function});
+      // мДія(function назва(...) { ... })
+      const auto js_call = js::make_call(js::make_id(JJ_F_DIIA), {js_function});
 
       // todo: include param types and return types
 

@@ -242,6 +242,7 @@ namespace jejalyk::typeinterpreter {
     } else {
       // мСтруктура("назва", предок, function (мs, ...) { ... })
       const auto js_function = new js::JsFunctionNode();
+      js_function->name = structure_object->name;
       js_function->body = new js::JsBody();
       js_function->params.push_back(js::make_id("мs"));
       for (const auto param : structure_object->params) {
@@ -266,6 +267,7 @@ namespace jejalyk::typeinterpreter {
       //     {js::make_id("мs")}));
       for (const auto& [method_name, method_type] : structure_object->methods) {
         const auto method_js_function = new js::JsFunctionNode();
+        method_js_function->name = method_name;
         method_js_function->body = new js::JsBody();
         // назва[М].методи.метод(мs, ...arguments)
         const auto method_js_call = js::make_call(
@@ -277,18 +279,17 @@ namespace jejalyk::typeinterpreter {
             {js::make_id("мs"), js::make_id("...arguments")});
         method_js_function->body->nodes.push_back(
             js::make_return(method_js_call));
-        // мs.а = мДія("назва", function (...) { ... })
+        // мs.а = мДія(function назва(...) { ... })
         const auto method_js_chain = js::make_chain("мs", method_name);
         const auto method_js_call2 =
-            js::make_call(js::make_id("мДія"),
-                          {js::make_string(method_name), method_js_function});
+            js::make_call(js::make_id(JJ_F_DIIA), {method_js_function});
         js_function->body->nodes.push_back(js::make_assign(
             method_js_chain, method_js_call2));
       }
 
       // return мs
       js_function->body->nodes.push_back(js::make_return(js::make_id("мs")));
-      const auto js_call = js::make_call(js::make_id("мСтруктура"), {js::make_string(structure_object->name), structure_object->parent_js, js_function});
+      const auto js_call = js::make_call(js::make_id(JJ_F_STRUCTURE), {structure_object->parent_js, js_function});
 
       return success(structure_subject, js_call);
     }

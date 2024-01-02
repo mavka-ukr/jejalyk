@@ -14,6 +14,36 @@
 
 #define JJ_DEBUG 0
 
+#define JJ_F_ADD "мДодати"
+#define JJ_F_SUB "мВідняти"
+#define JJ_F_MUL "мПомножити"
+#define JJ_F_DIV "мПоділити"
+#define JJ_F_MOD "мОстача"
+#define JJ_F_DIVDIV "мЧастка"
+#define JJ_F_POW "мСтепінь"
+#define JJ_F_GET_ELEMENT "мОтримати"
+#define JJ_F_PUT_ELEMENT "мПокласти"
+#define JJ_F_BW_XOR "мВабо"
+#define JJ_F_BW_AND "мДі"
+#define JJ_F_BW_OR "мДабо"
+#define JJ_F_BW_SHIFT_LEFT "мВліво"
+#define JJ_F_BW_SHIFT_RIGHT "мВправо"
+#define JJ_F_BW_NOT "мДні"
+#define JJ_F_CALL "мВикликати"
+#define JJ_F_GREATER "мБільше"
+#define JJ_F_LESSER "мМенше"
+#define JJ_F_GREATER_EQUAL "мНеМенше"
+#define JJ_F_LESSER_EQUAL "мНеБільше"
+#define JJ_F_IS "мЄ"
+#define JJ_F_CONTAINS "мМістить"
+#define JJ_F_FROM_TO "мВідДо"
+#define JJ_F_NEGATIVE "мВідʼємне"
+#define JJ_F_POSITIVE "мДодатнє"
+#define JJ_F_TEXT "мТекст"
+#define JJ_F_DIIA "мДія"
+#define JJ_F_MODULE "мМодуль"
+#define JJ_F_STRUCTURE "мСтруктура"
+
 namespace jejalyk::typeinterpreter {
   class Error;
   class Result;
@@ -376,6 +406,22 @@ namespace jejalyk::typeinterpreter {
     std::string args;
     std::string arg_extensions = "0";
     std::string arg_strictness = "0";
+    std::map<std::string, js::JsNode*> modules;
+
+    bool has_module(const std::string& path) {
+      if (this->parent) {
+        return this->has_module(path);
+      }
+      return this->modules.contains(path);
+    }
+
+    void set_module(const std::string& path, js::JsNode* js_node) {
+      if (this->parent) {
+        this->set_module(path, js_node);
+      } else {
+        this->modules.insert_or_assign(path, js_node);
+      }
+    }
 
     GetModuleResult* (*get_module_name)(bool, std::string, Options*) = nullptr;
 

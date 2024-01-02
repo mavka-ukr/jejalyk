@@ -24,7 +24,7 @@ namespace jejalyk::typeinterpreter {
     } else {
       // мВідʼємне(а)
       result->js_node =
-          js::make_call(js::make_id("мВідʼємне"), {value_result->js_node});
+          js::make_call(js::make_id(JJ_F_NEGATIVE), {value_result->js_node});
     }
 
     return result;

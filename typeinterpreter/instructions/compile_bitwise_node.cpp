@@ -20,31 +20,31 @@ namespace jejalyk::typeinterpreter {
       result =
           left_result->value->bw_xor(scope, bitwise_node, right_result->value);
       magic_diia = "чародія_вабо";
-      m_diia_name = "мВабо";
+      m_diia_name = JJ_F_BW_XOR;
     }
     if (bitwise_node->op == "|") {
       result =
           left_result->value->bw_or(scope, bitwise_node, right_result->value);
       magic_diia = "чародія_ді";
-      m_diia_name = "мДі";
+      m_diia_name = JJ_F_BW_AND;
     }
     if (bitwise_node->op == "&") {
       result =
           left_result->value->bw_and(scope, bitwise_node, right_result->value);
       magic_diia = "чародія_дабо";
-      m_diia_name = "мДабо";
+      m_diia_name = JJ_F_BW_OR;
     }
     if (bitwise_node->op == "<<") {
       result = left_result->value->bw_shift_left(scope, bitwise_node,
                                                  right_result->value);
       magic_diia = "чародія_вліво";
-      m_diia_name = "мВліво";
+      m_diia_name = JJ_F_BW_SHIFT_LEFT;
     }
     if (bitwise_node->op == ">>") {
       result = left_result->value->bw_shift_right(scope, bitwise_node,
                                                   right_result->value);
       magic_diia = "чародія_вправо";
-      m_diia_name = "мВправо";
+      m_diia_name = JJ_F_BW_SHIFT_RIGHT;
     }
 
     if (result != nullptr) {

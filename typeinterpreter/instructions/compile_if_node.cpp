@@ -44,8 +44,9 @@ namespace jejalyk::typeinterpreter {
         }
 
         const auto js_if_node = new jejalyk::js::JsIfNode();
-        js_if_node->condition = js::make_call(
-            js::make_id("мЄ"), {left_result->js_node, right_result->js_node});
+        js_if_node->condition =
+            js::make_call(js::make_id(JJ_F_IS),
+                          {left_result->js_node, right_result->js_node});
         js_if_node->body = body_result->js_body;
         js_if_node->else_body = else_body_result->js_body;
 

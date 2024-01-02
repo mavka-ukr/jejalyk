@@ -20,43 +20,43 @@ namespace jejalyk::typeinterpreter {
       result =
           left_result->value->plus(scope, arithmetic_node, right_result->value);
       magic_diia = "чародія_додати";
-      m_diia_name = "мДодати";
+      m_diia_name = JJ_F_ADD;
     }
     if (arithmetic_node->op == "-") {
       result = left_result->value->minus(scope, arithmetic_node,
                                          right_result->value);
       magic_diia = "чародія_відняти";
-      m_diia_name = "мВідняти";
+      m_diia_name = JJ_F_SUB;
     }
     if (arithmetic_node->op == "*") {
       result = left_result->value->multiply(scope, arithmetic_node,
                                             right_result->value);
       magic_diia = "чародія_помножити";
-      m_diia_name = "мПомножити";
+      m_diia_name = JJ_F_MUL;
     }
     if (arithmetic_node->op == "/") {
       result = left_result->value->divide(scope, arithmetic_node,
                                           right_result->value);
       magic_diia = "чародія_поділити";
-      m_diia_name = "мПоділити";
+      m_diia_name = JJ_F_DIV;
     }
     if (arithmetic_node->op == "%") {
       result = left_result->value->divmod(scope, arithmetic_node,
                                           right_result->value);
       magic_diia = "чародія_остача";
-      m_diia_name = "мОстача";
+      m_diia_name = JJ_F_MOD;
     }
     if (arithmetic_node->op == "//") {
       result = left_result->value->divdiv(scope, arithmetic_node,
                                           right_result->value);
       magic_diia = "чародія_частка";
-      m_diia_name = "мЧастка";
+      m_diia_name = JJ_F_DIVDIV;
     }
     if (arithmetic_node->op == "**") {
       result =
           left_result->value->pow(scope, arithmetic_node, right_result->value);
       magic_diia = "чародія_степінь";
-      m_diia_name = "мСтепінь";
+      m_diia_name = JJ_F_POW;
     }
 
     if (result != nullptr) {

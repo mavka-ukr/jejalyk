@@ -69,7 +69,7 @@ namespace jejalyk::typeinterpreter {
           js_nodes.push_back(part_result->js_node);
         } else {
           const auto js_call =
-              js::make_call(js::make_id("мТекст"), {part_result->js_node});
+              js::make_call(js::make_id(JJ_F_TEXT), {part_result->js_node});
           js_nodes.push_back(js_call);
         }
       }

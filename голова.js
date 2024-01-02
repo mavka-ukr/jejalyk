@@ -41,16 +41,17 @@ Object.defineProperty(Array.prototype, "чародія_містить", {
 Object.defineProperty(Array.prototype, "чародія_перебір", {
   get: function() {
     return () => {
-      let i = 0;
-      const iterator = Object.create(null);
+      var i = 0;
+      var iterator = Object.create(null);
       iterator.завершено = this.length === 0;
       iterator.значення = this[i];
-      iterator.далі = мДія("далі", () => {
+      var that = this;
+      iterator.далі = мДія(function далі() {
         if (iterator.завершено) {
           return;
         }
-        iterator.значення = this[++i];
-        iterator.завершено = i >= this.length;
+        iterator.значення = that[++i];
+        iterator.завершено = i >= that.length;
       });
       return iterator;
     };
@@ -98,26 +99,26 @@ Object.defineProperty(Map.prototype, "чародія_отримати", {
   },
 });
 
-function мДія(name, fn) {
+function мДія(fn) {
   fn[М] = Object.create(null);
   fn[М].структура = Function;
-  fn[М].назва = name;
+  fn[М].назва = fn.name;
   return fn;
 }
 
-function мСтруктура(name, parent, fillFn) {
+function мСтруктура(parent, fn) {
   var structure = Object.create(null);
   structure[М] = Object.create(null);
   structure[М].структура = null;
-  structure[М].назва = name;
+  structure[М].назва = fn.name;
   structure[М].предок = parent;
-  structure[М].заповнити = fillFn;
+  structure[М].заповнити = fn;
   structure[М].методи = Object.create(null);
-  structure.створити = мДія("створити", function() {
+  structure.створити = мДія(function створити() {
     var instance = Object.create(null);
     instance[М] = Object.create(null);
     instance[М].структура = structure;
-    fillFn(instance, ...arguments);
+    fn(instance, ...arguments);
     return instance;
   });
   structure.чародія_викликати = structure.створити;
@@ -125,7 +126,7 @@ function мСтруктура(name, parent, fillFn) {
 }
 
 function мВідДо(from, middleSymbol, middle, toSymbol, to) {
-  const iterator = Object.create(null);
+  var iterator = Object.create(null);
   iterator.завершено = false;
   iterator.значення = from;
   if (toSymbol === "<=") {
@@ -133,7 +134,7 @@ function мВідДо(from, middleSymbol, middle, toSymbol, to) {
   } else {
     throw new Error("Unknown symbol");
   }
-  iterator.далі = мДія("далі", function() {
+  iterator.далі = мДія(function далі() {
     if (iterator.завершено) {
       return;
     }
@@ -151,17 +152,19 @@ function мВідДо(from, middleSymbol, middle, toSymbol, to) {
   return iterator;
 }
 
-async function мМодуль(name, fn) {
-  const module = Object.create(null);
+async function мМодуль(fn) {
+  var module = Object.create(null);
   module[М] = Object.create(null);
   module[М].структура = м_Модуль;
-  module[М].назва = name;
+  module[М].назва = fn.name;
   await fn(module);
   return module;
 }
 
 function мГарно(value) {
-  const convert = (v, depth = 0) => {
+  var convert = (v, depth = 0) => {
+    var keys;
+    var entries;
     if (v == null) {
       return "пусто";
     }
@@ -181,7 +184,7 @@ function мГарно(value) {
       return `[${v.map((v) => convert(v, depth + 1)).join(", ")}]`;
     }
     if (v instanceof Map) {
-      const entries = [...v.entries()].map(([k, v]) => `${convert(k, depth + 1)}=${convert(v, depth + 1)}`);
+      entries = [...v.entries()].map(([k, v]) => `${convert(k, depth + 1)}=${convert(v, depth + 1)}`);
       return `(${entries.join(", ")})`;
     }
     if (v instanceof Uint8Array) {
@@ -192,14 +195,14 @@ function мГарно(value) {
         return `<дія ${v[М].назва}>`;
       }
       if (v[М].структура === м_Модуль) {
-        const keys = Object.keys(v).map((k) => `${k}`).join(", ");
+        keys = Object.keys(v).map((k) => `${k}`).join(", ");
         return `<модуль ${v[М].назва}[${keys}]>`;
       }
       if (v[М].структура === null) {
         return `<структура ${v[М].назва}>`;
       }
       if (v[М].структура) {
-        const entries = Object.entries(v).map(([k, v]) => `${k}=${convert(v, depth + 1)}`);
+        entries = Object.entries(v).map(([k, v]) => `${k}=${convert(v, depth + 1)}`);
         return `${v[М].структура[М].назва}(${entries})`;
       }
     }
@@ -258,8 +261,8 @@ function мНазваТипу(value) {
 }
 
 function мДодати(a, b) {
-  if (a == null || b == null) {
-    throw new Падіння(`Неможливо виконати додавання з "${мНазваТипу(a)}".`);
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_додати" для типу "${мНазваТипу(a)}".`);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a + b;
@@ -271,12 +274,12 @@ function мДодати(a, b) {
   if (magic) {
     return magic(b);
   }
-  throw new Падіння(`Неможливо виконати додавання з "${мНазваТипу(a)}".`);
+  throw new Падіння(`Неможливо виконати "чародія_додати" для типу "${мНазваТипу(a)}".`);
 }
 
 function мВідняти(a, b) {
-  if (a == null || b == null) {
-    throw new Падіння(`Неможливо виконати віднімання з "${мНазваТипу(a)}".`);
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_відняти" для типу "${мНазваТипу(a)}".`);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a - b;
@@ -285,12 +288,12 @@ function мВідняти(a, b) {
   if (magic) {
     return magic(b);
   }
-  throw new Падіння(`Неможливо виконати віднімання з "${мНазваТипу(a)}".`);
+  throw new Падіння(`Неможливо виконати "чародія_відняти" для типу "${мНазваТипу(a)}".`);
 }
 
 function мПомножити(a, b) {
-  if (a == null || b == null) {
-    throw new Падіння(`Неможливо виконати множення з "${мНазваТипу(a)}".`);
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_помножити" для типу "${мНазваТипу(a)}".`);
   }
   if (typeof a === "number" && typeof b === "number") {
     return a * b;
@@ -299,12 +302,242 @@ function мПомножити(a, b) {
   if (magic) {
     return magic(b);
   }
-  throw new Падіння(`Неможливо виконати множення з "${мНазваТипу(a)}".`);
+  throw new Падіння(`Неможливо виконати "чародія_помножити" для типу "${мНазваТипу(a)}".`);
+}
+
+function мПоділити(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_поділити" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a / b;
+  }
+  var magic = a["чародія_поділити"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_поділити" для типу "${мНазваТипу(a)}".`);
+}
+
+function мОстача(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_остача" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a % b;
+  }
+  var magic = a["чародія_остача"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_остача" для типу "${мНазваТипу(a)}".`);
+}
+
+function мСтепінь(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_степінь" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return Math.pow(a, b);
+  }
+  var magic = a["чародія_степінь"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_степінь" для типу "${мНазваТипу(a)}".`);
+}
+
+function мВабо(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_вабо" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a ^ b;
+  }
+  var magic = a["чародія_вабо"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_вабо" для типу "${мНазваТипу(a)}".`);
+}
+
+function мДі(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_ді" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a & b;
+  }
+  var magic = a["чародія_ді"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_ді" для типу "${мНазваТипу(a)}".`);
+}
+
+function мДабо(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_дабо" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a | b;
+  }
+  var magic = a["чародія_дабо"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_дабо" для типу "${мНазваТипу(a)}".`);
+}
+
+function мВліво(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_вліво" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a << b;
+  }
+  var magic = a["чародія_вліво"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_вліво" для типу "${мНазваТипу(a)}".`);
+}
+
+function мВправо(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_вправо" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a >> b;
+  }
+  var magic = a["чародія_вправо"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_вправо" для типу "${мНазваТипу(a)}".`);
+}
+
+function мДні(a) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_дні" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number") {
+    return ~a;
+  }
+  var magic = a["чародія_дні"];
+  if (magic) {
+    return magic();
+  }
+  throw new Падіння(`Неможливо виконати "чародія_дні" для типу "${мНазваТипу(a)}".`);
+}
+
+function мБільше(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_більше" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a > b;
+  }
+  var magic = a["чародія_більше"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_більше" для типу "${мНазваТипу(a)}".`);
+}
+
+function мМенше(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_менше" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a < b;
+  }
+  var magic = a["чародія_менше"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_менше" для типу "${мНазваТипу(a)}".`);
+}
+
+function мНеМенше(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_не_менше" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a >= b;
+  }
+  var magic = a["чародія_не_менше"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_не_менше" для типу "${мНазваТипу(a)}".`);
+}
+
+function мНеБільше(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_не_більше" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number" && typeof b === "number") {
+    return a <= b;
+  }
+  var magic = a["чародія_не_більше"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_не_більше" для типу "${мНазваТипу(a)}".`);
+}
+
+function мМістить(a, b) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_містить" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "string" && typeof b === "string") {
+    return a.includes(b);
+  }
+  if (a instanceof Array) {
+    return a.includes(b);
+  }
+  if (a instanceof Map) {
+    return a.has(b);
+  }
+  var magic = a["чародія_містить"];
+  if (magic) {
+    return magic(b);
+  }
+  throw new Падіння(`Неможливо виконати "чародія_містить" для типу "${мНазваТипу(a)}".`);
+}
+
+function мВідʼємне(a) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_відʼємне" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number") {
+    return -a;
+  }
+  var magic = a["чародія_відʼємне"];
+  if (magic) {
+    return magic();
+  }
+  throw new Падіння(`Неможливо виконати "чародія_відʼємне" для типу "${мНазваТипу(a)}".`);
+}
+
+function мДодатнє(a) {
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_додатнє" для типу "${мНазваТипу(a)}".`);
+  }
+  if (typeof a === "number") {
+    return +a;
+  }
+  var magic = a["чародія_додатнє"];
+  if (magic) {
+    return magic();
+  }
+  throw new Падіння(`Неможливо виконати "чародія_додатнє" для типу "${мНазваТипу(a)}".`);
 }
 
 function мОтримати(a, b) {
-  if (a == null || b == null) {
-    throw new Падіння(`Неможливо отримати елемент з "${мНазваТипу(a)}".`);
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_отримати" для типу "${мНазваТипу(a)}".`);
   }
   if (typeof a === "string") {
     return a[b];
@@ -319,12 +552,12 @@ function мОтримати(a, b) {
   if (magic) {
     return magic(b);
   }
-  throw new Падіння(`Неможливо отримати елемент з "${мНазваТипу(a)}".`);
+  throw new Падіння(`Неможливо виконати "чародія_отримати" для типу "${мНазваТипу(a)}".`);
 }
 
 function мПокласти(a, b, c) {
-  if (a == null || b == null || c == null) {
-    throw new Падіння(`Неможливо покласти елемент в "${мНазваТипу(a)}".`);
+  if (a == null) {
+    throw new Падіння(`Неможливо виконати "чародія_покласти" для типу "${мНазваТипу(a)}".`);
   }
   if (a instanceof Array) {
     return a[b] = c;
@@ -336,7 +569,7 @@ function мПокласти(a, b, c) {
   if (magic) {
     return magic(b, c);
   }
-  throw new Падіння(`Неможливо покласти елемент в "${мНазваТипу(a)}".`);
+  throw new Падіння(`Неможливо виконати "чародія_покласти" для типу "${мНазваТипу(a)}".`);
 }
 
 function мВикликати(a, args) {

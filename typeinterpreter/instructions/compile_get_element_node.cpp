@@ -33,8 +33,9 @@ namespace jejalyk::typeinterpreter {
       result->js_node = js_call;
     } else {
       // мОтримати(а, б)
-      result->js_node = js::make_call(
-          js::make_id("мОтримати"), {value_result->js_node, index_result->js_node});
+      result->js_node =
+          js::make_call(js::make_id(JJ_F_GET_ELEMENT),
+                        {value_result->js_node, index_result->js_node});
     }
 
     return result;

@@ -43,7 +43,7 @@ namespace jejalyk::typeinterpreter {
 
         // мВикликати(а, [б])
         const auto js_call =
-            js::make_call(js::make_id("мВикликати"),
+            js::make_call(js::make_id(JJ_F_CALL),
                           {value_result->js_node, js::make_array(js_args)});
         return success(value_result->value, js_call);
       }
