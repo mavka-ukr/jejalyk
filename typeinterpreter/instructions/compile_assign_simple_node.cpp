@@ -55,7 +55,9 @@ namespace jejalyk::typeinterpreter {
     } else if (assign_simple_node->op == ":=") {
       const auto parent_scope = scope->get_parent();
       if (!parent_scope->has(assign_simple_node->name)) {
-        return error_1(assign_simple_node, assign_simple_node->name);
+        return error_from_ast(
+            assign_simple_node,
+            "Субʼєкт \"" + assign_simple_node->name + "\" не визначено.");
       }
       assign_simple_node->op = "=";
       const auto parent_assign_result =
