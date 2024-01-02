@@ -20,42 +20,40 @@ var м_Дія = Function;
 var м_так = true;
 var м_ні = false;
 
-Object.defineProperty(Array.prototype, "довжина", {
-  get: function() {
-    return this.length;
-  },
+function мДп(constructor, name, fn) {
+  Object.defineProperty(constructor.prototype, name, {
+    get: fn,
+  });
+}
+
+мДп(Array, "довжина", function() {
+  return this.length;
 });
-Object.defineProperty(Array.prototype, "додати", {
-  get: function() {
-    return (value) => {
-      this.push(value);
-      return this;
-    };
-  },
+мДп(Array, "додати", function() {
+  return (value) => {
+    this.push(value);
+    return this;
+  };
 });
-Object.defineProperty(Array.prototype, "чародія_містить", {
-  get: function() {
-    return (value) => this.findIndex((item) => item === value) !== -1;
-  },
+мДп(Array, "чародія_містить", function() {
+  return (value) => this.findIndex((item) => item === value) !== -1;
 });
-Object.defineProperty(Array.prototype, "чародія_перебір", {
-  get: function() {
-    return () => {
-      var i = 0;
-      var iterator = Object.create(null);
-      iterator.завершено = this.length === 0;
-      iterator.значення = this[i];
-      var that = this;
-      iterator.далі = мДія(function далі() {
-        if (iterator.завершено) {
-          return;
-        }
-        iterator.значення = that[++i];
-        iterator.завершено = i >= that.length;
-      });
-      return iterator;
-    };
-  },
+мДп(Array, "чародія_перебір", function() {
+  return () => {
+    var i = 0;
+    var iterator = Object.create(null);
+    iterator.завершено = this.length === 0;
+    iterator.значення = this[i];
+    var that = this;
+    iterator.далі = мДія(function далі() {
+      if (iterator.завершено) {
+        return;
+      }
+      iterator.значення = that[++i];
+      iterator.завершено = i >= that.length;
+    });
+    return iterator;
+  };
 });
 
 Object.defineProperty(String.prototype, "довжина", {
@@ -69,6 +67,11 @@ Object.defineProperty(String.prototype, "чародія_додати", {
   },
 });
 
+Object.defineProperty(Number.prototype, "чародія_додати", {
+  get: function() {
+    return (value) => this + value;
+  },
+});
 Object.defineProperty(Number.prototype, "чародія_помножити", {
   get: function() {
     return (value) => this * value;
