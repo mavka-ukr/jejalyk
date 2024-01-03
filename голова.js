@@ -47,8 +47,11 @@ Array.сортувати = мДія(function сортувати(список) {
 мДп(Array, function знайти() {
   return (fn) => this.find(fn);
 });
-мДп(Array, function позиція() {
+мДп(Array, function знайти_позицію() {
   return (fn) => this.findIndex(fn);
+});
+мДп(Array, function позиція() {
+  return (value) => this.indexOf(value);
 });
 мДп(Array, function перетворити() {
   return (fn) => this.map(fn);
