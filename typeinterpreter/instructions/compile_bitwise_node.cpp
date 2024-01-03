@@ -17,35 +17,28 @@ namespace jejalyk::typeinterpreter {
     std::string m_diia_name;
 
     if (bitwise_node->op == "^") {
-      result =
-          left_result->value->bw_xor(scope, bitwise_node, right_result->value);
-      magic_diia = "чародія_вабо";
+      magic_diia = JJ_MAG_BW_XOR;
       m_diia_name = JJ_F_BW_XOR;
     }
     if (bitwise_node->op == "|") {
-      result =
-          left_result->value->bw_or(scope, bitwise_node, right_result->value);
-      magic_diia = "чародія_ді";
+      magic_diia = JJ_MAG_BW_AND;
       m_diia_name = JJ_F_BW_AND;
     }
     if (bitwise_node->op == "&") {
-      result =
-          left_result->value->bw_and(scope, bitwise_node, right_result->value);
-      magic_diia = "чародія_дабо";
+      magic_diia = JJ_MAG_BW_OR;
       m_diia_name = JJ_F_BW_OR;
     }
     if (bitwise_node->op == "<<") {
-      result = left_result->value->bw_shift_left(scope, bitwise_node,
-                                                 right_result->value);
-      magic_diia = "чародія_вліво";
+      magic_diia = JJ_MAG_BW_SHIFT_LEFT;
       m_diia_name = JJ_F_BW_SHIFT_LEFT;
     }
     if (bitwise_node->op == ">>") {
-      result = left_result->value->bw_shift_right(scope, bitwise_node,
-                                                  right_result->value);
-      magic_diia = "чародія_вправо";
+      magic_diia = JJ_MAG_BW_SHIFT_RIGHT;
       m_diia_name = JJ_F_BW_SHIFT_RIGHT;
     }
+
+    result = left_result->value->magic_call(scope, bitwise_node, magic_diia, {},
+                                            {right_result->value});
 
     if (result != nullptr) {
       if (result->error) {

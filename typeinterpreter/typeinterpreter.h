@@ -44,6 +44,31 @@
 #define JJ_F_MODULE "мМодуль"
 #define JJ_F_STRUCTURE "мСтруктура"
 
+#define JJ_MAG_ADD "чародія_додати"
+#define JJ_MAG_SUB "чародія_відняти"
+#define JJ_MAG_MUL "чародія_помножити"
+#define JJ_MAG_DIV "чародія_поділити"
+#define JJ_MAG_MOD "чародія_остача"
+#define JJ_MAG_DIVDIV "чародія_частка"
+#define JJ_MAG_POW "чародія_степінь"
+#define JJ_MAG_BW_NOT "чародія_дні"
+#define JJ_MAG_BW_XOR "чародія_вабо"
+#define JJ_MAG_BW_OR "чародія_дабо"
+#define JJ_MAG_BW_AND "чародія_ді"
+#define JJ_MAG_BW_SHIFT_LEFT "чародія_вліво"
+#define JJ_MAG_BW_SHIFT_RIGHT "чародія_вправо"
+#define JJ_MAG_BW_NEGATIVE "чародія_відʼємне"
+#define JJ_MAG_BW_POSITIVE "чародія_додатнє"
+#define JJ_MAG_GREATER "чародія_більше"
+#define JJ_MAG_LESSER "чародія_менше"
+#define JJ_MAG_GREATER_EQUAL "чародія_не_менше"
+#define JJ_MAG_LESSER_EQUAL "чародія_не_більше"
+#define JJ_MAG_CONTAINS "чародія_містить"
+#define JJ_MAG_GET_ELEMENT "чародія_отримати"
+#define JJ_MAG_PUT_ELEMENT "чародія_покласти"
+#define JJ_MAG_CALL "чародія_викликати"
+#define JJ_MAG_ITERATOR "чародія_перебір"
+
 namespace jejalyk::typeinterpreter {
   class Error;
   class Result;
@@ -103,56 +128,13 @@ namespace jejalyk::typeinterpreter {
 
     Result* call(Scope* scope,
                  mavka::ast::ASTNode* node,
-                 std::vector<Subject*> vector,
+                 std::vector<Subject*> generic_types,
                  std::vector<Subject*> args);
-    Result* get_element(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value);
-    Result* set_element(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* element,
-                        Subject* value);
-    Result* plus(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* minus(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* multiply(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* divide(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* divmod(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* divdiv(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* bw_not(Scope* scope, mavka::ast::ASTNode* node);
-    Result* bw_xor(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* bw_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* bw_and(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* bw_shift_left(Scope* scope,
-                          mavka::ast::ASTNode* node,
-                          Subject* value);
-    Result* bw_shift_right(Scope* scope,
-                           mavka::ast::ASTNode* node,
-                           Subject* value);
-    Result* negative(Scope* scope, mavka::ast::ASTNode* node);
-    Result* positive(Scope* scope, mavka::ast::ASTNode* node);
-    Result* post_decrement(Scope* scope, mavka::ast::ASTNode* node);
-    Result* post_increment(Scope* scope, mavka::ast::ASTNode* node);
-    Result* pre_decrement(Scope* scope, mavka::ast::ASTNode* node);
-    Result* pre_increment(Scope* scope, mavka::ast::ASTNode* node);
-    Result* comp_greater(Scope* scope,
-                         mavka::ast::ASTNode* node,
-                         Subject* value);
-    Result* comp_lesser(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value);
-    Result* comp_greater_or_eq(Scope* scope,
-                               mavka::ast::ASTNode* node,
-                               Subject* value);
-    Result* comp_lesser_or_eq(Scope* scope,
-                              mavka::ast::ASTNode* node,
-                              Subject* value);
-    Result* comp_contains(Scope* scope,
-                          mavka::ast::ASTNode* node,
-                          Subject* value);
-    Result* comp_contains_not(Scope* scope,
-                              mavka::ast::ASTNode* node,
-                              Subject* value);
+    Result* magic_call(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       std::string name,
+                       std::vector<Subject*> generic_types,
+                       std::vector<Subject*> args);
 
     bool is_iterator(Scope* scope);
     Result* get_iterator_type(Scope* scope, mavka::ast::ASTNode* node);
@@ -206,7 +188,9 @@ namespace jejalyk::typeinterpreter {
     bool is_object(Scope* scope);
 
     bool has(Scope* scope, const std::string& name);
-    Result* get(Scope* scope, const std::string& name);
+    Result* get(Scope* scope,
+                mavka::ast::ASTNode* node,
+                const std::string& name);
     Result* set(Scope* scope,
                 mavka::ast::ASTNode* node,
                 const std::string& name,
@@ -218,62 +202,12 @@ namespace jejalyk::typeinterpreter {
                  mavka::ast::ASTNode* node,
                  std::vector<Subject*> generic_types,
                  std::vector<Subject*> args);
-    Result* get_element(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value);
-    Result* set_element(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* element,
-                        Subject* value);
-    Result* plus(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* minus(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* multiply(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* divide(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* divmod(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* divdiv(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* bw_not(Scope* scope, mavka::ast::ASTNode* node);
-    Result* bw_xor(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* bw_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* bw_and(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* bw_shift_left(Scope* scope,
-                          mavka::ast::ASTNode* node,
-                          Subject* value);
-    Result* bw_shift_right(Scope* scope,
-                           mavka::ast::ASTNode* node,
-                           Subject* value);
-    Result* negative(Scope* scope, mavka::ast::ASTNode* node);
-    Result* positive(Scope* scope, mavka::ast::ASTNode* node);
-    Result* post_decrement(Scope* scope, mavka::ast::ASTNode* node);
-    Result* post_increment(Scope* scope, mavka::ast::ASTNode* node);
-    Result* pre_decrement(Scope* scope, mavka::ast::ASTNode* node);
-    Result* pre_increment(Scope* scope, mavka::ast::ASTNode* node);
-    Result* comp_eq(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* comp_not_eq(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value);
-    Result* comp_greater(Scope* scope,
-                         mavka::ast::ASTNode* node,
-                         Subject* value);
-    Result* comp_lesser(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value);
-    Result* comp_greater_or_eq(Scope* scope,
-                               mavka::ast::ASTNode* node,
-                               Subject* value);
-    Result* comp_lesser_or_eq(Scope* scope,
-                              mavka::ast::ASTNode* node,
-                              Subject* value);
-    Result* comp_is(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
-    Result* comp_is_not(Scope* scope,
-                        mavka::ast::ASTNode* node,
-                        Subject* value);
-    Result* comp_contains(Scope* scope,
-                          mavka::ast::ASTNode* node,
-                          Subject* value);
-    Result* comp_contains_not(Scope* scope,
-                              mavka::ast::ASTNode* node,
-                              Subject* value);
+    Result* magic_call(Scope* scope,
+                       mavka::ast::ASTNode* node,
+                       std::string name,
+                       std::vector<Subject*> generic_types,
+                       std::vector<Subject*> args);
+
     Result* test_and(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
     Result* test_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value);
 
@@ -464,6 +398,13 @@ namespace jejalyk::typeinterpreter {
                   mavka::ast::ASTNode* node,
                   const std::string& property_name,
                   Subject* subject);
+  Result* error_3(Scope* scope,
+                  mavka::ast::ASTNode* node,
+                  const std::string& magic_diia_name);
+  Result* error_4(Scope* scope,
+                  mavka::ast::ASTNode* node,
+                  const std::string& magic_diia_name,
+                  Type* type);
 
   Result* error(const std::string& message);
   Result* success(Subject* value);

@@ -43,7 +43,7 @@ namespace jejalyk::typeinterpreter {
           return else_body_result;
         }
 
-        const auto js_if_node = new jejalyk::js::JsIfNode();
+        const auto js_if_node = new js::JsIfNode();
         js_if_node->condition =
             js::make_call(js::make_id(JJ_F_IS),
                           {left_result->js_node, right_result->js_node});

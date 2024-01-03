@@ -14,8 +14,8 @@ namespace jejalyk::typeinterpreter {
       return index_result;
     }
 
-    const auto result = value_result->value->get_element(
-        scope, get_element_node, index_result->value);
+    const auto result = value_result->value->magic_call(
+        scope, get_element_node, JJ_F_GET_ELEMENT, {}, {index_result->value});
     if (result->error) {
       return result;
     }
@@ -25,10 +25,10 @@ namespace jejalyk::typeinterpreter {
       const auto js_access =
           js::make_access(value_result->js_node, index_result->js_node);
       result->js_node = js_access;
-    } else if (value_result->value->has_diia(scope, "чародія_отримати")) {
+    } else if (value_result->value->has_diia(scope, JJ_MAG_GET_ELEMENT)) {
       // а.чародія_отримати(б)
       const auto js_chain = js::make_chain(value_result->js_node,
-                                           js::make_id("чародія_отримати"));
+                                           js::make_id(JJ_MAG_GET_ELEMENT));
       const auto js_call = js::make_call(js_chain, {index_result->js_node});
       result->js_node = js_call;
     } else {

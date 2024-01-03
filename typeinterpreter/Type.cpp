@@ -234,9 +234,10 @@ namespace jejalyk::typeinterpreter {
       const auto types = this->get(scope, name);
       if (!scope->check_subjects(value, types)) {
         return scope->error(
-            node, "Неправильний тип значення для властивості \"" + name +
-                      "\": очікується \"" + types->types_string() +
-                      "\", отримано \"" + value->types_string() + "\".");
+            node, "Неправильний тип властивості \"" + name + "\" типу \"" +
+                      this->get_type_name() + "\": очікується \"" +
+                      types->types_string() + "\", отримано \"" +
+                      value->types_string() + "\".");
       }
       return success(types);
     } else {
@@ -246,8 +247,8 @@ namespace jejalyk::typeinterpreter {
         }
       }
       return scope->error(
-          node,
-          "Неможливо встановити не визначену властивість \"" + name + "\".");
+          node, "Неможливо встановити не визначену властивість \"" + name +
+                    "\" для типу \"" + this->get_type_name() + "\".");
     }
     return success(value);
   }
@@ -288,13 +289,13 @@ namespace jejalyk::typeinterpreter {
         if (!scope->check_subjects(arg, processed_types_result)) {
           if (this->object->name.empty()) {
             return scope->error(
-                node, "Неправильний тип аргументу параметра \"" + param->name +
+                node, "Неправильний тип параметра \"" + param->name +
                           "\": очікується \"" +
                           processed_types_result->types_string() +
                           "\", отримано \"" + arg->types_string() + "\".");
           } else {
             return scope->error(
-                node, "Неправильний тип аргументу параметра \"" + param->name +
+                node, "Неправильний тип параметра \"" + param->name +
                           "\" дії \"" + this->object->name +
                           "\": очікується \"" +
                           processed_types_result->types_string() +
@@ -308,416 +309,28 @@ namespace jejalyk::typeinterpreter {
     if (this->is_object(scope)) {
       return success(scope->create_object_instance_subject());
     }
-    if (this->has(scope, "чародія_викликати")) {
-      const auto value = this->get(scope, "чародія_викликати");
+    if (this->has(scope, JJ_MAG_CALL)) {
+      const auto value = this->get(scope, JJ_MAG_CALL);
       return value->call(scope, node, generic_types, args);
     }
     return scope->error(
         node, "Неможливо викликати \"" + this->get_type_name() + "\".");
   }
 
-  Result* Type::get_element(Scope* scope,
-                            mavka::ast::ASTNode* node,
-                            Subject* value) {
-    if (this->has(scope, "чародія_отримати")) {
-      return this->get(scope, "чародія_отримати")
-          ->call(scope, node, {}, {value});
+  Result* Type::magic_call(Scope* scope,
+                           mavka::ast::ASTNode* node,
+                           std::string name,
+                           std::vector<Subject*> generic_types,
+                           std::vector<Subject*> args) {
+    if (this->has(scope, name)) {
+      return this->get(scope, name)->call(scope, node, generic_types, args);
     }
     if (!scope->get_options()->is_strict_mode()) {
       if (this->is_object(scope)) {
         return success(scope->create_object_instance_subject());
       }
     }
-    return scope->error(node, "Неможливо отримати елемент з типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::set_element(Scope* scope,
-                            mavka::ast::ASTNode* node,
-                            Subject* element,
-                            Subject* value) {
-    if (this->has(scope, "чародія_покласти")) {
-      return this->get(scope, "чародія_покласти")
-          ->call(scope, node, {}, {element, value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо встановити елемент для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::plus(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
-    if (this->has(scope, "чародія_додати")) {
-      return this->get(scope, "чародія_додати")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати додавання для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::minus(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
-    if (this->has(scope, "чародія_відняти")) {
-      return this->get(scope, "чародія_відняти")
-          ->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати віднімання для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::multiply(Scope* scope,
-                         mavka::ast::ASTNode* node,
-                         Subject* value) {
-    if (this->has(scope, "чародія_помножити")) {
-      return this->get(scope, "чародія_помножити")
-          ->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати множення для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::divide(Scope* scope,
-                       mavka::ast::ASTNode* node,
-                       Subject* value) {
-    if (this->has(scope, "чародія_поділити")) {
-      return this->get(scope, "чародія_поділити")
-          ->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати ділення для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::divmod(Scope* scope,
-                       mavka::ast::ASTNode* node,
-                       Subject* value) {
-    if (this->has(scope, "чародія_остача")) {
-      return this->get(scope, "чародія_остача")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node,
-                        "Неможливо виконати ділення з остачею для "
-                        "типу \"" +
-                            this->get_type_name() + "\".");
-  }
-
-  Result* Type::divdiv(Scope* scope,
-                       mavka::ast::ASTNode* node,
-                       Subject* value) {
-    if (this->has(scope, "чародія_частка")) {
-      return this->get(scope, "чародія_частка")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node,
-                        "Неможливо чародія_частка для "
-                        "типу \"" +
-                            this->get_type_name() + "\".");
-  }
-
-  Result* Type::pow(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
-    if (this->has(scope, "чародія_степінь")) {
-      return this->get(scope, "чародія_степінь")
-          ->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node,
-                        "Неможливо виконати піднесення до степені "
-                        "для типу \"" +
-                            this->get_type_name() + "\".");
-  }
-
-  Result* Type::bw_not(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has(scope, "чародія_дні")) {
-      return this->get(scope, "чародія_дні")->call(scope, node, {}, {});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати двійкове ні для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::bw_xor(Scope* scope,
-                       mavka::ast::ASTNode* node,
-                       Subject* value) {
-    if (this->has(scope, "чародія_вабо")) {
-      return this->get(scope, "чародія_вабо")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати чародія_вабо для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::bw_or(Scope* scope, mavka::ast::ASTNode* node, Subject* value) {
-    if (this->has(scope, "чародія_дабо")) {
-      return this->get(scope, "чародія_дабо")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати чародія_дабо для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::bw_and(Scope* scope,
-                       mavka::ast::ASTNode* node,
-                       Subject* value) {
-    if (this->has(scope, "чародія_ді")) {
-      return this->get(scope, "чародія_ді")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати чародія_ді для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::bw_shift_left(Scope* scope,
-                              mavka::ast::ASTNode* node,
-                              Subject* value) {
-    if (this->has(scope, "чародія_вліво")) {
-      return this->get(scope, "чародія_вліво")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати чародія_вліво для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::bw_shift_right(Scope* scope,
-                               mavka::ast::ASTNode* node,
-                               Subject* value) {
-    if (this->has(scope, "чародія_вправо")) {
-      return this->get(scope, "чародія_вправо")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати чародія_вправо для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::negative(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has(scope, "чародія_відʼємне")) {
-      return this->get(scope, "чародія_відʼємне")->call(scope, node, {}, {});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати відʼємне для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::positive(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has(scope, "чародія_додатнє")) {
-      return this->get(scope, "чародія_додатнє")->call(scope, node, {}, {});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо виконати додатнє для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  // todo: drop this
-  Result* Type::post_decrement(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has(scope, "чародія_зменшити_після")) {
-      return this->get(scope, "чародія_зменшити_після")
-          ->call(scope, node, {}, {});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_зменшити_після для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  // todo: drop this
-  Result* Type::post_increment(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has(scope, "чародія_збільшити_після")) {
-      return this->get(scope, "чародія_збільшити_після")
-          ->call(scope, node, {}, {});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_збільшити_після для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::pre_decrement(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has(scope, "чародія_зменшити")) {
-      return this->get(scope, "чародія_зменшити")->call(scope, node, {}, {});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_зменшити для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::pre_increment(Scope* scope, mavka::ast::ASTNode* node) {
-    if (this->has(scope, "чародія_збільшити")) {
-      return this->get(scope, "чародія_збільшити")->call(scope, node, {}, {});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_збільшити для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::comp_greater(Scope* scope,
-                             mavka::ast::ASTNode* node,
-                             Subject* value) {
-    if (this->has(scope, "чародія_більше")) {
-      return this->get(scope, "чародія_більше")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_більше для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::comp_lesser(Scope* scope,
-                            mavka::ast::ASTNode* node,
-                            Subject* value) {
-    if (this->has(scope, "чародія_менше")) {
-      return this->get(scope, "чародія_менше")->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_менше для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::comp_greater_or_eq(Scope* scope,
-                                   mavka::ast::ASTNode* node,
-                                   Subject* value) {
-    if (this->has(scope, "чародія_не_менше")) {
-      return this->get(scope, "чародія_не_менше")
-          ->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_не_менше для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::comp_lesser_or_eq(Scope* scope,
-                                  mavka::ast::ASTNode* node,
-                                  Subject* value) {
-    if (this->has(scope, "чародія_не_більше")) {
-      return this->get(scope, "чародія_не_більше")
-          ->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_не_більше для типу \"" +
-                                  this->get_type_name() + "\".");
-  }
-
-  Result* Type::comp_contains(Scope* scope,
-                              mavka::ast::ASTNode* node,
-                              Subject* value) {
-    if (this->has(scope, "чародія_містить")) {
-      return this->get(scope, "чародія_містить")
-          ->call(scope, node, {}, {value});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_містить для типу \"" +
-                                    this->get_type_name() + "\".");
-  }
-
-  Result* Type::comp_contains_not(Scope* scope,
-                            mavka::ast::ASTNode* node,
-                            Subject* value) {
-    if (this->has(scope, "чародія_містить")) {
-      const auto logical_structure_subject = scope->get_root_logical();
-      return logical_structure_subject->create_instance(scope, {});
-    }
-    if (!scope->get_options()->is_strict_mode()) {
-      if (this->is_object(scope)) {
-        return success(scope->create_object_instance_subject());
-      }
-    }
-    return scope->error(node, "Неможливо чародія_містить для типу \"" +
-                                    this->get_type_name() + "\".");
+    return error_4(scope, node, name, this);
   }
 
   bool Type::is_iterator(Scope* scope) {
@@ -727,7 +340,8 @@ namespace jejalyk::typeinterpreter {
       return false;
     }
 
-    return this->object->structure->object == iterator_structure_subject->types[0]->object;
+    return this->object->structure->object ==
+           iterator_structure_subject->types[0]->object;
   }
 
   Result* Type::get_iterator_type(Scope* scope, mavka::ast::ASTNode* node) {
@@ -739,7 +353,8 @@ namespace jejalyk::typeinterpreter {
   }
 
   bool Type::is_awaiting(Scope* scope) {
-    const auto iterator_structure_subject = scope->get_root()->get("очікування");
+    const auto iterator_structure_subject =
+        scope->get_root()->get("очікування");
 
     if (this->generic_definition) {
       return false;

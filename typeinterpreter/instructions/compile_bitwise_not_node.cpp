@@ -9,7 +9,8 @@ namespace jejalyk::typeinterpreter {
       return value_result;
     }
 
-    const auto result = value_result->value->bw_not(scope, bitwise_not_node);
+    const auto result = value_result->value->magic_call(scope, bitwise_not_node,
+                                                        JJ_MAG_BW_NOT, {}, {});
     if (result->error) {
       return result;
     }
@@ -17,10 +18,10 @@ namespace jejalyk::typeinterpreter {
     if (value_result->value->is_number(scope)) {
       // ~а
       result->js_node = js::make_negative(value_result->js_node);
-    } else if (value_result->value->has_diia(scope, "чародія_дні")) {
+    } else if (value_result->value->has_diia(scope, JJ_MAG_BW_NOT)) {
       // а.чародія_дні()
       const auto js_chain =
-          js::make_chain(value_result->js_node, js::make_id("чародія_дні"));
+          js::make_chain(value_result->js_node, js::make_id(JJ_MAG_BW_NOT));
       result->js_node = js::make_call(js_chain, {});
     } else {
       // мДні(а)

@@ -72,6 +72,23 @@ namespace jejalyk::typeinterpreter {
                                   subject->types_string() + "\".");
   }
 
+  Result* error_3(Scope* scope,
+                  mavka::ast::ASTNode* node,
+                  const std::string& magic_diia_name) {
+    return scope->error(node, "Неможливо виконати \"" + magic_diia_name +
+                                  "\" для субʼєкта "
+                                  "декількох типів.");
+  }
+
+  Result* error_4(Scope* scope,
+                  mavka::ast::ASTNode* node,
+                  const std::string& magic_diia_name,
+                  Type* type) {
+    return scope->error(node, "Неможливо виконати \"" + magic_diia_name +
+                                  "\" для типу \"" + type->get_type_name() +
+                                  "\".");
+  }
+
   Result* error(const std::string& message) {
     const auto result = new Result();
     result->error = new Error();

@@ -69,10 +69,10 @@ namespace jejalyk::typeinterpreter {
         js_for_node->cleanup->nodes.push_back(js_cleanup_iterator_assign);
 
         return success(nullptr, js_for_node);
-      } else if (value_result->value->has(scope, "чародія_перебір")) {
+      } else if (value_result->value->has(scope, JJ_MAG_ITERATOR)) {
         // перебрати а.чародія_перебір() як х
-        const auto iterator_diia_type_result =
-            value_result->value->get(scope, "чародія_перебір");
+        const auto iterator_diia_type_result = value_result->value->get(
+            scope, mavka::ast::get_ast_node(each_node->value), JJ_MAG_ITERATOR);
         if (iterator_diia_type_result->error) {
           return iterator_diia_type_result;
         }
@@ -110,7 +110,7 @@ namespace jejalyk::typeinterpreter {
           const auto js_initial_assign = js::make_assign(
               js::make_id(iterator_name),
               js::make_call(js::make_chain(value_result->js_node,
-                                           js::make_id("чародія_перебір")),
+                                           js::make_id(JJ_MAG_ITERATOR)),
                             {}));
           js_for_node->init = js_initial_assign;
 

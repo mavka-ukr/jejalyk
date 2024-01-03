@@ -53,9 +53,9 @@ namespace jejalyk::typeinterpreter {
 
     if (value_result->value->is_diia(scope)) {
       diia = value_result->value;
-    } else if (value_result->value->has_diia(scope, "чародія_викликати")) {
-      const auto magic_diia_result =
-          value_result->value->get(scope, "чародія_викликати");
+    } else if (value_result->value->has_diia(scope, JJ_MAG_CALL)) {
+      const auto magic_diia_result = value_result->value->get(
+          scope, mavka::ast::get_ast_node(call_node->value), JJ_MAG_CALL);
       if (magic_diia_result->error) {
         return magic_diia_result;
       }
@@ -170,7 +170,7 @@ namespace jejalyk::typeinterpreter {
     } else {
       // а.чародія_викликати(б)
       const auto js_chain = js::make_chain(value_result->js_node,
-                                           js::make_id("чародія_викликати"));
+                                           js::make_id(JJ_MAG_CALL));
 
       result->js_node = js::make_call(js_chain, js_args);
     }

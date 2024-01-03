@@ -12,76 +12,71 @@ namespace jejalyk::typeinterpreter {
       return right_result;
     }
 
+    const auto logical_structure_subject = scope->get_root_logical();
+
     Result* result = nullptr;
     std::string magic_diia;
     std::string js_comp_symbol;
     std::string m_diia_name;
 
     if (comparison_node->op == "==" || comparison_node->op == "рівно") {
-      result = left_result->value->comp_eq(scope, comparison_node,
-                                           right_result->value);
+      result = logical_structure_subject->create_instance(scope, {});
       magic_diia = "";
       js_comp_symbol = "==";
       m_diia_name = "";
     }
     if (comparison_node->op == "!=" || comparison_node->op == "не рівно") {
-      result = left_result->value->comp_not_eq(scope, comparison_node,
-                                               right_result->value);
+      result = logical_structure_subject->create_instance(scope, {});
       magic_diia = "";
       js_comp_symbol = "!=";
       m_diia_name = "";
     }
     if (comparison_node->op == ">" || comparison_node->op == "більше") {
-      result = left_result->value->comp_greater(scope, comparison_node,
-                                                right_result->value);
-      magic_diia = "чародія_більше";
+      result = left_result->value->magic_call(
+          scope, comparison_node, JJ_MAG_GREATER, {}, {right_result->value});
+      magic_diia = JJ_MAG_GREATER;
       js_comp_symbol = ">";
       m_diia_name = JJ_F_GREATER;
     }
     if (comparison_node->op == "<" || comparison_node->op == "менше") {
-      result = left_result->value->comp_lesser(scope, comparison_node,
-                                               right_result->value);
-      magic_diia = "чародія_менше";
+      result = left_result->value->magic_call(
+          scope, comparison_node, JJ_MAG_LESSER, {}, {right_result->value});
+      magic_diia = JJ_MAG_LESSER;
       js_comp_symbol = "<";
       m_diia_name = JJ_F_LESSER;
     }
     if (comparison_node->op == ">=" || comparison_node->op == "не менше") {
-      result = left_result->value->comp_greater_or_eq(scope, comparison_node,
-                                                      right_result->value);
-      magic_diia = "чародія_не_менше";
+      result = left_result->value->magic_call(scope, comparison_node,
+                                              JJ_MAG_GREATER_EQUAL, {},
+                                              {right_result->value});
+      magic_diia = JJ_MAG_GREATER_EQUAL;
       js_comp_symbol = ">=";
       m_diia_name = JJ_F_GREATER_EQUAL;
     }
     if (comparison_node->op == "<=" || comparison_node->op == "не більше") {
-      result = left_result->value->comp_lesser_or_eq(scope, comparison_node,
-                                                     right_result->value);
-      magic_diia = "чародія_не_більше";
+      result = left_result->value->magic_call(scope, comparison_node,
+                                              JJ_MAG_LESSER_EQUAL, {},
+                                              {right_result->value});
+      magic_diia = JJ_MAG_LESSER_EQUAL;
       js_comp_symbol = "<=";
       m_diia_name = JJ_F_LESSER_EQUAL;
     }
     if (comparison_node->op == "є") {
-      result = left_result->value->comp_is(scope, comparison_node,
-                                           right_result->value);
-      magic_diia = "чародія_є";
+      result = logical_structure_subject->create_instance(scope, {});
       m_diia_name = JJ_F_IS;
     }
     if (comparison_node->op == "не є") {
-      result = left_result->value->comp_is_not(scope, comparison_node,
-                                               right_result->value);
-      magic_diia = "чародія_не_є";
-      m_diia_name = "";
+      result = logical_structure_subject->create_instance(scope, {});
     }
     if (comparison_node->op == "містить") {
-      result = left_result->value->comp_contains(scope, comparison_node,
-                                                 right_result->value);
-      magic_diia = "чародія_містить";
+      result = left_result->value->magic_call(
+          scope, comparison_node, JJ_MAG_CONTAINS, {}, {right_result->value});
+      magic_diia = JJ_MAG_CONTAINS;
       m_diia_name = JJ_F_CONTAINS;
     }
     if (comparison_node->op == "не містить") {
-      result = left_result->value->comp_contains_not(scope, comparison_node,
-                                                     right_result->value);
-      magic_diia = "чародія_не_містить";
-      m_diia_name = "мНеМістить";
+      result = left_result->value->magic_call(
+          scope, comparison_node, JJ_MAG_CONTAINS, {}, {right_result->value});
     }
 
     if (result != nullptr) {
@@ -103,14 +98,14 @@ namespace jejalyk::typeinterpreter {
         return success(result->value, js_comparison);
       }
 
-      if (magic_diia == "чародія_є") {
+      if (comparison_node->op == "є") {
         // мЄ(а, б)
         return success(result->value, js::make_call(js::make_id(JJ_F_IS),
                                                     {left_result->js_node,
                                                      right_result->js_node}));
       }
 
-      if (magic_diia == "чародія_не_є") {
+      if (comparison_node->op == "не є") {
         // !мЄ(а, б)
         return success(result->value,
                        js::make_not(js::make_call(
@@ -136,7 +131,7 @@ namespace jejalyk::typeinterpreter {
         const auto js_chain =
             js::make_chain(left_result->js_node, js::make_id(magic_diia));
         const auto js_call = js::make_call(js_chain, {right_result->js_node});
-        if (magic_diia == "чародія_не_містить") {
+        if (comparison_node->op == "не містить") {
           return success(result->value, js::make_not(js_call));
         }
         return success(result->value, js_call);
@@ -145,7 +140,7 @@ namespace jejalyk::typeinterpreter {
         const auto js_call =
             js::make_call(js::make_id(m_diia_name),
                           {left_result->js_node, right_result->js_node});
-        if (m_diia_name == "мНеМістить") {
+        if (comparison_node->op == "не містить") {
           return success(result->value, js::make_not(js_call));
         }
         return success(result->value, js_call);

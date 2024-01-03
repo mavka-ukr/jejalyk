@@ -232,9 +232,8 @@ namespace jejalyk::typeinterpreter {
 
     structure_object->properties.insert_or_assign("створити", diia_subject);
 
-    if (!structure_object->properties.contains("чародія_викликати")) {
-      structure_object->properties.insert_or_assign("чародія_викликати",
-                                                    diia_subject);
+    if (!structure_object->properties.contains(JJ_MAG_CALL)) {
+      structure_object->properties.insert_or_assign(JJ_MAG_CALL, diia_subject);
     }
 
     if (mockup) {

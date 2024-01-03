@@ -17,47 +17,36 @@ namespace jejalyk::typeinterpreter {
     std::string m_diia_name;
 
     if (arithmetic_node->op == "+") {
-      result =
-          left_result->value->plus(scope, arithmetic_node, right_result->value);
-      magic_diia = "чародія_додати";
+      magic_diia = JJ_MAG_ADD;
       m_diia_name = JJ_F_ADD;
     }
     if (arithmetic_node->op == "-") {
-      result = left_result->value->minus(scope, arithmetic_node,
-                                         right_result->value);
-      magic_diia = "чародія_відняти";
+      magic_diia = JJ_MAG_SUB;
       m_diia_name = JJ_F_SUB;
     }
     if (arithmetic_node->op == "*") {
-      result = left_result->value->multiply(scope, arithmetic_node,
-                                            right_result->value);
-      magic_diia = "чародія_помножити";
+      magic_diia = JJ_MAG_MUL;
       m_diia_name = JJ_F_MUL;
     }
     if (arithmetic_node->op == "/") {
-      result = left_result->value->divide(scope, arithmetic_node,
-                                          right_result->value);
-      magic_diia = "чародія_поділити";
+      magic_diia = JJ_MAG_DIV;
       m_diia_name = JJ_F_DIV;
     }
     if (arithmetic_node->op == "%") {
-      result = left_result->value->divmod(scope, arithmetic_node,
-                                          right_result->value);
-      magic_diia = "чародія_остача";
+      magic_diia = JJ_MAG_MOD;
       m_diia_name = JJ_F_MOD;
     }
     if (arithmetic_node->op == "//") {
-      result = left_result->value->divdiv(scope, arithmetic_node,
-                                          right_result->value);
-      magic_diia = "чародія_частка";
+      magic_diia = JJ_MAG_DIVDIV;
       m_diia_name = JJ_F_DIVDIV;
     }
     if (arithmetic_node->op == "**") {
-      result =
-          left_result->value->pow(scope, arithmetic_node, right_result->value);
-      magic_diia = "чародія_степінь";
+      magic_diia = JJ_MAG_POW;
       m_diia_name = JJ_F_POW;
     }
+
+    result = left_result->value->magic_call(scope, arithmetic_node, magic_diia,
+                                            {}, {right_result->value});
 
     if (result != nullptr) {
       if (result->error) {
@@ -109,6 +98,7 @@ namespace jejalyk::typeinterpreter {
       return result;
     }
 
-    return scope->error(arithmetic_node, "Невідома вказівка \"" + arithmetic_node->op + "\".");
+    return scope->error(arithmetic_node,
+                        "Невідома вказівка \"" + arithmetic_node->op + "\".");
   }
 } // namespace typeinterpreter
