@@ -71,7 +71,34 @@ namespace jejalyk::typeinterpreter {
           named = true;
         }
       }
-      if (!named) {
+      if (named) {
+        // named
+        for (const auto diia_param : diia_params) {
+          mavka::ast::ArgNode* arg_node = nullptr;
+          for (const auto call_arg_node : call_node->args) {
+            if (call_arg_node->name == diia_param->name) {
+              arg_node = call_arg_node;
+              break;
+            }
+          }
+          if (arg_node) {
+            const auto arg_value_result = scope->compile_node(arg_node->value);
+            if (arg_value_result->error) {
+              return arg_value_result;
+            }
+            args.push_back(arg_value_result->value);
+            js_args.push_back(arg_value_result->js_node);
+          } else {
+            if (diia_param->value) {
+              args.push_back(diia_param->value);
+              js_args.push_back(js::make_id("undefined"));
+            } else {
+              return scope->error(call_node, "Пропущено аргумент \"" +
+                                                 diia_param->name + "\".");
+            }
+          }
+        }
+      } else {
         // positioned
         const Param* last_param = nullptr;
         if (!diia_params.empty()) {
@@ -154,10 +181,6 @@ namespace jejalyk::typeinterpreter {
             return scope->error(call_node, "Забагато аргументів.");
           }
         }
-      } else {
-        // named
-        return scope->error(call_node,
-                            "Аргументи з назвами тимчасово недоступні.");
       }
     }
 
