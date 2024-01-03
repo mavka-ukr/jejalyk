@@ -6,7 +6,7 @@ namespace jejalyk::typeinterpreter {
       return scope->error(eval_node, "Розширення вимкнені.");
     }
 
-    const auto js_raw_node = new jejalyk::js::JsRawNode();
+    const auto js_raw_node = new js::JsRawNode();
     js_raw_node->code =
         "//[JS]\n" + tools::trim(eval_node->value) + "\n//[/JS]";
 

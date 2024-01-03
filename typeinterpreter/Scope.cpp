@@ -738,6 +738,7 @@ namespace jejalyk::typeinterpreter {
 
       bool is_diia = false;
       bool is_mockup = false;
+      bool diia_ee = false;
       bool diia_async = false;
       std::string diia_structure;
       std::string diia_name;
@@ -748,6 +749,7 @@ namespace jejalyk::typeinterpreter {
       if (const auto mockup_diia_node = node->MockupDiiaNode) {
         is_diia = true;
         is_mockup = true;
+        diia_ee = mockup_diia_node->ee;
         diia_async = mockup_diia_node->async;
         diia_structure = mockup_diia_node->structure;
         diia_name = mockup_diia_node->name;
@@ -758,6 +760,7 @@ namespace jejalyk::typeinterpreter {
 
       if (const auto diia_node = node->DiiaNode) {
         is_diia = true;
+        diia_ee = diia_node->ee;
         diia_async = diia_node->async;
         diia_structure = diia_node->structure;
         diia_name = diia_node->name;
@@ -768,6 +771,10 @@ namespace jejalyk::typeinterpreter {
 
       if (is_diia) {
         if (diia_structure.empty()) {
+          if (diia_ee) {
+            return this->error(mavka::ast::get_ast_node(node),
+                               "Спец дії лише для структур.");
+          }
           if (this->has_local(diia_name) ||
               this->get_root()->has_local(diia_name)) {
             return this->error(mavka::ast::get_ast_node(node),
@@ -796,36 +803,64 @@ namespace jejalyk::typeinterpreter {
             const auto structure_type = structure_subject->types[0];
             const auto structure_object = structure_type->object;
 
-            if (structure_object->properties.contains(diia_name)) {
-              return this->error(mavka::ast::get_ast_node(node),
-                                 "Властивість \"" + diia_name +
-                                     "\" вже визначено в структурі \"" +
-                                     diia_structure + "\".");
-            }
+            if (diia_ee) {
+              if (structure_object->properties.contains(diia_name)) {
+                return this->error(mavka::ast::get_ast_node(node),
+                                   "Спец властивість \"" + diia_name +
+                                       "\" вже визначено в структурі \"" +
+                                       diia_structure + "\".");
+              }
 
-            if (structure_object->methods.contains(diia_name)) {
-              return this->error(mavka::ast::get_ast_node(node),
-                                 "Метод \"" + diia_name +
-                                     "\" вже визначено в структурі \"" +
-                                     diia_structure + "\".");
-            }
+              const auto diia_scope = this->make_child();
+              for (const auto structure_generic_definition :
+                   structure_object->generic_definitions) {
+                diia_scope->variables.insert_or_assign(
+                    structure_generic_definition->name,
+                    Subject::create(structure_generic_definition));
+              }
+              const auto diia_declaration_result = declare_diia(
+                  this, diia_scope, mavka::ast::get_ast_node(node), diia_async,
+                  diia_name, diia_generics, diia_params, diia_return_types);
+              if (diia_declaration_result->error) {
+                return diia_declaration_result;
+              }
 
-            const auto diia_scope = this->make_child();
-            for (const auto structure_generic_definition :
-                 structure_object->generic_definitions) {
-              diia_scope->variables.insert_or_assign(
-                  structure_generic_definition->name,
-                  Subject::create(structure_generic_definition));
-            }
-            const auto diia_declaration_result = declare_diia(
-                this, diia_scope, mavka::ast::get_ast_node(node), diia_async,
-                diia_name, diia_generics, diia_params, diia_return_types);
-            if (diia_declaration_result->error) {
-              return diia_declaration_result;
-            }
+              structure_object->properties.insert_or_assign(
+                  diia_name, diia_declaration_result->value);
+            } else {
+              for (const auto structure_param : structure_object->params) {
+                if (structure_param->name == diia_name) {
+                  return this->error(mavka::ast::get_ast_node(node),
+                                     "Властивість \"" + diia_name +
+                                         "\" вже визначено в структурі \"" +
+                                         diia_structure + "\".");
+                }
+              }
 
-            structure_object->methods.insert_or_assign(
-                diia_name, diia_declaration_result->value->types[0]);
+              if (structure_object->methods.contains(diia_name)) {
+                return this->error(mavka::ast::get_ast_node(node),
+                                   "Метод \"" + diia_name +
+                                       "\" вже визначено в структурі \"" +
+                                       diia_structure + "\".");
+              }
+
+              const auto diia_scope = this->make_child();
+              for (const auto structure_generic_definition :
+                   structure_object->generic_definitions) {
+                diia_scope->variables.insert_or_assign(
+                    structure_generic_definition->name,
+                    Subject::create(structure_generic_definition));
+              }
+              const auto diia_declaration_result = declare_diia(
+                  this, diia_scope, mavka::ast::get_ast_node(node), diia_async,
+                  diia_name, diia_generics, diia_params, diia_return_types);
+              if (diia_declaration_result->error) {
+                return diia_declaration_result;
+              }
+
+              structure_object->methods.insert_or_assign(
+                  diia_name, diia_declaration_result->value->types[0]);
+            }
           } else {
             return this->error(
                 mavka::ast::get_ast_node(node),

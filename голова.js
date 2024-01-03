@@ -117,14 +117,13 @@ function мСтруктура(parent, fn) {
   structure[М].предок = parent;
   structure[М].заповнити = fn;
   structure[М].методи = Object.create(null);
-  structure.створити = мДія(function створити() {
+  structure.чародія_викликати = мДія(function чародія_викликати() {
     var instance = Object.create(null);
     instance[М] = Object.create(null);
     instance[М].структура = structure;
     fn(instance, ...arguments);
     return instance;
   });
-  structure.чародія_викликати = structure.створити;
   return structure;
 }
 
@@ -623,3 +622,22 @@ function мЄ(a, b) {
   }
   return false;
 }
+
+var м_перебір = мСтруктура(м_обʼєкт, function перебір(мs, м_завершено, м_значення) {
+  мs.завершено = м_завершено;
+  мs.значення = м_значення;
+  мs.далі = мДія(function далі() {
+    м_перебір[М].методи.далі(мs);
+  });
+  return мs;
+});
+м_перебір[М].методи.далі = мДія(function далі(я) {
+});
+
+м_перебір.створити = мДія(function створити(м_завершено, м_значення, м_далі) {
+  var м_новий_перебір = м_перебір.чародія_викликати(м_завершено, м_значення);
+  м_новий_перебір.далі = мДія(function далі() {
+    м_далі(м_новий_перебір);
+  });
+  return м_новий_перебір;
+});

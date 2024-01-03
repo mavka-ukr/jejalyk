@@ -64,11 +64,11 @@ namespace jejalyk::typeinterpreter {
     Scope* scope_with_generics = scope->make_proxy();
     std::vector<Subject*> generic_definition_subjects;
 
-    // створити()
+    // чародія_викликати()
     const auto diia_object = new Object();
     diia_object->structure = diia_structure_subject->types[0];
     diia_object->is_diia_async = false;
-    diia_object->name = "створити";
+    diia_object->name = JJ_MAG_CALL;
     Scope* diia_scope_with_generics = scope->make_proxy();
     std::vector<Subject*> diia_generic_definition_subjects;
 
@@ -91,7 +91,7 @@ namespace jejalyk::typeinterpreter {
           generic_definition->name, generic_definition_subject);
       generic_definition_subjects.push_back(generic_definition_subject);
 
-      // створити()
+      // чародія_викликати()
       const auto diia_generic_definition = new GenericDefinition();
       diia_generic_definition->object = diia_object;
       diia_generic_definition->index = generic_definition->index;
@@ -123,11 +123,6 @@ namespace jejalyk::typeinterpreter {
       param->variadic = param_node->variadic;
 
       if (param_node->ee) {
-        if (param_node->name == "створити") {
-          return scope->error(
-              param_node,
-              "Неможливо перевизначити спеціальну властивість \"створити\".");
-        }
         for (const auto& [property_name, property_subject] :
              structure_object->properties) {
           if (property_name == param_node->name) {
@@ -158,7 +153,7 @@ namespace jejalyk::typeinterpreter {
 
         structure_object->params.push_back(param);
 
-        // створити()
+        // чародія_викликати()
         const auto diia_param = new Param();
         diia_param->name = param_node->name;
         const auto diia_types_result =
@@ -174,63 +169,9 @@ namespace jejalyk::typeinterpreter {
       }
     }
 
-    // for (const auto method_declaration_node : method_declarations) {
-    //   const auto method_declaration_result =
-    //       scope_with_generics->compile_node(method_declaration_node);
-    //   if (method_declaration_result->error) {
-    //     return method_declaration_result;
-    //   }
-    //
-    //   if (method_declaration_node->ee) {
-    //     if (method_declaration_node->name == "створити") {
-    //       return scope->error(
-    //           method_declaration_node,
-    //           "Неможливо перевизначити спеціальну властивість
-    //           \"створити\".");
-    //     }
-    //     for (const auto& [property_name, property_subject] :
-    //          structure_object->properties) {
-    //       if (property_name == method_declaration_node->name) {
-    //         return scope->error(method_declaration_node,
-    //                               "Спеціальну властивість \"" +
-    //                                   method_declaration_node->name +
-    //                                   "\" вже визначено.");
-    //       }
-    //     }
-    //     structure_object->properties.insert_or_assign(
-    //         method_declaration_node->name, method_declaration_result->value);
-    //   } else {
-    //     for (const auto param : structure_object->params) {
-    //       if (param->name == method_declaration_node->name) {
-    //         return scope->error(method_declaration_node,
-    //                               "Властивість \"" +
-    //                                   method_declaration_node->name +
-    //                                   "\" вже визначено.");
-    //       }
-    //     }
-    //     for (const auto& [method_name, method_type] :
-    //          structure_object->methods) {
-    //       if (method_name == method_declaration_node->name) {
-    //         return scope->error(
-    //             method_declaration_node,
-    //             "Дію \"" + method_declaration_node->name + "\" вже
-    //             визначено.");
-    //       }
-    //     }
-    //
-    //     // todo: handle parent
-    //
-    //     structure_object->methods.insert_or_assign(
-    //         method_declaration_node->name,
-    //         method_declaration_result->value->types[0]);
-    //   }
-    // }
-
     diia_object->return_types = Subject::create(structure_type->create_instance(
         scope, diia_generic_definition_subjects));
     const auto diia_subject = Subject::create(diia_object);
-
-    structure_object->properties.insert_or_assign("створити", diia_subject);
 
     if (!structure_object->properties.contains(JJ_MAG_CALL)) {
       structure_object->properties.insert_or_assign(JJ_MAG_CALL, diia_subject);
@@ -282,8 +223,8 @@ namespace jejalyk::typeinterpreter {
         const auto method_js_chain = js::make_chain("мs", method_name);
         const auto method_js_call2 =
             js::make_call(js::make_id(JJ_F_DIIA), {method_js_function});
-        js_function->body->nodes.push_back(js::make_assign(
-            method_js_chain, method_js_call2));
+        js_function->body->nodes.push_back(
+            js::make_assign(method_js_chain, method_js_call2));
       }
 
       // return мs
