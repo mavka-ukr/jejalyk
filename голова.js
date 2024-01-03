@@ -85,9 +85,6 @@ Array.сортувати = мДія(function сортувати(список) {
     iterator.значення = this[i];
     var that = this;
     iterator.далі = мДія(function далі() {
-      if (iterator.завершено) {
-        return;
-      }
       iterator.значення = that[++i];
       iterator.завершено = i >= that.length;
     });
@@ -99,6 +96,76 @@ Array.сортувати = мДія(function сортувати(список) {
 });
 мДп(Array, function чародія_текст() {
   return () => "<список>";
+});
+
+мДп(Map, function розмір() {
+  return this.size;
+});
+мДп(Map, function ключі() {
+  return () => [...this.keys()];
+});
+мДп(Map, function значення() {
+  return () => [...this.values()];
+});
+мДп(Map, function видалити() {
+  return (k) => {
+    return this.delete(k);
+  };
+});
+мДп(Map, function очистити() {
+  return () => {
+    this.clear();
+    return this;
+  };
+});
+мДп(Map, function чародія_містить() {
+  return (k) => this.has(k);
+});
+мДп(Map, function чародія_отримати() {
+  return (k) => this.get(k);
+});
+мДп(Map, function чародія_покласти() {
+  return (k, v) => {
+    this.set(k, v);
+    return this;
+  };
+});
+мДп(Map, function чародія_перебір() {
+  return () => {
+    const keys = [...this.keys()];
+    var i = 0;
+    var iterator = Object.create(null);
+    iterator.завершено = keys.length === 0;
+    iterator.значення = keys[i];
+    iterator.далі = мДія(function далі() {
+      iterator.значення = keys[++i];
+      iterator.завершено = i >= keys.length;
+    });
+    return iterator;
+  };
+});
+мДп(Map, function чародія_перебір_з_ключем() {
+  return () => {
+    const entries = [...this.entries()];
+    var i = 0;
+    var iterator = Object.create(null);
+    iterator.завершено = entries.length === 0;
+    iterator.ключ = entries[i][0];
+    iterator.значення = entries[i][1];
+    iterator.далі = мДія(function далі() {
+      i++;
+      iterator.ключ = entries[i][0];
+      iterator.значення = entries[i][1];
+      iterator.завершено = i >= entries.length;
+    });
+    return iterator;
+  };
+});
+мДп(Map, function чародія_логічне() {
+  return () => true;
+});
+мДп(Map, function чародія_текст() {
+  return () => "<словник>";
 });
 
 Object.defineProperty(String.prototype, "довжина", {
@@ -127,22 +194,6 @@ Object.defineProperty(Function.prototype, "чародія_викликати", {
   get: function() {
     return (...args) => {
       return this(...args);
-    };
-  },
-});
-
-Object.defineProperty(Map.prototype, "чародія_отримати", {
-  get: function() {
-    return (k) => {
-      return this.get(k);
-    };
-  },
-});
-Object.defineProperty(Map.prototype, "чародія_покласти", {
-  get: function() {
-    return (k, v) => {
-      this.set(k, v);
-      return this;
     };
   },
 });

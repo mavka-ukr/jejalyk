@@ -15,7 +15,7 @@ namespace jejalyk::typeinterpreter {
     }
 
     const auto result = value_result->value->magic_call(
-        scope, get_element_node, JJ_F_GET_ELEMENT, {}, {index_result->value});
+        scope, get_element_node, JJ_MAG_GET_ELEMENT, {}, {index_result->value});
     if (result->error) {
       return result;
     }
