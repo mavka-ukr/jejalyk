@@ -20,25 +20,61 @@ var м_Дія = Function;
 var м_так = true;
 var м_ні = false;
 
-function мДп(constructor, name, fn) {
-  Object.defineProperty(constructor.prototype, name, {
+function мДп(constructor, fn) {
+  Object.defineProperty(constructor.prototype, fn.name, {
     get: fn,
   });
 }
 
-мДп(Array, "довжина", function() {
+мДп(Array, function довжина() {
   return this.length;
 });
-мДп(Array, "додати", function() {
-  return (value) => {
-    this.push(value);
+Array.сортувати = мДія(function сортувати(список) {
+  return список.sort((a, b) => a - b);
+});
+мДп(Array, function сортувати() {
+  return (fn) => this.sort(fn);
+});
+мДп(Array, function додати() {
+  return (value) => this.push(value);
+});
+мДп(Array, function забрати() {
+  return () => this.pop();
+});
+мДп(Array, function фільтр() {
+  return (fn) => this.filter(fn);
+});
+мДп(Array, function знайти() {
+  return (fn) => this.find(fn);
+});
+мДп(Array, function позиція() {
+  return (fn) => this.findIndex(fn);
+});
+мДп(Array, function перетворити() {
+  return (fn) => this.map(fn);
+});
+мДп(Array, function зʼєднати() {
+  return (d) => this.map((v) => мТекст(v)).join(d);
+});
+мДп(Array, function обернути() {
+  return () => this.reverse();
+});
+мДп(Array, function зріз() {
+  return (from, to) => this.slice(from, to == null ? undefined : to);
+});
+мДп(Array, function чародія_містить() {
+  return (value) => this.findIndex((item) => item === value) !== -1;
+});
+мДп(Array, function чародія_отримати() {
+  return (index) => this[index];
+});
+мДп(Array, function чародія_покласти() {
+  return (index, value) => {
+    this[index] = value;
     return this;
   };
 });
-мДп(Array, "чародія_містить", function() {
-  return (value) => this.findIndex((item) => item === value) !== -1;
-});
-мДп(Array, "чародія_перебір", function() {
+мДп(Array, function чародія_перебір() {
   return () => {
     var i = 0;
     var iterator = Object.create(null);
@@ -54,6 +90,12 @@ function мДп(constructor, name, fn) {
     });
     return iterator;
   };
+});
+мДп(Array, function чародія_логічне() {
+  return () => true;
+});
+мДп(Array, function чародія_текст() {
+  return () => "<список>";
 });
 
 Object.defineProperty(String.prototype, "довжина", {
@@ -86,18 +128,18 @@ Object.defineProperty(Function.prototype, "чародія_викликати", {
   },
 });
 
+Object.defineProperty(Map.prototype, "чародія_отримати", {
+  get: function() {
+    return (k) => {
+      return this.get(k);
+    };
+  },
+});
 Object.defineProperty(Map.prototype, "чародія_покласти", {
   get: function() {
     return (k, v) => {
       this.set(k, v);
       return this;
-    };
-  },
-});
-Object.defineProperty(Map.prototype, "чародія_отримати", {
-  get: function() {
-    return (k) => {
-      return this.get(k);
     };
   },
 });

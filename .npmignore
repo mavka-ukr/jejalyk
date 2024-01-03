@@ -13,3 +13,7 @@ test.js
 head.h
 тест.js
 node_modules/
+syntax/
+js/
+typeinterpreter/
+assets/
