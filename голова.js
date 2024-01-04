@@ -7,224 +7,11 @@ class Падіння extends Error {
   }
 }
 
-var м_обʼєкт = Object.create(null);
-var м_список = Array;
-var м_число = Number;
-var м_текст = String;
-var м_логічне = Boolean;
-var м_пусто = null;
-var м_байти = ArrayBuffer;
-var м_Модуль = Object.create(null);
-var м_Дія = Function;
-
-var м_так = true;
-var м_ні = false;
-
 function мДп(constructor, fn) {
   Object.defineProperty(constructor.prototype, fn.name, {
     get: fn,
   });
 }
-
-мДп(Array, function довжина() {
-  return this.length;
-});
-Array.сортувати = мДія(function сортувати(список) {
-  return список.sort((a, b) => a - b);
-});
-мДп(Array, function сортувати() {
-  return (fn) => this.sort(fn);
-});
-мДп(Array, function додати() {
-  return (value) => this.push(value);
-});
-мДп(Array, function забрати() {
-  return () => this.pop();
-});
-мДп(Array, function фільтр() {
-  return (fn) => this.filter(fn);
-});
-мДп(Array, function знайти() {
-  return (fn) => this.find(fn);
-});
-мДп(Array, function знайти_позицію() {
-  return (fn) => this.findIndex(fn);
-});
-мДп(Array, function позиція() {
-  return (value) => this.indexOf(value);
-});
-мДп(Array, function перетворити() {
-  return (fn) => this.map(fn);
-});
-мДп(Array, function зʼєднати() {
-  return (d) => this.map((v) => мТекст(v)).join(d);
-});
-мДп(Array, function обернути() {
-  return () => this.reverse();
-});
-мДп(Array, function зріз() {
-  return (from, to) => this.slice(from, to == null ? undefined : to);
-});
-мДп(Array, function чародія_містить() {
-  return (value) => this.findIndex((item) => item === value) !== -1;
-});
-мДп(Array, function чародія_отримати() {
-  return (index) => this[index];
-});
-мДп(Array, function чародія_покласти() {
-  return (index, value) => {
-    this[index] = value;
-    return this;
-  };
-});
-мДп(Array, function чародія_перебір() {
-  return () => {
-    var i = 0;
-    var iterator = Object.create(null);
-    iterator.завершено = this.length === 0;
-    iterator.значення = this[i];
-    var that = this;
-    iterator.далі = мДія(function далі() {
-      iterator.значення = that[++i];
-      iterator.завершено = i >= that.length;
-    });
-    return iterator;
-  };
-});
-мДп(Array, function чародія_текст() {
-  return () => "<список>";
-});
-
-мДп(Map, function розмір() {
-  return this.size;
-});
-мДп(Map, function ключі() {
-  return () => [...this.keys()];
-});
-мДп(Map, function значення() {
-  return () => [...this.values()];
-});
-мДп(Map, function видалити() {
-  return (k) => {
-    return this.delete(k);
-  };
-});
-мДп(Map, function очистити() {
-  return () => {
-    this.clear();
-    return this;
-  };
-});
-мДп(Map, function чародія_містить() {
-  return (k) => this.has(k);
-});
-мДп(Map, function чародія_отримати() {
-  return (k) => this.get(k);
-});
-мДп(Map, function чародія_покласти() {
-  return (k, v) => {
-    this.set(k, v);
-    return this;
-  };
-});
-мДп(Map, function чародія_перебір() {
-  return () => {
-    const keys = [...this.keys()];
-    var i = 0;
-    var iterator = Object.create(null);
-    iterator.завершено = keys.length === 0;
-    iterator.значення = keys[i];
-    iterator.далі = мДія(function далі() {
-      iterator.значення = keys[++i];
-      iterator.завершено = i >= keys.length;
-    });
-    return iterator;
-  };
-});
-мДп(Map, function чародія_перебір_з_ключем() {
-  return () => {
-    const entries = [...this.entries()];
-    var i = 0;
-    var iterator = Object.create(null);
-    iterator.завершено = entries.length === 0;
-    iterator.ключ = entries[i][0];
-    iterator.значення = entries[i][1];
-    iterator.далі = мДія(function далі() {
-      i++;
-      iterator.ключ = entries[i][0];
-      iterator.значення = entries[i][1];
-      iterator.завершено = i >= entries.length;
-    });
-    return iterator;
-  };
-});
-мДп(Map, function чародія_текст() {
-  return () => "<словник>";
-});
-
-мДп(String, function довжина() {
-  return this.length;
-});
-мДп(String, function розбити() {
-  return (d) => this.split(d);
-});
-мДп(String, function замінити() {
-  return (o, n) => this.replaceAll(o, n);
-});
-мДп(String, function починається() {
-  return (v) => this.startsWith(v);
-});
-мДп(String, function закінчується() {
-  return (v) => this.endsWith(v);
-});
-мДп(String, function обтяти() {
-  return () => this.trim();
-});
-мДп(String, function чародія_додати() {
-  return (v) => this + v;
-});
-мДп(String, function чародія_містить() {
-  return (v) => this.includes(v);
-});
-мДп(String, function чародія_отримати() {
-  return (i) => this[i];
-});
-мДп(String, function чародія_перебір() {
-  return () => {
-    var i = 0;
-    var iterator = Object.create(null);
-    iterator.завершено = this.length === 0;
-    iterator.значення = this[i];
-    var that = this;
-    iterator.далі = мДія(function далі() {
-      iterator.значення = that[++i];
-      iterator.завершено = i >= that.length;
-    });
-    return iterator;
-  };
-});
-мДп(String, function чародія_число() {
-  return () => Number(this);
-});
-
-Object.defineProperty(Number.prototype, "чародія_додати", {
-  get: function() {
-    return (value) => this + value;
-  },
-});
-Object.defineProperty(Number.prototype, "чародія_помножити", {
-  get: function() {
-    return (value) => this * value;
-  },
-});
-
-Object.defineProperty(Function.prototype, "чародія_викликати", {
-  get: function() {
-    return (...args) => {
-      return this(...args);
-    };
-  },
-});
 
 function мДія(fn) {
   fn[М] = Object.create(null);
@@ -746,6 +533,273 @@ function мЄ(a, b) {
   }
   return false;
 }
+
+var м_обʼєкт = Object.create(null);
+var м_список = Array;
+var м_словник = Map;
+var м_число = Number;
+var м_текст = String;
+var м_логічне = Boolean;
+var м_пусто = null;
+var м_байти = Uint8Array;
+var м_Модуль = Object.create(null);
+var м_Дія = Function;
+
+var м_так = true;
+var м_ні = false;
+
+мДп(Boolean, function чародія_число() {
+  return () => Number(this);
+});
+мДп(Boolean, function чародія_текст() {
+  return () => this ? "так" : "ні";
+});
+
+мДп(Number, function чародія_додати() {
+  return (v) => this + v;
+});
+мДп(Number, function чародія_відняти() {
+  return (v) => this - v;
+});
+мДп(Number, function чародія_помножити() {
+  return (v) => this * v;
+});
+мДп(Number, function чародія_поділити() {
+  return (v) => this / v;
+});
+мДп(Number, function чародія_остача() {
+  return (v) => this % v;
+});
+мДп(Number, function чародія_частка() {
+  return (v) => Math.floor(this / v);
+});
+мДп(Number, function чародія_степінь() {
+  return (v) => this ** v;
+});
+мДп(Number, function чародія_вліво() {
+  return (v) => this << v;
+});
+мДп(Number, function чародія_вправо() {
+  return (v) => this >> v;
+});
+мДп(Number, function чародія_вабо() {
+  return (v) => this ^ v;
+});
+мДп(Number, function чародія_дабо() {
+  return (v) => this | v;
+});
+мДп(Number, function чародія_ді() {
+  return (v) => this & v;
+});
+мДп(Number, function чародія_більше() {
+  return (v) => this > v;
+});
+мДп(Number, function чародія_менше() {
+  return (v) => this < v;
+});
+мДп(Number, function чародія_не_більше() {
+  return (v) => this <= v;
+});
+мДп(Number, function чародія_не_менше() {
+  return (v) => this >= v;
+});
+мДп(Number, function чародія_дні() {
+  return () => ~this;
+});
+мДп(Number, function чародія_додатнє() {
+  return () => +this;
+});
+мДп(Number, function чародія_відʼємне() {
+  return () => -this;
+});
+мДп(Number, function чародія_текст() {
+  return () => String(this);
+});
+
+мДп(String, function довжина() {
+  return this.length;
+});
+мДп(String, function розбити() {
+  return (d) => this.split(d);
+});
+мДп(String, function замінити() {
+  return (o, n) => this.replaceAll(o, n);
+});
+мДп(String, function починається() {
+  return (v) => this.startsWith(v);
+});
+мДп(String, function закінчується() {
+  return (v) => this.endsWith(v);
+});
+мДп(String, function обтяти() {
+  return () => this.trim();
+});
+мДп(String, function чародія_додати() {
+  return (v) => this + v;
+});
+мДп(String, function чародія_містить() {
+  return (v) => this.includes(v);
+});
+мДп(String, function чародія_отримати() {
+  return (i) => this[i];
+});
+мДп(String, function чародія_перебір() {
+  return () => {
+    var i = 0;
+    var iterator = Object.create(null);
+    iterator.завершено = this.length === 0;
+    iterator.значення = this[i];
+    var that = this;
+    iterator.далі = мДія(function далі() {
+      iterator.значення = that[++i];
+      iterator.завершено = i >= that.length;
+    });
+    return iterator;
+  };
+});
+мДп(String, function чародія_число() {
+  return () => Number(this);
+});
+
+мДп(Array, function довжина() {
+  return this.length;
+});
+Array.сортувати = мДія(function сортувати(список) {
+  return список.sort((a, b) => a - b);
+});
+мДп(Array, function сортувати() {
+  return (fn) => this.sort(fn);
+});
+мДп(Array, function додати() {
+  return (value) => this.push(value);
+});
+мДп(Array, function забрати() {
+  return () => this.pop();
+});
+мДп(Array, function фільтр() {
+  return (fn) => this.filter(fn);
+});
+мДп(Array, function знайти() {
+  return (fn) => this.find(fn);
+});
+мДп(Array, function знайти_позицію() {
+  return (fn) => this.findIndex(fn);
+});
+мДп(Array, function позиція() {
+  return (value) => this.indexOf(value);
+});
+мДп(Array, function перетворити() {
+  return (fn) => this.map(fn);
+});
+мДп(Array, function зʼєднати() {
+  return (d) => this.map((v) => мТекст(v)).join(d);
+});
+мДп(Array, function обернути() {
+  return () => this.reverse();
+});
+мДп(Array, function зріз() {
+  return (from, to) => this.slice(from, to == null ? undefined : to);
+});
+мДп(Array, function чародія_містить() {
+  return (value) => this.findIndex((item) => item === value) !== -1;
+});
+мДп(Array, function чародія_отримати() {
+  return (index) => this[index];
+});
+мДп(Array, function чародія_покласти() {
+  return (index, value) => {
+    this[index] = value;
+    return this;
+  };
+});
+мДп(Array, function чародія_перебір() {
+  return () => {
+    var i = 0;
+    var iterator = Object.create(null);
+    iterator.завершено = this.length === 0;
+    iterator.значення = this[i];
+    var that = this;
+    iterator.далі = мДія(function далі() {
+      iterator.значення = that[++i];
+      iterator.завершено = i >= that.length;
+    });
+    return iterator;
+  };
+});
+мДп(Array, function чародія_текст() {
+  return () => "<список>";
+});
+
+мДп(Map, function розмір() {
+  return this.size;
+});
+мДп(Map, function ключі() {
+  return () => [...this.keys()];
+});
+мДп(Map, function значення() {
+  return () => [...this.values()];
+});
+мДп(Map, function видалити() {
+  return (k) => {
+    return this.delete(k);
+  };
+});
+мДп(Map, function очистити() {
+  return () => {
+    this.clear();
+    return this;
+  };
+});
+мДп(Map, function чародія_містить() {
+  return (k) => this.has(k);
+});
+мДп(Map, function чародія_отримати() {
+  return (k) => this.get(k);
+});
+мДп(Map, function чародія_покласти() {
+  return (k, v) => {
+    this.set(k, v);
+    return this;
+  };
+});
+мДп(Map, function чародія_перебір() {
+  return () => {
+    const keys = [...this.keys()];
+    var i = 0;
+    var iterator = Object.create(null);
+    iterator.завершено = keys.length === 0;
+    iterator.значення = keys[i];
+    iterator.далі = мДія(function далі() {
+      iterator.значення = keys[++i];
+      iterator.завершено = i >= keys.length;
+    });
+    return iterator;
+  };
+});
+мДп(Map, function чародія_перебір_з_ключем() {
+  return () => {
+    const entries = [...this.entries()];
+    var i = 0;
+    var iterator = Object.create(null);
+    iterator.завершено = entries.length === 0;
+    iterator.ключ = entries[i][0];
+    iterator.значення = entries[i][1];
+    iterator.далі = мДія(function далі() {
+      i++;
+      iterator.ключ = entries[i][0];
+      iterator.значення = entries[i][1];
+      iterator.завершено = i >= entries.length;
+    });
+    return iterator;
+  };
+});
+мДп(Map, function чародія_текст() {
+  return () => "<словник>";
+});
+
+мДп(Function, function чародія_викликати() {
+  return (...args) => this(...args);
+});
 
 var м_перебір = мСтруктура(м_обʼєкт, function перебір(мs, м_завершено, м_значення) {
   мs.завершено = м_завершено;
