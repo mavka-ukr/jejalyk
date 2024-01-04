@@ -91,9 +91,6 @@ Array.сортувати = мДія(function сортувати(список) {
     return iterator;
   };
 });
-мДп(Array, function чародія_логічне() {
-  return () => true;
-});
 мДп(Array, function чародія_текст() {
   return () => "<список>";
 });
@@ -161,22 +158,53 @@ Array.сортувати = мДія(function сортувати(список) {
     return iterator;
   };
 });
-мДп(Map, function чародія_логічне() {
-  return () => true;
-});
 мДп(Map, function чародія_текст() {
   return () => "<словник>";
 });
 
-Object.defineProperty(String.prototype, "довжина", {
-  get: function() {
-    return this.length;
-  },
+мДп(String, function довжина() {
+  return this.length;
 });
-Object.defineProperty(String.prototype, "чародія_додати", {
-  get: function() {
-    return (value) => this + value;
-  },
+мДп(String, function розбити() {
+  return (d) => this.split(d);
+});
+мДп(String, function замінити() {
+  return (o, n) => this.replaceAll(o, n);
+});
+мДп(String, function починається() {
+  return (v) => this.startsWith(v);
+});
+мДп(String, function закінчується() {
+  return (v) => this.endsWith(v);
+});
+мДп(String, function обтяти() {
+  return () => this.trim();
+});
+мДп(String, function чародія_додати() {
+  return (v) => this + v;
+});
+мДп(String, function чародія_містить() {
+  return (v) => this.includes(v);
+});
+мДп(String, function чародія_отримати() {
+  return (i) => this[i];
+});
+мДп(String, function чародія_перебір() {
+  return () => {
+    var i = 0;
+    var iterator = Object.create(null);
+    iterator.завершено = this.length === 0;
+    iterator.значення = this[i];
+    var that = this;
+    iterator.далі = мДія(function далі() {
+      iterator.значення = that[++i];
+      iterator.завершено = i >= that.length;
+    });
+    return iterator;
+  };
+});
+мДп(String, function чародія_число() {
+  return () => Number(this);
 });
 
 Object.defineProperty(Number.prototype, "чародія_додати", {
