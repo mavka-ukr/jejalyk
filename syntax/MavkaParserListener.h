@@ -122,11 +122,17 @@ public:
   virtual void enterTake_module(MavkaParser::Take_moduleContext *ctx) = 0;
   virtual void exitTake_module(MavkaParser::Take_moduleContext *ctx) = 0;
 
+  virtual void enterTake_remote(MavkaParser::Take_remoteContext *ctx) = 0;
+  virtual void exitTake_remote(MavkaParser::Take_remoteContext *ctx) = 0;
+
   virtual void enterTake_file(MavkaParser::Take_fileContext *ctx) = 0;
   virtual void exitTake_file(MavkaParser::Take_fileContext *ctx) = 0;
 
-  virtual void enterTake_remote(MavkaParser::Take_remoteContext *ctx) = 0;
-  virtual void exitTake_remote(MavkaParser::Take_remoteContext *ctx) = 0;
+  virtual void enterTake_module_elements(MavkaParser::Take_module_elementsContext *ctx) = 0;
+  virtual void exitTake_module_elements(MavkaParser::Take_module_elementsContext *ctx) = 0;
+
+  virtual void enterTake_module_element(MavkaParser::Take_module_elementContext *ctx) = 0;
+  virtual void exitTake_module_element(MavkaParser::Take_module_elementContext *ctx) = 0;
 
   virtual void enterGive(MavkaParser::GiveContext *ctx) = 0;
   virtual void exitGive(MavkaParser::GiveContext *ctx) = 0;

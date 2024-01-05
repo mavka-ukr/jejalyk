@@ -159,11 +159,19 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitTake_remote(MavkaParser::Take_remoteContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitTake_file(MavkaParser::Take_fileContext *ctx) override {
     return visitChildren(ctx);
   }
 
-  virtual std::any visitTake_remote(MavkaParser::Take_remoteContext *ctx) override {
+  virtual std::any visitTake_module_elements(MavkaParser::Take_module_elementsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitTake_module_element(MavkaParser::Take_module_elementContext *ctx) override {
     return visitChildren(ctx);
   }
 

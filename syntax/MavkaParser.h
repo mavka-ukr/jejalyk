@@ -46,22 +46,23 @@ public:
     RuleDiia = 20, RuleIf = 21, RuleEach = 22, RuleFromto = 23, RuleFromto_simple = 24, 
     RuleFromto_complex = 25, RuleFromto_value = 26, RuleFromto_middle_symbol = 27, 
     RuleFromto_to_symbol = 28, RuleWhile = 29, RuleTry = 30, RuleEval = 31, 
-    RuleTake = 32, RuleGive = 33, RuleGive_element = 34, RuleString = 35, 
-    RuleAtom = 36, RuleValue = 37, RuleCall_generics = 38, RuleArray_elements = 39, 
-    RuleArray_element = 40, RuleDictionary_args = 41, RuleDictionary_arg = 42, 
-    RuleExpr = 43, RuleThrow = 44, RuleArray_destruction = 45, RuleArray_destruction_el = 46, 
-    RuleObject_destruction = 47, RuleObject_destruction_el = 48, RuleAssign = 49, 
-    RuleAssign_simple = 50, RuleAssign_by_identifier = 51, RuleAssign_by_element = 52, 
-    RuleAssign_array_destruction = 53, RuleAssign_object_destruction = 54, 
-    RuleAssign_symbol = 55, RuleWait_assign = 56, RuleIdentifier = 57, RuleIdentifiers_chain = 58, 
-    RuleSuper_identifiers_chain = 59, RuleType_value = 60, RuleType_value_item = 61, 
-    RuleType_value_item_simple = 62, RuleType_value_item_generics = 63, 
-    RuleType_value_item_array = 64, RuleArgs = 65, RuleArg = 66, RuleNamed_args = 67, 
-    RuleNamed_arg = 68, RuleParams = 69, RuleParam = 70, RuleParam_value = 71, 
-    RuleBody = 72, RuleBody_element_or_return = 73, RuleBody_element = 74, 
-    RuleReturn_body_line = 75, RuleArithmetic_op_mul = 76, RuleArithmetic_op_add = 77, 
-    RuleBitwise_op = 78, RuleTest_op = 79, RuleComparison_op = 80, RuleComp_inst_block_program = 81, 
-    RuleComp_inst_assign = 82, RuleNl = 83, RuleNls = 84
+    RuleTake = 32, RuleTake_module_elements = 33, RuleTake_module_element = 34, 
+    RuleGive = 35, RuleGive_element = 36, RuleString = 37, RuleAtom = 38, 
+    RuleValue = 39, RuleCall_generics = 40, RuleArray_elements = 41, RuleArray_element = 42, 
+    RuleDictionary_args = 43, RuleDictionary_arg = 44, RuleExpr = 45, RuleThrow = 46, 
+    RuleArray_destruction = 47, RuleArray_destruction_el = 48, RuleObject_destruction = 49, 
+    RuleObject_destruction_el = 50, RuleAssign = 51, RuleAssign_simple = 52, 
+    RuleAssign_by_identifier = 53, RuleAssign_by_element = 54, RuleAssign_array_destruction = 55, 
+    RuleAssign_object_destruction = 56, RuleAssign_symbol = 57, RuleWait_assign = 58, 
+    RuleIdentifier = 59, RuleIdentifiers_chain = 60, RuleSuper_identifiers_chain = 61, 
+    RuleType_value = 62, RuleType_value_item = 63, RuleType_value_item_simple = 64, 
+    RuleType_value_item_generics = 65, RuleType_value_item_array = 66, RuleArgs = 67, 
+    RuleArg = 68, RuleNamed_args = 69, RuleNamed_arg = 70, RuleParams = 71, 
+    RuleParam = 72, RuleParam_value = 73, RuleBody = 74, RuleBody_element_or_return = 75, 
+    RuleBody_element = 76, RuleReturn_body_line = 77, RuleArithmetic_op_mul = 78, 
+    RuleArithmetic_op_add = 79, RuleBitwise_op = 80, RuleTest_op = 81, RuleComparison_op = 82, 
+    RuleComp_inst_block_program = 83, RuleComp_inst_assign = 84, RuleNl = 85, 
+    RuleNls = 86
   };
 
   explicit MavkaParser(antlr4::TokenStream *input);
@@ -114,6 +115,8 @@ public:
   class TryContext;
   class EvalContext;
   class TakeContext;
+  class Take_module_elementsContext;
+  class Take_module_elementContext;
   class GiveContext;
   class Give_elementContext;
   class StringContext;
@@ -979,12 +982,14 @@ public:
     Take_moduleContext(TakeContext *ctx);
 
     antlr4::Token *tm_relative = nullptr;
-    MavkaParser::Identifiers_chainContext *tm_elements_chain = nullptr;
+    MavkaParser::Identifiers_chainContext *tm_name_chain = nullptr;
+    MavkaParser::Take_module_elementsContext *tm_elements = nullptr;
     MavkaParser::IdentifierContext *tm_as = nullptr;
     antlr4::tree::TerminalNode *TAKE();
     Identifiers_chainContext *identifiers_chain();
-    antlr4::tree::TerminalNode *AS();
     antlr4::tree::TerminalNode *DOT();
+    Take_module_elementsContext *take_module_elements();
+    antlr4::tree::TerminalNode *AS();
     IdentifierContext *identifier();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
     virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1013,9 +1018,11 @@ public:
     Take_remoteContext(TakeContext *ctx);
 
     antlr4::Token *tr_url = nullptr;
+    antlr4::Token *tr_version = nullptr;
     MavkaParser::IdentifierContext *tr_as = nullptr;
-    antlr4::tree::TerminalNode *TAKE();
-    antlr4::tree::TerminalNode *STRING();
+    antlr4::tree::TerminalNode *TAKE_PAK();
+    std::vector<antlr4::tree::TerminalNode *> STRING();
+    antlr4::tree::TerminalNode* STRING(size_t i);
     antlr4::tree::TerminalNode *AS();
     IdentifierContext *identifier();
     virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
@@ -1025,6 +1032,45 @@ public:
   };
 
   TakeContext* take();
+
+  class  Take_module_elementsContext : public antlr4::ParserRuleContext {
+  public:
+    Take_module_elementsContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    antlr4::tree::TerminalNode *OPEN_ARRAY();
+    std::vector<Take_module_elementContext *> take_module_element();
+    Take_module_elementContext* take_module_element(size_t i);
+    antlr4::tree::TerminalNode *CLOSE_ARRAY();
+    std::vector<antlr4::tree::TerminalNode *> COMMA();
+    antlr4::tree::TerminalNode* COMMA(size_t i);
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Take_module_elementsContext* take_module_elements();
+
+  class  Take_module_elementContext : public antlr4::ParserRuleContext {
+  public:
+    MavkaParser::IdentifierContext *tme_name = nullptr;
+    MavkaParser::IdentifierContext *tme_as = nullptr;
+    Take_module_elementContext(antlr4::ParserRuleContext *parent, size_t invokingState);
+    virtual size_t getRuleIndex() const override;
+    std::vector<IdentifierContext *> identifier();
+    IdentifierContext* identifier(size_t i);
+    antlr4::tree::TerminalNode *AS();
+
+    virtual void enterRule(antlr4::tree::ParseTreeListener *listener) override;
+    virtual void exitRule(antlr4::tree::ParseTreeListener *listener) override;
+
+    virtual std::any accept(antlr4::tree::ParseTreeVisitor *visitor) override;
+   
+  };
+
+  Take_module_elementContext* take_module_element();
 
   class  GiveContext : public antlr4::ParserRuleContext {
   public:

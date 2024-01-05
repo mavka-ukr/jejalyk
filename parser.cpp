@@ -1714,8 +1714,22 @@ namespace mavka::parser {
     take_module_node->end_line = context->getStop()->getLine();
     take_module_node->end_column = context->getStop()->getCharPositionInLine();
     take_module_node->relative = context->tm_relative != nullptr;
-    take_module_node->name = context->tm_elements_chain->getText();
+    take_module_node->name = context->tm_name_chain->getText();
     take_module_node->as = context->tm_as ? context->tm_as->getText() : "";
+    if (context->tm_elements) {
+      for (const auto element_node :
+           context->tm_elements->take_module_element()) {
+        if (element_node->tme_as) {
+          take_module_node->elements.insert_or_assign(
+              element_node->tme_as->getText(),
+              element_node->tme_name->getText());
+        } else {
+          take_module_node->elements.insert_or_assign(
+              element_node->tme_name->getText(),
+              element_node->tme_name->getText());
+        }
+      }
+    }
     return (ast::make_ast_some(take_module_node));
   }
 
@@ -1732,14 +1746,10 @@ namespace mavka::parser {
     take_pak_node->start_column = context->getStart()->getCharPositionInLine();
     take_pak_node->end_line = context->getStop()->getLine();
     take_pak_node->end_column = context->getStop()->getCharPositionInLine();
-    take_pak_node->name = context->tr_url->getText();
-    if (take_pak_node->name.starts_with(R"(""")")) {
-      take_pak_node->name =
-          take_pak_node->name.substr(3, take_pak_node->name.length() - 6);
-    } else {
-      take_pak_node->name =
-          take_pak_node->name.substr(1, take_pak_node->name.length() - 2);
-    }
+    take_pak_node->name = context->tr_url->getText().substr(
+        1, context->tr_url->getText().length() - 2);
+    take_pak_node->version = context->tr_version->getText().substr(
+        1, context->tr_url->getText().length() - 2);
     take_pak_node->as = context->tr_as ? context->tr_as->getText() : "";
     return (ast::make_ast_some(take_pak_node));
   }

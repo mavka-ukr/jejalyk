@@ -54,7 +54,7 @@ SPREAD: '...';
 FROMTO: '..';
 KID: '\'' ( ID | END | DIIA | STRUCTURE | FOR | IF | WAIT | TAKE | GIVE | AS | TA | IS | SPEC | RETURN | ASYNC | SUBJECT | AND | OR | TRY | CATCH | ELSE | THROW | WHILE | MODULE | EQ_WORD | GR_WORD | SM_WORD | HAS_IS_WORD | MOCKUP | IMPLEMENTS | IMPLEMENT | EVAL | WHEN | ALSO | PARENT | TSE )*;
 
-SKIP_SPACES: ( ' ' | '\t' ) -> skip;
+SKIP_SPACES: ( ' ' | '\t' ) -> channel(HIDDEN);
 NL: ( '\r'? '\n' );
 DECREMENT: '--';
 INCREMENT: '++';
@@ -112,8 +112,8 @@ COMP_INST_ASSIGN: ';=';
 TRIPPLE_QUOTE: '"""';
 STRING_MULTILINE: '"""' TRIPPLE_QUOTED_STRING_PART*? '"""';
 STRING: '"' ( ~["\n\r] )* '"';
-COMMENT: ';;;' (COMMENT | .)*? ';;;' -> skip;
-LINE_COMMENT: ';;' (LINE_COMMENT | ~[\r\n])* -> skip;
+COMMENT: ';;;' (COMMENT | .)*? ';;;' -> channel(HIDDEN);
+LINE_COMMENT: ';;' (LINE_COMMENT | ~[\r\n])* -> channel(HIDDEN);
 
 fragment DIGIT
     : '0'..'9'

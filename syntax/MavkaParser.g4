@@ -53,9 +53,11 @@ try: 'спробувати' nl t_body=body nl 'зловити' tc_name=identifie
 
 eval: 'js' e_value=string;
 
-take: 'взяти' (tm_relative='.')? tm_elements_chain=identifiers_chain ('як' tm_as=identifier)? #take_module
-    | 'взяти файл' tf_name=STRING 'як' tf_as=identifier #take_file
-    | 'взяти' tr_url=STRING ('як' tr_as=identifier)? #take_remote;
+take: 'взяти' (tm_relative='.')? tm_name_chain=identifiers_chain (tm_elements=take_module_elements | ('як' tm_as=identifier))? #take_module
+    | 'взяти пак' tr_url=STRING tr_version=STRING ('як' tr_as=identifier)? #take_remote
+    | 'взяти файл' tf_name=STRING 'як' tf_as=identifier #take_file;
+take_module_elements: '[' take_module_element (',' take_module_element)* ']';
+take_module_element: tme_name=identifier ('як' tme_as=identifier)?;
 
 give: 'дати' give_element (nls ',' nls give_element)*;
 give_element: ge_name=identifier ('як' ge_as=identifier)?;

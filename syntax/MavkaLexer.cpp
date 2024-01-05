@@ -439,7 +439,7 @@ void mavkalexerLexerInitialize() {
   	871,1,0,0,0,873,872,1,0,0,0,874,875,1,0,0,0,875,876,1,0,0,0,875,873,1,
   	0,0,0,876,238,1,0,0,0,877,878,5,92,0,0,878,879,5,60,0,0,879,240,1,0,0,
   	0,25,0,585,587,595,715,724,729,740,742,749,751,759,767,778,808,819,830,
-  	832,846,848,860,864,866,873,875,1,6,0,0
+  	832,846,848,860,864,866,873,875,1,0,1,0
   };
   staticData->serializedATN = antlr4::atn::SerializedATNView(serializedATNSegment, sizeof(serializedATNSegment) / sizeof(serializedATNSegment[0]));
 

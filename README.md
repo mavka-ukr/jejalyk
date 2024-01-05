@@ -34,15 +34,7 @@ jejalyk::GetModuleResult* get_module_code(bool relative, std::string module, jej
     // ...
 }
 
-jejalyk::GetModuleResult* get_remote_module_name(std::string module, jejalyk::CompilationOptions* options) {
-    // ...
-}
-
-jejalyk::GetModuleResult* get_remote_module_path(std::string module, jejalyk::CompilationOptions* options) {
-    // ...
-}
-
-jejalyk::GetModuleResult* get_remote_module_code(std::string module, jejalyk::CompilationOptions* options) {
+jejalyk::GetModuleResult* get_pak(std::string name, std::string version, std::string as, jejalyk::CompilationOptions* options) {
     // ...
 }
 
@@ -55,9 +47,7 @@ int main() {
     options->get_module_name = &get_module_name;
     options->get_module_path = &get_module_path;
     options->get_module_code = &get_module_code;
-    options->get_remote_module_name = &get_remote_module_name;
-    options->get_remote_module_path = &get_remote_module_path;
-    options->get_remote_module_code = &get_remote_module_code;
+    options->get_pak = &get_pak;
 
     const auto result = jejalyk::compile("друк(\"Привіт від Івана!\")", options);
     if (result->error) {
@@ -82,10 +72,11 @@ import Module from "jejalyk/node";
 global.mavka_compilation_options = {
   args: "",
   std_code: "",
+  main_module_path: "",
   root_module_path: "",
   current_module_path: "",
   get_module_name: async (relative, module, options) => {
-    return { error: "", result: "", builtin: false };
+    return { error: "", result: "" };
   },
   // ...
 };
@@ -105,10 +96,11 @@ Module().then(async (jejalyk) => {
   window.mavka_compilation_options = {
     args: "",
     std_code: "",
+    main_module_path: "",
     root_module_path: "",
     current_module_path: "",
     get_module_name: async (relative, module, options) => {
-      return { error: "", result: "", builtin: false };
+      return { error: "", result: "" };
     },
     // ...
   };

@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace mavka::ast {
   class ASTNode;
@@ -570,11 +571,13 @@ namespace mavka::ast {
     bool relative;
     std::string name;
     std::string as;
+    std::map<std::string, std::string> elements;
   };
 
   class TakePakNode final : public ASTExprNode {
    public:
     std::string name;
+    std::string version;
     std::string as;
   };
 

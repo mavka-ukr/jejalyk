@@ -311,12 +311,12 @@ namespace jejalyk::typeinterpreter {
    public:
     std::string error;
     std::string result;
-    bool builtin = false;
   };
 
   class Options final {
    public:
     Options* parent = nullptr;
+    std::string main_module_path;
     std::string root_module_path;
     std::string current_module_path;
     std::string std_code;
@@ -346,11 +346,10 @@ namespace jejalyk::typeinterpreter {
 
     GetModuleResult* (*get_module_code)(bool, std::string, Options*) = nullptr;
 
-    GetModuleResult* (*get_remote_module_name)(std::string, Options*) = nullptr;
-
-    GetModuleResult* (*get_remote_module_path)(std::string, Options*) = nullptr;
-
-    GetModuleResult* (*get_remote_module_code)(std::string, Options*) = nullptr;
+    GetModuleResult* (*get_pak)(std::string,
+                                std::string,
+                                std::string,
+                                Options*) = nullptr;
 
     [[nodiscard]] bool is_extensions_allowed() const {
       return this->arg_extensions == "1";
