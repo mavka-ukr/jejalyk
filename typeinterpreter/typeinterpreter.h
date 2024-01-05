@@ -55,6 +55,7 @@ namespace jejalyk::typeinterpreter {
   class Scope;
   class Param;
   class GenericDefinition;
+  class Module;
   class Options;
   class GetModuleResult;
 
@@ -144,6 +145,7 @@ namespace jejalyk::typeinterpreter {
     static Subject* create(Type* type);
     static Subject* create(Object* object);
     static Subject* create(GenericDefinition* generic_definition);
+    static Subject* create(Scope* scope);
 
     std::vector<Type*> types;
 
@@ -278,10 +280,10 @@ namespace jejalyk::typeinterpreter {
     Result* compile_types(std::vector<mavka::ast::TypeValueSingleNode*> types);
     Result* compile_nodes(std::vector<mavka::ast::ASTSome*> nodes);
     Result* compile_node(mavka::ast::ASTSome* node);
-    Result* compile_body(const std::vector<mavka::ast::ASTSome*>& body);
+    Result* compile_body(std::vector<mavka::ast::ASTSome*>& body);
 
     Result* compile_module(std::string name,
-                           std::vector<mavka::ast::ASTSome*>* body,
+                           std::vector<mavka::ast::ASTSome*> body,
                            std::string path,
                            std::vector<js::JsNode*> before);
 
@@ -313,6 +315,12 @@ namespace jejalyk::typeinterpreter {
     std::string result;
   };
 
+  class Module final {
+   public:
+    Subject* subject = nullptr;
+    js::JsNode* js_node = nullptr;
+  };
+
   class Options final {
    public:
     Options* parent = nullptr;
@@ -323,42 +331,21 @@ namespace jejalyk::typeinterpreter {
     std::string args;
     std::string arg_extensions = "0";
     std::string arg_strictness = "0";
-    std::map<std::string, js::JsNode*> modules;
-
-    bool has_module(const std::string& path) {
-      if (this->parent) {
-        return this->has_module(path);
-      }
-      return this->modules.contains(path);
-    }
-
-    void set_module(const std::string& path, js::JsNode* js_node) {
-      if (this->parent) {
-        this->set_module(path, js_node);
-      } else {
-        this->modules.insert_or_assign(path, js_node);
-      }
-    }
+    std::map<std::string, Module*> modules;
 
     GetModuleResult* (*get_module_name)(bool, std::string, Options*) = nullptr;
-
     GetModuleResult* (*get_module_path)(bool, std::string, Options*) = nullptr;
-
     GetModuleResult* (*get_module_code)(bool, std::string, Options*) = nullptr;
-
     GetModuleResult* (*get_pak)(std::string,
                                 std::string,
                                 std::string,
                                 Options*) = nullptr;
 
-    [[nodiscard]] bool is_extensions_allowed() const {
-      return this->arg_extensions == "1";
-    }
-
-    [[nodiscard]] bool is_strict_mode() const {
-      return this->arg_strictness == "1";
-    }
-
+    bool has_module(std::string path);
+    void set_module(std::string path, Module* module);
+    Module* get_module(std::string path);
+    bool is_extensions_allowed() const;
+    bool is_strict_mode() const;
     Options* clone();
   };
 

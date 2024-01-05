@@ -19,6 +19,12 @@ namespace jejalyk::typeinterpreter {
     return subject;
   }
 
+  Subject* Subject::create(Scope* scope) {
+    const auto subject = new Subject();
+    subject->fix_types(scope);
+    return subject;
+  }
+
   void Subject::add_type(Type* type) {
     for (const auto& existing_type : types) {
       if (existing_type->generic_definition) {

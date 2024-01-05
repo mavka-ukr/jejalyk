@@ -171,8 +171,8 @@ namespace jejalyk {
         jejalyk::js::stringify_body(program_result->js_body);
 
     std::string modules_string;
-    for (const auto& [module_hash_name, module_js_node] : options->modules) {
-      modules_string += ("\n" + js::stringify(module_js_node));
+    for (const auto& [module_hash_name, module] : options->modules) {
+      modules_string += ("\n" + js::stringify(module->js_node));
     }
 
     END_CHRONO(transpile_program, "transpiling ", options->current_module_path)

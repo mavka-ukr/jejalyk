@@ -1,6 +1,39 @@
 #include "typeinterpreter.h"
 
 namespace jejalyk::typeinterpreter {
+  bool Options::has_module(std::string path) {
+    if (this->parent) {
+      return this->parent->has_module(path);
+    }
+    return this->modules.contains(path);
+  }
+
+  void Options::set_module(std::string path, Module* module) {
+    if (this->parent) {
+      this->parent->set_module(path, module);
+    } else {
+      this->modules.insert_or_assign(path, module);
+    }
+  }
+
+  Module* Options::get_module(std::string path) {
+    if (this->parent) {
+      return this->parent->get_module(path);
+    }
+    if (this->modules.contains(path)) {
+      return this->modules[path];
+    }
+    return nullptr;
+  }
+
+  bool Options::is_extensions_allowed() const {
+    return this->arg_extensions == "1";
+  }
+
+  bool Options::is_strict_mode() const {
+    return this->arg_strictness == "1";
+  }
+
   Options* Options::clone() {
     const auto options_clone = new Options();
     options_clone->parent = this;

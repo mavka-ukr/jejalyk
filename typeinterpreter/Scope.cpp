@@ -652,7 +652,7 @@ namespace jejalyk::typeinterpreter {
     return this->error(mavka::ast::get_ast_node(node), "unsupported node");
   }
 
-  Result* Scope::compile_body(const std::vector<mavka::ast::ASTSome*>& body) {
+  Result* Scope::compile_body(std::vector<mavka::ast::ASTSome*>& body) {
     const auto result = new Result();
     result->js_body = new jejalyk::js::JsBody();
 
@@ -972,7 +972,7 @@ namespace jejalyk::typeinterpreter {
   }
 
   Result* Scope::compile_module(std::string name,
-                                std::vector<mavka::ast::ASTSome*>* body,
+                                std::vector<mavka::ast::ASTSome*> body,
                                 std::string path,
                                 std::vector<js::JsNode*> before) {
     Subject* module_subject = nullptr;
@@ -997,6 +997,7 @@ namespace jejalyk::typeinterpreter {
     js_function->name = name;
     js_function->async = true;
     js_function->params.push_back(js::make_id("мmodule"));
+    js_function->body = new js::JsBody();
 
     if (!path.empty()) {
       // var м____шлях_до_модуля___
@@ -1006,11 +1007,11 @@ namespace jejalyk::typeinterpreter {
           js::make_id("м____шлях_до_модуля___"), js::make_string(path)));
     }
 
-    if (body != nullptr) {
+    if (!body.empty()) {
       module_scope->module_object = module_object;
       module_scope->is_async = true;
 
-      const auto compiled_body = module_scope->compile_body(*body);
+      const auto compiled_body = module_scope->compile_body(body);
       if (compiled_body->error) {
         return compiled_body;
       }

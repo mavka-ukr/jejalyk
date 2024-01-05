@@ -1749,7 +1749,7 @@ namespace mavka::parser {
     take_pak_node->name = context->tr_url->getText().substr(
         1, context->tr_url->getText().length() - 2);
     take_pak_node->version = context->tr_version->getText().substr(
-        1, context->tr_url->getText().length() - 2);
+        1, context->tr_version->getText().length() - 2);
     take_pak_node->as = context->tr_as ? context->tr_as->getText() : "";
     return (ast::make_ast_some(take_pak_node));
   }
@@ -2201,12 +2201,11 @@ namespace mavka::parser {
                                              size_t charPositionInLine,
                                              const std::string& msg,
                                              std::exception_ptr e) {
-    std::cout << msg << std::endl;
     const auto error = new MavkaParserError();
     error->line = line;
     error->column = charPositionInLine;
     error->message = "syntaxError";
-    throw *error;
+    throw error;
   }
 
   MavkaParserResult* parse(std::string code, std::string path) {

@@ -23,7 +23,7 @@ namespace jejalyk::typeinterpreter {
     const auto module_variable_name =
         take_module_node->as.empty() ? module_name : take_module_node->as;
     const auto temp_module_name =
-        "module_" + module_name + "_" + std::to_string(hash_fn(module_path));
+        "module_" + std::to_string(hash_fn(module_path));
     const auto init_module_js_flat_body = new js::JsFlatBodyNode();
     // await init_temp_module_name()
     init_module_js_flat_body->nodes.push_back(js::make_await(
@@ -33,9 +33,18 @@ namespace jejalyk::typeinterpreter {
         js::make_assign(js::make_id("м_" + module_variable_name),
                         js::make_id(temp_module_name)));
     if (options->has_module(module_path)) {
+      const auto module = options->get_module(module_path);
+      if (take_module_node->as.empty()) {
+        scope->set_local(module_name, module->subject);
+      } else {
+        scope->set_local(take_module_node->as, module->subject);
+      }
       return success(nullptr, init_module_js_flat_body);
     }
-    options->set_module(module_path, new js::JsEmptyNode());
+    const auto temp_module = new Module();
+    temp_module->subject = Subject::create(scope);
+    temp_module->js_node = new js::JsEmptyNode();
+    options->set_module(module_path, temp_module);
 
     const auto scope_compilation_options = options->clone();
     scope_compilation_options->current_module_path = module_path;
@@ -63,9 +72,10 @@ namespace jejalyk::typeinterpreter {
     }
 
     const auto module_scope = scope->get_root()->make_child();
+    module_scope->options = scope_compilation_options;
 
     const auto module_result = module_scope->compile_module(
-        module_name, &module_parser_result->program_node->body, module_path,
+        module_name, module_parser_result->program_node->body, module_path,
         {js::make_assign(js::make_id(temp_module_name),
                          js::make_id("мmodule"))});
     if (module_result->error) {
@@ -97,7 +107,11 @@ namespace jejalyk::typeinterpreter {
     js_flat_body->nodes.push_back(js::make_assign(
         js::make_id("init_" + temp_module_name), js_temp_module_function));
 
-    options->set_module(module_path, js_flat_body);
+    const auto module = new Module();
+    module->subject = module_result->value;
+    module->js_node = js_flat_body;
+
+    options->set_module(module_path, module);
 
     return success(nullptr, init_module_js_flat_body);
   }
