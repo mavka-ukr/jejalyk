@@ -9,6 +9,11 @@ namespace jejalyk::typeinterpreter {
       return value_result;
     }
 
+    if (value_result->value->is_method(scope)) {
+      return scope->error(mavka::ast::get_ast_node(assign_simple_node->value),
+                          "Не можна передавати дію обʼєкта як значення.");
+    }
+
     if (assign_simple_node->op == "=" || assign_simple_node->op == "це") {
       if (scope->get_root()->has(assign_simple_node->name)) {
         return error_1(scope, assign_simple_node, assign_simple_node->name);

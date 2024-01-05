@@ -395,6 +395,26 @@ namespace jejalyk::js {
     return js_array_node;
   }
 
+  inline JsMapNode* make_map(std::vector<JsMapElementNode*> elements) {
+    const auto js_map_node = new JsMapNode();
+    js_map_node->elements = elements;
+    return js_map_node;
+  }
+
+  inline JsMapElementNode* make_map_element(JsNode* key, JsNode* value) {
+    const auto js_map_element_node = new JsMapElementNode();
+    js_map_element_node->key = key;
+    js_map_element_node->value = value;
+    return js_map_element_node;
+  }
+
+  inline JsMapElementNode* make_map_element(std::string key, JsNode* value) {
+    const auto js_map_element_node = new JsMapElementNode();
+    js_map_element_node->key = make_string(key);
+    js_map_element_node->value = value;
+    return js_map_element_node;
+  }
+
   inline JsNestedNode* make_nested(JsNode* value) {
     const auto js_nested_node = new JsNestedNode();
     js_nested_node->value = value;
@@ -670,6 +690,9 @@ namespace jejalyk::js {
         prefix += " ";
       }
       return tools::trim(tools::implode_with_prefix(lines, ";\n", prefix));
+    }
+    if (js_node == nullptr) {
+      return "undefined";
     }
     return "[CANNOT STRINGIFY]";
   }

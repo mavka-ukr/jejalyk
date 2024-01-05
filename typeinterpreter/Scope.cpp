@@ -395,7 +395,7 @@ namespace jejalyk::typeinterpreter {
       return compiled_nodes;
     }
     if (nodes.empty()) {
-      compiled_nodes->js_body->nodes.push_back(jejalyk::js::id("обʼєкт"));
+      compiled_nodes->js_body->nodes.push_back(jejalyk::js::id("м_обʼєкт"));
       return success(this->create_object_instance_subject(),
                      compiled_nodes->js_body);
     }
@@ -412,6 +412,10 @@ namespace jejalyk::typeinterpreter {
       const auto node_result = this->compile_node(node);
       if (node_result->error) {
         return node_result;
+      }
+      if (node_result->value->is_method(this)) {
+        return this->error(mavka::ast::get_ast_node(node),
+                           "Не можна передавати дію обʼєкта як значення.");
       }
       js_body->nodes.push_back(node_result->js_node);
       for (const auto type : node_result->value->types) {
@@ -857,6 +861,10 @@ namespace jejalyk::typeinterpreter {
               if (diia_declaration_result->error) {
                 return diia_declaration_result;
               }
+
+              // diia_declaration_result->value->types[0]->object->is_diia_method
+              // =
+              //     true;
 
               structure_object->methods.insert_or_assign(
                   diia_name, diia_declaration_result->value->types[0]);

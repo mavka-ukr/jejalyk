@@ -112,6 +112,7 @@ namespace jejalyk::typeinterpreter {
         return types_result;
       }
       param->types = types_result->value;
+      param->types_js_node = js::make_array(types_result->js_body->nodes);
       if (param_node->value) {
         const auto param_value_result = scope->compile_node(param_node->value);
         if (param_value_result->error) {
@@ -163,6 +164,7 @@ namespace jejalyk::typeinterpreter {
         }
         diia_param->types = diia_types_result->value;
         diia_param->value = param->value;
+        diia_param->types_js_node = param->types_js_node;
         diia_param->value_js_node = param->value_js_node;
         diia_param->variadic = param_node->variadic;
         diia_object->params.push_back(diia_param);
@@ -180,7 +182,7 @@ namespace jejalyk::typeinterpreter {
     if (mockup) {
       return success(structure_subject, new js::JsEmptyNode());
     } else {
-      // мСтруктура("назва", предок, function (мs, ...) { ... })
+      // function назва(мs, ...) { ... }
       const auto js_function = new js::JsFunctionNode();
       js_function->name = structure_object->name;
       js_function->body = new js::JsBody();
@@ -229,6 +231,25 @@ namespace jejalyk::typeinterpreter {
 
       // return мs
       js_function->body->nodes.push_back(js::make_return(js::make_id("мs")));
+
+      // // new Map(...)
+      // const auto js_structure_params_map = new js::JsMapNode();
+      // for (const auto structure_param : structure_object->params) {
+      //   // new Map(["типи", ...], ["значення", ...])
+      //   const auto js_structure_param_map = js::make_map({
+      //       js::make_map_element("типи", structure_param->types_js_node),
+      //       js::make_map_element("значення", structure_param->value_js_node),
+      //   });
+      //   js_structure_params_map->elements.push_back(js::make_map_element(
+      //       structure_param->name, js_structure_param_map));
+      // }
+      //
+      // const auto js_options_function = new js::JsFunctionNode();
+      // js_options_function->body = new js::JsBody();
+      // js_options_function->body->nodes.push_back(js::make_return(js::make_map(
+      //     {js::make_map_element("параметри", js_structure_params_map)})));
+
+      // мСтруктура(предок, function назва(мs, ...) { ... }, function() { ... })
       const auto js_call = js::make_call(js::make_id(JJ_F_STRUCTURE), {structure_object->parent_js, js_function});
 
       return success(structure_subject, js_call);

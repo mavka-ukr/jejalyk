@@ -18,6 +18,12 @@ namespace jejalyk::typeinterpreter {
         return value_result;
       }
 
+      if (value_result->value->is_method(scope)) {
+        return scope->error(
+            mavka::ast::get_ast_node(assign_by_identifier_node->value),
+            "Не можна передавати дію обʼєкта як значення.");
+      }
+
       const auto result = left_result->value->set(
           scope, assign_by_identifier_node,
           assign_by_identifier_node->identifier, value_result->value);

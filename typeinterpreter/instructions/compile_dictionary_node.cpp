@@ -23,6 +23,11 @@ namespace jejalyk::typeinterpreter {
       if (element_value_result->error) {
         return element_value_result;
       }
+      if (element_value_result->value->is_method(scope)) {
+        return scope->error(
+            mavka::ast::get_ast_node(element->value),
+            "Не можна передавати дію обʼєкта як значення.");
+      }
       for (const auto type : element_value_result->value->types) {
         value_types->add_type(type);
       }

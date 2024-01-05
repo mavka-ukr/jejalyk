@@ -138,6 +138,13 @@ namespace jejalyk::typeinterpreter {
     return false;
   }
 
+  bool Subject::is_method(Scope* scope) {
+    if (types.size() == 1) {
+      return types[0]->is_method(scope);
+    }
+    return false;
+  }
+
   bool Subject::has(Scope* scope, const std::string& name) {
     if (types.size() == 1) {
       return types[0]->has(scope, name);

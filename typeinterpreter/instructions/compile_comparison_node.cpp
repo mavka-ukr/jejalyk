@@ -17,33 +17,28 @@ namespace jejalyk::typeinterpreter {
     Result* result = nullptr;
     std::string magic_diia;
     std::string js_comp_symbol;
-    std::string m_diia_name;
 
     if (comparison_node->op == "==" || comparison_node->op == "рівно") {
       result = logical_structure_subject->create_instance(scope, {});
       magic_diia = "";
       js_comp_symbol = "==";
-      m_diia_name = "";
     }
     if (comparison_node->op == "!=" || comparison_node->op == "не рівно") {
       result = logical_structure_subject->create_instance(scope, {});
       magic_diia = "";
       js_comp_symbol = "!=";
-      m_diia_name = "";
     }
     if (comparison_node->op == ">" || comparison_node->op == "більше") {
       result = left_result->value->magic_call(
           scope, comparison_node, JJ_MAG_GREATER, {}, {right_result->value});
       magic_diia = JJ_MAG_GREATER;
       js_comp_symbol = ">";
-      m_diia_name = JJ_F_GREATER;
     }
     if (comparison_node->op == "<" || comparison_node->op == "менше") {
       result = left_result->value->magic_call(
           scope, comparison_node, JJ_MAG_LESSER, {}, {right_result->value});
       magic_diia = JJ_MAG_LESSER;
       js_comp_symbol = "<";
-      m_diia_name = JJ_F_LESSER;
     }
     if (comparison_node->op == ">=" || comparison_node->op == "не менше") {
       result = left_result->value->magic_call(scope, comparison_node,
@@ -51,7 +46,6 @@ namespace jejalyk::typeinterpreter {
                                               {right_result->value});
       magic_diia = JJ_MAG_GREATER_EQUAL;
       js_comp_symbol = ">=";
-      m_diia_name = JJ_F_GREATER_EQUAL;
     }
     if (comparison_node->op == "<=" || comparison_node->op == "не більше") {
       result = left_result->value->magic_call(scope, comparison_node,
@@ -59,11 +53,9 @@ namespace jejalyk::typeinterpreter {
                                               {right_result->value});
       magic_diia = JJ_MAG_LESSER_EQUAL;
       js_comp_symbol = "<=";
-      m_diia_name = JJ_F_LESSER_EQUAL;
     }
     if (comparison_node->op == "є") {
       result = logical_structure_subject->create_instance(scope, {});
-      m_diia_name = JJ_F_IS;
     }
     if (comparison_node->op == "не є") {
       result = logical_structure_subject->create_instance(scope, {});
@@ -72,7 +64,6 @@ namespace jejalyk::typeinterpreter {
       result = left_result->value->magic_call(
           scope, comparison_node, JJ_MAG_CONTAINS, {}, {right_result->value});
       magic_diia = JJ_MAG_CONTAINS;
-      m_diia_name = JJ_F_CONTAINS;
     }
     if (comparison_node->op == "не містить") {
       result = left_result->value->magic_call(
@@ -126,28 +117,16 @@ namespace jejalyk::typeinterpreter {
                                            right_result->js_node));
       }
 
-      if (left_result->value->has_diia(scope, magic_diia)) {
-        // а.чародія_більше(б)
-        const auto js_chain =
-            js::make_chain(left_result->js_node, js::make_id(magic_diia));
-        const auto js_call = js::make_call(js_chain, {right_result->js_node});
-        if (comparison_node->op == "не містить") {
-          return success(result->value, js::make_not(js_call));
-        }
-        return success(result->value, js_call);
-      } else {
-        // мБільше(а, б)
-        const auto js_call =
-            js::make_call(js::make_id(m_diia_name),
-                          {left_result->js_node, right_result->js_node});
-        if (comparison_node->op == "не містить") {
-          return success(result->value, js::make_not(js_call));
-        }
-        return success(result->value, js_call);
+      // а.чародія_більше(б)
+      const auto js_chain =
+          js::make_chain(left_result->js_node, js::make_id(magic_diia));
+      const auto js_call = js::make_call(js_chain, {right_result->js_node});
+      if (comparison_node->op == "не містить") {
+        return success(result->value, js::make_not(js_call));
       }
+      return success(result->value, js_call);
     }
 
-    return scope->error(
-          comparison_node, "Невідома вказівка \"" + comparison_node->op + "\".");
+    return scope->error(comparison_node, "Невідома вказівка \"" + comparison_node->op + "\".");
   }
 } // namespace typeinterpreter

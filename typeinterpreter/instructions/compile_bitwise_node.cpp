@@ -14,27 +14,21 @@ namespace jejalyk::typeinterpreter {
 
     Result* result = nullptr;
     std::string magic_diia;
-    std::string m_diia_name;
 
     if (bitwise_node->op == "^") {
       magic_diia = JJ_MAG_BW_XOR;
-      m_diia_name = JJ_F_BW_XOR;
     }
     if (bitwise_node->op == "|") {
       magic_diia = JJ_MAG_BW_AND;
-      m_diia_name = JJ_F_BW_AND;
     }
     if (bitwise_node->op == "&") {
       magic_diia = JJ_MAG_BW_OR;
-      m_diia_name = JJ_F_BW_OR;
     }
     if (bitwise_node->op == "<<") {
       magic_diia = JJ_MAG_BW_SHIFT_LEFT;
-      m_diia_name = JJ_F_BW_SHIFT_LEFT;
     }
     if (bitwise_node->op == ">>") {
       magic_diia = JJ_MAG_BW_SHIFT_RIGHT;
-      m_diia_name = JJ_F_BW_SHIFT_RIGHT;
     }
 
     result = left_result->value->magic_call(scope, bitwise_node, magic_diia, {},
@@ -54,19 +48,11 @@ namespace jejalyk::typeinterpreter {
                                 right_result->js_node));
       }
 
-      if (left_result->value->has_diia(scope, magic_diia)) {
-        // а.чародія_вабо(б)
-        const auto js_chain =
-            js::make_chain(left_result->js_node, js::make_id(magic_diia));
-        const auto js_call = js::make_call(js_chain, {right_result->js_node});
-        return success(result->value, js_call);
-      } else {
-        // мВабо(а, б)
-        const auto js_call =
-            js::make_call(js::make_id(m_diia_name),
-                          {left_result->js_node, right_result->js_node});
-        return success(result->value, js_call);
-      }
+      // а.чародія_вабо(б)
+      const auto js_chain =
+          js::make_chain(left_result->js_node, js::make_id(magic_diia));
+      const auto js_call = js::make_call(js_chain, {right_result->js_node});
+      return success(result->value, js_call);
     }
 
     return scope->error(bitwise_node,

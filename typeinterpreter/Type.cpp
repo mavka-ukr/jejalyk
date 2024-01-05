@@ -110,6 +110,13 @@ namespace jejalyk::typeinterpreter {
     return result;
   }
 
+  bool Type::is_method(Scope* scope) {
+    if (this->object) {
+      return this->object->is_diia_method;
+    }
+    return false;
+  }
+
   Type* Type::create_instance(Scope* scope,
                               std::vector<Subject*> generic_types) {
     if (!this->generic_types.empty()) {
@@ -190,6 +197,10 @@ namespace jejalyk::typeinterpreter {
       const auto processed_method_object = new Object();
       processed_method_object->structure = method_type->object->structure;
       processed_method_object->name = method_type->object->name;
+      processed_method_object->is_diia_async =
+          method_type->object->is_diia_async;
+      processed_method_object->is_diia_method =
+          method_type->object->is_diia_method;
       std::vector<Subject*> generic_definition_subjects;
       for (const auto generic_definition :
            method_type->object->generic_definitions) {

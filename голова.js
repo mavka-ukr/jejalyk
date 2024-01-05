@@ -2,14 +2,16 @@ var М = Symbol("Мавка");
 
 class Падіння extends Error {
   constructor(value) {
-    super(typeof value === "string" ? value : мТекст(value));
+    super(мТекст(value));
     this.значення = value;
   }
 }
 
 function мДп(constructor, fn) {
   Object.defineProperty(constructor.prototype, fn.name, {
-    get: fn,
+    get() {
+      return (...args) => fn.apply(this, args);
+    },
   });
 }
 
@@ -28,11 +30,11 @@ function мСтруктура(parent, fn) {
   structure[М].предок = parent;
   structure[М].заповнити = fn;
   structure[М].методи = Object.create(null);
-  structure.чародія_викликати = мДія(function чародія_викликати() {
+  structure.чародія_викликати = мДія(function чародія_викликати(...args) {
     var instance = Object.create(null);
     instance[М] = Object.create(null);
     instance[М].структура = structure;
-    fn(instance, ...arguments);
+    fn(instance, ...args);
     return instance;
   });
   return structure;
@@ -111,7 +113,7 @@ function мГарно(value) {
         keys = Object.keys(v).map((k) => `${k}`).join(", ");
         return `<модуль ${v[М].назва}[${keys}]>`;
       }
-      if (v[М].структура === null) {
+      if (v[М].структура === м_Структура) {
         return `<структура ${v[М].назва}>`;
       }
       if (v[М].структура) {
@@ -125,403 +127,47 @@ function мГарно(value) {
 }
 
 function мТекст(v) {
+  if (v == null) {
+    return "пусто";
+  }
   if (typeof v === "string") {
     return v;
   }
-  if (typeof v === "number") {
-    return v;
+  if (v.чародія_текст) {
+    return v.чародія_текст();
   }
-  if (typeof v === "boolean") {
-    return v ? "так" : "ні";
+  if (v[М]) {
+    return "<обʼєкт>";
   }
-  return "<обʼєкт>";
-}
-
-function мНазваТипу(value) {
-  if (value == null) {
-    return "пусто";
-  }
-  if (typeof value === "boolean") {
-    return "логічне";
-  }
-  if (typeof value === "number") {
-    return "число";
-  }
-  if (typeof value === "string") {
-    return "текст";
-  }
-  if (value instanceof Array) {
-    return "список";
-  }
-  if (value instanceof Map) {
-    return "словник";
-  }
-  if (value instanceof Uint8Array) {
-    return "байти";
-  }
-  if (value[MAVKA]) {
-    if (value[MAVKA].tdiia) {
-      return `<дія ${value[MAVKA].name}>`;
-    }
-    if (value[MAVKA].tstructure) {
-      return `<структура ${value[MAVKA].name}>`;
-    }
-    if (value[MAVKA].structure) {
-      return value[MAVKA].structure[MAVKA].name;
-    }
-  }
-  return "портал";
-}
-
-function мДодати(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_додати" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a + b;
-  }
-  if (typeof a === "string" && typeof b === "string") {
-    return a + b;
-  }
-  var magic = a["чародія_додати"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_додати" для типу "${мНазваТипу(a)}".`);
-}
-
-function мВідняти(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_відняти" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a - b;
-  }
-  var magic = a["чародія_відняти"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_відняти" для типу "${мНазваТипу(a)}".`);
-}
-
-function мПомножити(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_помножити" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a * b;
-  }
-  var magic = a["чародія_помножити"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_помножити" для типу "${мНазваТипу(a)}".`);
-}
-
-function мПоділити(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_поділити" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a / b;
-  }
-  var magic = a["чародія_поділити"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_поділити" для типу "${мНазваТипу(a)}".`);
-}
-
-function мОстача(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_остача" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a % b;
-  }
-  var magic = a["чародія_остача"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_остача" для типу "${мНазваТипу(a)}".`);
-}
-
-function мСтепінь(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_степінь" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return Math.pow(a, b);
-  }
-  var magic = a["чародія_степінь"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_степінь" для типу "${мНазваТипу(a)}".`);
-}
-
-function мВабо(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_вабо" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a ^ b;
-  }
-  var magic = a["чародія_вабо"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_вабо" для типу "${мНазваТипу(a)}".`);
-}
-
-function мДі(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_ді" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a & b;
-  }
-  var magic = a["чародія_ді"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_ді" для типу "${мНазваТипу(a)}".`);
-}
-
-function мДабо(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_дабо" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a | b;
-  }
-  var magic = a["чародія_дабо"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_дабо" для типу "${мНазваТипу(a)}".`);
-}
-
-function мВліво(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_вліво" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a << b;
-  }
-  var magic = a["чародія_вліво"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_вліво" для типу "${мНазваТипу(a)}".`);
-}
-
-function мВправо(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_вправо" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a >> b;
-  }
-  var magic = a["чародія_вправо"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_вправо" для типу "${мНазваТипу(a)}".`);
-}
-
-function мДні(a) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_дні" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number") {
-    return ~a;
-  }
-  var magic = a["чародія_дні"];
-  if (magic) {
-    return magic();
-  }
-  throw new Падіння(`Неможливо виконати "чародія_дні" для типу "${мНазваТипу(a)}".`);
-}
-
-function мБільше(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_більше" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a > b;
-  }
-  var magic = a["чародія_більше"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_більше" для типу "${мНазваТипу(a)}".`);
-}
-
-function мМенше(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_менше" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a < b;
-  }
-  var magic = a["чародія_менше"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_менше" для типу "${мНазваТипу(a)}".`);
-}
-
-function мНеМенше(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_не_менше" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a >= b;
-  }
-  var magic = a["чародія_не_менше"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_не_менше" для типу "${мНазваТипу(a)}".`);
-}
-
-function мНеБільше(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_не_більше" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number" && typeof b === "number") {
-    return a <= b;
-  }
-  var magic = a["чародія_не_більше"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_не_більше" для типу "${мНазваТипу(a)}".`);
-}
-
-function мМістить(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_містить" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "string" && typeof b === "string") {
-    return a.includes(b);
-  }
-  if (a instanceof Array) {
-    return a.includes(b);
-  }
-  if (a instanceof Map) {
-    return a.has(b);
-  }
-  var magic = a["чародія_містить"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_містить" для типу "${мНазваТипу(a)}".`);
-}
-
-function мВідʼємне(a) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_відʼємне" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number") {
-    return -a;
-  }
-  var magic = a["чародія_відʼємне"];
-  if (magic) {
-    return magic();
-  }
-  throw new Падіння(`Неможливо виконати "чародія_відʼємне" для типу "${мНазваТипу(a)}".`);
-}
-
-function мДодатнє(a) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_додатнє" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "number") {
-    return +a;
-  }
-  var magic = a["чародія_додатнє"];
-  if (magic) {
-    return magic();
-  }
-  throw new Падіння(`Неможливо виконати "чародія_додатнє" для типу "${мНазваТипу(a)}".`);
-}
-
-function мОтримати(a, b) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_отримати" для типу "${мНазваТипу(a)}".`);
-  }
-  if (typeof a === "string") {
-    return a[b];
-  }
-  if (a instanceof Array) {
-    return a[b];
-  }
-  if (a instanceof Map) {
-    return a.get(b);
-  }
-  var magic = a["чародія_отримати"];
-  if (magic) {
-    return magic(b);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_отримати" для типу "${мНазваТипу(a)}".`);
-}
-
-function мПокласти(a, b, c) {
-  if (a == null) {
-    throw new Падіння(`Неможливо виконати "чародія_покласти" для типу "${мНазваТипу(a)}".`);
-  }
-  if (a instanceof Array) {
-    return a[b] = c;
-  }
-  if (a instanceof Map) {
-    return a.set(b, c);
-  }
-  var magic = a["чародія_покласти"];
-  if (magic) {
-    return magic(b, c);
-  }
-  throw new Падіння(`Неможливо виконати "чародія_покласти" для типу "${мНазваТипу(a)}".`);
-}
-
-function мВикликати(a, args) {
-  if (a == null) {
-    throw new Падіння(`Неможливо викликати "${мНазваТипу(a)}".`);
-  }
-  if (a[М] && a[М].структура === Function) {
-    return a(...args);
-  }
-  var magic = a["чародія_викликати"];
-  if (magic) {
-    return magic(...args);
-  }
-  throw new Падіння(`Неможливо викликати "${мНазваТипу(a)}".`);
+  return "<портал>";
 }
 
 function мЄ(a, b) {
+  if (b === м_обʼєкт) {
+    return true;
+  }
   if (a == null && b == null) {
     return true;
   }
   if (a == null || b == null) {
     return false;
   }
-  if (b === Number && typeof a === "number") {
+  if (b === м_число && typeof a === "number") {
     return true;
   }
-  if (b === String && typeof a === "string") {
+  if (b === м_текст && typeof a === "string") {
     return true;
   }
-  if (b === Boolean && typeof a === "boolean") {
+  if (b === м_логічне && typeof a === "boolean") {
     return true;
   }
-  if (b === Map && a instanceof Map) {
+  if (b === м_словник && a instanceof Map) {
     return true;
   }
-  if (b === Array && Array.isArray(a)) {
+  if (b === м_список && Array.isArray(a)) {
     return true;
   }
-  if (b === Function && typeof a === "function") {
+  if (b === м_Дія && typeof a === "function") {
     return true;
   }
   var structure = a[М]?.структура;
@@ -535,271 +181,297 @@ function мЄ(a, b) {
 }
 
 var м_обʼєкт = Object.create(null);
-var м_список = Array;
-var м_словник = Map;
-var м_число = Number;
-var м_текст = String;
-var м_логічне = Boolean;
-var м_пусто = null;
-var м_байти = Uint8Array;
-var м_Модуль = Object.create(null);
+м_обʼєкт[М] = Object.create(null);
+м_обʼєкт[М].структура = null;
+м_обʼєкт[М].назва = "Обʼєкт";
+
+var м_Структура = Object.create(null);
+м_Структура[М] = Object.create(null);
+м_Структура[М].структура = м_обʼєкт;
+м_Структура[М].назва = "Структура";
+
 var м_Дія = Function;
+м_Дія[М] = Object.create(null);
+м_Дія[М].структура = м_Структура;
+м_Дія[М].назва = "Дія";
+м_Дія.prototype.чародія_викликати = function чародія_викликати(...args) {
+  return this(...args);
+};
 
-var м_так = true;
-var м_ні = false;
-
-мДп(Boolean, function чародія_число() {
-  return () => Number(this);
+var м_логічне = Boolean;
+м_логічне[М] = Object.create(null);
+м_логічне[М].структура = м_Структура;
+м_логічне[М].назва = "логічне";
+мДп(м_логічне, function чародія_число() {
+  return Number(this);
 });
-мДп(Boolean, function чародія_текст() {
-  return () => this ? "так" : "ні";
-});
-
-мДп(Number, function чародія_додати() {
-  return (v) => this + v;
-});
-мДп(Number, function чародія_відняти() {
-  return (v) => this - v;
-});
-мДп(Number, function чародія_помножити() {
-  return (v) => this * v;
-});
-мДп(Number, function чародія_поділити() {
-  return (v) => this / v;
-});
-мДп(Number, function чародія_остача() {
-  return (v) => this % v;
-});
-мДп(Number, function чародія_частка() {
-  return (v) => Math.floor(this / v);
-});
-мДп(Number, function чародія_степінь() {
-  return (v) => this ** v;
-});
-мДп(Number, function чародія_вліво() {
-  return (v) => this << v;
-});
-мДп(Number, function чародія_вправо() {
-  return (v) => this >> v;
-});
-мДп(Number, function чародія_вабо() {
-  return (v) => this ^ v;
-});
-мДп(Number, function чародія_дабо() {
-  return (v) => this | v;
-});
-мДп(Number, function чародія_ді() {
-  return (v) => this & v;
-});
-мДп(Number, function чародія_більше() {
-  return (v) => this > v;
-});
-мДп(Number, function чародія_менше() {
-  return (v) => this < v;
-});
-мДп(Number, function чародія_не_більше() {
-  return (v) => this <= v;
-});
-мДп(Number, function чародія_не_менше() {
-  return (v) => this >= v;
-});
-мДп(Number, function чародія_дні() {
-  return () => ~this;
-});
-мДп(Number, function чародія_додатнє() {
-  return () => +this;
-});
-мДп(Number, function чародія_відʼємне() {
-  return () => -this;
-});
-мДп(Number, function чародія_текст() {
-  return () => String(this);
+мДп(м_логічне, function чародія_текст() {
+  return this ? "так" : "ні";
 });
 
-мДп(String, function довжина() {
-  return this.length;
+var м_число = Number;
+м_число[М] = Object.create(null);
+м_число[М].структура = м_Структура;
+м_число[М].назва = "число";
+м_число.чародія_викликати = мДія(function чародія_викликати(м_значення) {
+  return м_значення.чародія_число();
 });
-мДп(String, function розбити() {
-  return (d) => this.split(d);
+мДп(м_число, function чародія_додати(v) {
+  return this + v;
 });
-мДп(String, function замінити() {
-  return (o, n) => this.replaceAll(o, n);
+мДп(м_число, function чародія_відняти(v) {
+  return this - v;
 });
-мДп(String, function починається() {
-  return (v) => this.startsWith(v);
+мДп(м_число, function чародія_помножити(v) {
+  return this * v;
 });
-мДп(String, function закінчується() {
-  return (v) => this.endsWith(v);
+мДп(м_число, function чародія_поділити(v) {
+  return this / v;
 });
-мДп(String, function обтяти() {
-  return () => this.trim();
+мДп(м_число, function чародія_остача(v) {
+  return this % v;
 });
-мДп(String, function чародія_додати() {
-  return (v) => this + v;
+мДп(м_число, function чародія_частка(v) {
+  return Math.floor(this / v);
 });
-мДп(String, function чародія_містить() {
-  return (v) => this.includes(v);
+мДп(м_число, function чародія_степінь(v) {
+  return this ** v;
 });
-мДп(String, function чародія_отримати() {
-  return (i) => this[i];
+мДп(м_число, function чародія_вліво(v) {
+  return this << v;
 });
-мДп(String, function чародія_перебір() {
-  return () => {
-    var i = 0;
-    var iterator = Object.create(null);
-    iterator.завершено = this.length === 0;
-    iterator.значення = this[i];
-    var that = this;
-    iterator.далі = мДія(function далі() {
-      iterator.значення = that[++i];
-      iterator.завершено = i >= that.length;
-    });
-    return iterator;
-  };
+мДп(м_число, function чародія_вправо(v) {
+  return this >> v;
 });
-мДп(String, function чародія_число() {
-  return () => Number(this);
+мДп(м_число, function чародія_вабо(v) {
+  return this ^ v;
+});
+мДп(м_число, function чародія_дабо(v) {
+  return this | v;
+});
+мДп(м_число, function чародія_ді(v) {
+  return this & v;
+});
+мДп(м_число, function чародія_більше(v) {
+  return this > v;
+});
+мДп(м_число, function чародія_менше(v) {
+  return this < v;
+});
+мДп(м_число, function чародія_не_більше(v) {
+  return this <= v;
+});
+мДп(м_число, function чародія_не_менше(v) {
+  return this >= v;
+});
+мДп(м_число, function чародія_дні() {
+  return ~this;
+});
+мДп(м_число, function чародія_додатнє() {
+  return +this;
+});
+мДп(м_число, function чародія_відʼємне() {
+  return -this;
+});
+мДп(м_число, function чародія_текст() {
+  return String(this);
 });
 
-мДп(Array, function довжина() {
-  return this.length;
+var м_текст = String;
+м_текст[М] = Object.create(null);
+м_текст[М].структура = м_Структура;
+м_текст[М].назва = "текст";
+м_текст.чародія_викликати = мДія(function чародія_викликати(м_значення) {
+  return мТекст(м_значення);
+});
+Object.defineProperty(м_текст.prototype, "довжина", {
+  get() {
+    return this.length;
+  },
+});
+мДп(м_текст, function розбити(d) {
+  return this.split(d);
+});
+мДп(м_текст, function замінити(o, n) {
+  return this.replaceAll(o, n);
+});
+мДп(м_текст, function починається(v) {
+  return this.startsWith(v);
+});
+мДп(м_текст, function закінчується(v) {
+  return this.endsWith(v);
+});
+мДп(м_текст, function обтяти() {
+  return this.trim();
+});
+мДп(м_текст, function чародія_додати(v) {
+  return this + v;
+});
+мДп(м_текст, function чародія_містить(v) {
+  return this.includes(v);
+});
+мДп(м_текст, function чародія_отримати(i) {
+  return this[i];
+});
+мДп(м_текст, function чародія_перебір() {
+  var i = 0;
+  var iterator = Object.create(null);
+  iterator.завершено = this.length === 0;
+  iterator.значення = this[i];
+  var that = this;
+  iterator.далі = мДія(function далі() {
+    iterator.значення = that[++i];
+    iterator.завершено = i >= that.length;
+  });
+  return iterator;
+});
+мДп(м_текст, function чародія_число() {
+  return Number(this);
+});
+
+var м_список = Array;
+м_список[М] = Object.create(null);
+м_список[М].структура = м_Структура;
+м_список[М].назва = "список";
+Object.defineProperty(Array.prototype, "довжина", {
+  get() {
+    return this.length;
+  },
 });
 Array.сортувати = мДія(function сортувати(список) {
   return список.sort((a, b) => a - b);
 });
-мДп(Array, function сортувати() {
-  return (fn) => this.sort(fn);
+мДп(Array, function сортувати(fn) {
+  return this.sort(fn);
 });
-мДп(Array, function додати() {
-  return (value) => this.push(value);
+мДп(Array, function додати(value) {
+  return this.push(value);
 });
 мДп(Array, function забрати() {
-  return () => this.pop();
+  return this.pop();
 });
-мДп(Array, function фільтр() {
-  return (fn) => this.filter(fn);
+мДп(Array, function фільтр(fn) {
+  return this.filter(fn);
 });
-мДп(Array, function знайти() {
-  return (fn) => this.find(fn);
+мДп(Array, function знайти(fn) {
+  return this.find(fn);
 });
-мДп(Array, function знайти_позицію() {
-  return (fn) => this.findIndex(fn);
+мДп(Array, function знайти_позицію(fn) {
+  return this.findIndex(fn);
 });
-мДп(Array, function позиція() {
-  return (value) => this.indexOf(value);
+мДп(Array, function позиція(value) {
+  return this.indexOf(value);
 });
-мДп(Array, function перетворити() {
-  return (fn) => this.map(fn);
+мДп(Array, function перетворити(fn) {
+  return this.map(fn);
 });
-мДп(Array, function зʼєднати() {
-  return (d) => this.map((v) => мТекст(v)).join(d);
+мДп(Array, function зʼєднати(d) {
+  return this.map((v) => мТекст(v)).join(d);
 });
 мДп(Array, function обернути() {
-  return () => this.reverse();
+  return this.reverse();
 });
-мДп(Array, function зріз() {
-  return (from, to) => this.slice(from, to == null ? undefined : to);
+мДп(Array, function зріз(from, to) {
+  return this.slice(from, to == null ? undefined : to);
 });
-мДп(Array, function чародія_містить() {
-  return (value) => this.findIndex((item) => item === value) !== -1;
+мДп(Array, function чародія_містить(value) {
+  return this.findIndex((item) => item === value) !== -1;
 });
-мДп(Array, function чародія_отримати() {
-  return (index) => this[index];
+мДп(Array, function чародія_отримати(index) {
+  return this[index];
 });
-мДп(Array, function чародія_покласти() {
-  return (index, value) => {
-    this[index] = value;
-    return this;
-  };
+мДп(Array, function чародія_покласти(index, value) {
+  this[index] = value;
+  return this;
 });
 мДп(Array, function чародія_перебір() {
-  return () => {
-    var i = 0;
-    var iterator = Object.create(null);
-    iterator.завершено = this.length === 0;
-    iterator.значення = this[i];
-    var that = this;
-    iterator.далі = мДія(function далі() {
-      iterator.значення = that[++i];
-      iterator.завершено = i >= that.length;
-    });
-    return iterator;
-  };
+  var i = 0;
+  var iterator = Object.create(null);
+  iterator.завершено = this.length === 0;
+  iterator.значення = this[i];
+  var that = this;
+  iterator.далі = мДія(function далі() {
+    iterator.значення = that[++i];
+    iterator.завершено = i >= that.length;
+  });
+  return iterator;
 });
 мДп(Array, function чародія_текст() {
-  return () => "<список>";
+  return "<список>";
 });
 
-мДп(Map, function розмір() {
-  return this.size;
+var м_словник = Map;
+м_словник[М] = Object.create(null);
+м_словник[М].структура = м_Структура;
+м_словник[М].назва = "словник";
+Object.defineProperty(м_словник.prototype, "розмір", {
+  get() {
+    return this.size;
+  },
 });
 мДп(Map, function ключі() {
-  return () => [...this.keys()];
+  return [...this.keys()];
 });
 мДп(Map, function значення() {
-  return () => [...this.values()];
+  return [...this.values()];
 });
-мДп(Map, function видалити() {
-  return (k) => {
-    return this.delete(k);
-  };
+мДп(Map, function видалити(k) {
+  return this.delete(k);
 });
 мДп(Map, function очистити() {
-  return () => {
-    this.clear();
-    return this;
-  };
+  this.clear();
+  return this;
 });
-мДп(Map, function чародія_містить() {
-  return (k) => this.has(k);
+мДп(Map, function чародія_містить(k) {
+  return this.has(k);
 });
-мДп(Map, function чародія_отримати() {
-  return (k) => this.get(k);
+мДп(Map, function чародія_отримати(k) {
+  return this.get(k);
 });
-мДп(Map, function чародія_покласти() {
-  return (k, v) => {
-    this.set(k, v);
-    return this;
-  };
+мДп(Map, function чародія_покласти(k, v) {
+  this.set(k, v);
+  return this;
 });
 мДп(Map, function чародія_перебір() {
-  return () => {
-    const keys = [...this.keys()];
-    var i = 0;
-    var iterator = Object.create(null);
-    iterator.завершено = keys.length === 0;
-    iterator.значення = keys[i];
-    iterator.далі = мДія(function далі() {
-      iterator.значення = keys[++i];
-      iterator.завершено = i >= keys.length;
-    });
-    return iterator;
-  };
+  const keys = [...this.keys()];
+  var i = 0;
+  var iterator = Object.create(null);
+  iterator.завершено = keys.length === 0;
+  iterator.значення = keys[i];
+  iterator.далі = мДія(function далі() {
+    iterator.значення = keys[++i];
+    iterator.завершено = i >= keys.length;
+  });
+  return iterator;
 });
 мДп(Map, function чародія_перебір_з_ключем() {
-  return () => {
-    const entries = [...this.entries()];
-    var i = 0;
-    var iterator = Object.create(null);
-    iterator.завершено = entries.length === 0;
+  const entries = [...this.entries()];
+  var i = 0;
+  var iterator = Object.create(null);
+  iterator.завершено = entries.length === 0;
+  iterator.ключ = entries[i][0];
+  iterator.значення = entries[i][1];
+  iterator.далі = мДія(function далі() {
+    i++;
     iterator.ключ = entries[i][0];
     iterator.значення = entries[i][1];
-    iterator.далі = мДія(function далі() {
-      i++;
-      iterator.ключ = entries[i][0];
-      iterator.значення = entries[i][1];
-      iterator.завершено = i >= entries.length;
-    });
-    return iterator;
-  };
+    iterator.завершено = i >= entries.length;
+  });
+  return iterator;
 });
 мДп(Map, function чародія_текст() {
-  return () => "<словник>";
+  return "<словник>";
 });
 
-мДп(Function, function чародія_викликати() {
-  return (...args) => this(...args);
-});
+var м_очікування = Promise;
+м_очікування[М] = Object.create(null);
+м_очікування[М].структура = м_Структура;
+м_очікування[М].назва = "очікування";
+
+var м_Модуль = Object.create(null);
+м_Модуль[М] = Object.create(null);
+м_Модуль[М].структура = м_Структура;
+м_Модуль[М].назва = "Модуль";
 
 var м_перебір = мСтруктура(м_обʼєкт, function перебір(мs, м_завершено, м_значення) {
   мs.завершено = м_завершено;
@@ -811,7 +483,6 @@ var м_перебір = мСтруктура(м_обʼєкт, function пере�
 });
 м_перебір[М].методи.далі = мДія(function далі(я) {
 });
-
 м_перебір.створити = мДія(function створити(м_завершено, м_значення, м_далі) {
   var м_новий_перебір = м_перебір.чародія_викликати(м_завершено, м_значення);
   м_новий_перебір.далі = мДія(function далі() {
@@ -819,3 +490,12 @@ var м_перебір = мСтруктура(м_обʼєкт, function пере�
   });
   return м_новий_перебір;
 });
+
+var м_байти = Uint8Array;
+м_байти[М] = Object.create(null);
+м_байти[М].структура = м_Структура;
+м_байти[М].назва = "байти";
+
+var м_пусто = null;
+var м_так = true;
+var м_ні = false;

@@ -25,19 +25,14 @@ namespace jejalyk::typeinterpreter {
       const auto js_access =
           js::make_access(value_result->js_node, index_result->js_node);
       result->js_node = js_access;
-    } else if (value_result->value->has_diia(scope, JJ_MAG_GET_ELEMENT)) {
+    } else {
       // а.чародія_отримати(б)
       const auto js_chain = js::make_chain(value_result->js_node,
                                            js::make_id(JJ_MAG_GET_ELEMENT));
       const auto js_call = js::make_call(js_chain, {index_result->js_node});
       result->js_node = js_call;
-    } else {
-      // мОтримати(а, б)
-      result->js_node =
-          js::make_call(js::make_id(JJ_F_GET_ELEMENT),
-                        {value_result->js_node, index_result->js_node});
     }
 
     return result;
   }
-} // namespace typeinterpreter
+} // namespace jejalyk::typeinterpreter

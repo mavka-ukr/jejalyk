@@ -24,6 +24,12 @@ namespace jejalyk::typeinterpreter {
         return value_result;
       }
 
+      if (value_result->value->is_method(scope)) {
+        return scope->error(
+            mavka::ast::get_ast_node(assign_by_element_node->value),
+            "Не можна передавати дію обʼєкта як значення.");
+      }
+
       const auto result = left_result->value->magic_call(
           scope, assign_by_element_node, JJ_MAG_PUT_ELEMENT, {},
           {element_result->value, value_result->value});
@@ -38,23 +44,15 @@ namespace jejalyk::typeinterpreter {
         const auto js_assign = js::make_assign(js_chain, value_result->js_node);
         result->js_node = js_assign;
         return result;
-      } else if (left_result->value->has_diia(scope, JJ_MAG_PUT_ELEMENT)) {
-        // а.чародія_покласти(1, б)
-        const auto js_chain = js::make_chain(left_result->js_node,
-                                             js::make_id(JJ_MAG_PUT_ELEMENT));
-        const auto js_call = js::make_call(
-            js_chain, {element_result->js_node, value_result->js_node});
-        result->js_node = js_call;
-        return result;
-      } else {
-        // мПокласти(а, 1, б)
-        const auto js_call =
-            js::make_call(js::make_id(JJ_F_PUT_ELEMENT),
-                          {left_result->js_node, element_result->js_node,
-                           value_result->js_node});
-        result->js_node = js_call;
-        return result;
       }
+
+      // а.чародія_покласти(1, б)
+      const auto js_chain =
+          js::make_chain(left_result->js_node, js::make_id(JJ_MAG_PUT_ELEMENT));
+      const auto js_call = js::make_call(
+          js_chain, {element_result->js_node, value_result->js_node});
+      result->js_node = js_call;
+      return result;
     } else {
       std::string op;
       bool bitwise = false;

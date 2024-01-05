@@ -41,10 +41,11 @@ namespace jejalyk::typeinterpreter {
           js_args.push_back(arg_value_result->js_node);
         }
 
-        // мВикликати(а, [б])
-        const auto js_call =
-            js::make_call(js::make_id(JJ_F_CALL),
-                          {value_result->js_node, js::make_array(js_args)});
+        // а.чародія_викликати(б)
+        const auto js_chain =
+            js::make_chain(value_result->js_node, js::make_id(JJ_MAG_CALL));
+        const auto js_call = js::make_call(js_chain, js_args);
+
         return success(value_result->value, js_call);
       }
     }
@@ -85,6 +86,11 @@ namespace jejalyk::typeinterpreter {
             const auto arg_value_result = scope->compile_node(arg_node->value);
             if (arg_value_result->error) {
               return arg_value_result;
+            }
+            if (arg_value_result->value->is_method(scope)) {
+              return scope->error(
+                  mavka::ast::get_ast_node(arg_node->value),
+                  "Не можна передавати дію обʼєкта як значення.");
             }
             args.push_back(arg_value_result->value);
             js_args.push_back(arg_value_result->js_node);
@@ -169,6 +175,11 @@ namespace jejalyk::typeinterpreter {
                     scope->compile_node(call_node->args[i]->value);
                 if (arg_value_result->error) {
                   return arg_value_result;
+                }
+                if (arg_value_result->value->is_method(scope)) {
+                  return scope->error(
+                      mavka::ast::get_ast_node(call_node->args[i]->value),
+                      "Не можна передавати дію обʼєкта як значення.");
                 }
                 arg = arg_value_result->value;
                 args.push_back(arg);

@@ -73,9 +73,21 @@ namespace jejalyk::typeinterpreter {
         generic_types.push_back(generic_type_subject);
       }
 
-      return type_value_single_result->value->create_instance(scope, generic_types);
+      const auto instance = type_value_single_result->value->create_instance(
+          scope, generic_types);
+      if (instance->error) {
+        return instance;
+      }
+
+      return success(instance->value, type_value_single_result->js_node);
     }
 
-    return type_value_single_result->value->create_instance(scope, {});
+    const auto instance =
+        type_value_single_result->value->create_instance(scope, {});
+    if (instance->error) {
+      return instance;
+    }
+
+    return success(instance->value, type_value_single_result->js_node);
   }
 } // namespace typeinterpreter

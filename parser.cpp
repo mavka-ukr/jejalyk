@@ -2241,19 +2241,18 @@ namespace mavka::parser {
       // wasm cannot properly handle antlr4 exceptions
       // do not handle it for now
       // todo: fix it
-      parser_error->line = e.getOffendingToken()->getLine();
-      parser_error->column = e.getOffendingToken()->getCharPositionInLine();
-      parser_error->path = path;
+      // parser_error->line = e.getOffendingToken()->getLine();
+      // parser_error->column = e.getOffendingToken()->getCharPositionInLine();
+      parser_error->path = std::move(path);
       parser_error->message = "Помилка парсингу.";
       parser_result->error = parser_error;
       return parser_result;
+    } catch (...) {
+      const auto parser_result = new MavkaParserResult();
+      const auto parser_error = new MavkaParserError();
+      parser_error->message = "Невідома помилка парсингу.";
+      parser_result->error = parser_error;
+      return parser_result;
     }
-    // catch (...) {
-    //   const auto parser_result = new MavkaParserResult();
-    //   const auto parser_error = new MavkaParserError();
-    //   parser_error->message = "Невідома помилка парсингу.";
-    //   parser_result->error = parser_error;
-    //   return parser_result;
-    // }
   }
 }

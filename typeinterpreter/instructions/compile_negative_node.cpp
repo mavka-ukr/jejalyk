@@ -17,15 +17,11 @@ namespace jejalyk::typeinterpreter {
     if (value_result->value->is_number(scope)) {
       // -а
       result->js_node = js::make_negative(value_result->js_node);
-    } else if (value_result->value->has_diia(scope, JJ_MAG_BW_NEGATIVE)) {
+    } else {
       // а.чародія_відʼємне()
       const auto js_chain = js::make_chain(value_result->js_node,
                                            js::make_id(JJ_MAG_BW_NEGATIVE));
       result->js_node = js::make_call(js_chain, {});
-    } else {
-      // мВідʼємне(а)
-      result->js_node =
-          js::make_call(js::make_id(JJ_F_NEGATIVE), {value_result->js_node});
     }
 
     return result;
