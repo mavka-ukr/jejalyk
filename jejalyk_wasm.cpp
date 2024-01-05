@@ -33,6 +33,7 @@ jejalyk::typeinterpreter::GetModuleResult* val_to_get_module_result(
       new jejalyk::typeinterpreter::GetModuleResult();
   get_module_result->error = result["error"].as<std::string>();
   get_module_result->result = result["result"].as<std::string>();
+  get_module_result->builtin = result["builtin"].as<bool>();
   return get_module_result;
 }
 

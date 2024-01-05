@@ -313,6 +313,7 @@ namespace jejalyk::typeinterpreter {
    public:
     std::string error;
     std::string result;
+    bool builtin = false;
   };
 
   class Module final {

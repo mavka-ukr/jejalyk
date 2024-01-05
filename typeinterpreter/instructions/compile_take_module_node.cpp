@@ -48,6 +48,9 @@ namespace jejalyk::typeinterpreter {
 
     const auto scope_compilation_options = options->clone();
     scope_compilation_options->current_module_path = module_path;
+    if (module_path_result->builtin) {
+      scope_compilation_options->arg_extensions = "1";
+    }
 
     const auto module_code_result = options->get_module_code(
         take_module_node->relative, take_module_node->name,
