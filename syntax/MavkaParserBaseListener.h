@@ -16,6 +16,27 @@
 class  MavkaParserBaseListener : public MavkaParserListener {
 public:
 
+  virtual void enterWs(MavkaParser::WsContext * /*ctx*/) override { }
+  virtual void exitWs(MavkaParser::WsContext * /*ctx*/) override { }
+
+  virtual void enterWss(MavkaParser::WssContext * /*ctx*/) override { }
+  virtual void exitWss(MavkaParser::WssContext * /*ctx*/) override { }
+
+  virtual void enterNl(MavkaParser::NlContext * /*ctx*/) override { }
+  virtual void exitNl(MavkaParser::NlContext * /*ctx*/) override { }
+
+  virtual void enterNls(MavkaParser::NlsContext * /*ctx*/) override { }
+  virtual void exitNls(MavkaParser::NlsContext * /*ctx*/) override { }
+
+  virtual void enterNumber_token(MavkaParser::Number_tokenContext * /*ctx*/) override { }
+  virtual void exitNumber_token(MavkaParser::Number_tokenContext * /*ctx*/) override { }
+
+  virtual void enterString(MavkaParser::StringContext * /*ctx*/) override { }
+  virtual void exitString(MavkaParser::StringContext * /*ctx*/) override { }
+
+  virtual void enterIdentifier(MavkaParser::IdentifierContext * /*ctx*/) override { }
+  virtual void exitIdentifier(MavkaParser::IdentifierContext * /*ctx*/) override { }
+
   virtual void enterFile(MavkaParser::FileContext * /*ctx*/) override { }
   virtual void exitFile(MavkaParser::FileContext * /*ctx*/) override { }
 
@@ -33,9 +54,6 @@ public:
 
   virtual void enterModule_body_element(MavkaParser::Module_body_elementContext * /*ctx*/) override { }
   virtual void exitModule_body_element(MavkaParser::Module_body_elementContext * /*ctx*/) override { }
-
-  virtual void enterMethod_declaration(MavkaParser::Method_declarationContext * /*ctx*/) override { }
-  virtual void exitMethod_declaration(MavkaParser::Method_declarationContext * /*ctx*/) override { }
 
   virtual void enterStructure(MavkaParser::StructureContext * /*ctx*/) override { }
   virtual void exitStructure(MavkaParser::StructureContext * /*ctx*/) override { }
@@ -97,9 +115,6 @@ public:
   virtual void enterFromto_number(MavkaParser::Fromto_numberContext * /*ctx*/) override { }
   virtual void exitFromto_number(MavkaParser::Fromto_numberContext * /*ctx*/) override { }
 
-  virtual void enterFromto_string(MavkaParser::Fromto_stringContext * /*ctx*/) override { }
-  virtual void exitFromto_string(MavkaParser::Fromto_stringContext * /*ctx*/) override { }
-
   virtual void enterFromto_id(MavkaParser::Fromto_idContext * /*ctx*/) override { }
   virtual void exitFromto_id(MavkaParser::Fromto_idContext * /*ctx*/) override { }
 
@@ -127,9 +142,6 @@ public:
   virtual void enterTake_remote(MavkaParser::Take_remoteContext * /*ctx*/) override { }
   virtual void exitTake_remote(MavkaParser::Take_remoteContext * /*ctx*/) override { }
 
-  virtual void enterTake_file(MavkaParser::Take_fileContext * /*ctx*/) override { }
-  virtual void exitTake_file(MavkaParser::Take_fileContext * /*ctx*/) override { }
-
   virtual void enterTake_module_elements(MavkaParser::Take_module_elementsContext * /*ctx*/) override { }
   virtual void exitTake_module_elements(MavkaParser::Take_module_elementsContext * /*ctx*/) override { }
 
@@ -141,9 +153,6 @@ public:
 
   virtual void enterGive_element(MavkaParser::Give_elementContext * /*ctx*/) override { }
   virtual void exitGive_element(MavkaParser::Give_elementContext * /*ctx*/) override { }
-
-  virtual void enterString(MavkaParser::StringContext * /*ctx*/) override { }
-  virtual void exitString(MavkaParser::StringContext * /*ctx*/) override { }
 
   virtual void enterGet_element(MavkaParser::Get_elementContext * /*ctx*/) override { }
   virtual void exitGet_element(MavkaParser::Get_elementContext * /*ctx*/) override { }
@@ -253,23 +262,8 @@ public:
   virtual void enterAnonymous_diia(MavkaParser::Anonymous_diiaContext * /*ctx*/) override { }
   virtual void exitAnonymous_diia(MavkaParser::Anonymous_diiaContext * /*ctx*/) override { }
 
-  virtual void enterExpr_mml(MavkaParser::Expr_mmlContext * /*ctx*/) override { }
-  virtual void exitExpr_mml(MavkaParser::Expr_mmlContext * /*ctx*/) override { }
-
   virtual void enterThrow(MavkaParser::ThrowContext * /*ctx*/) override { }
   virtual void exitThrow(MavkaParser::ThrowContext * /*ctx*/) override { }
-
-  virtual void enterArray_destruction(MavkaParser::Array_destructionContext * /*ctx*/) override { }
-  virtual void exitArray_destruction(MavkaParser::Array_destructionContext * /*ctx*/) override { }
-
-  virtual void enterArray_destruction_el(MavkaParser::Array_destruction_elContext * /*ctx*/) override { }
-  virtual void exitArray_destruction_el(MavkaParser::Array_destruction_elContext * /*ctx*/) override { }
-
-  virtual void enterObject_destruction(MavkaParser::Object_destructionContext * /*ctx*/) override { }
-  virtual void exitObject_destruction(MavkaParser::Object_destructionContext * /*ctx*/) override { }
-
-  virtual void enterObject_destruction_el(MavkaParser::Object_destruction_elContext * /*ctx*/) override { }
-  virtual void exitObject_destruction_el(MavkaParser::Object_destruction_elContext * /*ctx*/) override { }
 
   virtual void enterAssign(MavkaParser::AssignContext * /*ctx*/) override { }
   virtual void exitAssign(MavkaParser::AssignContext * /*ctx*/) override { }
@@ -283,20 +277,11 @@ public:
   virtual void enterAssign_by_element(MavkaParser::Assign_by_elementContext * /*ctx*/) override { }
   virtual void exitAssign_by_element(MavkaParser::Assign_by_elementContext * /*ctx*/) override { }
 
-  virtual void enterAssign_array_destruction(MavkaParser::Assign_array_destructionContext * /*ctx*/) override { }
-  virtual void exitAssign_array_destruction(MavkaParser::Assign_array_destructionContext * /*ctx*/) override { }
-
-  virtual void enterAssign_object_destruction(MavkaParser::Assign_object_destructionContext * /*ctx*/) override { }
-  virtual void exitAssign_object_destruction(MavkaParser::Assign_object_destructionContext * /*ctx*/) override { }
-
   virtual void enterAssign_symbol(MavkaParser::Assign_symbolContext * /*ctx*/) override { }
   virtual void exitAssign_symbol(MavkaParser::Assign_symbolContext * /*ctx*/) override { }
 
   virtual void enterWait_assign(MavkaParser::Wait_assignContext * /*ctx*/) override { }
   virtual void exitWait_assign(MavkaParser::Wait_assignContext * /*ctx*/) override { }
-
-  virtual void enterIdentifier(MavkaParser::IdentifierContext * /*ctx*/) override { }
-  virtual void exitIdentifier(MavkaParser::IdentifierContext * /*ctx*/) override { }
 
   virtual void enterIdentifiers_chain(MavkaParser::Identifiers_chainContext * /*ctx*/) override { }
   virtual void exitIdentifiers_chain(MavkaParser::Identifiers_chainContext * /*ctx*/) override { }
@@ -384,12 +369,6 @@ public:
 
   virtual void enterComp_inst_assign(MavkaParser::Comp_inst_assignContext * /*ctx*/) override { }
   virtual void exitComp_inst_assign(MavkaParser::Comp_inst_assignContext * /*ctx*/) override { }
-
-  virtual void enterNl(MavkaParser::NlContext * /*ctx*/) override { }
-  virtual void exitNl(MavkaParser::NlContext * /*ctx*/) override { }
-
-  virtual void enterNls(MavkaParser::NlsContext * /*ctx*/) override { }
-  virtual void exitNls(MavkaParser::NlsContext * /*ctx*/) override { }
 
 
   virtual void enterEveryRule(antlr4::ParserRuleContext * /*ctx*/) override { }

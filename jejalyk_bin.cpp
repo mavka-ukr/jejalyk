@@ -24,6 +24,6 @@ var друк = мДія("друк", function(values) {
   if (compilation_result->error) {
     std::cout << compilation_result->error->message << std::endl;
   } else {
-    std::cout << compilation_result->result << std::endl;
+    std::cout << "ok" << std::endl;
   }
 }

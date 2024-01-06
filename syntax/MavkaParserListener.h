@@ -14,6 +14,27 @@
 class  MavkaParserListener : public antlr4::tree::ParseTreeListener {
 public:
 
+  virtual void enterWs(MavkaParser::WsContext *ctx) = 0;
+  virtual void exitWs(MavkaParser::WsContext *ctx) = 0;
+
+  virtual void enterWss(MavkaParser::WssContext *ctx) = 0;
+  virtual void exitWss(MavkaParser::WssContext *ctx) = 0;
+
+  virtual void enterNl(MavkaParser::NlContext *ctx) = 0;
+  virtual void exitNl(MavkaParser::NlContext *ctx) = 0;
+
+  virtual void enterNls(MavkaParser::NlsContext *ctx) = 0;
+  virtual void exitNls(MavkaParser::NlsContext *ctx) = 0;
+
+  virtual void enterNumber_token(MavkaParser::Number_tokenContext *ctx) = 0;
+  virtual void exitNumber_token(MavkaParser::Number_tokenContext *ctx) = 0;
+
+  virtual void enterString(MavkaParser::StringContext *ctx) = 0;
+  virtual void exitString(MavkaParser::StringContext *ctx) = 0;
+
+  virtual void enterIdentifier(MavkaParser::IdentifierContext *ctx) = 0;
+  virtual void exitIdentifier(MavkaParser::IdentifierContext *ctx) = 0;
+
   virtual void enterFile(MavkaParser::FileContext *ctx) = 0;
   virtual void exitFile(MavkaParser::FileContext *ctx) = 0;
 
@@ -31,9 +52,6 @@ public:
 
   virtual void enterModule_body_element(MavkaParser::Module_body_elementContext *ctx) = 0;
   virtual void exitModule_body_element(MavkaParser::Module_body_elementContext *ctx) = 0;
-
-  virtual void enterMethod_declaration(MavkaParser::Method_declarationContext *ctx) = 0;
-  virtual void exitMethod_declaration(MavkaParser::Method_declarationContext *ctx) = 0;
 
   virtual void enterStructure(MavkaParser::StructureContext *ctx) = 0;
   virtual void exitStructure(MavkaParser::StructureContext *ctx) = 0;
@@ -95,9 +113,6 @@ public:
   virtual void enterFromto_number(MavkaParser::Fromto_numberContext *ctx) = 0;
   virtual void exitFromto_number(MavkaParser::Fromto_numberContext *ctx) = 0;
 
-  virtual void enterFromto_string(MavkaParser::Fromto_stringContext *ctx) = 0;
-  virtual void exitFromto_string(MavkaParser::Fromto_stringContext *ctx) = 0;
-
   virtual void enterFromto_id(MavkaParser::Fromto_idContext *ctx) = 0;
   virtual void exitFromto_id(MavkaParser::Fromto_idContext *ctx) = 0;
 
@@ -125,9 +140,6 @@ public:
   virtual void enterTake_remote(MavkaParser::Take_remoteContext *ctx) = 0;
   virtual void exitTake_remote(MavkaParser::Take_remoteContext *ctx) = 0;
 
-  virtual void enterTake_file(MavkaParser::Take_fileContext *ctx) = 0;
-  virtual void exitTake_file(MavkaParser::Take_fileContext *ctx) = 0;
-
   virtual void enterTake_module_elements(MavkaParser::Take_module_elementsContext *ctx) = 0;
   virtual void exitTake_module_elements(MavkaParser::Take_module_elementsContext *ctx) = 0;
 
@@ -139,9 +151,6 @@ public:
 
   virtual void enterGive_element(MavkaParser::Give_elementContext *ctx) = 0;
   virtual void exitGive_element(MavkaParser::Give_elementContext *ctx) = 0;
-
-  virtual void enterString(MavkaParser::StringContext *ctx) = 0;
-  virtual void exitString(MavkaParser::StringContext *ctx) = 0;
 
   virtual void enterGet_element(MavkaParser::Get_elementContext *ctx) = 0;
   virtual void exitGet_element(MavkaParser::Get_elementContext *ctx) = 0;
@@ -251,23 +260,8 @@ public:
   virtual void enterAnonymous_diia(MavkaParser::Anonymous_diiaContext *ctx) = 0;
   virtual void exitAnonymous_diia(MavkaParser::Anonymous_diiaContext *ctx) = 0;
 
-  virtual void enterExpr_mml(MavkaParser::Expr_mmlContext *ctx) = 0;
-  virtual void exitExpr_mml(MavkaParser::Expr_mmlContext *ctx) = 0;
-
   virtual void enterThrow(MavkaParser::ThrowContext *ctx) = 0;
   virtual void exitThrow(MavkaParser::ThrowContext *ctx) = 0;
-
-  virtual void enterArray_destruction(MavkaParser::Array_destructionContext *ctx) = 0;
-  virtual void exitArray_destruction(MavkaParser::Array_destructionContext *ctx) = 0;
-
-  virtual void enterArray_destruction_el(MavkaParser::Array_destruction_elContext *ctx) = 0;
-  virtual void exitArray_destruction_el(MavkaParser::Array_destruction_elContext *ctx) = 0;
-
-  virtual void enterObject_destruction(MavkaParser::Object_destructionContext *ctx) = 0;
-  virtual void exitObject_destruction(MavkaParser::Object_destructionContext *ctx) = 0;
-
-  virtual void enterObject_destruction_el(MavkaParser::Object_destruction_elContext *ctx) = 0;
-  virtual void exitObject_destruction_el(MavkaParser::Object_destruction_elContext *ctx) = 0;
 
   virtual void enterAssign(MavkaParser::AssignContext *ctx) = 0;
   virtual void exitAssign(MavkaParser::AssignContext *ctx) = 0;
@@ -281,20 +275,11 @@ public:
   virtual void enterAssign_by_element(MavkaParser::Assign_by_elementContext *ctx) = 0;
   virtual void exitAssign_by_element(MavkaParser::Assign_by_elementContext *ctx) = 0;
 
-  virtual void enterAssign_array_destruction(MavkaParser::Assign_array_destructionContext *ctx) = 0;
-  virtual void exitAssign_array_destruction(MavkaParser::Assign_array_destructionContext *ctx) = 0;
-
-  virtual void enterAssign_object_destruction(MavkaParser::Assign_object_destructionContext *ctx) = 0;
-  virtual void exitAssign_object_destruction(MavkaParser::Assign_object_destructionContext *ctx) = 0;
-
   virtual void enterAssign_symbol(MavkaParser::Assign_symbolContext *ctx) = 0;
   virtual void exitAssign_symbol(MavkaParser::Assign_symbolContext *ctx) = 0;
 
   virtual void enterWait_assign(MavkaParser::Wait_assignContext *ctx) = 0;
   virtual void exitWait_assign(MavkaParser::Wait_assignContext *ctx) = 0;
-
-  virtual void enterIdentifier(MavkaParser::IdentifierContext *ctx) = 0;
-  virtual void exitIdentifier(MavkaParser::IdentifierContext *ctx) = 0;
 
   virtual void enterIdentifiers_chain(MavkaParser::Identifiers_chainContext *ctx) = 0;
   virtual void exitIdentifiers_chain(MavkaParser::Identifiers_chainContext *ctx) = 0;
@@ -382,12 +367,6 @@ public:
 
   virtual void enterComp_inst_assign(MavkaParser::Comp_inst_assignContext *ctx) = 0;
   virtual void exitComp_inst_assign(MavkaParser::Comp_inst_assignContext *ctx) = 0;
-
-  virtual void enterNl(MavkaParser::NlContext *ctx) = 0;
-  virtual void exitNl(MavkaParser::NlContext *ctx) = 0;
-
-  virtual void enterNls(MavkaParser::NlsContext *ctx) = 0;
-  virtual void exitNls(MavkaParser::NlsContext *ctx) = 0;
 
 
 };

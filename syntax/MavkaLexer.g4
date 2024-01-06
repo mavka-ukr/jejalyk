@@ -1,119 +1,82 @@
 lexer grammar MavkaLexer;
 
-END: 'кінець';
-DIIA: 'дія';
-STRUCTURE: 'структура';
-FOR: 'перебрати';
-EQ: '==';
-NOT_EQ: '!=';
-GREATER_EQ: '>=';
-SMALLER_EQ: '<=';
-GREATER: '>';
-SMALLER: '<';
-IF: 'якщо';
-WAIT: 'чекати';
-TAKE: 'взяти';
-TAKE_PAK: 'взяти пак';
-TAKE_FILE: 'взяти файл';
-GIVE: 'дати';
-AS: 'як';
-TA: 'та';
-IS: 'є';
-SPEC: 'спец';
-RETURN: 'вернути';
-ASYNC: 'тривала';
-SUBJECT: 'субʼєкт';
-AND: 'і';
-OR: 'або';
-TRY: 'спробувати';
-CATCH: 'зловити';
-ELSE: 'інакше';
-THROW: 'впасти';
-WHILE: 'поки';
-MODULE: 'модуль';
-TERNARY: '?';
-EQ_WORD: 'рівно';
-GR_WORD: 'більше';
-SM_WORD: 'менше';
-NOT_GR_WORD: 'не більше';
-NOT_SM_WORD: 'не менше';
-NOT_EQ_WORD: 'не рівно';
-NOT_IS_WORD: 'не є';
-HAS_IS_WORD: 'містить';
-NOT_HAS_IS_WORD: 'не містить';
-STAR_ALL: '.*';
-MOCKUP: 'макет';
-IMPLEMENTS: 'втілює';
-IMPLEMENT: 'втілити';
-EVAL: 'js';
-WHEN: 'коли';
-ALSO: 'також';
-PARENT: 'предок';
-TSE: 'це';
-SPREAD: '...';
-FROMTO: '..';
-KID: '\'' ( ID | END | DIIA | STRUCTURE | FOR | IF | WAIT | TAKE | GIVE | AS | TA | IS | SPEC | RETURN | ASYNC | SUBJECT | AND | OR | TRY | CATCH | ELSE | THROW | WHILE | MODULE | EQ_WORD | GR_WORD | SM_WORD | HAS_IS_WORD | MOCKUP | IMPLEMENTS | IMPLEMENT | EVAL | WHEN | ALSO | PARENT | TSE )*;
+NL: ( '\r'? '\n' ) -> channel(HIDDEN);
+WS: (' ' | '\t') -> channel(HIDDEN);
 
-SKIP_SPACES: ( ' ' | '\t' ) -> channel(HIDDEN);
-NL: ( '\r'? '\n' );
-DECREMENT: '--';
-INCREMENT: '++';
-OPEN_PAREN: '(';
-CLOSE_PAREN: ')';
-OPEN_ARRAY: '[';
-CLOSE_ARRAY: ']';
-COMMA: ',';
-ASSIGN: '=';
-ASSIGN_PARENT: ':=';
-ASSIGN_ADD: '+=';
-ASSIGN_SUB: '-=';
-ASSIGN_MUL: '*=';
-ASSIGN_DIV: '/=';
-ASSIGN_DIVDIV: '//=';
-ASSIGN_MOD: '%=';
-ASSIGN_BW_OR: '|=';
-ASSIGN_BW_AND: '&=';
-ASSIGN_BW_SHIFT_LEFT: '<<=';
-ASSIGN_BW_SHIFT_RIGHT: '>>=';
-ASSIGN_XOR: '^=';
-ASSIGN_POW: '**=';
-ASSIGN_OR: '||=';
-ASSIGN_AND: '&&=';
-ASSIGN_IF: '??=';
+KW_END: 'кінець';
+KW_DIIA: 'дія';
+KW_STRUCTURE: 'структура';
+KW_FOR: 'перебрати';
+KW_IF: 'якщо';
+KW_WAIT: 'чекати';
+KW_TAKE: 'взяти';
+KW_GIVE: 'дати';
+KW_AS: 'як';
+KW_TA: 'та';
+KW_IS: 'є';
+KW_SPEC: 'спец';
+KW_RETURN: 'вернути';
+KW_ASYNC: 'тривала';
+KW_SUBJECT: 'субʼєкт';
+KW_AND: 'і';
+KW_OR: 'або';
+KW_TRY: 'спробувати';
+KW_CATCH: 'зловити';
+KW_ELSE: 'інакше';
+KW_THROW: 'впасти';
+KW_WHILE: 'поки';
+KW_MODULE: 'модуль';
+KW_EQ_WORD: 'рівно';
+KW_GR_WORD: 'більше';
+KW_SM_WORD: 'менше';
+KW_HAS_IS_WORD: 'містить';
+KW_MOCKUP: 'макет';
+KW_NOT: 'не';
+KW_JS: 'js';
+KW_PARENT: 'предок';
+KW_TSE: 'це';
+
+EQUAL: '=';
+GREATER: '>';
+LESSER: '<';
+DOT: '.';
 PLUS: '+';
 MINUS: '-';
-MUL: '*';
-DIV: '/';
+MULTIPLY: '*';
+DIVIDE: '/';
+MOD: '%';
+POWER: '^';
+AND: '&';
+OR: '|';
+PAREN_OPEN: '(';
+PAREN_CLOSE: ')';
+BRACKET_OPEN: '[';
+BRACKET_CLOSE: ']';
+QUESTION: '?';
 COLON: ':';
-DOT: '.';
-NOT: '!';
 TILDA: '~';
-PERCENT: '%';
-DIVDIV: '//';
-POW: '**';
-XOR: '^';
-OR_SYM: '||';
-AND_SYM: '&&';
-OR_BW: '|';
-AND_BW: '&';
-HEX_START: '0x';
-ID: ID_START ID_CONTINUE*;
-NUMBER: FLOAT | INTEGER | HEX | BINNUM | HEXUKR | BINNUMUKR;
+QUOTE: '\'';
+DOUBLE_QUOTE: '"';
+EXCLAMATION: '!';
+COMA: ',';
+
 INTEGER: DIGIT+;
-FLOAT: INTEGER '.' INTEGER;
-HEX: '0x' (DIGIT | 'A'..'F' | 'a'..'f')+;
-HEXUKR: '0ш' (DIGIT | 'А' | 'а' | 'Б' | 'б' | 'В' | 'в' | 'Г' | 'г' | 'Ґ' | 'ґ' | 'Д' | 'д')+;
-BINNUM: '0b' ('0' | '1')+;
-BINNUMUKR: '0д' ('0' | '1')+;
-MML: '<мрм>' MML_TAG_PART*? '</мрм>';
-COMP_INST_START: ';+';
-COMP_INST_END: ';-';
-COMP_INST_ASSIGN: ';=';
-TRIPPLE_QUOTE: '"""';
-STRING_MULTILINE: '"""' TRIPPLE_QUOTED_STRING_PART*? '"""';
+FLOAT: DIGIT+ '.' DIGIT+;
+HEX: '0' ('ш' | 'Ш' | 'x' | 'X') (DIGIT | 'А' | 'а' | 'Б' | 'б' | 'В' | 'в' | 'Г' | 'г' | 'Ґ' | 'ґ' | 'Д' | 'д' | 'A'..'F' | 'a'..'f')+;
+BIN: '0' ('д' | 'Д' | 'b' | 'B') ('0' | '1')+;
+
+ID: ID_START ID_CONTINUE*;
+KWID: QUOTE (KW_END | KW_DIIA | KW_STRUCTURE | KW_FOR | KW_IF | KW_WAIT | KW_TAKE | KW_GIVE | KW_AS | KW_TA | KW_IS | KW_SPEC | KW_RETURN | KW_ASYNC | KW_SUBJECT | KW_AND | KW_OR | KW_TRY | KW_CATCH | KW_ELSE | KW_THROW | KW_WHILE | KW_MODULE | KW_EQ_WORD | KW_GR_WORD | KW_SM_WORD | KW_HAS_IS_WORD | KW_MOCKUP | KW_NOT | KW_JS | KW_PARENT | KW_TSE);
+
+STRING_MULTILINE: '"' '"' '"' TRIPPLE_QUOTED_STRING_PART*? '"' '"' '"';
 STRING: '"' ( ~["\n\r] )* '"';
-COMMENT: ';;;' (COMMENT | .)*? ';;;' -> channel(HIDDEN);
-LINE_COMMENT: ';;' (LINE_COMMENT | ~[\r\n])* -> channel(HIDDEN);
+
+COMP_INST_START: ';' '+';
+COMP_INST_END: ';' '-';
+COMP_INST_ASSIGN: ';' '=';
+
+COMMENT: ';' ';' ';' (COMMENT | .)*? ';' ';' ';' -> channel(HIDDEN);
+LINE_COMMENT: ';' ';' (LINE_COMMENT | ~[\r\n])* -> channel(HIDDEN);
 
 fragment DIGIT
     : '0'..'9'
@@ -132,8 +95,10 @@ fragment ID_CONTINUE
     | ID_START
     ;
 
-fragment TRIPPLE_QUOTED_STRING_PART : (ESCAPED_TRIPPLE_QUOTE | .)+?;
-fragment ESCAPED_TRIPPLE_QUOTE : '\\"';
+fragment TRIPPLE_QUOTED_STRING_PART
+    : (ESCAPED_TRIPPLE_QUOTE | .)+?
+    ;
 
-fragment MML_TAG_PART : (ESCAPED_MML_TAG_START | .)+?;
-fragment ESCAPED_MML_TAG_START : '\\<';
+fragment ESCAPED_TRIPPLE_QUOTE
+    : '\\"'
+    ;

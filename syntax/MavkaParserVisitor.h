@@ -19,6 +19,20 @@ public:
   /**
    * Visit parse trees produced by MavkaParser.
    */
+    virtual std::any visitWs(MavkaParser::WsContext *context) = 0;
+
+    virtual std::any visitWss(MavkaParser::WssContext *context) = 0;
+
+    virtual std::any visitNl(MavkaParser::NlContext *context) = 0;
+
+    virtual std::any visitNls(MavkaParser::NlsContext *context) = 0;
+
+    virtual std::any visitNumber_token(MavkaParser::Number_tokenContext *context) = 0;
+
+    virtual std::any visitString(MavkaParser::StringContext *context) = 0;
+
+    virtual std::any visitIdentifier(MavkaParser::IdentifierContext *context) = 0;
+
     virtual std::any visitFile(MavkaParser::FileContext *context) = 0;
 
     virtual std::any visitProgram(MavkaParser::ProgramContext *context) = 0;
@@ -30,8 +44,6 @@ public:
     virtual std::any visitModule_body(MavkaParser::Module_bodyContext *context) = 0;
 
     virtual std::any visitModule_body_element(MavkaParser::Module_body_elementContext *context) = 0;
-
-    virtual std::any visitMethod_declaration(MavkaParser::Method_declarationContext *context) = 0;
 
     virtual std::any visitStructure(MavkaParser::StructureContext *context) = 0;
 
@@ -73,8 +85,6 @@ public:
 
     virtual std::any visitFromto_number(MavkaParser::Fromto_numberContext *context) = 0;
 
-    virtual std::any visitFromto_string(MavkaParser::Fromto_stringContext *context) = 0;
-
     virtual std::any visitFromto_id(MavkaParser::Fromto_idContext *context) = 0;
 
     virtual std::any visitFromto_nested(MavkaParser::Fromto_nestedContext *context) = 0;
@@ -93,8 +103,6 @@ public:
 
     virtual std::any visitTake_remote(MavkaParser::Take_remoteContext *context) = 0;
 
-    virtual std::any visitTake_file(MavkaParser::Take_fileContext *context) = 0;
-
     virtual std::any visitTake_module_elements(MavkaParser::Take_module_elementsContext *context) = 0;
 
     virtual std::any visitTake_module_element(MavkaParser::Take_module_elementContext *context) = 0;
@@ -102,8 +110,6 @@ public:
     virtual std::any visitGive(MavkaParser::GiveContext *context) = 0;
 
     virtual std::any visitGive_element(MavkaParser::Give_elementContext *context) = 0;
-
-    virtual std::any visitString(MavkaParser::StringContext *context) = 0;
 
     virtual std::any visitGet_element(MavkaParser::Get_elementContext *context) = 0;
 
@@ -177,17 +183,7 @@ public:
 
     virtual std::any visitAnonymous_diia(MavkaParser::Anonymous_diiaContext *context) = 0;
 
-    virtual std::any visitExpr_mml(MavkaParser::Expr_mmlContext *context) = 0;
-
     virtual std::any visitThrow(MavkaParser::ThrowContext *context) = 0;
-
-    virtual std::any visitArray_destruction(MavkaParser::Array_destructionContext *context) = 0;
-
-    virtual std::any visitArray_destruction_el(MavkaParser::Array_destruction_elContext *context) = 0;
-
-    virtual std::any visitObject_destruction(MavkaParser::Object_destructionContext *context) = 0;
-
-    virtual std::any visitObject_destruction_el(MavkaParser::Object_destruction_elContext *context) = 0;
 
     virtual std::any visitAssign(MavkaParser::AssignContext *context) = 0;
 
@@ -197,15 +193,9 @@ public:
 
     virtual std::any visitAssign_by_element(MavkaParser::Assign_by_elementContext *context) = 0;
 
-    virtual std::any visitAssign_array_destruction(MavkaParser::Assign_array_destructionContext *context) = 0;
-
-    virtual std::any visitAssign_object_destruction(MavkaParser::Assign_object_destructionContext *context) = 0;
-
     virtual std::any visitAssign_symbol(MavkaParser::Assign_symbolContext *context) = 0;
 
     virtual std::any visitWait_assign(MavkaParser::Wait_assignContext *context) = 0;
-
-    virtual std::any visitIdentifier(MavkaParser::IdentifierContext *context) = 0;
 
     virtual std::any visitIdentifiers_chain(MavkaParser::Identifiers_chainContext *context) = 0;
 
@@ -264,10 +254,6 @@ public:
     virtual std::any visitComp_inst_block_program(MavkaParser::Comp_inst_block_programContext *context) = 0;
 
     virtual std::any visitComp_inst_assign(MavkaParser::Comp_inst_assignContext *context) = 0;
-
-    virtual std::any visitNl(MavkaParser::NlContext *context) = 0;
-
-    virtual std::any visitNls(MavkaParser::NlsContext *context) = 0;
 
 
 };

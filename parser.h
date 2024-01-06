@@ -49,9 +49,6 @@ namespace mavka::parser {
 
     std::any visitGenerics(MavkaParser::GenericsContext* context) override;
 
-    std::any visitMethod_declaration(
-        MavkaParser::Method_declarationContext* context) override;
-
     std::any visitMockup(MavkaParser::MockupContext* context) override;
 
     std::any visitMockup_module(
@@ -213,12 +210,6 @@ namespace mavka::parser {
     std::any visitAssign_by_element(
         MavkaParser::Assign_by_elementContext* context) override;
 
-    std::any visitAssign_array_destruction(
-        MavkaParser::Assign_array_destructionContext* context) override;
-
-    std::any visitAssign_object_destruction(
-        MavkaParser::Assign_object_destructionContext* context) override;
-
     std::any visitAssign_symbol(
         MavkaParser::Assign_symbolContext* context) override;
 
@@ -226,8 +217,6 @@ namespace mavka::parser {
 
     std::any visitTake_module(
         MavkaParser::Take_moduleContext* context) override;
-
-    std::any visitTake_file(MavkaParser::Take_fileContext* context) override;
 
     std::any visitTake_remote(
         MavkaParser::Take_remoteContext* context) override;
