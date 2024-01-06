@@ -328,6 +328,9 @@ Object.defineProperty(м_текст.prototype, "довжина", {
 мДп(м_текст, function чародія_число() {
   return Number(this);
 });
+мДп(м_текст, function чародія_байти() {
+  return new TextEncoder("utf-8").encode(this);
+});
 
 var м_список = Array;
 м_список[М] = Object.create(null);
@@ -495,6 +498,12 @@ var м_байти = Uint8Array;
 м_байти[М] = Object.create(null);
 м_байти[М].структура = м_Структура;
 м_байти[М].назва = "байти";
+м_байти.чародія_викликати = мДія(function чародія_викликати(м_значення) {
+  return м_значення.чародія_байти();
+});
+мДп(м_байти, function чародія_текст() {
+  return new TextDecoder("utf-8").decode(this);
+});
 
 var м_пусто = null;
 var м_так = true;
