@@ -28,16 +28,42 @@ namespace jejalyk::typeinterpreter {
     // await init_temp_module_name()
     init_module_js_flat_body->nodes.push_back(js::make_await(
         js::make_call(js::make_id("init_" + temp_module_name), {})));
-    // м_назва = temp_module_name
-    init_module_js_flat_body->nodes.push_back(
-        js::make_assign(js::make_id("м_" + module_variable_name),
-                        js::make_id(temp_module_name)));
+    if (take_module_node->elements.empty()) {
+      // м_назва = temp_module_name
+      init_module_js_flat_body->nodes.push_back(
+          js::make_assign(js::make_id("м_" + module_variable_name),
+                          js::make_id(temp_module_name)));
+    } else {
+      for (const auto& element : take_module_node->elements) {
+        // м_назва = temp_module_name.елемент
+        init_module_js_flat_body->nodes.push_back(
+            js::make_assign(js::make_id("м_" + element.second),
+                            js::make_chain(js::make_id(temp_module_name),
+                                           js::make_id(element.first))));
+      }
+    }
     if (options->has_module(module_path)) {
       const auto module = options->get_module(module_path);
-      if (take_module_node->as.empty()) {
-        scope->set_local(module_name, module->subject);
+      if (take_module_node->elements.empty()) {
+        if (take_module_node->as.empty()) {
+          scope->set_local(module_name, module->subject);
+        } else {
+          scope->set_local(take_module_node->as, module->subject);
+        }
       } else {
-        scope->set_local(take_module_node->as, module->subject);
+        for (const auto& element : take_module_node->elements) {
+          if (!module->subject->has(scope, element.first)) {
+            return scope->error(take_module_node, "Модуль \"" + module_name +
+                                                      "\" дає субʼєкт \"" +
+                                                      element.first + "\".");
+          }
+          const auto subject_result =
+              module->subject->get(scope, take_module_node, element.first);
+          if (subject_result->error) {
+            return subject_result;
+          }
+          scope->set_local(element.second, subject_result->value);
+        }
       }
       return success(nullptr, init_module_js_flat_body);
     }
@@ -85,10 +111,26 @@ namespace jejalyk::typeinterpreter {
       return module_result;
     }
 
-    if (take_module_node->as.empty()) {
-      scope->set_local(module_name, module_result->value);
+    if (take_module_node->elements.empty()) {
+      if (take_module_node->as.empty()) {
+        scope->set_local(module_name, module_result->value);
+      } else {
+        scope->set_local(take_module_node->as, module_result->value);
+      }
     } else {
-      scope->set_local(take_module_node->as, module_result->value);
+      for (const auto& element : take_module_node->elements) {
+        if (!module_result->value->has(scope, element.first)) {
+          return scope->error(take_module_node, "Модуль \"" + module_name +
+                                                    "\" дає субʼєкт \"" +
+                                                    element.first + "\".");
+        }
+        const auto subject_result =
+            module_result->value->get(scope, take_module_node, element.first);
+        if (subject_result->error) {
+          return subject_result;
+        }
+        scope->set_local(element.second, subject_result->value);
+      }
     }
 
     const auto js_flat_body = new js::JsFlatBodyNode();

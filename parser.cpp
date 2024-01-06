@@ -1721,8 +1721,8 @@ namespace mavka::parser {
            context->tm_elements->take_module_element()) {
         if (element_node->tme_as) {
           take_module_node->elements.insert_or_assign(
-              element_node->tme_as->getText(),
-              element_node->tme_name->getText());
+              element_node->tme_name->getText(),
+              element_node->tme_as->getText());
         } else {
           take_module_node->elements.insert_or_assign(
               element_node->tme_name->getText(),
