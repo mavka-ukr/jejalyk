@@ -1852,6 +1852,8 @@ namespace mavka::parser {
     } else {
       for (int i = 0; i < context->me_content->children.size(); ++i) {
         const auto mrm_element = context->me_content->children[i];
+        const auto is_first = i == 0;
+        const auto is_last = i == context->me_content->children.size() - 1;
         if (const auto mrm_chardata =
                 dynamic_cast<MavkaParser::Mrm_chardataContext*>(mrm_element)) {
           const auto string_node = new ast::StringNode();
@@ -1900,31 +1902,31 @@ namespace mavka::parser {
         }
         if (const auto mrm_child =
                 dynamic_cast<MavkaParser::MrmContext*>(mrm_element)) {
-          // todo: handle <div> <div>2</div> </div> -> " 2 " not "2"
-          // const auto hidden_tokens_left =
-          // this->tokens->getHiddenTokensToLeft(
-          //     mrm_child->getStart()->getTokenIndex(), 1);
-          // const auto hidden_tokens_left_node = new ast::StringNode();
-          // for (const auto token : hidden_tokens_left) {
-          //   hidden_tokens_left_node->value += token->getText();
-          // }
-          //
-          // const auto hidden_tokens_right =
-          // this->tokens->getHiddenTokensToRight(
-          //     mrm_child->getStop()->getTokenIndex(), 1);
-          // const auto hidden_tokens_right_node = new ast::StringNode();
-          // for (const auto token : hidden_tokens_right) {
-          //   hidden_tokens_right_node->value += token->getText();
-          // }
-
-          // content_array_node->elements.push_back(
-          //     ast::make_ast_some(hidden_tokens_left_node));
-
           const auto ast_result = any_to_ast_some(visitMrm(mrm_child));
+
+          const auto hidden_tokens_left = this->tokens->getHiddenTokensToLeft(
+              mrm_child->getStart()->getTokenIndex(), 1);
+          const auto hidden_tokens_left_node = new ast::StringNode();
+          for (const auto token : hidden_tokens_left) {
+            hidden_tokens_left_node->value += token->getText();
+          }
+          if (is_first && hidden_tokens_left_node->value.find('\n') == std::string::npos && !hidden_tokens_left_node->value.empty()) {
+            content_array_node->elements.push_back(
+                ast::make_ast_some(hidden_tokens_left_node));
+          }
+
           content_array_node->elements.push_back(ast_result);
 
-          // content_array_node->elements.push_back(
-          //     ast::make_ast_some(hidden_tokens_right_node));
+          const auto hidden_tokens_right = this->tokens->getHiddenTokensToRight(
+              mrm_child->getStop()->getTokenIndex(), 1);
+          const auto hidden_tokens_right_node = new ast::StringNode();
+          for (const auto token : hidden_tokens_right) {
+            hidden_tokens_right_node->value += token->getText();
+          }
+          if (is_last && hidden_tokens_right_node->value.find('\n') == std::string::npos && !hidden_tokens_right_node->value.empty()) {
+            content_array_node->elements.push_back(
+                ast::make_ast_some(hidden_tokens_right_node));
+          }
         }
       }
     }
