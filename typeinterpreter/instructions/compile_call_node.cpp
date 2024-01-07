@@ -64,6 +64,28 @@ namespace jejalyk::typeinterpreter {
     }
     if (diia) {
       const auto diia_params = diia->types[0]->object->params;
+      if (diia_params.empty()) {
+        if (!scope->get_options()->is_strict_mode()) {
+          for (const auto& arg_node : call_node->args) {
+            if (!arg_node->name.empty()) {
+              return scope->error(arg_node,
+                                  "Неможливо скомпілювати виклик значення типу "
+                                  "\"обʼєкт\" з назвами параметрів.");
+            }
+            const auto arg_value_result = scope->compile_node(arg_node->value);
+            if (arg_value_result->error) {
+              return arg_value_result;
+            }
+            args.push_back(arg_value_result->value);
+            js_args.push_back(arg_value_result->js_node);
+          }
+
+          // а(б)
+          const auto js_call = js::make_call(value_result->js_node, js_args);
+
+          return success(value_result->value, js_call);
+        }
+      }
       bool named = false;
       if (call_node->args.empty()) {
         named = false;
