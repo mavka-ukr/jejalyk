@@ -3,6 +3,15 @@
 namespace jejalyk::typeinterpreter {
   Result* compile_string_node(Scope* scope,
                               mavka::ast::StringNode* string_node) {
+    if (string_node->html_tag) {
+      const auto js_string = js::make_string(string_node->value);
+
+      const auto string_structure = scope->get_root_text();
+      const auto string_result = string_structure->create_instance(scope, {});
+
+      return success(string_result->value, js_string);
+    }
+
     std::vector<mavka::ast::ASTSome*> parts;
     std::string current_part;
     bool interpolation = false;

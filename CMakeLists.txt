@@ -58,6 +58,7 @@ set(JEJALYK_COMPILER_SRC
         typeinterpreter/instructions/compile_mockup_structure_node.cpp
         typeinterpreter/instructions/compile_mockup_subject_node.cpp
         typeinterpreter/instructions/compile_module_node.cpp
+        typeinterpreter/instructions/compile_mrm_diia_node.cpp
         typeinterpreter/instructions/compile_negative_node.cpp
         typeinterpreter/instructions/compile_not_node.cpp
         typeinterpreter/instructions/compile_number_node.cpp
@@ -105,5 +106,5 @@ set_target_properties(jejalyk PROPERTIES OUTPUT_NAME "джеджалик")
 set_target_properties(jejalyk_node PROPERTIES LINK_FLAGS "-lembind -fexceptions -sASYNCIFY=1 -sENVIRONMENT=node -sEXPORT_ES6=1 -sMODULARIZE -sEXPORT_EXCEPTION_HANDLING_HELPERS -sASYNCIFY_STACK_SIZE=65535")
 set_target_properties(jejalyk_web PROPERTIES LINK_FLAGS "-lembind -fexceptions -sASYNCIFY=1 -sENVIRONMENT=web -sEXPORT_EXCEPTION_HANDLING_HELPERS -sASYNCIFY_STACK_SIZE=65535")
 set_target_properties(optimized_jejalyk PROPERTIES LINK_FLAGS "-O3")
-set_target_properties(optimized_jejalyk_node PROPERTIES LINK_FLAGS "-O3 -flto -g0 -lembind -fexceptions -sASYNCIFY=1 -sENVIRONMENT=node -sEXPORT_ES6=1 -sMODULARIZE -sEXPORT_EXCEPTION_HANDLING_HELPERS -sASYNCIFY_STACK_SIZE=65535 -sASSERTIONS")
+set_target_properties(optimized_jejalyk_node PROPERTIES LINK_FLAGS "-O3 -flto -g0 -lembind -fexceptions -sASYNCIFY=1 -sENVIRONMENT=node -sEXPORT_ES6=1 -sMODULARIZE -sEXPORT_EXCEPTION_HANDLING_HELPERS -sASYNCIFY_STACK_SIZE=65535")
 set_target_properties(optimized_jejalyk_web PROPERTIES LINK_FLAGS "-O3 -flto -g0 -lembind -fexceptions -sASYNCIFY=1 -sENVIRONMENT=web -sEXPORT_EXCEPTION_HANDLING_HELPERS -sASYNCIFY_STACK_SIZE=65535")

@@ -457,6 +457,8 @@ namespace jejalyk::typeinterpreter {
       mavka::ast::MockupSubjectNode* mockup_subject_node);
   Result* compile_module_node(Scope* scope,
                               mavka::ast::ModuleNode* module_node);
+  Result* compile_mrm_diia_node(Scope* scope,
+                                mavka::ast::MRMDiiaNode* mrm_diia_node);
   Result* compile_negative_node(Scope* scope,
                                 mavka::ast::NegativeNode* negative_node);
   Result* compile_not_node(Scope* scope, mavka::ast::NotNode* not_node);

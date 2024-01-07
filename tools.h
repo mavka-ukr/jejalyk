@@ -14,6 +14,9 @@ namespace jejalyk::tools {
                                   const std::string& delim,
                                   const std::string& prefix);
 
+  std::vector<std::string> explode(const std::string& s,
+                                   const std::string& delim);
+
   std::string repeat_string(const std::string& s, size_t n);
 
   bool is_digit(std::string s);
@@ -27,6 +30,8 @@ namespace jejalyk::tools {
   std::vector<std::string> split(std::string s, std::string delimiter);
 
   std::string trim(const std::string& source);
+  std::string rtrim(const std::string& source);
+  std::string ltrim(const std::string& source);
 
   template <typename Base, typename T>
   bool instanceof (const T* ptr) {

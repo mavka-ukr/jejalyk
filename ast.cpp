@@ -196,6 +196,11 @@ namespace mavka::ast {
     ast_some->ModuleNode = node;
     return ast_some;
   }
+  ASTSome* make_ast_some(ast::MRMDiiaNode* node) {
+    const auto ast_some = new ASTSome();
+    ast_some->MRMDiiaNode = node;
+    return ast_some;
+  }
   ASTSome* make_ast_some(ast::NegativeNode* node) {
     const auto ast_some = new ASTSome();
     ast_some->NegativeNode = node;
@@ -696,6 +701,8 @@ namespace mavka::ast {
       return ast_some->MockupSubjectNode;
     if (ast_some->ModuleNode != nullptr)
       return ast_some->ModuleNode;
+    if (ast_some->MRMDiiaNode != nullptr)
+      return ast_some->MRMDiiaNode;
     if (ast_some->NegativeNode != nullptr)
       return ast_some->NegativeNode;
     if (ast_some->NotNode != nullptr)

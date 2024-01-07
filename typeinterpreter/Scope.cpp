@@ -569,6 +569,10 @@ namespace jejalyk::typeinterpreter {
       return compile_module_node(this, node->ModuleNode);
     }
 
+    if (node->MRMDiiaNode) {
+      return compile_mrm_diia_node(this, node->MRMDiiaNode);
+    }
+
     if (node->NegativeNode) {
       return compile_negative_node(this, node->NegativeNode);
     }

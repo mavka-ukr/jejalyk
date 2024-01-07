@@ -16,12 +16,6 @@
 class  MavkaParserBaseListener : public MavkaParserListener {
 public:
 
-  virtual void enterWs(MavkaParser::WsContext * /*ctx*/) override { }
-  virtual void exitWs(MavkaParser::WsContext * /*ctx*/) override { }
-
-  virtual void enterWss(MavkaParser::WssContext * /*ctx*/) override { }
-  virtual void exitWss(MavkaParser::WssContext * /*ctx*/) override { }
-
   virtual void enterNl(MavkaParser::NlContext * /*ctx*/) override { }
   virtual void exitNl(MavkaParser::NlContext * /*ctx*/) override { }
 
@@ -154,6 +148,30 @@ public:
   virtual void enterGive_element(MavkaParser::Give_elementContext * /*ctx*/) override { }
   virtual void exitGive_element(MavkaParser::Give_elementContext * /*ctx*/) override { }
 
+  virtual void enterMrm(MavkaParser::MrmContext * /*ctx*/) override { }
+  virtual void exitMrm(MavkaParser::MrmContext * /*ctx*/) override { }
+
+  virtual void enterMrm_element(MavkaParser::Mrm_elementContext * /*ctx*/) override { }
+  virtual void exitMrm_element(MavkaParser::Mrm_elementContext * /*ctx*/) override { }
+
+  virtual void enterMrm_element_closed(MavkaParser::Mrm_element_closedContext * /*ctx*/) override { }
+  virtual void exitMrm_element_closed(MavkaParser::Mrm_element_closedContext * /*ctx*/) override { }
+
+  virtual void enterMrm_args(MavkaParser::Mrm_argsContext * /*ctx*/) override { }
+  virtual void exitMrm_args(MavkaParser::Mrm_argsContext * /*ctx*/) override { }
+
+  virtual void enterMrm_arg(MavkaParser::Mrm_argContext * /*ctx*/) override { }
+  virtual void exitMrm_arg(MavkaParser::Mrm_argContext * /*ctx*/) override { }
+
+  virtual void enterMrm_content(MavkaParser::Mrm_contentContext * /*ctx*/) override { }
+  virtual void exitMrm_content(MavkaParser::Mrm_contentContext * /*ctx*/) override { }
+
+  virtual void enterMrm_chardata(MavkaParser::Mrm_chardataContext * /*ctx*/) override { }
+  virtual void exitMrm_chardata(MavkaParser::Mrm_chardataContext * /*ctx*/) override { }
+
+  virtual void enterMrm_diia(MavkaParser::Mrm_diiaContext * /*ctx*/) override { }
+  virtual void exitMrm_diia(MavkaParser::Mrm_diiaContext * /*ctx*/) override { }
+
   virtual void enterGet_element(MavkaParser::Get_elementContext * /*ctx*/) override { }
   virtual void exitGet_element(MavkaParser::Get_elementContext * /*ctx*/) override { }
 
@@ -261,6 +279,9 @@ public:
 
   virtual void enterAnonymous_diia(MavkaParser::Anonymous_diiaContext * /*ctx*/) override { }
   virtual void exitAnonymous_diia(MavkaParser::Anonymous_diiaContext * /*ctx*/) override { }
+
+  virtual void enterExpr_mrm(MavkaParser::Expr_mrmContext * /*ctx*/) override { }
+  virtual void exitExpr_mrm(MavkaParser::Expr_mrmContext * /*ctx*/) override { }
 
   virtual void enterThrow(MavkaParser::ThrowContext * /*ctx*/) override { }
   virtual void exitThrow(MavkaParser::ThrowContext * /*ctx*/) override { }

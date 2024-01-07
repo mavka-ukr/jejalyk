@@ -14,12 +14,6 @@
 class  MavkaParserListener : public antlr4::tree::ParseTreeListener {
 public:
 
-  virtual void enterWs(MavkaParser::WsContext *ctx) = 0;
-  virtual void exitWs(MavkaParser::WsContext *ctx) = 0;
-
-  virtual void enterWss(MavkaParser::WssContext *ctx) = 0;
-  virtual void exitWss(MavkaParser::WssContext *ctx) = 0;
-
   virtual void enterNl(MavkaParser::NlContext *ctx) = 0;
   virtual void exitNl(MavkaParser::NlContext *ctx) = 0;
 
@@ -152,6 +146,30 @@ public:
   virtual void enterGive_element(MavkaParser::Give_elementContext *ctx) = 0;
   virtual void exitGive_element(MavkaParser::Give_elementContext *ctx) = 0;
 
+  virtual void enterMrm(MavkaParser::MrmContext *ctx) = 0;
+  virtual void exitMrm(MavkaParser::MrmContext *ctx) = 0;
+
+  virtual void enterMrm_element(MavkaParser::Mrm_elementContext *ctx) = 0;
+  virtual void exitMrm_element(MavkaParser::Mrm_elementContext *ctx) = 0;
+
+  virtual void enterMrm_element_closed(MavkaParser::Mrm_element_closedContext *ctx) = 0;
+  virtual void exitMrm_element_closed(MavkaParser::Mrm_element_closedContext *ctx) = 0;
+
+  virtual void enterMrm_args(MavkaParser::Mrm_argsContext *ctx) = 0;
+  virtual void exitMrm_args(MavkaParser::Mrm_argsContext *ctx) = 0;
+
+  virtual void enterMrm_arg(MavkaParser::Mrm_argContext *ctx) = 0;
+  virtual void exitMrm_arg(MavkaParser::Mrm_argContext *ctx) = 0;
+
+  virtual void enterMrm_content(MavkaParser::Mrm_contentContext *ctx) = 0;
+  virtual void exitMrm_content(MavkaParser::Mrm_contentContext *ctx) = 0;
+
+  virtual void enterMrm_chardata(MavkaParser::Mrm_chardataContext *ctx) = 0;
+  virtual void exitMrm_chardata(MavkaParser::Mrm_chardataContext *ctx) = 0;
+
+  virtual void enterMrm_diia(MavkaParser::Mrm_diiaContext *ctx) = 0;
+  virtual void exitMrm_diia(MavkaParser::Mrm_diiaContext *ctx) = 0;
+
   virtual void enterGet_element(MavkaParser::Get_elementContext *ctx) = 0;
   virtual void exitGet_element(MavkaParser::Get_elementContext *ctx) = 0;
 
@@ -259,6 +277,9 @@ public:
 
   virtual void enterAnonymous_diia(MavkaParser::Anonymous_diiaContext *ctx) = 0;
   virtual void exitAnonymous_diia(MavkaParser::Anonymous_diiaContext *ctx) = 0;
+
+  virtual void enterExpr_mrm(MavkaParser::Expr_mrmContext *ctx) = 0;
+  virtual void exitExpr_mrm(MavkaParser::Expr_mrmContext *ctx) = 0;
 
   virtual void enterThrow(MavkaParser::ThrowContext *ctx) = 0;
   virtual void exitThrow(MavkaParser::ThrowContext *ctx) = 0;

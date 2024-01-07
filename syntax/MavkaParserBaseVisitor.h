@@ -15,14 +15,6 @@
 class  MavkaParserBaseVisitor : public MavkaParserVisitor {
 public:
 
-  virtual std::any visitWs(MavkaParser::WsContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
-  virtual std::any visitWss(MavkaParser::WssContext *ctx) override {
-    return visitChildren(ctx);
-  }
-
   virtual std::any visitNl(MavkaParser::NlContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -199,6 +191,38 @@ public:
     return visitChildren(ctx);
   }
 
+  virtual std::any visitMrm(MavkaParser::MrmContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMrm_element(MavkaParser::Mrm_elementContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMrm_element_closed(MavkaParser::Mrm_element_closedContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMrm_args(MavkaParser::Mrm_argsContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMrm_arg(MavkaParser::Mrm_argContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMrm_content(MavkaParser::Mrm_contentContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMrm_chardata(MavkaParser::Mrm_chardataContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitMrm_diia(MavkaParser::Mrm_diiaContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
   virtual std::any visitGet_element(MavkaParser::Get_elementContext *ctx) override {
     return visitChildren(ctx);
   }
@@ -340,6 +364,10 @@ public:
   }
 
   virtual std::any visitAnonymous_diia(MavkaParser::Anonymous_diiaContext *ctx) override {
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitExpr_mrm(MavkaParser::Expr_mrmContext *ctx) override {
     return visitChildren(ctx);
   }
 

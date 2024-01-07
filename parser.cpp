@@ -36,8 +36,11 @@ namespace mavka::parser {
     return number_copy;
   }
 
-  void processASTBody(const std::vector<ast::ASTSome*>& body) {
+  void processASTBody(std::vector<ast::ASTSome*>& body) {
     for (const auto& item : body) {
+      if (item->is_nullptr()) {
+        std::erase(body, item);
+      }
       if (item->IdentifierNode) {
         if (item->IdentifierNode->name == "break") {
           item->IdentifierNode = nullptr;
@@ -796,6 +799,13 @@ namespace mavka::parser {
     if (const auto type_value_item_context =
             dynamic_cast<MavkaParser::Type_value_itemContext*>(context)) {
       return visitType_value_item(type_value_item_context);
+    }
+    if (const auto expr_mrm =
+            dynamic_cast<MavkaParser::Expr_mrmContext*>(context)) {
+      return visitMrm(expr_mrm->mrm());
+    }
+    if (const auto mrm = dynamic_cast<MavkaParser::MrmContext*>(context)) {
+      return visitMrm(mrm);
     }
     return new ast::ASTSome();
   }
@@ -1810,6 +1820,147 @@ namespace mavka::parser {
     return (ast::make_ast_some(return_node));
   }
 
+  std::any MavkaASTVisitor::visitMrm(MavkaParser::MrmContext* context) {
+    if (context->mrm_element()) {
+      return visitMrm_element(context->mrm_element());
+    }
+    if (context->mrm_element_closed()) {
+      return visitMrm_element_closed(context->mrm_element_closed());
+    }
+    if (context->mrm_diia()) {
+      const auto mrm_diia_node = new ast::MRMDiiaNode();
+      fill_ast_node(mrm_diia_node, context);
+      // <дія>inner</дія>
+      const auto mrm_diia_text = context->mrm_diia()->getText();
+      const auto mrm_diia_text_inner = mrm_diia_text.substr(
+          1 + 6 + 1, mrm_diia_text.length() - (2 + 6 + 1 + (1 + 6 + 1)));
+      mrm_diia_node->body = mrm_diia_text_inner;
+      return ast::make_ast_some(mrm_diia_node);
+    }
+    return new ast::ASTSome();
+  }
+
+  std::any MavkaASTVisitor::visitMrm_element(
+      MavkaParser::Mrm_elementContext* context) {
+    const auto call_node = new ast::CallNode();
+    fill_ast_node(call_node, context);
+    if (context->me_name->getText() != context->me_end_name->getText()) {
+      const auto mavka_parser_error = new MavkaParserError();
+      mavka_parser_error->line = context->me_name->getStart()->getLine();
+      mavka_parser_error->column =
+          context->me_name->getStart()->getCharPositionInLine();
+      mavka_parser_error->message = "Назва тегу не збігається з закриваючим.";
+      throw mavka_parser_error;
+    }
+    call_node->value =
+        any_to_ast_some(visitIdentifiers_chain(context->me_name));
+    if (context->me_args) {
+      size_t i = 0;
+      for (const auto mrm_arg : context->me_args->mrm_arg()) {
+        const auto arg_node = new ast::ArgNode();
+        fill_ast_node(arg_node, mrm_arg);
+        arg_node->index = i;
+        arg_node->name = mrm_arg->ma_name->getText();
+        arg_node->value = any_to_ast_some(_visitContext(mrm_arg->ma_value));
+        call_node->args.push_back(arg_node);
+        i++;
+      }
+    }
+    const auto content_array_node = new ast::ArrayNode();
+    if (context->me_content->children.empty()) {
+      const auto hidden_tokens_right = this->tokens->getHiddenTokensToRight(
+          context->me_me->getTokenIndex(), 1);
+      const auto string_node = new ast::StringNode();
+      string_node->html_tag = true;
+      for (const auto token : hidden_tokens_right) {
+        string_node->value += token->getText();
+      }
+      content_array_node->elements.push_back(ast::make_ast_some(string_node));
+    } else {
+      for (int i = 0; i < context->me_content->children.size(); ++i) {
+        const auto mrm_element = context->me_content->children[i];
+        if (const auto mrm_chardata =
+                dynamic_cast<MavkaParser::Mrm_chardataContext*>(mrm_element)) {
+          const auto string_node = new ast::StringNode();
+          string_node->html_tag = true;
+          fill_ast_node(string_node, mrm_chardata);
+          const auto tokens =
+              this->tokens->getTokens(mrm_chardata->getStart()->getTokenIndex(),
+                                      mrm_chardata->getStop()->getTokenIndex());
+          const auto hidden_tokens_left = this->tokens->getHiddenTokensToLeft(
+              mrm_chardata->getStart()->getTokenIndex(), 1);
+          const auto hidden_tokens_right = this->tokens->getHiddenTokensToRight(
+              mrm_chardata->getStop()->getTokenIndex(), 1);
+          for (const auto token : hidden_tokens_left) {
+            string_node->value += token->getText();
+          }
+          for (const auto token : tokens) {
+            string_node->value += token->getText();
+          }
+          for (const auto token : hidden_tokens_right) {
+            string_node->value += token->getText();
+          }
+          const auto lines = jejalyk::tools::explode(string_node->value, "\n");
+          std::vector<std::string> new_lines;
+          for (int j = 0; j < lines.size(); ++j) {
+            const auto& line = lines[j];
+            const auto new_line = jejalyk::tools::trim(line);
+            if (new_line.empty()) {
+              if ((j == 0) && (j == lines.size() - 1)) {
+                new_lines.push_back(line);
+              }
+            } else {
+              if ((j == 0) && (j == lines.size() - 1)) {
+                new_lines.push_back(line);
+              } else if (j == 0) {
+                new_lines.push_back(jejalyk::tools::rtrim(line));
+              } else if (j == lines.size() - 1) {
+                new_lines.push_back(jejalyk::tools::ltrim(line));
+              } else {
+                new_lines.push_back(new_line);
+              }
+            }
+          }
+          string_node->value = jejalyk::tools::implode(new_lines, " ");
+          content_array_node->elements.push_back(
+              ast::make_ast_some(string_node));
+        }
+        if (const auto mrm_child =
+                dynamic_cast<MavkaParser::MrmContext*>(mrm_element)) {
+          // todo: handle <div> <div>2</div> </div> -> " 2 " not "2"
+          // const auto hidden_tokens_left = this->tokens->getHiddenTokensToLeft(
+          //     mrm_child->getStart()->getTokenIndex(), 1);
+          // const auto hidden_tokens_left_node = new ast::StringNode();
+          // for (const auto token : hidden_tokens_left) {
+          //   hidden_tokens_left_node->value += token->getText();
+          // }
+          //
+          // const auto hidden_tokens_right = this->tokens->getHiddenTokensToRight(
+          //     mrm_child->getStop()->getTokenIndex(), 1);
+          // const auto hidden_tokens_right_node = new ast::StringNode();
+          // for (const auto token : hidden_tokens_right) {
+          //   hidden_tokens_right_node->value += token->getText();
+          // }
+
+          // content_array_node->elements.push_back(
+          //     ast::make_ast_some(hidden_tokens_left_node));
+
+          const auto ast_result = any_to_ast_some(visitMrm(mrm_child));
+          content_array_node->elements.push_back(ast_result);
+
+          // content_array_node->elements.push_back(
+          //     ast::make_ast_some(hidden_tokens_right_node));
+        }
+      }
+    }
+    const auto children_arg_node = new ast::ArgNode();
+    children_arg_node->index = call_node->args.size();
+    children_arg_node->name = "дочірні";
+    children_arg_node->value = ast::make_ast_some(content_array_node);
+    call_node->args.push_back(children_arg_node);
+    return ast::make_ast_some(call_node);
+  }
+
   void MavkaParserErrorListener::syntaxError(antlr4::Recognizer* recognizer,
                                              antlr4::Token* offendingSymbol,
                                              size_t line,
@@ -1847,11 +1998,12 @@ namespace mavka::parser {
 
       END_CHRONO(parse, "parsing ", path)
 
-      MavkaASTVisitor visitor;
+      const auto visitor = new MavkaASTVisitor();
+      visitor->tokens = &tokens;
 
       START_CHRONO(visit)
 
-      const auto ast_result = any_to_ast_some(visitor.visitFile(tree));
+      const auto ast_result = any_to_ast_some(visitor->visitFile(tree));
 
       END_CHRONO(visit, "visiting ", path)
 
@@ -1874,6 +2026,7 @@ namespace mavka::parser {
     } catch (...) {
       const auto parser_result = new MavkaParserResult();
       const auto parser_error = new MavkaParserError();
+      parser_error->path = std::move(path);
       parser_error->message = "Помилка парсингу.";
       parser_result->error = parser_error;
       return parser_result;

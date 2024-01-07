@@ -3,9 +3,11 @@
 #ifndef AST_H
 #define AST_H
 
+#include <map>
 #include <string>
 #include <vector>
-#include <map>
+
+#include "ast.h"
 
 namespace mavka::ast {
   class ASTNode;
@@ -51,6 +53,7 @@ namespace mavka::ast {
   class MockupStructureNode;
   class MockupSubjectNode;
   class ModuleNode;
+  class MRMDiiaNode;
   class NegativeNode;
   class NotNode;
   class NumberNode;
@@ -113,6 +116,7 @@ namespace mavka::ast {
   ASTSome* make_ast_some(ast::MockupStructureNode* node);
   ASTSome* make_ast_some(ast::MockupSubjectNode* node);
   ASTSome* make_ast_some(ast::ModuleNode* node);
+  ASTSome* make_ast_some(ast::MRMDiiaNode* node);
   ASTSome* make_ast_some(ast::NegativeNode* node);
   ASTSome* make_ast_some(ast::NotNode* node);
   ASTSome* make_ast_some(ast::NumberNode* node);
@@ -198,6 +202,7 @@ namespace mavka::ast {
     mavka::ast::MockupStructureNode* MockupStructureNode = nullptr;
     mavka::ast::MockupSubjectNode* MockupSubjectNode = nullptr;
     mavka::ast::ModuleNode* ModuleNode = nullptr;
+    mavka::ast::MRMDiiaNode* MRMDiiaNode = nullptr;
     mavka::ast::NegativeNode* NegativeNode = nullptr;
     mavka::ast::NotNode* NotNode = nullptr;
     mavka::ast::NumberNode* NumberNode = nullptr;
@@ -235,7 +240,7 @@ namespace mavka::ast {
 
   class ArgNode final : public ASTExprNode {
    public:
-    int index;
+    size_t index;
     std::string name;
     ASTSome* value;
     bool spread = false;
@@ -492,6 +497,11 @@ namespace mavka::ast {
     std::vector<ASTSome*> body;
   };
 
+  class MRMDiiaNode final : public ASTValueNode {
+   public:
+    std::string body;
+  };
+
   class NegativeNode final : public ASTValueNode {
    public:
     ASTSome* value = nullptr;
@@ -554,6 +564,7 @@ namespace mavka::ast {
   class StringNode final : public ASTValueNode {
    public:
     std::string value;
+    bool html_tag = false;
   };
 
   class StructureNode final : public ASTExprNode {

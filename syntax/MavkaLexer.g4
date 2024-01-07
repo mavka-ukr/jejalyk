@@ -1,8 +1,5 @@
 lexer grammar MavkaLexer;
 
-NL: ( '\r'? '\n' ) -> channel(HIDDEN);
-WS: (' ' | '\t') -> channel(HIDDEN);
-
 KW_END: 'кінець';
 KW_DIIA: 'дія';
 KW_STRUCTURE: 'структура';
@@ -64,6 +61,7 @@ INTEGER: DIGIT+;
 FLOAT: DIGIT+ '.' DIGIT+;
 HEX: '0' ('ш' | 'Ш' | 'x' | 'X') (DIGIT | 'А' | 'а' | 'Б' | 'б' | 'В' | 'в' | 'Г' | 'г' | 'Ґ' | 'ґ' | 'Д' | 'д' | 'A'..'F' | 'a'..'f')+;
 BIN: '0' ('д' | 'Д' | 'b' | 'B') ('0' | '1')+;
+NUMBER: INTEGER | FLOAT | HEX | BIN;
 
 ID: ID_START ID_CONTINUE*;
 KWID: QUOTE (KW_END | KW_DIIA | KW_STRUCTURE | KW_FOR | KW_IF | KW_WAIT | KW_TAKE | KW_GIVE | KW_AS | KW_TA | KW_IS | KW_SPEC | KW_RETURN | KW_ASYNC | KW_SUBJECT | KW_AND | KW_OR | KW_TRY | KW_CATCH | KW_ELSE | KW_THROW | KW_WHILE | KW_MODULE | KW_EQ_WORD | KW_GR_WORD | KW_SM_WORD | KW_HAS_IS_WORD | KW_MOCKUP | KW_NOT | KW_JS | KW_PARENT | KW_TSE);
@@ -77,6 +75,11 @@ COMP_INST_ASSIGN: ';' '=';
 
 COMMENT: ';' ';' ';' (COMMENT | .)*? ';' ';' ';' -> channel(HIDDEN);
 LINE_COMMENT: ';' ';' (LINE_COMMENT | ~[\r\n])* -> channel(HIDDEN);
+
+MRM_DIIA: '<дія>' .*? '</дія>';
+
+NL: ( '\r'? '\n' );
+WS: (' ' | '\t') -> channel(HIDDEN);
 
 fragment DIGIT
     : '0'..'9'

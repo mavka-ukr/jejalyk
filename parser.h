@@ -17,10 +17,12 @@ namespace mavka::parser {
 
   std::string process_number(std::string number);
 
-  void processASTBody(const std::vector<ast::ASTSome*>& body);
+  void processASTBody(std::vector<ast::ASTSome*>& body);
 
   class MavkaASTVisitor final : public MavkaParserBaseVisitor {
    public:
+    antlr4::CommonTokenStream* tokens;
+
     std::any visitFile(MavkaParser::FileContext* ctx) override;
 
     std::any visitProgram(MavkaParser::ProgramContext* context) override;
@@ -284,6 +286,11 @@ namespace mavka::parser {
 
     std::any visitReturn_body_line(
         MavkaParser::Return_body_lineContext* context) override;
+
+    std::any visitMrm(MavkaParser::MrmContext* context) override;
+
+    std::any visitMrm_element(
+        MavkaParser::Mrm_elementContext* context) override;
   };
 
   class MavkaParserError : public std::exception {

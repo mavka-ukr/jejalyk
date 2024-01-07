@@ -29,6 +29,19 @@ namespace jejalyk::tools {
     return ret;
   }
 
+  std::vector<std::string> explode(const std::string& s,
+                                   const std::string& delim) {
+    std::vector<std::string> ret;
+    size_t last = 0;
+    size_t next = 0;
+    while ((next = s.find(delim, last)) != std::string::npos) {
+      ret.push_back(s.substr(last, next - last));
+      last = next + 1;
+    }
+    ret.push_back(s.substr(last));
+    return ret;
+  }
+
   std::string repeat_string(const std::string& s, size_t n) {
     std::string ret;
     for (int i = 0; i < n; i++) {
@@ -87,6 +100,18 @@ namespace jejalyk::tools {
     std::string s(source);
     s.erase(0, s.find_first_not_of(" \n\r\t"));
     s.erase(s.find_last_not_of(" \n\r\t") + 1);
+    return s;
+  }
+
+  std::string rtrim(const std::string& source) {
+    std::string s(source);
+    s.erase(s.find_last_not_of(" \n\r\t") + 1);
+    return s;
+  }
+
+  std::string ltrim(const std::string& source) {
+    std::string s(source);
+    s.erase(0, s.find_first_not_of(" \n\r\t"));
     return s;
   }
 } // namespace jejalyk::tools

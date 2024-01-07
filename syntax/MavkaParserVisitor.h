@@ -19,10 +19,6 @@ public:
   /**
    * Visit parse trees produced by MavkaParser.
    */
-    virtual std::any visitWs(MavkaParser::WsContext *context) = 0;
-
-    virtual std::any visitWss(MavkaParser::WssContext *context) = 0;
-
     virtual std::any visitNl(MavkaParser::NlContext *context) = 0;
 
     virtual std::any visitNls(MavkaParser::NlsContext *context) = 0;
@@ -111,6 +107,22 @@ public:
 
     virtual std::any visitGive_element(MavkaParser::Give_elementContext *context) = 0;
 
+    virtual std::any visitMrm(MavkaParser::MrmContext *context) = 0;
+
+    virtual std::any visitMrm_element(MavkaParser::Mrm_elementContext *context) = 0;
+
+    virtual std::any visitMrm_element_closed(MavkaParser::Mrm_element_closedContext *context) = 0;
+
+    virtual std::any visitMrm_args(MavkaParser::Mrm_argsContext *context) = 0;
+
+    virtual std::any visitMrm_arg(MavkaParser::Mrm_argContext *context) = 0;
+
+    virtual std::any visitMrm_content(MavkaParser::Mrm_contentContext *context) = 0;
+
+    virtual std::any visitMrm_chardata(MavkaParser::Mrm_chardataContext *context) = 0;
+
+    virtual std::any visitMrm_diia(MavkaParser::Mrm_diiaContext *context) = 0;
+
     virtual std::any visitGet_element(MavkaParser::Get_elementContext *context) = 0;
 
     virtual std::any visitChain(MavkaParser::ChainContext *context) = 0;
@@ -182,6 +194,8 @@ public:
     virtual std::any visitFunction(MavkaParser::FunctionContext *context) = 0;
 
     virtual std::any visitAnonymous_diia(MavkaParser::Anonymous_diiaContext *context) = 0;
+
+    virtual std::any visitExpr_mrm(MavkaParser::Expr_mrmContext *context) = 0;
 
     virtual std::any visitThrow(MavkaParser::ThrowContext *context) = 0;
 
