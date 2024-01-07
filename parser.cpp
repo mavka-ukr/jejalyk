@@ -354,6 +354,7 @@ namespace mavka::parser {
           any_to_ast_some(_visitContext(mockup_module_element_ctx));
       elements.push_back(ast_result);
     }
+    std::vector<ast::ASTSome*> give_elements;
     for (const auto element : elements) {
       const auto give_node = new ast::GiveNode();
       // give_node->start_line = element->start_line;
@@ -372,23 +373,26 @@ namespace mavka::parser {
         }
         give_element_node->name = element->MockupDiiaNode->name;
         give_node->elements.push_back(give_element_node);
-        elements.push_back(ast::make_ast_some(give_node));
+        give_elements.push_back(ast::make_ast_some(give_node));
       }
       if (element->MockupModuleNode) {
         give_element_node->name = element->MockupModuleNode->name;
         give_node->elements.push_back(give_element_node);
-        elements.push_back(ast::make_ast_some(give_node));
+        give_elements.push_back(ast::make_ast_some(give_node));
       }
       if (element->MockupSubjectNode) {
         give_element_node->name = element->MockupSubjectNode->name;
         give_node->elements.push_back(give_element_node);
-        elements.push_back(ast::make_ast_some(give_node));
+        give_elements.push_back(ast::make_ast_some(give_node));
       }
       if (element->MockupStructureNode) {
         give_element_node->name = element->MockupStructureNode->name;
         give_node->elements.push_back(give_element_node);
-        elements.push_back(ast::make_ast_some(give_node));
+        give_elements.push_back(ast::make_ast_some(give_node));
       }
+    }
+    for (const auto give_element : give_elements) {
+      elements.push_back(give_element);
     }
     return elements;
   }
@@ -437,7 +441,7 @@ namespace mavka::parser {
           std::any_cast<std::vector<ast::TypeValueSingleNode*>>(
               visitType_value(context->md_type));
     }
-    return (ast::make_ast_some(mockup_diia_node));
+    return ast::make_ast_some(mockup_diia_node);
   }
 
   std::any MavkaASTVisitor::visitMockup_subject(
@@ -602,36 +606,26 @@ namespace mavka::parser {
   }
 
   std::any MavkaASTVisitor::_visitContext(antlr4::ParserRuleContext* context) {
-    if (jejalyk::tools::instance_of<MavkaParser::NumberContext>(context)) {
-      return visitNumber(dynamic_cast<MavkaParser::NumberContext*>(context));
+    if (const auto number_context =
+            dynamic_cast<MavkaParser::NumberContext*>(context)) {
+      return visitNumber(number_context);
     }
-    if (jejalyk::tools::instance_of<MavkaParser::Value_atomContext>(context)) {
-      return visitValue_atom(
-          dynamic_cast<MavkaParser::Value_atomContext*>(context));
+    if (const auto value_atom_context =
+            dynamic_cast<MavkaParser::Value_atomContext*>(context)) {
+      return visitValue_atom(value_atom_context);
     }
-    if (jejalyk::tools::instance_of<MavkaParser::String_valueContext>(
-            context)) {
-      return visitString_value(
-          dynamic_cast<MavkaParser::String_valueContext*>(context));
+    if (const auto string_value_context =
+            dynamic_cast<MavkaParser::String_valueContext*>(context)) {
+      return visitString_value(string_value_context);
     }
-    if (jejalyk::tools::instance_of<MavkaParser::IdContext>(context)) {
-      return visitId(dynamic_cast<MavkaParser::IdContext*>(context));
+    if (const auto id_context =
+            dynamic_cast<MavkaParser::IdContext*>(context)) {
+      return visitId(id_context);
     }
-    if (jejalyk::tools::instance_of<MavkaParser::ChainContext>(context)) {
-      return visitChain(dynamic_cast<MavkaParser::ChainContext*>(context));
+    if (const auto chain_context =
+            dynamic_cast<MavkaParser::ChainContext*>(context)) {
+      return visitChain(chain_context);
     }
-    // if
-    // (jejalyk::tools::instance_of<MavkaParser::Call_with_genericsContext>(
-    //         context)) {
-    //   return visitCall_with_generics(
-    //       dynamic_cast<MavkaParser::Call_with_genericsContext*>(context));
-    // }
-    // if (jejalyk::tools::instance_of<
-    //         MavkaParser::Atom_call_with_genericsContext>(context)) {
-    //   return visitAtom_call_with_generics(
-    //       dynamic_cast<MavkaParser::Atom_call_with_genericsContext*>(
-    //           context));
-    // }
     if (jejalyk::tools::instance_of<MavkaParser::CallContext>(context)) {
       return visitCall(dynamic_cast<MavkaParser::CallContext*>(context));
     }
@@ -713,19 +707,11 @@ namespace mavka::parser {
     if (jejalyk::tools::instance_of<MavkaParser::TernaryContext>(context)) {
       return visitTernary(dynamic_cast<MavkaParser::TernaryContext*>(context));
     }
-    // if (jejalyk::tools::instance_of<MavkaParser::ArrayContext>(context)) {
-    //   return visitArray(dynamic_cast<MavkaParser::ArrayContext*>(context));
-    // }
     if (jejalyk::tools::instance_of<MavkaParser::Typeless_arrayContext>(
             context)) {
       return visitTypeless_array(
           dynamic_cast<MavkaParser::Typeless_arrayContext*>(context));
     }
-    // if (jejalyk::tools::instance_of<MavkaParser::DictionaryContext>(
-    //         context)) {
-    //   return visitDictionary(
-    //       dynamic_cast<MavkaParser::DictionaryContext*>(context));
-    // }
     if (jejalyk::tools::instance_of<MavkaParser::Typeless_dictionaryContext>(
             context)) {
       return visitTypeless_dictionary(
@@ -779,21 +765,8 @@ namespace mavka::parser {
           dynamic_cast<MavkaParser::Anonymous_diiaContext*>(context);
       return visitAnonymous_diia(anonymous_diia_context);
     }
-    // if (jejalyk::tools::instance_of<MavkaParser::Expr_mmlContext>(context)) {
-    //   const auto expr_mml_context =
-    //       dynamic_cast<MavkaParser::Expr_mmlContext*>(context);
-    //   const auto mml_text = expr_mml_context->MML()->getText();
-    //   const auto mml_node = new ast::MMLNode();
-    //   mml_node->start_line = context->getStart()->getLine();
-    //   mml_node->start_column = context->getStart()->getCharPositionInLine();
-    //   mml_node->end_line = context->getStop()->getLine();
-    //   mml_node->end_column = context->getStop()->getCharPositionInLine();
-    //   mml_node->text = mml_text;
-    //   return (ast::make_ast_some(mml_node));
-    // }
-    if (jejalyk::tools::instance_of<MavkaParser::MockupContext>(context)) {
-      const auto mockup_context =
-          dynamic_cast<MavkaParser::MockupContext*>(context);
+    if (const auto mockup_context =
+            dynamic_cast<MavkaParser::MockupContext*>(context)) {
       return visitMockup(mockup_context);
     }
     if (const auto type_value_item_context =
@@ -1928,14 +1901,16 @@ namespace mavka::parser {
         if (const auto mrm_child =
                 dynamic_cast<MavkaParser::MrmContext*>(mrm_element)) {
           // todo: handle <div> <div>2</div> </div> -> " 2 " not "2"
-          // const auto hidden_tokens_left = this->tokens->getHiddenTokensToLeft(
+          // const auto hidden_tokens_left =
+          // this->tokens->getHiddenTokensToLeft(
           //     mrm_child->getStart()->getTokenIndex(), 1);
           // const auto hidden_tokens_left_node = new ast::StringNode();
           // for (const auto token : hidden_tokens_left) {
           //   hidden_tokens_left_node->value += token->getText();
           // }
           //
-          // const auto hidden_tokens_right = this->tokens->getHiddenTokensToRight(
+          // const auto hidden_tokens_right =
+          // this->tokens->getHiddenTokensToRight(
           //     mrm_child->getStop()->getTokenIndex(), 1);
           // const auto hidden_tokens_right_node = new ast::StringNode();
           // for (const auto token : hidden_tokens_right) {
