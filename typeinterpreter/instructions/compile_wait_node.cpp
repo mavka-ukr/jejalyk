@@ -13,15 +13,24 @@ namespace jejalyk::typeinterpreter {
       return value_result;
     }
 
-    const auto result =
-        value_result->value->get_awaiting_value(scope, wait_node);
+    if (scope->get_options()->is_strict_mode()) {
+      const auto result =
+          value_result->value->get_awaiting_value(scope, wait_node);
 
-    // await а
-    const auto js_await = new js::JsAwaitNode();
-    js_await->value = value_result->js_node;
+      // await а
+      const auto js_await = new js::JsAwaitNode();
+      js_await->value = value_result->js_node;
 
-    result->js_node = js_await;
+      result->js_node = js_await;
 
-    return result;
+      return result;
+    } else {
+      const auto js_await = new js::JsAwaitNode();
+      js_await->value = value_result->js_node;
+
+      const auto js_node = js_await;
+
+      return success(value_result->value, js_node);
+    }
   }
 } // namespace typeinterpreter
