@@ -8,7 +8,7 @@
 using namespace emscripten;
 
 val compilation_options_to_val(jejalyk::typeinterpreter::Options* options) {
-  const auto options_val = val::object();
+  auto options_val = val::object();
   options_val.set(std::string("main_module_path"),
                   std::string(options->main_module_path));
   options_val.set(std::string("root_module_path"),
@@ -19,7 +19,7 @@ val compilation_options_to_val(jejalyk::typeinterpreter::Options* options) {
 }
 
 val compilation_error_to_val(jejalyk::CompilationError* error) {
-  const auto error_val = val::object();
+  auto error_val = val::object();
   error_val.set(std::string("path"), error->path);
   error_val.set(std::string("line"), error->line);
   error_val.set(std::string("column"), error->column);
@@ -29,8 +29,7 @@ val compilation_error_to_val(jejalyk::CompilationError* error) {
 
 jejalyk::typeinterpreter::GetModuleResult* val_to_get_module_result(
     val result) {
-  const auto get_module_result =
-      new jejalyk::typeinterpreter::GetModuleResult();
+  auto get_module_result = new jejalyk::typeinterpreter::GetModuleResult();
   get_module_result->error = result["error"].as<std::string>();
   get_module_result->result = result["result"].as<std::string>();
   get_module_result->builtin = result["builtin"].as<bool>();
@@ -41,9 +40,9 @@ jejalyk::typeinterpreter::GetModuleResult* get_module_name(
     bool relative,
     std::string module,
     jejalyk::typeinterpreter::Options* options) {
-  const auto mco = val::global("mavka_compilation_options");
-  const auto mco_module_name = mco["get_module_name"];
-  const auto answer =
+  auto mco = val::global("mavka_compilation_options");
+  auto mco_module_name = mco["get_module_name"];
+  auto answer =
       mco_module_name(relative, module, compilation_options_to_val(options))
           .await();
   return val_to_get_module_result(answer);
@@ -53,9 +52,9 @@ jejalyk::typeinterpreter::GetModuleResult* get_module_path(
     bool relative,
     std::string module,
     jejalyk::typeinterpreter::Options* options) {
-  const auto mco = val::global("mavka_compilation_options");
-  const auto mco_module_name = mco["get_module_path"];
-  const auto answer =
+  auto mco = val::global("mavka_compilation_options");
+  auto mco_module_name = mco["get_module_path"];
+  auto answer =
       mco_module_name(relative, module, compilation_options_to_val(options))
           .await();
   return val_to_get_module_result(answer);
@@ -65,9 +64,9 @@ jejalyk::typeinterpreter::GetModuleResult* get_module_code(
     bool relative,
     std::string module,
     jejalyk::typeinterpreter::Options* options) {
-  const auto mco = val::global("mavka_compilation_options");
-  const auto mco_module_name = mco["get_module_code"];
-  const auto answer =
+  auto mco = val::global("mavka_compilation_options");
+  auto mco_module_name = mco["get_module_code"];
+  auto answer =
       mco_module_name(relative, module, compilation_options_to_val(options))
           .await();
   return val_to_get_module_result(answer);
@@ -78,17 +77,17 @@ jejalyk::typeinterpreter::GetModuleResult* get_pak(
     std::string version,
     std::string as,
     jejalyk::typeinterpreter::Options* options) {
-  const auto mco = val::global("mavka_compilation_options");
-  const auto mco_get_pak = mco["get_pak"];
-  const auto answer =
+  auto mco = val::global("mavka_compilation_options");
+  auto mco_get_pak = mco["get_pak"];
+  auto answer =
       mco_get_pak(name, version, as, compilation_options_to_val(options))
           .await();
   return val_to_get_module_result(answer);
 }
 
 val compile(std::string code) {
-  const auto mco = val::global("mavka_compilation_options");
-  const auto options = new jejalyk::typeinterpreter::Options();
+  auto mco = val::global("mavka_compilation_options");
+  auto options = new jejalyk::typeinterpreter::Options();
   options->args = mco["args"].as<std::string>();
   options->std_code = mco["std_code"].as<std::string>();
   options->main_module_path = mco["main_module_path"].as<std::string>();
@@ -100,7 +99,7 @@ val compile(std::string code) {
   options->get_pak = &get_pak;
 
   val result = val::object();
-  const auto compilation_result = jejalyk::compile(code, options);
+  auto compilation_result = jejalyk::compile(code, options);
   if (compilation_result->error) {
     result.set(std::string("error"),
                compilation_error_to_val(compilation_result->error));
