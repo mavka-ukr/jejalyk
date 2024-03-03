@@ -24,13 +24,13 @@ namespace jejalyk {
 
     const auto empty_object = new typeinterpreter::Object();
     empty_object->name = "пусто";
-    const auto empty_type = new typeinterpreter::Type(empty_object);
+    const auto empty_type = typeinterpreter::Type::create(empty_object);
     const auto empty_subject = new typeinterpreter::Subject();
     empty_subject->add_type(empty_type);
 
     const auto object_object = new typeinterpreter::Object();
     object_object->name = "обʼєкт";
-    const auto object_type = new typeinterpreter::Type(object_object);
+    const auto object_type = typeinterpreter::Type::create(object_object);
     const auto object_subject = new typeinterpreter::Subject();
     object_subject->add_type(object_type);
 
@@ -38,14 +38,14 @@ namespace jejalyk {
     structure_object->name = "Структура";
     structure_object->structure = object_type;
     structure_object->parent = object_type;
-    const auto structure_type = new typeinterpreter::Type(structure_object);
+    const auto structure_type = typeinterpreter::Type::create(structure_object);
     const auto structure_subject = new typeinterpreter::Subject();
     structure_subject->add_type(structure_type);
 
     const auto diia_object = new typeinterpreter::Object();
     diia_object->name = "Дія";
     diia_object->structure = structure_type;
-    const auto diia_type = new typeinterpreter::Type(diia_object);
+    const auto diia_type = typeinterpreter::Type::create(diia_object);
     const auto diia_subject = new typeinterpreter::Subject();
     diia_subject->add_type(diia_type);
 

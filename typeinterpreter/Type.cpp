@@ -135,7 +135,7 @@ namespace jejalyk::typeinterpreter {
     const auto object = new Object();
     object->structure = this;
 
-    const auto type = new Type(object);
+    const auto type = create(object);
     if (generic_types.size() == this->object->generic_definitions.size()) {
       type->generic_types = generic_types;
     } else {
@@ -231,8 +231,8 @@ namespace jejalyk::typeinterpreter {
       processed_method_object->return_types = process_subject_generics(
           method_type->object, generic_definition_subjects,
           processed_method_object->return_types);
-      const auto processed_method_type = new Type(processed_method_object);
-      return new Subject({processed_method_type});
+      const auto processed_method_type = create(processed_method_object);
+      return Subject::create({processed_method_type});
     }
     return nullptr;
   }
