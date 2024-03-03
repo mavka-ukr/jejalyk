@@ -372,6 +372,32 @@ var м_тримати_вітрину = мДія(function тримати_вітр
       }
       const outputFile = rest[1];
       if (outputFile) {
+        let dir = path.dirname(outputFile);
+        while (dir.includes('\\')) {
+          dir = dir.replace('\\', '/');
+        }
+        if (dir.endsWith('/') && dir.length > 1) {
+          dir = dir.slice(0, -1);
+        }
+        let base = '';
+        if (dir.startsWith('/')) {
+          base = '/';
+          dir = dir.slice(1);
+        }
+
+        const dirSegments = dir.split('/');
+        if (base === '/' && dir.length > 0 && dirSegments.length === 0) {
+          dirSegments.push(dir);
+        }
+
+        for (const segment of dir.split('/')) {
+          const dirToCreatePath = `${base}${segment}`;
+          if (!fs.existsSync(dirToCreatePath)) {
+            fs.mkdirSync(dirToCreatePath);
+          }
+          base += `${segment}/`;
+        }
+
         fs.writeFileSync(outputFile, compilationResult.result);
       } else {
         console.log(compilationResult.result);
