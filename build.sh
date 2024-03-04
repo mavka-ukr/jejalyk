@@ -3,7 +3,7 @@ set -e
 TARGET=$1
 
 if [ "$TARGET" = "" ]; then
-    echo "Usage: build.sh <antlr4|bin|node|web|all|Obin|Onode|Oweb|Oall>"
+    echo "Usage: build.sh <antlr4|node|web|all|Onode|Oweb|Oall>"
     exit 1
 fi
 
@@ -22,14 +22,6 @@ echo "std::string MAVKA_HEAD_JS = R\"($MAVKA_HEAD_JS)\";
 std::string MAVKA_HEAD_M = R\"($MAVKA_HEAD_M)\";
 " >head.h
 
-if [ "$TARGET" = "bin" ] || [ "$TARGET" = "all" ]; then
-    mkdir -p build-bin
-    cd build-bin
-    cmake ..
-    make -j4 jejalyk
-    cd ..
-fi
-
 if [ "$TARGET" = "node" ] || [ "$TARGET" = "all" ]; then
     mkdir -p build-node
     cd build-node
@@ -43,14 +35,6 @@ if [ "$TARGET" = "web" ] || [ "$TARGET" = "all" ]; then
     cd build-web
     emcmake cmake ..
     emmake make -j4 jejalyk_web
-    cd ..
-fi
-
-if [ "$TARGET" = "Obin" ] || [ "$TARGET" = "Oall" ]; then
-    mkdir -p build-Obin
-    cd build-Obin
-    cmake ..
-    make -j4 optimized_jejalyk
     cd ..
 fi
 

@@ -137,12 +137,6 @@ npm install
 ./build.sh antlr4 # antlr4 grammar
 ```
 
-[//]: # (```shell)
-
-[//]: # (./build.sh bin # executable)
-
-[//]: # (```)
-
 ```shell
 ./build.sh node # node wasm
 ```
@@ -154,12 +148,6 @@ npm install
 ```shell
 ./build.sh all # executable and node wasm and web wasm
 ```
-
-[//]: # (```shell)
-
-[//]: # (./build.sh Obin # optimized executable)
-
-[//]: # (```)
 
 ```shell
 ./build.sh Onode # optimized node wasm
