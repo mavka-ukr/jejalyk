@@ -1,5 +1,9 @@
 # Список змін Джеджалика
 
+## [0.93.0]
+
+- https://github.com/mavka-ukr/jejalyk/pull/13
+
 ## [0.92.0]
 
 - https://github.com/mavka-ukr/jejalyk/pull/10
