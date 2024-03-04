@@ -146,7 +146,7 @@ npm install
 ```
 
 ```shell
-./build.sh all # executable and node wasm and web wasm
+./build.sh all # node wasm and web wasm
 ```
 
 ```shell
@@ -158,11 +158,11 @@ npm install
 ```
 
 ```shell
-./build.sh Oall # optimized executable and optimized node wasm and optimized web wasm
+./build.sh Oall # optimized node wasm and optimized web wasm
 ```
 
 ```shell
-./dist.sh # optimized dist (node and web)
+./dist.sh # release (node and web)
 ```
 
 ### Використання
