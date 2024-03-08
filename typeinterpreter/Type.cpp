@@ -117,6 +117,50 @@ namespace jejalyk::typeinterpreter {
     return false;
   }
 
+  bool Type::is_equal_to(Type* type) {
+    if (this->generic_definition && type->generic_definition) {
+      if (this->generic_definition->object != type->generic_definition->object) {
+        return false;
+      }
+
+      if (this->generic_definition->name != type->generic_definition->name) {
+        return false;
+      }
+    }
+
+    if (this->object && type->object) {
+      if (this->object->structure != type->object->structure) {
+        return false;
+      }
+
+      if (this->generic_types.size() != type->generic_types.size()) {
+        return false;
+      }
+
+      for (const auto& this_generic_arg : this->generic_types) {
+        for (int i = 0; i < this->generic_types.size(); ++i) {
+          const auto this_generic_arg = this->generic_types[i];
+          const auto type_generic_arg = type->generic_types[i];
+
+          if (this_generic_arg->types.size() != type_generic_arg->types.size()) {
+            return false;
+          }
+
+          for (int j = 0; j < this_generic_arg->types.size(); j++) {
+            const auto this_generic_arg_type = this_generic_arg->types[j];
+            const auto type_generic_arg_type = type_generic_arg->types[j];
+
+            if (!this_generic_arg_type->is_equal_to(type_generic_arg_type)) {
+              return false;
+            }
+          }
+        }
+      }
+    }
+
+    return true;
+  }
+
   Type* Type::create_instance(Scope* scope,
                               std::vector<Subject*> generic_types) {
     if (!this->generic_types.empty()) {

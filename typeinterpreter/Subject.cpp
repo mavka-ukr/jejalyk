@@ -27,36 +27,8 @@ namespace jejalyk::typeinterpreter {
 
   void Subject::add_type(Type* type) {
     for (const auto& existing_type : types) {
-      if (existing_type->generic_definition) {
-        if (type->generic_definition) {
-          if (existing_type->generic_definition->object ==
-              type->generic_definition->object) {
-            if (existing_type->generic_definition->name ==
-                type->generic_definition->name) {
-              // todo: check generic types
-            }
-          }
-        }
-      }
-      if (existing_type->object) {
-        if (type->object) {
-          if (existing_type->object->structure == type->object->structure) {
-            if (existing_type->generic_types.size() ==
-                type->generic_types.size()) {
-              bool generics_good = false;
-              for (int i = 0; i < existing_type->generic_types.size(); ++i) {
-                const auto existing_type_generic =
-                    existing_type->generic_types[i];
-                const auto type_generic = type->generic_types[i];
-
-                // todo: doto
-              }
-              if (generics_good) {
-                return;
-              }
-            }
-          }
-        }
+      if (existing_type->is_equal_to(type)) {
+        return;
       }
     }
     this->types.push_back(type);

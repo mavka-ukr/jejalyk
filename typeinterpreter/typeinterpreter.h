@@ -96,6 +96,8 @@ namespace jejalyk::typeinterpreter {
     std::string get_type_name();
     bool is_method(Scope* scope);
 
+    bool is_equal_to(Type* type);
+
     Type* create_instance(Scope* scope, std::vector<Subject*> generic_types);
 
     bool has(Scope* scope, std::string name);
